@@ -3658,7 +3658,7 @@ body.theme-finance  .view.on{background:#eef5f0}
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.72'; // v3.9.72 — A11y: הוסף for= ל-98 תוויות (קישור לקוראי מסך לכל שדה טופס). v3.9.71 — Polish: (1) טקסט אפור #887769→#6e5a4a (WCAG AA: 3.6→4.8:1) (2) topbar .back/.ico 40px→44px (Apple HIG min touch target). v3.9.70 — Quick Wins (6 שינויי UX, ראה היסטוריה בארכיון).
+const APP_VERSION = '3.9.74'; // v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -4585,7 +4585,7 @@ function openPhotoViewer(src, fullSrc='', meta=null){
       }
       if(meta.gps){
         const gMapUrl = `https://www.google.com/maps?q=${meta.gps.lat},${meta.gps.lng}`;
-        html += `<a href="${gMapUrl}" target="_blank" style="color:#fff;text-decoration:underline">📍 פתח במפה</a>`;
+        html += `<a href="${gMapUrl}" target="_blank" rel="noopener noreferrer" style="color:#fff;text-decoration:underline">📍 פתח במפה</a>`;
       }
       // v3.9.14 — כפתור הטבעת מצפן (רק אם יש כיוון)
       if(meta.direction){
@@ -8131,7 +8131,7 @@ ${S.business.ownerName}`;
   let phone = String(q.clientPhone).replace(/[^\d]/g, '');
   if(phone.startsWith('0')) phone = '972' + phone.slice(1);
   else if(!phone.startsWith('972') && phone.length === 9) phone = '972' + phone;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, '_blank');
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
   toast('📤 פותח וואטסאפ עם תזכורת');
 }
 
@@ -8550,6 +8550,7 @@ function startVisitPlanning(){
 function wz4Render(){
   const v = getVisit();
   if(!v){ goDash(); return; }
+  if(!S.wz){ return; }   // v3.9.74 — bail out silently if wizard is not active (e.g., fmSave fired from visit-detail)
   const step = S.wz.step;
 
   // שמור שלב נוכחי על הביקור (לשחזור ב-resumeVisit)
@@ -10225,7 +10226,7 @@ function wz4BuildPhotoReport(){
     </div>
   </body></html>`;
 
-  const w = window.open('', '_blank');
+  const w = window.open('', '_blank', 'noopener,noreferrer');
   if(w){ w.document.write(html); w.document.close(); }
   else { toast('⚠️ אפשר חלונות קופצים בדפדפן'); }
 }
@@ -13782,7 +13783,7 @@ function renderPdPortfolio(p){
       ${p.source?pdSrow('מקור',esc(p.source)):''}
       <div style="display:flex;gap:8px;margin-top:10px">
         ${p.clientPhone?`<a href="tel:${esc(p.clientPhone)}" class="btn-xs" style="flex:1;text-align:center;text-decoration:none">📞 חייג</a>`:''}
-        ${p.clientPhone?`<a href="https://wa.me/972${(p.clientPhone||'').replace(/[^0-9]/g,'').slice(1)}" class="btn-xs" style="flex:1;text-align:center;text-decoration:none" target="_blank">💬 WhatsApp</a>`:''}
+        ${p.clientPhone?`<a href="https://wa.me/972${(p.clientPhone||'').replace(/[^0-9]/g,'').slice(1)}" class="btn-xs" style="flex:1;text-align:center;text-decoration:none" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>`:''}
       </div>
     </div>
 
@@ -14876,7 +14877,7 @@ function openWhatsApp(phone, prefilledText){
   if(p.startsWith('0')) p = '972' + p.slice(1);
   else if(!p.startsWith('972') && p.length === 9) p = '972' + p;
   const url = `https://wa.me/${p}${prefilledText ? '?text=' + encodeURIComponent(prefilledText) : ''}`;
-  window.open(url, '_blank');
+  window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 
@@ -15296,7 +15297,7 @@ ${autoPrint ? `<`+`script>window.addEventListener('load', () => { setTimeout(() 
 </html>`;
 
   // Open in new window
-  const w = window.open('', '_blank');
+  const w = window.open('', '_blank', 'noopener,noreferrer');
   if(!w){
     toast('🚫 הדפדפן חסם פתיחת חלון. אפשר חלונות באתר ונסה שוב');
     return;
@@ -15393,7 +15394,7 @@ function deleteVisit(visitId){
 function openWaze(address){
   closeMo();
   const url = `https://waze.com/ul?q=${encodeURIComponent(address)}`;
-  window.open(url, '_blank');
+  window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 // V2.5 — open WhatsApp chat with phone (auto-converts to international format)
@@ -15417,9 +15418,9 @@ function qCopyAndOpenWA(){
           let p = String(phone).replace(/[^\d]/g, '');
           if(p.startsWith('0')) p = '972' + p.slice(1);
           else if(!p.startsWith('972') && p.length === 9) p = '972' + p;
-          window.open(`https://wa.me/${p}?text=${encodeURIComponent(txt)}`, '_blank');
+          window.open(`https://wa.me/${p}?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
         } else {
-          window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
+          window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
         }
       }, 300);
     }
@@ -17324,7 +17325,9 @@ function fmDelete(){
       saveAll();
       pendingFindingDeleteCheck = false;
       closeMo();
-      wzRender();
+      // v3.9.74 — fix: don't call wzRender from visit-detail (wzRender crashes if S.wz is null)
+      if(viewStack[viewStack.length - 1] === 'visit-detail') renderVisitDetail();
+      else wzRender();
       toast('🗑️ ממצא נמחק');
     }
   });
@@ -17610,8 +17613,10 @@ function fmSave(){
   // Title is valid → finding is real, no ghost-delete on close
   pendingFindingDeleteCheck = false;
   closeMo();
-  wzRender();
-  if(viewStack[viewStack.length - 1] === 'visit-detail') renderVisitDetail();
+  // v3.9.74 — fix: don't call wzRender from visit-detail (wzRender crashes if S.wz is null)
+  const inVisitDetail = viewStack[viewStack.length - 1] === 'visit-detail';
+  if(inVisitDetail) renderVisitDetail();
+  else wzRender();
 }
 
 // BUG-FIX-3: focused DOM updates. NEVER re-render modal.
@@ -18689,13 +18694,13 @@ function openTripPlanner(){
           <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.clientName||'ללא שם')}</div>
           <div style="font-size:12px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.address||'ללא כתובת')}</div>
         </div>
-        ${v.address ? `<a href="https://waze.com/ul?q=${encodeURIComponent(v.address)}&navigate=yes" target="_blank"
+        ${v.address ? `<a href="https://waze.com/ul?q=${encodeURIComponent(v.address)}&navigate=yes" target="_blank" rel="noopener noreferrer"
           style="padding:7px 12px;background:var(--blue);color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0">🚗 נווט</a>` : ''}
       </div>`).join('')}
     ${openVisits.length > 1 && openVisits[0].address ? `
       <div style="margin-top:12px">
         <a href="https://www.google.com/maps/dir/${openVisits.filter(v=>v.address).map(v=>encodeURIComponent(v.address)).join('/')}"
-          target="_blank" class="btn" style="background:var(--green);color:#fff;text-decoration:none;display:block;text-align:center;padding:13px;border-radius:12px;font-weight:800;font-size:14px">
+          target="_blank" rel="noopener noreferrer" class="btn" style="background:var(--green);color:#fff;text-decoration:none;display:block;text-align:center;padding:13px;border-radius:12px;font-weight:800;font-size:14px">
           🗺️ פתח מסלול מלא ב-Google Maps
         </a>
       </div>` : ''}
@@ -19885,7 +19890,7 @@ function ds_renderMorning(){
           <div style="font-size:18px;font-weight:900;margin-bottom:4px">${esc(v.clientName||'לקוח')}</div>
           ${addr?`<div style="font-size:13px;opacity:.85;font-weight:600;margin-bottom:14px">📍 ${addr}</div>`:''}
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            ${addr?`<button onclick="window.open('https://www.google.com/maps/search/${encodeURIComponent(v.address)}','_blank')" style="flex:1;min-width:90px;padding:11px;border-radius:11px;background:var(--gold);border:1px solid var(--gold);color:#fff;font-family:Heebo,sans-serif;font-size:13px;font-weight:800;cursor:pointer">🧭 נווט</button>`:''}
+            ${addr?`<button onclick="window.open('https://www.google.com/maps/search/${encodeURIComponent(v.address)}','_blank','noopener,noreferrer')" style="flex:1;min-width:90px;padding:11px;border-radius:11px;background:var(--gold);border:1px solid var(--gold);color:#fff;font-family:Heebo,sans-serif;font-size:13px;font-weight:800;cursor:pointer">🧭 נווט</button>`:''}
             <button onclick="S.activeVisitId='${v.id}';push('visit-detail');if(typeof renderVisitDetail==='function')renderVisitDetail('${v.id}')" style="flex:1;min-width:90px;padding:11px;border-radius:11px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:Heebo,sans-serif;font-size:13px;font-weight:800;cursor:pointer">📋 פרטים</button>
             ${phone?`<button onclick="window.location.href='tel:${phone}'" style="flex:1;min-width:90px;padding:11px;border-radius:11px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-family:Heebo,sans-serif;font-size:13px;font-weight:800;cursor:pointer">📞 חייג</button>`:''}
           </div>
@@ -20793,7 +20798,7 @@ ${photos.map(ph=>`
 </div>
 </body></html>`;
 
-  const newWin = window.open('', '_blank');
+  const newWin = window.open('', '_blank', 'noopener,noreferrer');
   if(!newWin){
     // fallback — הורדה
     const blob = new Blob([printHtml], {type:'text/html;charset=utf-8'});
@@ -21801,7 +21806,7 @@ function openAISettings(){
         כדי להפעיל פיצ'רי AI (תמלול קולי, חילוץ משימות, ניתוח שרטוטים) — נדרש Google Gemini API key.
         <br><br>
         <strong>איך משיגים:</strong><br>
-        1. היכנס ל-<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--gold2)">aistudio.google.com</a><br>
+        1. היכנס ל-<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--gold2)">aistudio.google.com</a><br>
         2. "Get API key" → "Create API key"<br>
         3. העתק את המפתח והדבק כאן
       </div>
@@ -22789,7 +22794,7 @@ ${(t.actualMaterials||[]).length ? `
 </div>
 </body></html>`;
 
-  const newWin = window.open('', '_blank');
+  const newWin = window.open('', '_blank', 'noopener,noreferrer');
   if(newWin){
     newWin.document.write(html);
     newWin.document.close();
@@ -23026,7 +23031,7 @@ ${profiles.map((sk,i)=>`
 
 </body></html>`;
 
-  const newWin = window.open('', '_blank');
+  const newWin = window.open('', '_blank', 'noopener,noreferrer');
   if(newWin){
     newWin.document.write(html);
     newWin.document.close();
