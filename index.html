@@ -3159,7 +3159,7 @@ body.theme-finance  .view.on{background:#eef5f0}
     <div class="topbar">
       <button class="back" onclick="goVisitsList()">→</button>
       <h1 class="small" id="vd-title">—</h1>
-      <button class="ico" onclick="editCurrentVisit()" title="ערוך ביקור" style="background:var(--gold-l);color:var(--gold2);border:1.5px solid var(--gold)">✏️</button>
+      <button class="ico" onclick="_fsOpen()" title="דיבור חופשי" style="background:var(--gold-l);color:var(--gold2);border:1.5px solid var(--gold)">🎙️</button>
       <button class="ico" onclick="vdMenu()" title="עוד">⋯</button>
     </div>
     <div class="body" id="vd-body"></div>
@@ -3658,7 +3658,7 @@ body.theme-finance  .view.on{background:#eef5f0}
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.74'; // v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.75'; // v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -22092,7 +22092,10 @@ function _toggleMicButtonVisibility(){
   // v3.9.55 — גם במסך סיכום יום אין צורך בכפתור צף (המסך מציג סקירה, לא לקלוט קלט)
   const dsView = document.getElementById('view-day-summary');
   const isDsActive = dsView && dsView.classList.contains('on');
-  btn.style.display = (!isDashActive && !fsIsOpen && !isDsActive) ? 'flex' : 'none';
+  // v3.9.75 — במסך צפייה בביקור הכפתור עבר ל-topbar (במקום כפתור עריכת הביקור)
+  const vdView = document.getElementById('view-visit-detail');
+  const isVdActive = vdView && vdView.classList.contains('on');
+  btn.style.display = (!isDashActive && !fsIsOpen && !isDsActive && !isVdActive) ? 'flex' : 'none';
 }
 
 
