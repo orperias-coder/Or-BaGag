@@ -4516,7 +4516,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.83'; // v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.84'; // v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -14253,6 +14253,8 @@ function pdv2Render(p){
 
   // v3.9.78 — migrate legacy p.insights[] → p.issues[] (idempotent)
   if(typeof _pdMigrateIssues === 'function') _pdMigrateIssues(p);
+  // v3.9.84 — auto-link existing tasks to catalog (idempotent)
+  if(typeof pdv2AutoLinkTasks === 'function') pdv2AutoLinkTasks(p);
   // v3.9.82 — migrate photos to IndexedDB Blobs (idempotent, async fire-and-forget)
   if(typeof _pdMigratePhotos === 'function'){
     _pdMigratePhotos(p).then(() => {
@@ -14644,6 +14646,131 @@ function pdv2SetIssueBilledStatus(issueId, status, amount){
     const labels = { in_scope:'כלול בהצעה', will_bill:'לחיוב', billed:'חויב', free:'בונוס חינם' };
     toast('✓ ' + (labels[status] || status));
   }
+}
+
+// ═══════════════════════════════════════════════
+// v3.9.84 — Catalog linking for tasks
+// ═══════════════════════════════════════════════
+
+// Returns top-N catalog matches for a query (by token overlap + substring scoring)
+function pdv2CatalogMatches(query, limit){
+  limit = limit || 5;
+  if(!query || !query.trim()) return [];
+  const q = String(query).trim().toLowerCase();
+  const qTokens = q.split(/\s+/).filter(t => t.length > 1);
+  const all = (typeof allWorkTypes === 'function') ? allWorkTypes() : (typeof UNIFIED_WORK_DATA !== 'undefined' ? UNIFIED_WORK_DATA : {});
+  const scored = [];
+  Object.entries(all).forEach(([key, wt]) => {
+    const name = (wt.name || wt.name_he || key).toLowerCase();
+    let score = 0;
+    if(name === q) score = 100;
+    else if(name.startsWith(q) || q.startsWith(name)) score = 80;
+    else if(name.includes(q) || q.includes(name)) score = 60;
+    else {
+      // token overlap
+      const nTokens = name.split(/\s+/);
+      const overlap = qTokens.filter(t => nTokens.some(n => n.includes(t) || t.includes(n))).length;
+      if(overlap > 0) score = 20 + (overlap / Math.max(qTokens.length, nTokens.length)) * 30;
+    }
+    if(score > 0) scored.push({ key, wt, score, name: wt.name || wt.name_he || key });
+  });
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit);
+}
+
+// Auto-link tasks to catalog entries + ensure task IDs (idempotent per project)
+function pdv2AutoLinkTasks(p){
+  if(!p || !Array.isArray(p.tasks)) return 0;
+  let dirty = false;
+  // Ensure every task has an id (some legacy tasks created without one)
+  p.tasks.forEach((t, i) => {
+    if(!t.id){
+      t.id = `t-${i}-${(typeof uid==='function'?uid():Date.now()+Math.random())}`;
+      dirty = true;
+    }
+  });
+  if(p._catalogLinkedAt){ if(dirty && typeof saveAll === 'function') saveAll(true); return 0; }
+  let linked = 0;
+  p.tasks.forEach(t => {
+    if(t.catalogId) return;
+    const matches = pdv2CatalogMatches(t.name, 1);
+    if(matches.length && matches[0].score >= 60){
+      t.catalogId = matches[0].key;
+      linked++;
+      dirty = true;
+    }
+  });
+  p._catalogLinkedAt = (typeof ts==='function'?ts():Date.now());
+  if(dirty && typeof saveAll === 'function') saveAll(true);
+  return linked;
+}
+
+// Manually link a task to a catalog entry
+function pdv2LinkTaskToCatalog(taskId, catalogKey){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p) return;
+  const t = (p.tasks||[]).find(x => x.id === taskId);
+  if(!t) return;
+  t.catalogId = catalogKey;
+  p.updatedAt = (typeof ts==='function'?ts():Date.now());
+  if(typeof saveAll === 'function') saveAll(true);
+  if(typeof toast === 'function') toast('✓ קושר לקטלוג');
+  if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  if(typeof renderPdTab === 'function' && (_pdTab === 'now' || _pdTab === 'report')) renderPdTab();
+}
+
+// Open a modal showing catalog match suggestions for a task name
+function pdv2ShowCatalogMatches(taskId){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p) return;
+  const t = (p.tasks||[]).find(x => x.id === taskId);
+  if(!t) return;
+  const matches = pdv2CatalogMatches(t.name, 5);
+  if(!matches.length){
+    if(typeof toast === 'function') toast('לא נמצא פריט מתאים בקטלוג');
+    pdv2OfferSaveToCatalog(taskId);
+    return;
+  }
+  if(typeof openMo !== 'function') return;
+  openMo(`
+    <div class="mo-title">🔗 קישור לקטלוג</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">"${esc(t.name)}"<br>בחר התאמה מהקטלוג:</div>
+    ${matches.map(m => `
+      <button class="btn btn-ghost" style="margin-bottom:8px;text-align:right;padding:14px;height:auto;flex-direction:column;align-items:flex-start" onclick="pdv2LinkTaskToCatalog('${esc(taskId)}','${esc(m.key)}');closeMo()">
+        <div style="font-weight:800">${esc(m.name)}</div>
+        <div style="font-size:11px;color:var(--text3);font-weight:500;margin-top:3px">דיוק: ${Math.round(m.score)}% · ${esc(m.wt.category||'')}</div>
+      </button>
+    `).join('')}
+    <button class="btn btn-ghost" style="margin-top:6px" onclick="pdv2OfferSaveToCatalog('${esc(taskId)}')">💾 שמור כפריט חדש בקטלוג</button>
+  `);
+}
+
+// Save a project task as a new catalog entry
+function pdv2OfferSaveToCatalog(taskId){
+  closeMo && closeMo();
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p) return;
+  const t = (p.tasks||[]).find(x => x.id === taskId);
+  if(!t) return;
+  if(!S.workTypeTemplates) S.workTypeTemplates = {};
+  const key = (t.name||'').trim().toLowerCase();
+  if(!key){ toast && toast('שם ריק'); return; }
+  if(S.workTypeTemplates[key]){ toast && toast('כבר קיים בקטלוג — הוסף ▣'); t.catalogId = key; saveAll(true); return; }
+  S.workTypeTemplates[key] = {
+    name: t.name,
+    category: t.category || '',
+    unit: t.unit || 'יח\'',
+    pricing: t.price ? { type: 'fixed', base: parseFloat(t.price) } : null,
+    steps: (t.steps||[]).map(s => ({ name: s.name })),
+    materials: [],
+    tools: [],
+    createdAt: ts(),
+    source: 'project'
+  };
+  t.catalogId = key;
+  saveAll && saveAll(true);
+  toast && toast('💾 נשמר לקטלוג');
+  if(typeof renderPdTab === 'function') renderPdTab();
 }
 
 // v3.9.83 — modal for editing scope/billing
@@ -15823,6 +15950,10 @@ function renderPdNow(p){
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
             ${_taskLink(task.name)}
+            ${task.catalogId
+              ? `<span title="מקושר לקטלוג" onclick="event.stopPropagation();pdv2ShowCatalogMatches('${esc(task.id||'')}')" style="cursor:pointer;color:var(--gold2);font-size:12px;flex-shrink:0">▣</span>`
+              : `<span title="הצע קישור לקטלוג" onclick="event.stopPropagation();pdv2ShowCatalogMatches('${esc(task.id||'')}')" style="cursor:pointer;color:var(--text3);font-size:11px;flex-shrink:0;opacity:.6">⊕</span>`
+            }
           </div>
           <!-- progress bar לסעיף -->
           <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
