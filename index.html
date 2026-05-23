@@ -4026,6 +4026,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
         <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🔧 אבחון</div>
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowVisitData()">🔍 נתוני ביקור אחרון</button>
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowProjectData()">🔍 נתוני פרויקט אחרון</button>
+        <button class="btn btn-gold btn-sm" style="width:100%;margin-bottom:8px" onclick="seedPerlsteinProject()">🌅 טען פרויקט פרלשטיין (דמו)</button>
         <div id="debug-output-area" style="display:none;background:var(--ink3);border-radius:10px;padding:12px;font-size:11px;font-family:monospace;word-break:break-all;white-space:pre-wrap;max-height:300px;overflow-y:auto;margin-top:8px;direction:ltr;text-align:left"></div>
       </div>
     </div>
@@ -4205,7 +4206,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.76'; // v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.77'; // v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -19900,6 +19901,124 @@ function debugShowProjectData(){
   if(el){ el.style.display='block'; el.textContent = JSON.stringify(data, null, 2); }
 }
 
+// ═══════════════════════════════════════════════════════
+// SEED — Perlstein demo project (from perlstein_raw.md)
+// Loaded from settings → opens directly into the new project screen.
+// Idempotent: if the project already exists, just opens it.
+// ═══════════════════════════════════════════════════════
+function seedPerlsteinProject(){
+  const SEED_ID = 'demo-perlstein';
+  const existing = (S.projects||[]).find(p => p.id === SEED_ID);
+  if(existing){
+    S.activeProjectId = existing.id;
+    viewStack = ['dash','projects-list','project-detail'];
+    show('project-detail');
+    renderProjectDetail();
+    if(typeof toast === 'function') toast('פרלשטיין כבר טעון — נפתח');
+    return;
+  }
+
+  // 29/04/2026 — Tuesday of week 1
+  const startDate = new Date(2026, 3, 29).getTime(); // month is 0-indexed → April
+
+  const mkSteps = (names, doneCount) => names.map((n, i) => ({
+    name: n,
+    done: i < doneCount,
+    doneAt: i < doneCount ? startDate + (i+1) * 86400000 : undefined
+  }));
+
+  const tasks = [
+    { name: 'חידוש רוכבים', category: 'ridge', price: 4500,
+      steps: mkSteps(['שיוף ופירוק ישנים','התקנת רוכבים חדשים','איטום חיבורים'], 3) },
+    { name: 'החלפת תעלות פנימיות (28.5 מ׳)', category: 'gutter_internal', price: 8500,
+      steps: mkSteps(['פירוק תעלות ישנות','מדידה והכנת חומר','התקנת מקטע 14 מ׳','התקנת יתרת המקטעים'], 4) },
+    { name: 'התקנת קופינג היקפי', category: 'coping', price: 6200,
+      steps: mkSteps(['מדידת פינות','הכנת חומר','התקנה היקפית'], 3) },
+    { name: 'קידוח מרזבים חיצוניים', category: 'drain', price: 1800,
+      steps: mkSteps(['סימון','קידוח'], 2) },
+    { name: 'התקנת צינורות חיצוניים', category: 'pipe', price: 3400,
+      steps: mkSteps(['הכנת חיבורים','התקנה','השלמת צינור ירידה אחרון'], 3) },
+    { name: 'איטום תעלה בוואן', category: 'sealing', price: 2200,
+      steps: mkSteps(['ניקוי','שכבה ראשונה','שכבה סופית'], 0) },
+    { name: 'איטום ופחחות לחלון גג', category: 'flashing', price: 3100,
+      steps: mkSteps(['פירוק קיים','פחחות חדשה','איטום סופי'], 2) },
+    { name: 'גגון דוד+מזגנים (בלת״ם)', category: 'other', price: 4200,
+      steps: mkSteps(['מדידה ותכנון','התקנה ואיטום'], 0) },
+  ];
+
+  const workers = [
+    { id: 'w-or',     name: 'אור',    dailyRate: 1200 },
+    { id: 'w-ron',    name: 'רון',    dailyRate: 800 },
+    { id: 'w-aviran', name: 'אבירן',  dailyRate: 700 },
+  ];
+
+  const day = i => startDate + i * 86400000;
+  const issues = [
+    // ── בלת״מים ──
+    { id: 'b-gagon',   kind:'blatam', tag:'תוספת בתשלום', severity:'good',
+      text:'גגון דוד+מזגנים — לא נצפה בהצעה (תומחר מצילומי לוויין). הועלה מול הלקוחות, סוכם כתוספת בתשלום.',
+      source:'manual', resolved:false, createdAt: day(1) },
+    { id: 'b-tashtit', kind:'blatam', tag:'עלות לא מתוכננת', severity:'warn',
+      text:'תשתית רעועה — נשברו לטות/מרישים והובאו ~15 רעפים חדשים. חומר לא תומחר בהצעה המקורית.',
+      source:'manual', resolved:false, createdAt: day(2) },
+    { id: 'b-tealamore', kind:'blatam', tag:'תוספת בתשלום', severity:'good',
+      text:'מקטע תעלה נוסף 2 מ׳ — לא תוכמן. עודכן ללקוחות במקום, הסכימו.',
+      source:'manual', resolved:false, createdAt: day(10) },
+    { id: 'b-bonus',   kind:'blatam', tag:'בונוס ללקוח', severity:'good',
+      text:'3 מוקדי צנרת חודרת + ארובה — לא קיבלו חשיבות בהצעה. בוצע טיפול ואיטום ללא חיוב.',
+      source:'manual', resolved:false, createdAt: day(11) },
+    { id: 'b-ziv',     kind:'blatam', tag:'בטיחות', severity:'warn',
+      text:'פציעת זיו (צלם) — רסיס מרעיון לסרטון. דורש שיחה על נהלי בטיחות בעת צילום באתר.',
+      source:'manual', resolved:false, createdAt: day(10) },
+    // ── תובנות מקצועיות ──
+    { id: 'i-coping',  kind:'insight', tag:'תובנה',
+      text:'קופינג — קודם כל פינות. תמיד למדוד פינות פנימיות וחיצוניות ראשונות; בפינות יש עיבוי תשתית שמשבש מידות.',
+      source:'manual', resolved:false, createdAt: day(7) },
+    { id: 'i-hizook',  kind:'insight', tag:'תובנה',
+      text:'חיזוק נסתר — מלמטה למעלה: 1.5 כלפי מעלה → תופסן+לשונית → בורג כלפי ה-3 → החלק הבא מתיישב → תפירה מושכת למטה.',
+      source:'manual', resolved:false, createdAt: day(9) },
+    { id: 'i-shipua',  kind:'insight', severity:'warn', tag:'תובנה',
+      text:'לבדוק שיפוע לפני חיבור תעלה. רון לא בדק — תוקן. צ׳קליסט: לפני כל חיבור תעלה — לוודא שיפוע.',
+      source:'manual', resolved:false, createdAt: day(10) },
+  ];
+
+  const project = {
+    id: SEED_ID,
+    clientName: 'ליליאן וסרג׳יו פרלשטיין',
+    clientPhone: '',
+    clientAddress: 'שוודיה 24, חיפה',
+    title: 'פרלשטיין — שיפוץ גג',
+    status: 'active',
+    source: 'demo',
+    sourceVisitId: null,
+    _pullDone: true,
+    actualStartDate: startDate,
+    plannedStartDate: startDate,
+    visitDate: startDate - 7 * 86400000,
+    createdAt: startDate,
+    updatedAt: Date.now(),
+    tasks,
+    progressPhotos: { before: [], during: [], after: [] },
+    workers,
+    payments: [],
+    issues,
+    roofType: 'רעפים',
+    roofMeters: 28.5,
+    notes: 'שיפוץ גג מלא. אופן תמחור ההצעה: ביקורים קודמים + צילומי לוויין (לא עלייה לגג בשלב ההצעה). הוזכרו: עירון (לאימות), זיו (צלם).',
+    estimatedDays: 14,
+    vatRate: 18
+  };
+
+  if(!Array.isArray(S.projects)) S.projects = [];
+  S.projects.unshift(project);
+  if(typeof saveAll === 'function') saveAll(true);
+
+  S.activeProjectId = project.id;
+  viewStack = ['dash','projects-list','project-detail'];
+  show('project-detail');
+  renderProjectDetail();
+  if(typeof toast === 'function') toast('🌅 פרלשטיין נטען — 8 סעיפים, 5 בלת״מים, 3 תובנות');
+}
 
 // ═══════════════════════════════════════════════════════
 // DAILY SUMMARY SYSTEM v1.0
