@@ -3288,6 +3288,184 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ─── v3.9.78 additions: gallery + summaries + confirm sheet ─── */
+
+/* Gallery tabs */
+#view-project-detail.pdv2 .pdv2-gal-tabs {
+  display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap;
+}
+#view-project-detail.pdv2 .pdv2-gal-tabs button {
+  background: var(--pd-stone); border: 1px solid var(--pd-hairline-2);
+  border-radius: 12px; padding: 8px 14px;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  color: var(--pd-ink2); cursor: pointer;
+  transition: all .18s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-gal-tabs button.on {
+  background: var(--pd-amber-l); color: var(--pd-amber);
+  border-color: var(--pd-amber);
+}
+#view-project-detail.pdv2 .pdv2-gal-tabs button:active { transform: scale(.95); }
+#view-project-detail.pdv2 .pdv2-gal-add {
+  margin-right: auto;
+  background: linear-gradient(140deg, var(--pd-sun), var(--pd-sun-deep)) !important;
+  color: #fff !important; border-color: transparent !important;
+}
+#view-project-detail.pdv2 .pdv2-gal-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+#view-project-detail.pdv2 .pdv2-gal-thumb {
+  aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+  background: var(--pd-stone); cursor: pointer;
+  box-shadow: var(--pd-sh-1);
+  transition: transform .18s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-gal-thumb img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+#view-project-detail.pdv2 .pdv2-gal-thumb:active { transform: scale(.97); }
+
+/* Sheet footer (sticky action bar) */
+#view-project-detail.pdv2 .pdv2-sh-foot {
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  background: var(--pd-plaster);
+  border-top: 1px solid var(--pd-hairline);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  flex-shrink: 0;
+}
+#view-project-detail.pdv2 .pdv2-sh-foot button {
+  padding: 12px 14px; border-radius: 14px;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: transform .18s var(--pd-ease);
+  border: 1px solid var(--pd-hairline-2);
+  background: linear-gradient(145deg, #ede2cd, var(--pd-stone));
+  color: var(--pd-ink);
+}
+#view-project-detail.pdv2 .pdv2-sh-foot button:active { transform: scale(.97); }
+#view-project-detail.pdv2 .pdv2-sh-foot .pdv2-btn-primary {
+  background: linear-gradient(140deg, var(--pd-sun), var(--pd-sun-deep));
+  color: #fff; border-color: transparent;
+  box-shadow: 0 4px 14px var(--pd-sun-glow);
+}
+
+/* Client summary content */
+#view-project-detail.pdv2 .pdv2-client-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-bottom: 16px; border-radius: 16px; overflow: hidden;
+  background: var(--pd-stone);
+}
+#view-project-detail.pdv2 .pdv2-client-hero.single { grid-template-columns: 1fr; }
+#view-project-detail.pdv2 .pdv2-client-hero > div {
+  position: relative; aspect-ratio: 4/3;
+  background: linear-gradient(140deg, var(--pd-sun), var(--pd-sun-deep));
+  display: flex; align-items: flex-end; justify-content: flex-start;
+  padding: 10px 14px;
+}
+#view-project-detail.pdv2 .pdv2-client-hero img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+#view-project-detail.pdv2 .pdv2-client-hero .pdv2-hero-label {
+  position: relative; z-index: 2; color: #fff; font-weight: 800; font-size: 14px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+  background: rgba(0,0,0,.35); padding: 4px 10px; border-radius: 10px;
+}
+
+#view-project-detail.pdv2 .pdv2-task-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--pd-stone);
+}
+#view-project-detail.pdv2 .pdv2-task-row:last-child { border-bottom: none; }
+#view-project-detail.pdv2 .pdv2-task-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--pd-stone); color: var(--pd-ink2);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; flex-shrink: 0;
+}
+#view-project-detail.pdv2 .pdv2-task-name {
+  flex: 1; font-size: 14px; font-weight: 600; color: var(--pd-ink);
+}
+#view-project-detail.pdv2 .pdv2-badge {
+  font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 10px;
+  white-space: nowrap;
+}
+#view-project-detail.pdv2 .pdv2-badge-done {
+  background: var(--pd-sage-l); color: var(--pd-sage);
+}
+#view-project-detail.pdv2 .pdv2-badge-active {
+  background: var(--pd-amber-l); color: var(--pd-amber);
+}
+#view-project-detail.pdv2 .pdv2-badge-pending {
+  background: var(--pd-stone); color: var(--pd-ink3);
+}
+#view-project-detail.pdv2 .pdv2-section-title {
+  font-size: 13px; font-weight: 800; color: var(--pd-ink3);
+  margin-top: 18px; margin-bottom: 8px;
+}
+
+/* Manager summary cards */
+#view-project-detail.pdv2 .pdv2-mgr-card {
+  background: #fff; border-radius: 16px; padding: 18px 20px;
+  margin-bottom: 10px; border: 1px solid var(--pd-hairline);
+  box-shadow: var(--pd-sh-1);
+}
+#view-project-detail.pdv2 .pdv2-mgr-card-label {
+  font-size: 12px; font-weight: 700; color: var(--pd-ink3);
+  margin-bottom: 6px; letter-spacing: .2px;
+}
+#view-project-detail.pdv2 .pdv2-mgr-card-num {
+  font-size: 28px; font-weight: 900; color: var(--pd-ink);
+  line-height: 1.1; letter-spacing: -.5px;
+}
+#view-project-detail.pdv2 .pdv2-mgr-card-num.sage   { color: var(--pd-sage); }
+#view-project-detail.pdv2 .pdv2-mgr-card-num.amber  { color: var(--pd-amber); }
+#view-project-detail.pdv2 .pdv2-mgr-card-num.danger { color: var(--pd-danger); }
+#view-project-detail.pdv2 .pdv2-mgr-card-sub {
+  font-size: 13px; color: var(--pd-ink3); margin-top: 4px; line-height: 1.5;
+}
+#view-project-detail.pdv2 .pdv2-mgr-row {
+  display: flex; justify-content: space-between; padding: 8px 0;
+  border-bottom: 1px solid var(--pd-stone);
+  font-size: 13px;
+}
+#view-project-detail.pdv2 .pdv2-mgr-row:last-child { border-bottom: none; }
+#view-project-detail.pdv2 .pdv2-mgr-row span:first-child { color: var(--pd-ink2); }
+#view-project-detail.pdv2 .pdv2-mgr-row span:last-child  { color: var(--pd-ink); font-weight: 700; }
+
+/* Confirm bubble (after voice input) */
+#view-project-detail.pdv2 .pdv2-confirm-bubble {
+  position: absolute; bottom: 24px; left: 16px; right: 16px;
+  z-index: 200;
+  background: var(--pd-amber-l); color: var(--pd-ink);
+  border: 1px solid var(--pd-amber); border-radius: 16px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--pd-sh-3);
+  font-size: 14px; font-weight: 600;
+  animation: pdv2-bubble-in .35s var(--pd-spring);
+}
+#view-project-detail.pdv2 .pdv2-confirm-bubble.out {
+  animation: pdv2-bubble-out .25s var(--pd-ease) forwards;
+}
+@keyframes pdv2-bubble-in {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes pdv2-bubble-out {
+  to { transform: translateY(20px); opacity: 0; }
+}
+#view-project-detail.pdv2 .pdv2-confirm-bubble-text { flex: 1; }
+#view-project-detail.pdv2 .pdv2-confirm-bubble-undo {
+  background: var(--pd-amber); color: #fff;
+  border: none; padding: 7px 14px; border-radius: 10px;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; flex-shrink: 0;
+}
+#view-project-detail.pdv2 .pdv2-confirm-bubble-ring {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: conic-gradient(var(--pd-amber) var(--pdv2-ring-pct, 100%), transparent 0);
+  flex-shrink: 0;
+}
 /* ─── end RISING SUN ─── */
 </style>
 </head>
@@ -3701,7 +3879,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
         </div>
         <button class="pdv2-ic" onclick="pdMenu()" aria-label="תפריט">⋯</button>
       </div>
-      <div class="pdv2-ph-count pdv2-a pdv2-a1" id="pdv2-ph-count" onclick="pdv2OpenSheet('data')" style="display:none">
+      <div class="pdv2-ph-count pdv2-a pdv2-a1" id="pdv2-ph-count" onclick="pdv2OpenSheet('gallery')" style="display:none">
         <div class="pdv2-cam"></div><span id="pdv2-ph-num">0</span>
       </div>
     </div>
@@ -3767,6 +3945,48 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
         <div class="pdv2-sh-sub" id="pdv2-sh-insights-sub">—</div>
       </div>
       <div class="pdv2-sh-body" id="pdv2-sh-insights-body"></div>
+    </div>
+
+    <!-- v3.9.78: Gallery sheet -->
+    <div class="pdv2-sh-panel" id="pdv2-sh-gallery">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title">תיק תמונות</div>
+        <div class="pdv2-sh-sub" id="pdv2-sh-gallery-sub">—</div>
+        <div class="pdv2-gal-tabs" id="pdv2-gal-tabs">
+          <button data-phase="before" onclick="pdv2GallerySetPhase('before')">לפני</button>
+          <button data-phase="during" onclick="pdv2GallerySetPhase('during')" class="on">תוך כדי</button>
+          <button data-phase="after"  onclick="pdv2GallerySetPhase('after')">אחרי</button>
+          <button class="pdv2-gal-add" onclick="pdv2GalleryQuickPhoto()">+ צלם</button>
+        </div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-gallery-body"></div>
+    </div>
+
+    <!-- v3.9.78: Client summary sheet -->
+    <div class="pdv2-sh-panel" id="pdv2-sh-client">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title">סיכום ללקוח</div>
+        <div class="pdv2-sh-sub" id="pdv2-sh-client-sub">—</div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-client-body"></div>
+      <div class="pdv2-sh-foot">
+        <button class="pdv2-btn-primary" onclick="pdv2ShareClient('whatsapp')">וואטסאפ</button>
+        <button onclick="pdv2ShareClient('share')">שיתוף מערכת</button>
+        <button onclick="pdv2ShareClient('html')">פתח HTML</button>
+        <button onclick="pdv2ShareClient('png')">תמונה</button>
+      </div>
+    </div>
+
+    <!-- v3.9.78: Manager summary sheet -->
+    <div class="pdv2-sh-panel" id="pdv2-sh-manager">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title">סיכום מנהלים</div>
+        <div class="pdv2-sh-sub">לעיניך בלבד</div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-manager-body"></div>
     </div>
 
     <!-- Legacy DOM kept hidden so legacy callers (pd-fx, pd-modal, pd-body) don't NPE -->
@@ -4206,7 +4426,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.77'; // v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.78'; // v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -13826,6 +14046,11 @@ function pdv2Render(p){
   const root = document.getElementById('view-project-detail');
   if(!root) return;
 
+  // v3.9.78 — migrate legacy p.insights[] → p.issues[] (idempotent)
+  if(typeof _pdMigrateIssues === 'function') _pdMigrateIssues(p);
+  // v3.9.78 — reset gallery phase on each project open
+  _pdv2GalleryPhase = 'during';
+
   // identity
   const nameEl = document.getElementById('pdv2-name');
   const detailEl = document.getElementById('pdv2-detail');
@@ -14094,6 +14319,573 @@ function pdv2RowItem(it, kind){
   </div>`;
 }
 
+// ═══════════════════════════════════════════════
+// v3.9.78 — Migration: p.insights[] → p.issues[]
+// (legacy free-talk wrote insights as separate array; new screen uses unified issues)
+// ═══════════════════════════════════════════════
+function _pdMigrateIssues(p){
+  if(!p) return;
+  if(p._issuesMigratedAt) return;
+  if(!Array.isArray(p.issues)) p.issues = [];
+  if(Array.isArray(p.insights) && p.insights.length){
+    p.insights.forEach(it => {
+      if(!it || (!it.text && typeof it !== 'string')) return;
+      p.issues.push({
+        id: it.id || (typeof uid==='function'?uid():String(Date.now()+Math.random())),
+        kind: 'insight',
+        text: typeof it === 'string' ? it : (it.text || ''),
+        severity: null,
+        tag: null,
+        source: 'legacy',
+        resolved: false,
+        createdAt: it.ts || (typeof ts==='function'?ts():Date.now())
+      });
+    });
+    delete p.insights;
+  }
+  p._issuesMigratedAt = (typeof ts==='function'?ts():Date.now());
+  if(typeof saveAll === 'function') saveAll(true);
+}
+
+// ═══════════════════════════════════════════════
+// v3.9.78 — Confirm bubble with undo (after free-talk applies)
+// ═══════════════════════════════════════════════
+let _pdv2ConfirmTimer = null;
+function _pdShowConfirmSheet(counts, undoFn){
+  const root = document.getElementById('view-project-detail');
+  if(!root) return;
+  // remove any prior bubble
+  const prior = document.getElementById('pdv2-confirm-bubble');
+  if(prior) prior.remove();
+  if(_pdv2ConfirmTimer){ clearTimeout(_pdv2ConfirmTimer); _pdv2ConfirmTimer = null; }
+
+  const parts = [];
+  if(counts.blatamim > 0) parts.push(counts.blatamim + (counts.blatamim === 1 ? ' בלת״ם' : ' בלת״מים'));
+  if(counts.insights > 0) parts.push(counts.insights + (counts.insights === 1 ? ' תובנה' : ' תובנות'));
+  const text = 'נוספו: ' + parts.join(', ');
+
+  const bubble = document.createElement('div');
+  bubble.id = 'pdv2-confirm-bubble';
+  bubble.className = 'pdv2-confirm-bubble';
+  bubble.innerHTML = `
+    <div class="pdv2-confirm-bubble-ring" id="pdv2-confirm-ring"></div>
+    <div class="pdv2-confirm-bubble-text">${esc(text)}</div>
+    <button class="pdv2-confirm-bubble-undo" onclick="_pdConfirmBubbleUndo()">בטל</button>
+  `;
+  root.appendChild(bubble);
+
+  // store undo for later
+  window._pdv2ConfirmUndoFn = undoFn;
+
+  // 6s countdown
+  const startedAt = Date.now();
+  const tick = () => {
+    const elapsed = Date.now() - startedAt;
+    const pct = Math.max(0, 100 - (elapsed / 6000) * 100);
+    bubble.style.setProperty('--pdv2-ring-pct', pct + '%');
+    if(elapsed < 6000){
+      _pdv2ConfirmTimer = setTimeout(tick, 80);
+    } else {
+      _pdHideConfirmSheet();
+    }
+  };
+  tick();
+}
+function _pdHideConfirmSheet(){
+  const b = document.getElementById('pdv2-confirm-bubble');
+  if(!b) return;
+  b.classList.add('out');
+  setTimeout(()=>b.remove(), 260);
+  if(_pdv2ConfirmTimer){ clearTimeout(_pdv2ConfirmTimer); _pdv2ConfirmTimer = null; }
+  window._pdv2ConfirmUndoFn = null;
+}
+function _pdConfirmBubbleUndo(){
+  if(typeof window._pdv2ConfirmUndoFn === 'function'){
+    window._pdv2ConfirmUndoFn();
+  }
+  _pdHideConfirmSheet();
+}
+function _pdUndoLastAdd(p, addedIds){
+  if(!p) return;
+  const toRemove = new Set([...(addedIds.blatamim||[]), ...(addedIds.insights||[])]);
+  if(!toRemove.size) return;
+  p.issues = (p.issues||[]).filter(it => !toRemove.has(it.id));
+  p.updatedAt = (typeof ts==='function'?ts():Date.now());
+  if(typeof saveAll === 'function') saveAll(true);
+  if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  if(typeof toast === 'function') toast('בוטל');
+}
+
+// ═══════════════════════════════════════════════
+// v3.9.78 — Gallery sheet (photo album)
+// ═══════════════════════════════════════════════
+let _pdv2GalleryPhase = 'during';
+function pdv2RenderSheetGallery(p){
+  if(!p) return;
+  const sub = document.getElementById('pdv2-sh-gallery-sub');
+  if(sub) sub.textContent = pdv2CountPhotos(p) + ' תמונות · ' + (p.clientName||'—');
+
+  // sync active tab
+  const tabsEl = document.getElementById('pdv2-gal-tabs');
+  if(tabsEl){
+    tabsEl.querySelectorAll('button[data-phase]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.phase === _pdv2GalleryPhase);
+    });
+  }
+
+  const body = document.getElementById('pdv2-sh-gallery-body');
+  if(!body) return;
+  const photos = (p.progressPhotos && p.progressPhotos[_pdv2GalleryPhase]) || [];
+  if(!photos.length){
+    body.innerHTML = `<div class="pdv2-empty">אין תמונות בשלב הזה.<br>לחץ "+ צלם" כדי להוסיף.</div>`;
+    return;
+  }
+  body.innerHTML = `<div class="pdv2-gal-grid">
+    ${photos.map(ph => {
+      const src = ph.data || ph.thumbnail || ph.dataFull || (typeof ph==='string'?ph:'');
+      const full = ph.dataFull || ph.data || src;
+      if(!src || !src.startsWith('data:')) return '';
+      const meta = ph.meta ? JSON.stringify(ph.meta).replace(/"/g,'&quot;') : 'null';
+      return `<div class="pdv2-gal-thumb" onclick="openPhotoViewer('${full}','${full}', ${meta!=='null'?meta:'null'})">
+        <img src="${src}" alt="" loading="lazy">
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function pdv2GallerySetPhase(phase){
+  if(phase !== 'before' && phase !== 'during' && phase !== 'after') return;
+  _pdv2GalleryPhase = phase;
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(p) pdv2RenderSheetGallery(p);
+}
+function pdv2GalleryQuickPhoto(){
+  // set the global the legacy capture flow uses, then invoke it
+  if(typeof window !== 'undefined') window._pdPhotoPhase = _pdv2GalleryPhase;
+  if(typeof pdQuickPhoto === 'function'){
+    pdQuickPhoto();
+    // pdQuickPhoto saves async; re-render gallery + project screen shortly after to reflect
+    const refresh = () => {
+      const p = (typeof getProject === 'function') ? getProject() : null;
+      if(!p) return;
+      if(_pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
+      pdv2Render(p);
+    };
+    setTimeout(refresh, 800);
+    setTimeout(refresh, 2500);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// v3.9.78 — Client + Manager summaries
+// ═══════════════════════════════════════════════
+
+function pdv2TaskStatus(t){
+  const steps = t.steps || [];
+  if(!steps.length) return t.status === 'done' ? 'done' : 'pending';
+  const doneCount = steps.filter(s=>s.done).length;
+  if(doneCount === 0) return 'pending';
+  if(doneCount === steps.length) return 'done';
+  return 'active';
+}
+
+function pdv2RenderSheetClient(p){
+  const sub = document.getElementById('pdv2-sh-client-sub');
+  if(sub) sub.textContent = [p.clientName, p.clientAddress].filter(Boolean).join(' · ');
+  const body = document.getElementById('pdv2-sh-client-body');
+  if(!body) return;
+
+  const pp = p.progressPhotos || {};
+  const beforeSrc = (pp.before||[])[0]?.data || (pp.before||[])[0]?.dataFull;
+  const afterSrc  = (pp.after ||[])[0]?.data || (pp.after ||[])[0]?.dataFull;
+  let heroHtml = '';
+  if(beforeSrc && afterSrc){
+    heroHtml = `<div class="pdv2-client-hero">
+      <div><img src="${beforeSrc}" alt=""><div class="pdv2-hero-label">לפני</div></div>
+      <div><img src="${afterSrc}" alt=""><div class="pdv2-hero-label">אחרי</div></div>
+    </div>`;
+  } else {
+    const single = afterSrc || beforeSrc || pdv2HeroPhoto(p);
+    if(single){
+      heroHtml = `<div class="pdv2-client-hero single">
+        <div><img src="${single}" alt=""></div>
+      </div>`;
+    } else {
+      heroHtml = `<div class="pdv2-client-hero single">
+        <div><div class="pdv2-hero-label">${esc(p.clientName||'')}</div></div>
+      </div>`;
+    }
+  }
+
+  const tasks = (p.tasks||[]).slice(0, 8);
+  const tasksHtml = tasks.map((t, i) => {
+    const st = pdv2TaskStatus(t);
+    const stLbl = st === 'done' ? 'בוצע' : st === 'active' ? 'בעבודה' : 'לפנינו';
+    return `<div class="pdv2-task-row">
+      <div class="pdv2-task-num">${i+1}</div>
+      <div class="pdv2-task-name">${esc(t.name||'—')}</div>
+      <div class="pdv2-badge pdv2-badge-${st}">${stLbl}</div>
+    </div>`;
+  }).join('');
+
+  const bonuses = (p.issues||[]).filter(i =>
+    i.kind === 'blatam' && i.severity === 'good' && !i.resolved
+  );
+  const bonusHtml = bonuses.length ? `
+    <div class="pdv2-section-title">תוספות שטיפלנו ללא חיוב</div>
+    ${bonuses.map(b => `<div class="pdv2-task-row">
+      <div class="pdv2-task-num" style="background:var(--pd-sage-l);color:var(--pd-sage)">+</div>
+      <div class="pdv2-task-name">${esc(b.text||'—')}</div>
+    </div>`).join('')}
+  ` : '';
+
+  const pct = projProgress(p);
+  body.innerHTML = `
+    ${heroHtml}
+    <div class="pdv2-section-title">סיכום העבודה</div>
+    <div style="font-size:14px;color:var(--pd-ink2);margin-bottom:12px;line-height:1.6">
+      ${esc(p.clientName||'')} · ${esc(p.clientAddress||'')}<br>
+      <b>${pct}% הושלם</b> · ${tasks.length} סעיפי עבודה
+    </div>
+    <div>${tasksHtml}</div>
+    ${bonusHtml}
+  `;
+}
+
+function pdv2CalcManagerStats(p){
+  const revenue = projRevenue(p);
+  const expenses = (p.expenses||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0), 0);
+  const profit = revenue - expenses;
+  const marginPct = revenue > 0 ? Math.round(profit/revenue*100) : 0;
+  const received = totalReceived(p);
+  const due = totalDue(p);
+
+  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  let workdays = 0;
+  if(start){
+    const dayMs = 86400000;
+    const days = Math.floor((Date.now() - start) / dayMs) + 1;
+    // exclude Saturdays (day 6 in JS)
+    for(let i=0; i<days; i++){
+      const d = new Date(start + i*dayMs);
+      if(d.getDay() !== 6) workdays++;
+    }
+  }
+
+  const issues = Array.isArray(p.issues) ? p.issues.filter(i=>!i.resolved) : [];
+  const blatamWarn = issues.filter(i=>i.kind==='blatam' && i.severity==='warn');
+  const blatamGood = issues.filter(i=>i.kind==='blatam' && i.severity==='good');
+  const insightsCount = issues.filter(i=>i.kind==='insight').length;
+
+  return {
+    revenue, expenses, profit, marginPct, received, due,
+    workdays, dailyAvg: workdays > 0 ? Math.round(profit/workdays) : 0,
+    blatamWarn, blatamGood, insightsCount,
+    workers: p.workers || []
+  };
+}
+
+function pdv2RenderSheetManager(p){
+  const body = document.getElementById('pdv2-sh-manager-body');
+  if(!body) return;
+  const s = pdv2CalcManagerStats(p);
+  const profitClass = s.marginPct >= 25 ? 'sage' : s.marginPct >= 10 ? 'amber' : 'danger';
+
+  const workersHtml = s.workers.length
+    ? s.workers.map(w => `<div class="pdv2-mgr-row">
+        <span>${esc(w.name||'—')}</span>
+        <span>${w.dailyRate ? fmt(w.dailyRate)+' ₪/יום' : '—'}</span>
+      </div>`).join('')
+    : `<div class="pdv2-empty" style="padding:14px 0">אין צוות מוגדר.</div>`;
+
+  body.innerHTML = `
+    <div class="pdv2-mgr-card">
+      <div class="pdv2-mgr-card-label">רווח נטו</div>
+      <div class="pdv2-mgr-card-num ${profitClass}">${fmt(s.profit)} ₪</div>
+      <div class="pdv2-mgr-card-sub">${s.marginPct}% מהמחזור</div>
+      <div style="margin-top:12px">
+        <div class="pdv2-mgr-row"><span>הכנסה (כולל מע״מ)</span><span>${fmt(s.revenue)} ₪</span></div>
+        <div class="pdv2-mgr-row"><span>הוצאות שנרשמו</span><span>${fmt(s.expenses)} ₪</span></div>
+        <div class="pdv2-mgr-row"><span>נגבה עד כה</span><span>${fmt(s.received)} ₪</span></div>
+        <div class="pdv2-mgr-row"><span>יתרה לחיוב</span><span>${fmt(s.due)} ₪</span></div>
+      </div>
+    </div>
+
+    <div class="pdv2-mgr-card">
+      <div class="pdv2-mgr-card-label">ימי עבודה</div>
+      <div class="pdv2-mgr-card-num">${s.workdays}</div>
+      <div class="pdv2-mgr-card-sub">${s.dailyAvg ? 'ממוצע רווח ליום: ' + fmt(s.dailyAvg) + ' ₪' : 'התחל את הפרויקט כדי לראות נתון'}</div>
+    </div>
+
+    <div class="pdv2-mgr-card">
+      <div class="pdv2-mgr-card-label">בלת״מים סופגים</div>
+      <div class="pdv2-mgr-card-num ${s.blatamWarn.length ? 'danger' : 'sage'}">${s.blatamWarn.length}</div>
+      <div class="pdv2-mgr-card-sub">${s.blatamWarn.length ? 'אירועים שהוסיפו עלות לא צפויה (V1 ללא $ אמיתי — לעדכון בעתיד)' : 'לא היו אירועים סופגים — יפה.'}</div>
+      ${s.blatamGood.length ? `<div class="pdv2-mgr-card-sub" style="color:var(--pd-sage);margin-top:6px">${s.blatamGood.length} תוספות חיוביות (בונוסים)</div>` : ''}
+    </div>
+
+    <div class="pdv2-mgr-card">
+      <div class="pdv2-mgr-card-label">צוות בפרויקט</div>
+      <div>${workersHtml}</div>
+    </div>
+
+    <div class="pdv2-mgr-card">
+      <div class="pdv2-mgr-card-label">ערך הידע</div>
+      <div class="pdv2-mgr-card-num amber">${s.insightsCount}</div>
+      <div class="pdv2-mgr-card-sub">תובנות מקצועיות שצברת מהפרויקט הזה — ידע ששווה זהב לפעם הבאה.</div>
+    </div>
+  `;
+}
+
+// ─── Client summary share ───
+function pdv2BuildClientText(p){
+  const pct = projProgress(p);
+  const tasks = (p.tasks||[]);
+  const totalTasks = tasks.length;
+  const doneTasks = tasks.filter(t => pdv2TaskStatus(t) === 'done');
+  const remTasks  = tasks.filter(t => pdv2TaskStatus(t) !== 'done');
+  const bonuses = (p.issues||[]).filter(i =>
+    i.kind === 'blatam' && i.severity === 'good' && !i.resolved
+  );
+
+  let msg = `היי ${p.clientName||''} 😊\n\n`;
+  msg += `עדכון מהפרויקט שלך:\n`;
+  msg += `${pct}% הושלם · ${doneTasks.length}/${totalTasks} סעיפים\n\n`;
+  if(doneTasks.length){
+    msg += `✅ מה שכבר עשינו:\n`;
+    msg += doneTasks.map(t => '• ' + t.name).join('\n') + '\n\n';
+  }
+  if(remTasks.length){
+    msg += `🔨 מה שעוד נשאר:\n`;
+    msg += remTasks.map(t => '• ' + t.name).join('\n') + '\n\n';
+  }
+  if(bonuses.length){
+    msg += `✨ תוספות שטיפלנו ללא חיוב:\n`;
+    msg += bonuses.map(b => '• ' + b.text).join('\n') + '\n\n';
+  }
+  msg += `תודה שבחרת בנו 🙏\nOr BaGag — קבלן גגות`;
+  return msg;
+}
+
+function pdv2BuildClientHTML(p){
+  const pct = projProgress(p);
+  const tasks = (p.tasks||[]).slice(0, 8);
+  const pp = p.progressPhotos || {};
+  const beforeSrc = (pp.before||[])[0]?.dataFull || (pp.before||[])[0]?.data;
+  const afterSrc  = (pp.after ||[])[0]?.dataFull || (pp.after ||[])[0]?.data;
+  const bonuses = (p.issues||[]).filter(i => i.kind === 'blatam' && i.severity === 'good' && !i.resolved);
+
+  const tasksHtml = tasks.map((t, i) => {
+    const st = pdv2TaskStatus(t);
+    const lbl = st==='done'?'בוצע':st==='active'?'בעבודה':'לפנינו';
+    const col = st==='done'?'#6b8f6b':st==='active'?'#c4941a':'#8a7a66';
+    const bg  = st==='done'?'#dce8dc':st==='active'?'#f5e6bf':'#e8dcc8';
+    return `<tr>
+      <td class="num">${i+1}</td>
+      <td class="name">${esc(t.name||'—')}</td>
+      <td><span class="badge" style="background:${bg};color:${col}">${lbl}</span></td>
+    </tr>`;
+  }).join('');
+
+  let heroHtml = '';
+  if(beforeSrc && afterSrc){
+    heroHtml = `<div class="hero hero-2">
+      <div><img src="${beforeSrc}"><span>לפני</span></div>
+      <div><img src="${afterSrc}"><span>אחרי</span></div>
+    </div>`;
+  } else if(beforeSrc || afterSrc){
+    heroHtml = `<div class="hero hero-1"><div><img src="${beforeSrc || afterSrc}"></div></div>`;
+  } else {
+    heroHtml = `<div class="hero hero-empty"><div>${esc(p.clientName||'')}</div></div>`;
+  }
+  const bonusHtml = bonuses.length ? `
+    <h3 class="section">תוספות שטיפלנו ללא חיוב</h3>
+    <ul class="bonus">${bonuses.map(b => `<li>${esc(b.text)}</li>`).join('')}</ul>` : '';
+
+  const today = new Date().toLocaleDateString('he-IL', {day:'numeric', month:'long', year:'numeric'});
+  const bizName = (typeof S !== 'undefined' && S.business && S.business.name) ? S.business.name : 'Or BaGag — קבלן גגות';
+  const bizPhone = (typeof S !== 'undefined' && S.business && S.business.phone) ? S.business.phone : '';
+
+  return `<!DOCTYPE html><html lang="he" dir="rtl"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>סיכום פרויקט — ${esc(p.clientName||'')}</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Heebo', sans-serif; background: #f4f0eb; color: #1a130a; padding: 20px; }
+.wrap { max-width: 680px; margin: 0 auto; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,.08); }
+header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); color: #fff; padding: 30px 26px; border-bottom: 4px solid #e89a3c; }
+header h1 { font-size: 26px; font-weight: 900; letter-spacing: -.5px; }
+header .meta { font-size: 14px; opacity: .85; margin-top: 6px; }
+.hero { display: grid; gap: 8px; padding: 20px; background: #ece6dc; }
+.hero-1 { grid-template-columns: 1fr; }
+.hero-2 { grid-template-columns: 1fr 1fr; }
+.hero.hero-empty { padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #e89a3c, #cf8f18); color: #fff; font-size: 22px; font-weight: 900; }
+.hero > div { position: relative; aspect-ratio: 4/3; background: #ddd; border-radius: 12px; overflow: hidden; }
+.hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero span { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.55); color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; }
+.summary { padding: 24px 26px; background: #fff; }
+.summary .pct { display: inline-block; background: #e89a3c; color: #fff; padding: 6px 14px; border-radius: 10px; font-weight: 800; font-size: 16px; margin-bottom: 10px; }
+.summary .lines { font-size: 15px; color: #4a3a26; line-height: 1.7; }
+.section { font-size: 14px; font-weight: 800; color: #8a7a66; padding: 20px 26px 8px; }
+table { width: 100%; border-collapse: collapse; padding: 0 26px; }
+table.tasks { padding: 0; }
+.tasks-wrap { padding: 0 26px 8px; }
+.tasks tr { border-bottom: 1px solid #ece6dc; }
+.tasks tr:last-child { border-bottom: none; }
+.tasks td { padding: 12px 0; font-size: 14px; vertical-align: middle; }
+.tasks .num { width: 30px; color: #8a7a66; font-weight: 800; }
+.tasks .name { color: #1a130a; font-weight: 600; }
+.badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 10px; white-space: nowrap; }
+.bonus { padding: 0 26px 16px; list-style: none; }
+.bonus li { padding: 10px 12px; background: #e8efde; color: #4a6b3a; border-radius: 10px; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+.bonus li::before { content: '+ '; color: #6b8f6b; font-weight: 900; }
+footer { background: #1a130a; color: #ece6dc; padding: 20px 26px; text-align: center; font-size: 13px; }
+footer .biz { font-weight: 800; color: #e89a3c; font-size: 15px; }
+footer .ph { margin-top: 4px; opacity: .8; }
+</style></head><body>
+<div class="wrap">
+  <header>
+    <h1>${esc(p.clientName||'')}</h1>
+    <div class="meta">${esc(p.clientAddress||'')} · ${esc(today)}</div>
+  </header>
+  ${heroHtml}
+  <div class="summary">
+    <div class="pct">${pct}% הושלם</div>
+    <div class="lines">סיכום העבודה שביצענו עבורך · ${tasks.length} סעיפי עבודה</div>
+  </div>
+  <h3 class="section">מה עשינו</h3>
+  <div class="tasks-wrap"><table class="tasks">${tasksHtml}</table></div>
+  ${bonusHtml}
+  <footer>
+    <div class="biz">${esc(bizName)}</div>
+    ${bizPhone ? `<div class="ph">${esc(bizPhone)}</div>` : ''}
+  </footer>
+</div>
+</body></html>`;
+}
+
+function pdv2ShareClient(method){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p){ toast('אין פרויקט פעיל'); return; }
+
+  if(method === 'whatsapp'){
+    const text = pdv2BuildClientText(p);
+    if(!p.clientPhone){
+      // copy to clipboard as fallback
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(text).then(()=>toast('אין מספר — הטקסט הועתק'));
+      } else {
+        toast('אין מספר לקוח');
+      }
+      return;
+    }
+    if(typeof openWhatsApp === 'function') openWhatsApp(p.clientPhone, text);
+    else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    return;
+  }
+
+  if(method === 'html'){
+    const html = pdv2BuildClientHTML(p);
+    const blob = new Blob([html], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    return;
+  }
+
+  if(method === 'share'){
+    const html = pdv2BuildClientHTML(p);
+    const fileName = `summary-${(p.clientName||'project').replace(/\s+/g,'-')}.html`;
+    const file = new File([html], fileName, {type: 'text/html'});
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({
+        files: [file],
+        title: 'סיכום פרויקט — ' + (p.clientName || ''),
+        text: pdv2BuildClientText(p).slice(0, 200)
+      }).catch(err => {
+        if(err && err.name !== 'AbortError'){
+          pdv2ShareClient('html');
+        }
+      });
+    } else {
+      toast('שיתוף מערכת לא נתמך — פותח HTML');
+      setTimeout(()=>pdv2ShareClient('html'), 200);
+    }
+    return;
+  }
+
+  if(method === 'png'){
+    pdv2RenderClientAsPNG(p).then(blob => {
+      if(!blob){ toast('יצירת התמונה נכשלה — פותח HTML'); pdv2ShareClient('html'); return; }
+      // Try share first, then download
+      const file = new File([blob], `summary-${(p.clientName||'project').replace(/\s+/g,'-')}.png`, {type:'image/png'});
+      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({ files:[file], title:'סיכום פרויקט' }).catch(err => {
+          if(err && err.name !== 'AbortError') _pdv2DownloadBlob(blob, file.name);
+        });
+      } else {
+        _pdv2DownloadBlob(blob, file.name);
+      }
+    }).catch(()=>{
+      toast('יצירת התמונה נכשלה — פותח HTML');
+      pdv2ShareClient('html');
+    });
+    return;
+  }
+}
+
+function _pdv2DownloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 30000);
+  toast('הורד: ' + filename);
+}
+
+// HTML → PNG via SVG foreignObject (browser-native, no deps)
+async function pdv2RenderClientAsPNG(p){
+  try {
+    const html = pdv2BuildClientHTML(p);
+    // Wrap in a div with explicit width so layout is deterministic
+    const wrapper = `<div xmlns="http://www.w3.org/1999/xhtml" style="width:680px;background:#f4f0eb">${html.replace(/^[\s\S]*?<body>/i,'').replace(/<\/body>[\s\S]*$/i,'')}</div>`;
+    const W = 680;
+    // Measure rendered height by mounting offscreen briefly
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;top:-99999px;left:-99999px;width:680px';
+    probe.innerHTML = wrapper;
+    document.body.appendChild(probe);
+    await new Promise(r => requestAnimationFrame(r));
+    const H = Math.max(800, probe.scrollHeight + 40);
+    document.body.removeChild(probe);
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><foreignObject width="100%" height="100%">${wrapper}</foreignObject></svg>`;
+    const blob = new Blob([svg], {type:'image/svg+xml'});
+    const url = URL.createObjectURL(blob);
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W * 2;  // retina
+    canvas.height = H * 2;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+
+    return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  } catch(e){
+    console.error('PNG render failed:', e);
+    return null;
+  }
+}
+
 // ─── Sheet open/close ───
 let _pdv2OpenSheet = null;
 function pdv2OpenSheet(id){
@@ -14101,6 +14893,13 @@ function pdv2OpenSheet(id){
   const bg = document.getElementById('pdv2-sh-bg');
   const panel = document.getElementById('pdv2-sh-' + id);
   if(!bg || !panel) return;
+  // v3.9.78 — render-on-open for the sheets that have dynamic content
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(p){
+    if(id === 'gallery') pdv2RenderSheetGallery(p);
+    if(id === 'client')  pdv2RenderSheetClient(p);
+    if(id === 'manager') pdv2RenderSheetManager(p);
+  }
   bg.classList.add('show');
   panel.classList.add('show');
   _pdv2OpenSheet = id;
@@ -14129,15 +14928,12 @@ function pdv2OpenWorkers(){
   if(typeof openWorkersForProject === 'function') openWorkersForProject();
   else if(typeof toast === 'function') toast('בקרוב — ניהול צוות');
 }
+// v3.9.78 — Client + Manager summaries (open as bottom sheets)
 function pdv2OpenClientSummary(){
-  pdv2CloseSheet();
-  if(typeof openClientSummary === 'function') openClientSummary();
-  else if(typeof toast === 'function') toast('בקרוב — סיכום ללקוח');
+  pdv2OpenSheet('client');
 }
 function pdv2OpenManagerSummary(){
-  pdv2CloseSheet();
-  if(typeof openManagerSummary === 'function') openManagerSummary();
-  else if(typeof toast === 'function') toast('בקרוב — סיכום מנהלים');
+  pdv2OpenSheet('manager');
 }
 // fallback to legacy tab content
 function pdv2GoLegacy(tab){
@@ -24252,21 +25048,36 @@ ${JSON.stringify(currentData, null, 2)}
   }
 
   // ───── הקשר: פרויקט פתוח ─────
+  // v3.9.78 — סיווג חכם לבלת״ם או תובנה (few-shot)
   if(ctx.type === 'project'){
-    return `אתה עוזר של קבלן גגות. הקבלן נמצא בתוך פרויקט פעיל של ${ctx.clientName}.
-הוא מקליט עדכון על הפרויקט. חלץ את המידע. החזר JSON:
+    return `אתה עוזר של קבלן גגות בשטח. הקבלן בתוך פרויקט פעיל של ${ctx.clientName}
+ומקליט עדכון בקול. חלץ את המידע ולכל פריט החלט אם הוא בלת״ם או תובנה.
 
+⚡ בלת״ם — אירוע שקרה בשטח עם השפעה: חומר/זמן/בטיחות/עלות. דוגמאות:
+  • "תשתית רעועה — צריך 15 רעפים נוספים" → blatam, severity:"warn", tag:"חומרים נוספים"
+  • "זיו נפצע ביד" → blatam, severity:"warn", tag:"בטיחות"
+  • "מצאנו עוד 4 מטר תעלה לפרק" → blatam, severity:"warn", tag:"היקף"
+  • "סידרנו ללקוח 2 מרזבים צדדיים ללא חיוב" → blatam, severity:"good", tag:"בונוס"
+
+💡 תובנה — לקח/ידע מקצועי לפרויקטים הבאים. לא אירוע נקודתי. דוגמאות:
+  • "תמיד למדוד פינות לפני שמתחילים לקצוץ" → insight
+  • "לבדוק שיפוע לפני שמחברים מרזב — חוסך פתיחה" → insight
+
+החזר JSON בלבד:
 {
   "context": "project_update",
-  "tasks": [{"text":"משימה","due":"YYYY-MM-DD" או null}],
-  "insights": ["תובנה 1", "תובנה 2"],
-  "expenses": [{"vendor":"ספק","amount":מספר,"category":"materials"/"labor"/"transport"/"other"}],
-  "completedSteps": ["שם שלב שהושלם"],
-  "photos_needed": ["מה לצלם"],
-  "transcript": "..."
+  "transcript": "...",
+  "tasks":   [{"text":"...","due":"YYYY-MM-DD" או null}],
+  "issues":  [{"kind":"blatam"|"insight","text":"...","severity":"warn"|"good"|null,"tag":"..."|null}],
+  "expenses":[{"vendor":"...","amount":מספר,"category":"materials"|"labor"|"transport"|"other"}],
+  "completedSteps":["..."],
+  "photos_needed":["..."]
 }
 
-חשוב: רק מה שנאמר בפועל. ריק = [] (לא null).`;
+חוקים:
+- ריק = [] לא null. אל תמציא.
+- בספק → blatam (בטוח יותר).
+- severity: warn=שלילי/לטיפול, good=חיובי/בונוס, null=ניטרלי.`;
   }
 
   // ───── הקשר ברירת מחדל — דשבורד / רשימות (7 קטגוריות יומיות) ─────
@@ -25066,10 +25877,14 @@ function _fsApplyContextualResults(parsed, ctx){
   }
 
   // ─── הקשר: פרויקט פתוח ─────
-  else if(ctx.type === 'project' && (parsed.tasks || parsed.insights || parsed.expenses)){
+  // v3.9.78 — מקבל parsed.issues עם kind:blatam|insight + back-compat ל-parsed.insights
+  else if(ctx.type === 'project' && (parsed.tasks || parsed.issues || parsed.insights || parsed.expenses)){
     title = '🎯 עדכון פרויקט';
     const p = (typeof getProject === 'function') ? getProject() : null;
     if(!p){ toast('לא נמצא פרויקט פעיל'); return; }
+
+    // מיגרציה מ-p.insights ל-p.issues (פעם אחת לכל פרויקט)
+    if(typeof _pdMigrateIssues === 'function') _pdMigrateIssues(p);
 
     // משימות
     if(Array.isArray(parsed.tasks)){
@@ -25094,25 +25909,53 @@ function _fsApplyContextualResults(parsed, ctx){
       });
     }
 
-    // תובנות
-    if(Array.isArray(parsed.insights)){
-      parsed.insights.forEach(insight=>{
-        if(!insight || !insight.trim()) return;
-        items.push({
-          label: '💡 תובנה לפרויקט',
-          newValue: insight,
-          applyFn: ()=>{
-            if(!p.insights) p.insights = [];
-            p.insights.push({
-              id: (typeof uid==='function'?uid():String(Date.now())),
-              text: insight,
-              ts: (typeof ts==='function'?ts():Date.now())
-            });
-            if(typeof saveAll === 'function') saveAll(true);
-          }
-        });
-      });
+    // בלת״מים / תובנות (issues) — חדש v3.9.78
+    let issuesList = [];
+    if(Array.isArray(parsed.issues)){
+      issuesList = parsed.issues.filter(x => x && x.text && x.text.trim());
     }
+    // Back-compat: parsed.insights כמערך מחרוזות
+    if((!issuesList.length) && Array.isArray(parsed.insights)){
+      issuesList = parsed.insights
+        .filter(s => s && (typeof s === 'string' ? s.trim() : s.text))
+        .map(s => ({
+          kind: 'insight',
+          text: typeof s === 'string' ? s : s.text,
+          severity: null,
+          tag: null
+        }));
+    }
+    issuesList.forEach(iss => {
+      const kind = (iss.kind === 'blatam') ? 'blatam' : 'insight';
+      const label = kind === 'blatam' ? '⚡ בלת״ם' : '💡 תובנה';
+      const desc = iss.tag || (iss.severity === 'warn' ? 'לטיפול' : iss.severity === 'good' ? 'חיובי' : null);
+      items.push({
+        label,
+        description: desc,
+        newValue: iss.text,
+        _v378Kind: kind,
+        applyFn: ()=>{
+          if(!Array.isArray(p.issues)) p.issues = [];
+          const newId = (typeof uid==='function'?uid():String(Date.now()));
+          p.issues.push({
+            id: newId,
+            kind,
+            text: iss.text.trim(),
+            severity: (iss.severity === 'warn' || iss.severity === 'good') ? iss.severity : null,
+            tag: iss.tag || null,
+            source: 'free-speech',
+            resolved: false,
+            createdAt: (typeof ts==='function'?ts():Date.now())
+          });
+          p.updatedAt = (typeof ts==='function'?ts():Date.now());
+          if(typeof saveAll === 'function') saveAll(true);
+          // נוטר אילו IDs נוספו עבור undo
+          if(window._pdv2LastAddedIds){
+            (window._pdv2LastAddedIds[kind==='blatam'?'blatamim':'insights'] ||= []).push(newId);
+          }
+        }
+      });
+    });
 
     // הוצאות
     if(Array.isArray(parsed.expenses)){
@@ -25522,6 +26365,9 @@ function _fsApplyContextualResults(parsed, ctx){
     return;
   }
 
+  // v3.9.78 — reset id tracker so onComplete can offer undo only for what's just approved
+  window._pdv2LastAddedIds = { blatamim: [], insights: [] };
+
   // הצג את אשף האישור
   _aiConfirmWizard({
     title,
@@ -25536,6 +26382,16 @@ function _fsApplyContextualResults(parsed, ctx){
           // רענון מסך פרויקט (אם פתוח)
           if(typeof renderProjectDetail === 'function') renderProjectDetail();
           if(typeof pdRender === 'function') pdRender();
+          // v3.9.78 — בועת אישור עם undo עבור בלת״מים/תובנות
+          const added = window._pdv2LastAddedIds || {};
+          const bN = (added.blatamim||[]).length;
+          const iN = (added.insights||[]).length;
+          if((bN + iN) > 0 && typeof _pdShowConfirmSheet === 'function'){
+            _pdShowConfirmSheet(
+              {blatamim: bN, insights: iN},
+              () => _pdUndoLastAdd(getProject(), added)
+            );
+          }
         }
         // v3.9.66 — רענון ליד פתוח
         if(ctx.type === 'lead_detail' && typeof renderLeadDetail === 'function'){
