@@ -3172,10 +3172,30 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
   width: 38px; height: 4px; background: var(--pd-stone-d);
   border-radius: 2px; margin: 14px auto 10px;
 }
-#view-project-detail.pdv2 .pdv2-sh-head { padding: 4px 28px 14px; }
+#view-project-detail.pdv2 .pdv2-sh-head {
+  padding: 4px 28px 14px;
+  position: relative;
+}
 #view-project-detail.pdv2 .pdv2-sh-title {
   font-size: 20px; font-weight: 900; color: var(--pd-ink);
 }
+/* v3.9.81 — explicit close button in every sheet header */
+#view-project-detail.pdv2 .pdv2-sh-close {
+  position: absolute;
+  top: 0; left: 18px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--pd-stone);
+  border: 1px solid var(--pd-hairline-2);
+  color: var(--pd-ink2);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+  transition: transform .15s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-sh-close:active { transform: scale(.9); }
 #view-project-detail.pdv2 .pdv2-sh-sub {
   font-size: 12px; color: var(--pd-ink3); margin-top: 2px;
 }
@@ -3934,6 +3954,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     <div class="pdv2-sh-bg" id="pdv2-sh-bg" onclick="pdv2CloseSheet()"></div>
     <div class="pdv2-sh-panel" id="pdv2-sh-data">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">סיכומים ונתונים</div>
         <div class="pdv2-sh-sub" id="pdv2-sh-data-sub">—</div>
@@ -3942,6 +3963,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     </div>
     <div class="pdv2-sh-panel" id="pdv2-sh-blatam">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">בלת״מים</div>
         <div class="pdv2-sh-sub" id="pdv2-sh-blatam-sub">—</div>
@@ -3950,6 +3972,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     </div>
     <div class="pdv2-sh-panel" id="pdv2-sh-insights">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">תובנות מהשטח</div>
         <div class="pdv2-sh-sub" id="pdv2-sh-insights-sub">—</div>
@@ -3960,6 +3983,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     <!-- v3.9.78: Gallery sheet -->
     <div class="pdv2-sh-panel" id="pdv2-sh-gallery">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">תיק תמונות</div>
         <div class="pdv2-sh-sub" id="pdv2-sh-gallery-sub">—</div>
@@ -3967,8 +3991,10 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
           <button data-phase="before" onclick="pdv2GallerySetPhase('before')">לפני</button>
           <button data-phase="during" onclick="pdv2GallerySetPhase('during')" class="on">תוך כדי</button>
           <button data-phase="after"  onclick="pdv2GallerySetPhase('after')">אחרי</button>
-          <button class="pdv2-gal-add" onclick="pdv2GalleryQuickPhoto()">+ צלם</button>
+          <button class="pdv2-gal-add" onclick="pdv2GalleryQuickPhoto()" title="צילום מהמצלמה">+ צלם</button>
+          <button class="pdv2-gal-add" onclick="pdv2GalleryUploadMultiple()" title="העלאת מספר תמונות מהסייר">+ העלה</button>
         </div>
+        <input type="file" id="pdv2-multi-file-input" accept="image/*" multiple style="display:none" onchange="pdv2HandleMultiFiles(this)">
       </div>
       <div class="pdv2-sh-body" id="pdv2-sh-gallery-body"></div>
     </div>
@@ -3976,6 +4002,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     <!-- v3.9.78: Client summary sheet -->
     <div class="pdv2-sh-panel" id="pdv2-sh-client">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">סיכום ללקוח</div>
         <div class="pdv2-sh-sub" id="pdv2-sh-client-sub">—</div>
@@ -3992,6 +4019,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     <!-- v3.9.78: Manager summary sheet -->
     <div class="pdv2-sh-panel" id="pdv2-sh-manager">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">סיכום מנהלים</div>
         <div class="pdv2-sh-sub">לעיניך בלבד</div>
@@ -4002,6 +4030,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
     <!-- v3.9.80: Legacy editor sheet (hosts old renderPd* output for full editing) -->
     <div class="pdv2-sh-panel" id="pdv2-sh-legacy">
       <div class="pdv2-sh-handle"></div>
+      <button class="pdv2-sh-close" onclick="pdv2CloseSheet()" aria-label="סגור">✕</button>
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title" id="pdv2-sh-legacy-title">—</div>
         <div class="pdv2-sh-sub">תצוגה מפורטת לעריכה</div>
@@ -4446,7 +4475,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.80'; // v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.81'; // v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -14066,6 +14095,18 @@ function pdv2Render(p){
   const root = document.getElementById('view-project-detail');
   if(!root) return;
 
+  // v3.9.81 — if demo project has stale seed data, refresh it automatically
+  if(p.source === 'demo' && p.id === 'demo-perlstein' &&
+     typeof PERLSTEIN_SEED_VERSION !== 'undefined' &&
+     (p._seedVersion || 0) < PERLSTEIN_SEED_VERSION){
+    if(typeof toast === 'function') toast('🔄 מרענן נתוני דמו לגרסה חדשה...');
+    if(typeof seedPerlsteinProject === 'function'){
+      // seedPerlsteinProject deletes+recreates and re-renders; bail out here
+      setTimeout(seedPerlsteinProject, 50);
+      return;
+    }
+  }
+
   // v3.9.80 — hide legacy floating FAB (camera) — pdv2 has its own snap button
   const fab = document.getElementById('pd-fab');
   if(fab) fab.style.display = 'none';
@@ -14512,6 +14553,58 @@ function pdv2GalleryQuickPhoto(){
     setTimeout(refresh, 800);
     setTimeout(refresh, 2500);
   }
+}
+
+// v3.9.81 — multi-file upload from file picker (parallel compression + save)
+function pdv2GalleryUploadMultiple(){
+  const input = document.getElementById('pdv2-multi-file-input');
+  if(input){ input.value = ''; input.click(); }
+}
+async function pdv2HandleMultiFiles(input){
+  const files = Array.from(input.files || []);
+  if(!files.length) return;
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p){ toast('אין פרויקט פעיל'); return; }
+  if(!p.progressPhotos || typeof p.progressPhotos !== 'object'){
+    p.progressPhotos = { before: [], during: [], after: [] };
+  }
+  const phase = _pdv2GalleryPhase || 'during';
+  if(!Array.isArray(p.progressPhotos[phase])) p.progressPhotos[phase] = [];
+
+  if(typeof toast === 'function') toast(`📥 מעלה ${files.length} תמונות...`);
+  let okCount = 0, failCount = 0;
+  // Parallel compression (up to N at once to avoid memory spikes)
+  const BATCH = 3;
+  for(let i = 0; i < files.length; i += BATCH){
+    const slice = files.slice(i, i + BATCH);
+    const results = await Promise.all(slice.map(async f => {
+      try {
+        if(!f.type || !f.type.startsWith('image/')) return null;
+        const compressed = await compressImgDual(f);
+        return compressed;
+      } catch(e){ return null; }
+    }));
+    results.forEach(r => {
+      if(!r){ failCount++; return; }
+      p.progressPhotos[phase].push({
+        id: (typeof uid === 'function' ? uid() : String(Date.now() + Math.random())),
+        data: r.data,
+        dataFull: r.dataFull || r.data,
+        phase,
+        ts: (typeof ts === 'function' ? ts() : Date.now())
+      });
+      okCount++;
+    });
+  }
+  p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
+  if(typeof saveAll === 'function') saveAll(true);
+  if(typeof toast === 'function'){
+    toast(failCount > 0
+      ? `✅ נשמרו ${okCount}, נכשלו ${failCount}`
+      : `✅ נשמרו ${okCount} תמונות בשלב "${phase==='before'?'לפני':phase==='after'?'אחרי':'תוך כדי'}"`);
+  }
+  if(_pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
+  pdv2Render(p);
 }
 
 // ═══════════════════════════════════════════════
@@ -15898,6 +15991,20 @@ function renderPdReport(p){
         <div style="background:var(--line);border-radius:4px;height:7px"><div style="width:${pct}%;background:var(--gold);border-radius:4px;height:7px"></div></div>
       </div>`;
     }).join('')}
+    <div style="height:1px;background:var(--line);margin:14px 0"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">👷 צוות הפרויקט</div>
+    ${(p.workers||[]).length === 0
+      ? '<div style="font-size:13px;color:var(--text3);padding:10px 0">אין צוות מוגדר עדיין.</div>'
+      : (p.workers||[]).map(w => `<div style="background:var(--ink2);border-radius:12px;padding:10px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:14px;font-weight:700">${esc(w.name||'—')}</div>
+            ${w.note ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(w.note)}</div>` : ''}
+          </div>
+          <div style="text-align:left">
+            ${w.daysWorked != null ? `<div style="font-size:13px;font-weight:700;color:var(--gold2)">${w.daysWorked} ימים</div>` : ''}
+            ${w.dailyRate ? `<div style="font-size:11px;color:var(--text3)">${fmt(w.dailyRate)}₪/יום</div>` : ''}
+          </div>
+        </div>`).join('')}
     <div style="height:1px;background:var(--line);margin:14px 0"></div>
     <button class="btn" style="background:none;border:1.5px solid var(--gold2);color:var(--gold2);margin-bottom:10px" onclick="pdSendWaUpdate()">📱 שלח עדכון ללקוח</button>
   </div>`;
@@ -20797,6 +20904,9 @@ function debugShowProjectData(){
 // Loaded from settings → opens directly into the new project screen.
 // Idempotent: if the project already exists, just opens it.
 // ═══════════════════════════════════════════════════════
+// v3.9.81 — bump this whenever the seed data changes; old projects auto-refresh
+const PERLSTEIN_SEED_VERSION = 4;
+
 function seedPerlsteinProject(){
   const SEED_ID = 'demo-perlstein';
 
@@ -20898,6 +21008,7 @@ function seedPerlsteinProject(){
 
   const project = {
     id: SEED_ID,
+    _seedVersion: PERLSTEIN_SEED_VERSION,
     clientName: 'ליליאן וסרג׳יו פרלשטיין',
     clientPhone: '',
     clientAddress: 'שוודיה 24, חיפה',
@@ -24041,7 +24152,10 @@ function _toggleMicButtonVisibility(){
   // v3.9.75 — במסך צפייה בביקור הכפתור עבר ל-topbar (במקום כפתור עריכת הביקור)
   const vdView = document.getElementById('view-visit-detail');
   const isVdActive = vdView && vdView.classList.contains('on');
-  btn.style.display = (!isDashActive && !fsIsOpen && !isDsActive && !isVdActive) ? 'flex' : 'none';
+  // v3.9.81 — מסך הפרויקט החדש כבר עם כפתור דיבור משלו (sun-btn); הסתר את הצף
+  const pdView = document.getElementById('view-project-detail');
+  const isPdActive = pdView && pdView.classList.contains('on');
+  btn.style.display = (!isDashActive && !fsIsOpen && !isDsActive && !isVdActive && !isPdActive) ? 'flex' : 'none';
 }
 
 
