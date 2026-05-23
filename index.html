@@ -3487,6 +3487,37 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
   flex-shrink: 0;
 }
 
+/* v3.9.83 — prominent action buttons in gallery sheet */
+#view-project-detail.pdv2 .pdv2-gal-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin: 12px 0 14px;
+}
+#view-project-detail.pdv2 .pdv2-gal-act {
+  background: linear-gradient(145deg, #ede2cd, var(--pd-stone));
+  border: 1.5px solid var(--pd-hairline-2);
+  border-radius: 16px; padding: 14px 16px;
+  font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  text-align: right;
+  box-shadow: var(--pd-sh-1), inset 0 1px 0 rgba(255,255,255,.5);
+  transition: transform .15s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-gal-act:active { transform: scale(.97); }
+#view-project-detail.pdv2 .pdv2-gal-act-primary {
+  background: linear-gradient(140deg, var(--pd-sun), var(--pd-sun-deep));
+  border-color: transparent; color: #fff;
+  box-shadow: 0 4px 14px var(--pd-sun-glow);
+}
+#view-project-detail.pdv2 .pdv2-gal-act-ico {
+  font-size: 26px; line-height: 1; flex-shrink: 0;
+}
+#view-project-detail.pdv2 .pdv2-gal-act-txt {
+  font-size: 14px; font-weight: 800; line-height: 1.25;
+}
+#view-project-detail.pdv2 .pdv2-gal-act-sub {
+  font-size: 11px; font-weight: 500; opacity: .75; margin-top: 2px;
+}
+
 /* v3.9.80 — legacy sheet body: host old renderers, give them background + padding */
 #view-project-detail.pdv2 #pdv2-sh-legacy-body {
   padding: 16px;
@@ -3987,12 +4018,21 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
       <div class="pdv2-sh-head">
         <div class="pdv2-sh-title">תיק תמונות</div>
         <div class="pdv2-sh-sub" id="pdv2-sh-gallery-sub">—</div>
+        <!-- v3.9.83 — split action buttons from phase tabs, much more prominent -->
+        <div class="pdv2-gal-actions">
+          <button class="pdv2-gal-act" onclick="pdv2GalleryQuickPhoto()">
+            <div class="pdv2-gal-act-ico">📷</div>
+            <div class="pdv2-gal-act-txt">צלם<div class="pdv2-gal-act-sub">תמונה יחידה</div></div>
+          </button>
+          <button class="pdv2-gal-act pdv2-gal-act-primary" onclick="pdv2GalleryUploadMultiple()">
+            <div class="pdv2-gal-act-ico">🖼️</div>
+            <div class="pdv2-gal-act-txt">העלה מהגלריה<div class="pdv2-gal-act-sub">בחירה מרובה</div></div>
+          </button>
+        </div>
         <div class="pdv2-gal-tabs" id="pdv2-gal-tabs">
           <button data-phase="before" onclick="pdv2GallerySetPhase('before')">לפני</button>
           <button data-phase="during" onclick="pdv2GallerySetPhase('during')" class="on">תוך כדי</button>
           <button data-phase="after"  onclick="pdv2GallerySetPhase('after')">אחרי</button>
-          <button class="pdv2-gal-add" onclick="pdv2GalleryQuickPhoto()" title="צילום מהמצלמה">+ צלם</button>
-          <button class="pdv2-gal-add" onclick="pdv2GalleryUploadMultiple()" title="העלאת מספר תמונות מהסייר">+ העלה</button>
         </div>
         <input type="file" id="pdv2-multi-file-input" accept="image/*" multiple style="display:none" onchange="pdv2HandleMultiFiles(this)">
       </div>
@@ -4476,7 +4516,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.82'; // v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.83'; // v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -14499,12 +14539,37 @@ function pdv2RowItem(it, kind){
   const tag = it.tag || (kind === 'blatam' ? 'בלת״ם' : 'תובנה');
   const tagBg = (it.severity === 'good') ? 'var(--pd-sage-l)' : 'var(--pd-amber-l)';
   const tagCol = (it.severity === 'good') ? 'var(--pd-sage)' : 'var(--pd-amber)';
-  return `<div class="pdv2-bi">
+
+  // v3.9.83 — scope/billing badge (clickable to edit)
+  let scopeBadge = '';
+  if(kind === 'blatam'){
+    const status = it.billedStatus || (it.inScope === false ? 'will_bill' : 'in_scope');
+    const labels = { in_scope:'כלול', will_bill:'לחיוב', billed:'חויב', free:'בונוס' };
+    const bgs = {
+      in_scope: 'var(--pd-stone)',
+      will_bill: 'var(--pd-amber-l)',
+      billed: 'var(--pd-sage-l)',
+      free: '#dce6f5'
+    };
+    const cols = {
+      in_scope: 'var(--pd-ink2)',
+      will_bill: 'var(--pd-amber)',
+      billed: 'var(--pd-sage)',
+      free: '#3a5a8a'
+    };
+    const amt = it.billedAmount ? ` · ${fmt(it.billedAmount)}₪` : '';
+    scopeBadge = `<div class="pdv2-bi-tag" style="background:${bgs[status]||bgs.in_scope};color:${cols[status]||cols.in_scope};margin-right:6px;cursor:pointer" onclick="event.stopPropagation();pdv2EditIssueBilling('${esc(it.id)}')">${esc(labels[status]||status)}${amt}</div>`;
+  }
+
+  return `<div class="pdv2-bi" ${kind==='blatam'?`onclick="pdv2EditIssueBilling('${esc(it.id)}')"`:''} style="${kind==='blatam'?'cursor:pointer':''}">
     <div class="pdv2-bi-dot" style="background:${bg};color:${col}">${esc(firstChar)}</div>
     <div class="pdv2-bi-body">
       <div class="pdv2-bi-name">${esc((text.split(/[—\n.]/)[0] || '—').slice(0,60))}</div>
       ${text.length > 60 ? `<div class="pdv2-bi-desc">${esc(text.slice(60, 200))}${text.length>200?'…':''}</div>` : ''}
-      <div class="pdv2-bi-tag" style="background:${tagBg};color:${tagCol}">${esc(tag)}</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;margin-top:4px">
+        <div class="pdv2-bi-tag" style="background:${tagBg};color:${tagCol}">${esc(tag)}</div>
+        ${scopeBadge}
+      </div>
     </div>
   </div>`;
 }
@@ -14534,7 +14599,81 @@ function _pdMigrateIssues(p){
     delete p.insights;
   }
   p._issuesMigratedAt = (typeof ts==='function'?ts():Date.now());
+
+  // v3.9.83 — also migrate scope/billing fields on existing issues (idempotent)
+  if(!p._scopeMigratedAt){
+    (p.issues||[]).forEach(it => {
+      if(it.billedStatus) return; // already migrated
+      // smart defaults from existing tag/severity
+      const tag = (it.tag||'').toLowerCase();
+      if(tag.includes('בונוס') || (it.kind==='blatam' && it.severity==='good' && tag.includes('חינם'))){
+        it.billedStatus = 'free';
+        it.inScope = false;
+      } else if(tag.includes('בתשלום') || tag.includes('תוספת')){
+        it.billedStatus = 'will_bill';
+        it.inScope = false;
+      } else if(it.kind === 'blatam'){
+        it.billedStatus = 'will_bill';
+        it.inScope = false;
+      } else {
+        // insights and unknown — leave as in-scope by default
+        it.billedStatus = 'in_scope';
+        it.inScope = true;
+      }
+      if(it.billedAmount == null) it.billedAmount = null;
+    });
+    p._scopeMigratedAt = (typeof ts==='function'?ts():Date.now());
+  }
+
   if(typeof saveAll === 'function') saveAll(true);
+}
+
+// v3.9.83 — toggle issue billing status (used by long-press menu)
+function pdv2SetIssueBilledStatus(issueId, status, amount){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p || !Array.isArray(p.issues)) return;
+  const it = p.issues.find(x => x.id === issueId);
+  if(!it) return;
+  it.billedStatus = status;
+  it.inScope = (status === 'in_scope');
+  if(amount != null) it.billedAmount = parseFloat(amount) || null;
+  p.updatedAt = (typeof ts==='function'?ts():Date.now());
+  if(typeof saveAll === 'function') saveAll(true);
+  if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  if(typeof toast === 'function'){
+    const labels = { in_scope:'כלול בהצעה', will_bill:'לחיוב', billed:'חויב', free:'בונוס חינם' };
+    toast('✓ ' + (labels[status] || status));
+  }
+}
+
+// v3.9.83 — modal for editing scope/billing
+function pdv2EditIssueBilling(issueId){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p) return;
+  const it = (p.issues||[]).find(x => x.id === issueId);
+  if(!it) return;
+  const cur = it.billedStatus || 'in_scope';
+  const curAmount = it.billedAmount || '';
+  if(typeof openMo !== 'function'){ toast('לא זמין'); return; }
+  openMo(`
+    <div class="mo-title">סטטוס הבלת״ם</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">${esc(it.text||'').slice(0,120)}</div>
+    <button class="btn ${cur==='in_scope'?'btn-gold':'btn-ghost'}" style="margin-bottom:8px;text-align:right" onclick="pdv2SetIssueBilledStatus('${issueId}','in_scope');closeMo()">📋 כלול בהצעה המקורית</button>
+    <button class="btn ${cur==='will_bill'?'btn-gold':'btn-ghost'}" style="margin-bottom:8px;text-align:right" onclick="pdv2EditBillingAmount('${issueId}','will_bill')">💰 לחיוב נפרד (תוספת)</button>
+    <button class="btn ${cur==='billed'?'btn-gold':'btn-ghost'}" style="margin-bottom:8px;text-align:right" onclick="pdv2EditBillingAmount('${issueId}','billed')">✅ חויב כבר</button>
+    <button class="btn ${cur==='free'?'btn-gold':'btn-ghost'}" style="margin-bottom:8px;text-align:right" onclick="pdv2SetIssueBilledStatus('${issueId}','free');closeMo()">🎁 בונוס ללקוח (חינם)</button>
+    ${curAmount ? `<div style="font-size:12px;color:var(--text3);margin-top:8px;text-align:center">סכום נוכחי: ${fmt(curAmount)} ₪</div>` : ''}
+  `);
+}
+function pdv2EditBillingAmount(issueId, status){
+  closeMo();
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  const it = (p?.issues||[]).find(x => x.id === issueId);
+  if(!it) return;
+  const cur = it.billedAmount || '';
+  const amt = prompt('סכום (₪) — אופציונלי, ריק כדי לדלג:', cur);
+  if(amt === null) return; // cancelled
+  pdv2SetIssueBilledStatus(issueId, status, amt === '' ? null : amt);
 }
 
 // ═══════════════════════════════════════════════
@@ -14795,6 +14934,12 @@ function pdv2GalleryUploadMultiple(){
   const input = document.getElementById('pdv2-multi-file-input');
   if(input){ input.value = ''; input.click(); }
 }
+// v3.9.83 — entry from legacy portfolio tab. Sets phase then opens multi-upload.
+function pdLegacyMultiUploadForPhase(phase){
+  _pdv2GalleryPhase = phase;
+  if(typeof window !== 'undefined') window._pdPhotoPhase = phase;
+  pdv2GalleryUploadMultiple();
+}
 async function pdv2HandleMultiFiles(input){
   const files = Array.from(input.files || []);
   if(!files.length) return;
@@ -14855,6 +15000,8 @@ async function pdv2HandleMultiFiles(input){
       : `✅ נשמרו ${okCount} תמונות בשלב "${phase==='before'?'לפני':phase==='after'?'אחרי':'תוך כדי'}"`);
   }
   if(_pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
+  if(_pdv2OpenSheet === 'legacy' && _pdTab === 'portfolio' && typeof pdv2RenderLegacyBody === 'function') pdv2RenderLegacyBody();
+  if(typeof _pdTab !== 'undefined' && _pdTab === 'portfolio' && typeof renderPdTab === 'function') renderPdTab();
   pdv2Render(p);
 }
 
@@ -14910,14 +15057,23 @@ function pdv2RenderSheetClient(p){
     </div>`;
   }).join('');
 
-  const bonuses = (p.issues||[]).filter(i =>
-    i.kind === 'blatam' && i.severity === 'good' && !i.resolved
-  );
-  const bonusHtml = bonuses.length ? `
+  // v3.9.83 — billing-aware sections
+  const issues = (p.issues||[]).filter(i => i.kind === 'blatam' && !i.resolved);
+  const freeBonuses = issues.filter(i => (i.billedStatus === 'free') || (i.severity === 'good' && (i.tag||'').toLowerCase().includes('בונוס')));
+  const billable = issues.filter(i => i.billedStatus === 'will_bill' || i.billedStatus === 'billed');
+  const bonusHtml = freeBonuses.length ? `
     <div class="pdv2-section-title">תוספות שטיפלנו ללא חיוב</div>
-    ${bonuses.map(b => `<div class="pdv2-task-row">
+    ${freeBonuses.map(b => `<div class="pdv2-task-row">
       <div class="pdv2-task-num" style="background:var(--pd-sage-l);color:var(--pd-sage)">+</div>
       <div class="pdv2-task-name">${esc(b.text||'—')}</div>
+    </div>`).join('')}
+  ` : '';
+  const billableHtml = billable.length ? `
+    <div class="pdv2-section-title">תוספות בתשלום נפרד</div>
+    ${billable.map(b => `<div class="pdv2-task-row">
+      <div class="pdv2-task-num" style="background:var(--pd-amber-l);color:var(--pd-amber)">₪</div>
+      <div class="pdv2-task-name">${esc(b.text||'—')}</div>
+      ${b.billedAmount ? `<div class="pdv2-badge pdv2-badge-active">${fmt(b.billedAmount)} ₪</div>` : ''}
     </div>`).join('')}
   ` : '';
 
@@ -14930,6 +15086,7 @@ function pdv2RenderSheetClient(p){
       <b>${pct}% הושלם</b> · ${tasks.length} סעיפי עבודה
     </div>
     <div>${tasksHtml}</div>
+    ${billableHtml}
     ${bonusHtml}
   `;
 }
@@ -14965,10 +15122,19 @@ function pdv2CalcManagerStats(p){
   const blatamGood = issues.filter(i=>i.kind==='blatam' && i.severity==='good');
   const insightsCount = issues.filter(i=>i.kind==='insight').length;
 
+  // v3.9.83 — billing breakdown for blatamim
+  const blatamim = issues.filter(i => i.kind === 'blatam');
+  const willBill = blatamim.filter(i => (i.billedStatus||'in_scope') === 'will_bill');
+  const billed = blatamim.filter(i => i.billedStatus === 'billed');
+  const free = blatamim.filter(i => i.billedStatus === 'free');
+  const willBillAmount = willBill.reduce((s,i) => s + (parseFloat(i.billedAmount)||0), 0);
+  const billedAmount = billed.reduce((s,i) => s + (parseFloat(i.billedAmount)||0), 0);
+
   return {
     revenue, revenueWithVat, expenses, profit, marginPct, received, due,
     workdays, dailyAvg: workdays > 0 ? Math.round(profit/workdays) : 0,
     blatamWarn, blatamGood, insightsCount,
+    willBill, billed, free, willBillAmount, billedAmount,
     workers: p.workers || []
   };
 }
@@ -15009,8 +15175,17 @@ function pdv2RenderSheetManager(p){
     <div class="pdv2-mgr-card">
       <div class="pdv2-mgr-card-label">בלת״מים סופגים</div>
       <div class="pdv2-mgr-card-num ${s.blatamWarn.length ? 'danger' : 'sage'}">${s.blatamWarn.length}</div>
-      <div class="pdv2-mgr-card-sub">${s.blatamWarn.length ? 'אירועים שהוסיפו עלות לא צפויה (V1 ללא $ אמיתי — לעדכון בעתיד)' : 'לא היו אירועים סופגים — יפה.'}</div>
+      <div class="pdv2-mgr-card-sub">${s.blatamWarn.length ? 'אירועים שהוסיפו עלות לא צפויה' : 'לא היו אירועים סופגים — יפה.'}</div>
       ${s.blatamGood.length ? `<div class="pdv2-mgr-card-sub" style="color:var(--pd-sage);margin-top:6px">${s.blatamGood.length} תוספות חיוביות (בונוסים)</div>` : ''}
+    </div>
+
+    <!-- v3.9.83 — billing breakdown -->
+    <div class="pdv2-mgr-card">
+      <div class="pdv2-mgr-card-label">פוטנציאל חיוב נוסף</div>
+      <div class="pdv2-mgr-card-num ${s.willBillAmount > 0 ? 'amber' : ''}">${s.willBillAmount > 0 ? fmt(s.willBillAmount) + ' ₪' : '—'}</div>
+      <div class="pdv2-mgr-card-sub">${s.willBill.length} בלת״מים מחכים לחיוב${s.willBillAmount === 0 && s.willBill.length > 0 ? ' (לעדכן סכומים בלחיצה ארוכה)' : ''}</div>
+      ${s.billed.length ? `<div class="pdv2-mgr-row" style="margin-top:10px"><span>חויב כבר</span><span>${fmt(s.billedAmount)} ₪ (${s.billed.length} פריטים)</span></div>` : ''}
+      ${s.free.length ? `<div class="pdv2-mgr-row"><span>בונוסים חינם</span><span>${s.free.length} פריטים</span></div>` : ''}
     </div>
 
     <div class="pdv2-mgr-card">
@@ -15033,9 +15208,10 @@ function pdv2BuildClientText(p){
   const totalTasks = tasks.length;
   const doneTasks = tasks.filter(t => pdv2TaskStatus(t) === 'done');
   const remTasks  = tasks.filter(t => pdv2TaskStatus(t) !== 'done');
-  const bonuses = (p.issues||[]).filter(i =>
-    i.kind === 'blatam' && i.severity === 'good' && !i.resolved
-  );
+  // v3.9.83 — billing-aware sections
+  const issues = (p.issues||[]).filter(i => i.kind === 'blatam' && !i.resolved);
+  const bonuses = issues.filter(i => (i.billedStatus === 'free') || (i.severity === 'good' && (i.tag||'').toLowerCase().includes('בונוס')));
+  const billable = issues.filter(i => i.billedStatus === 'will_bill' || i.billedStatus === 'billed');
 
   let msg = `היי ${p.clientName||''} 😊\n\n`;
   msg += `עדכון מהפרויקט שלך:\n`;
@@ -15047,6 +15223,10 @@ function pdv2BuildClientText(p){
   if(remTasks.length){
     msg += `🔨 מה שעוד נשאר:\n`;
     msg += remTasks.map(t => '• ' + t.name).join('\n') + '\n\n';
+  }
+  if(billable.length){
+    msg += `💰 תוספות בתשלום נפרד:\n`;
+    msg += billable.map(b => '• ' + b.text + (b.billedAmount ? ` (${fmt(b.billedAmount)} ₪)` : '')).join('\n') + '\n\n';
   }
   if(bonuses.length){
     msg += `✨ תוספות שטיפלנו ללא חיוב:\n`;
@@ -15901,8 +16081,11 @@ function renderPdPortfolio(p){
           <button onclick="pdPullPhotosFromVisit()" style="padding:6px 10px;border-radius:8px;background:var(--ink3);color:var(--text2);border:1.5px solid var(--line);font-size:11px;font-weight:700;cursor:pointer" title="שאב תמונות מהביקור המקורי (ממצאים, רטיבויות, גג)">
             🔄 שאב מהביקור
           </button>` : ''}
-        <button onclick="pdQuickPhotoPhase('${_pdPhotoPhase}')" style="padding:6px 12px;border-radius:8px;background:var(--gold-l);color:var(--gold2);border:1.5px solid var(--gold);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px">
-          <span>📸</span> + הוסף
+        <button onclick="pdQuickPhotoPhase('${_pdPhotoPhase}')" style="padding:6px 12px;border-radius:8px;background:var(--gold-l);color:var(--gold2);border:1.5px solid var(--gold);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px" title="צילום בודד מהמצלמה">
+          <span>📷</span> צלם
+        </button>
+        <button onclick="pdLegacyMultiUploadForPhase('${_pdPhotoPhase}')" style="padding:6px 12px;border-radius:8px;background:var(--gold);color:#fff;border:1.5px solid var(--gold);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px" title="בחירה מרובה מהגלריה">
+          <span>🖼️</span> העלה (מרובה)
         </button>
       </div>
     </div>
@@ -21218,7 +21401,7 @@ async function debugShowStorageStats(){
 // Idempotent: if the project already exists, just opens it.
 // ═══════════════════════════════════════════════════════
 // v3.9.81 — bump this whenever the seed data changes; old projects auto-refresh
-const PERLSTEIN_SEED_VERSION = 4;
+const PERLSTEIN_SEED_VERSION = 5;
 
 function seedPerlsteinProject(){
   const SEED_ID = 'demo-perlstein';
