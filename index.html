@@ -4295,6 +4295,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
         <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🔧 אבחון</div>
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowVisitData()">🔍 נתוני ביקור אחרון</button>
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowProjectData()">🔍 נתוני פרויקט אחרון</button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowStorageStats()">💾 שימוש באחסון (IDB)</button>
         <button class="btn btn-gold btn-sm" style="width:100%;margin-bottom:8px" onclick="seedPerlsteinProject()">🌅 טען פרויקט פרלשטיין (דמו)</button>
         <div id="debug-output-area" style="display:none;background:var(--ink3);border-radius:10px;padding:12px;font-size:11px;font-family:monospace;word-break:break-all;white-space:pre-wrap;max-height:300px;overflow-y:auto;margin-top:8px;direction:ltr;text-align:left"></div>
       </div>
@@ -4475,7 +4476,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.81'; // v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.82'; // v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -4597,13 +4598,112 @@ function getVisit(id){ return S.visits.find(v => v.id === (id || S.activeVisitId
 async function initDB(){
   return new Promise(res => {
     if(!window.indexedDB){ res(null); return; }
-    const r = indexedDB.open('orBagagVisits', 1);
+    // v3.9.82 — bump to v2: adds 'media' store for photo Blobs (no more base64 inflation)
+    const r = indexedDB.open('orBagagVisits', 2);
     r.onupgradeneeded = e => {
       const d = e.target.result;
       if(!d.objectStoreNames.contains('kv')) d.createObjectStore('kv', {keyPath:'k'});
+      if(!d.objectStoreNames.contains('media')) d.createObjectStore('media', {keyPath:'key'});
     };
     r.onsuccess = e => { db = e.target.result; res(db); };
     r.onerror = () => res(null);
+  });
+}
+
+// v3.9.82 — Media (photo Blob) storage helpers. Uses native Blob in IndexedDB
+// (no base64 inflation, no localStorage 5MB cap, multi-GB practical limit).
+// Object URL cache prevents re-creating URLs for the same key.
+const _mediaUrlCache = new Map(); // key → object URL
+
+async function mediaPut(key, blob, meta){
+  if(!db || !blob) return false;
+  return new Promise(res => {
+    try {
+      const tx = db.transaction('media', 'readwrite');
+      tx.objectStore('media').put({ key, blob, ts: Date.now(), meta: meta||null });
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => res(false);
+    } catch(e){ res(false); }
+  });
+}
+async function mediaGet(key){
+  if(!db || !key) return null;
+  return new Promise(res => {
+    try {
+      const r = db.transaction('media','readonly').objectStore('media').get(key);
+      r.onsuccess = () => res(r.result?.blob || null);
+      r.onerror = () => res(null);
+    } catch(e){ res(null); }
+  });
+}
+async function mediaDelete(key){
+  if(!db || !key) return;
+  if(_mediaUrlCache.has(key)){
+    URL.revokeObjectURL(_mediaUrlCache.get(key));
+    _mediaUrlCache.delete(key);
+  }
+  try {
+    db.transaction('media','readwrite').objectStore('media').delete(key);
+  } catch(e){}
+}
+async function mediaGetUrl(key){
+  if(_mediaUrlCache.has(key)) return _mediaUrlCache.get(key);
+  const blob = await mediaGet(key);
+  if(!blob) return null;
+  const url = URL.createObjectURL(blob);
+  _mediaUrlCache.set(key, url);
+  return url;
+}
+async function mediaStats(){
+  if(!db) return { count: 0, bytes: 0 };
+  return new Promise(res => {
+    try {
+      const r = db.transaction('media','readonly').objectStore('media').openCursor();
+      let count = 0, bytes = 0;
+      r.onsuccess = e => {
+        const c = e.target.result;
+        if(c){
+          count++;
+          bytes += (c.value.blob?.size || 0);
+          c.continue();
+        } else {
+          res({ count, bytes });
+        }
+      };
+      r.onerror = () => res({ count: 0, bytes: 0 });
+    } catch(e){ res({ count: 0, bytes: 0 }); }
+  });
+}
+// Convert a base64 data URL into a Blob (for migration)
+function dataUrlToBlob(dataUrl){
+  if(!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) return null;
+  try {
+    const [meta, b64] = dataUrl.split(',');
+    const mime = (meta.match(/data:([^;]+)/) || [,'image/jpeg'])[1];
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for(let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  } catch(e){ return null; }
+}
+// Create a small thumb dataURL from a base64 image
+async function makeSmallThumb(dataUrl, maxPx = 220, quality = 0.55){
+  return new Promise(res => {
+    if(!dataUrl){ res(null); return; }
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if(w > maxPx || h > maxPx){
+        if(w > h){ h = Math.round(h * maxPx / w); w = maxPx; }
+        else { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => res(null);
+    img.src = dataUrl;
   });
 }
 async function dbSet(key, val){
@@ -14113,6 +14213,15 @@ function pdv2Render(p){
 
   // v3.9.78 — migrate legacy p.insights[] → p.issues[] (idempotent)
   if(typeof _pdMigrateIssues === 'function') _pdMigrateIssues(p);
+  // v3.9.82 — migrate photos to IndexedDB Blobs (idempotent, async fire-and-forget)
+  if(typeof _pdMigratePhotos === 'function'){
+    _pdMigratePhotos(p).then(() => {
+      // re-render gallery if currently open, so blobKey-backed thumbs become visible
+      if(_pdv2OpenSheet === 'gallery' && typeof pdv2RenderSheetGallery === 'function'){
+        pdv2RenderSheetGallery(p);
+      }
+    });
+  }
   // v3.9.78 — reset gallery phase on each project open
   _pdv2GalleryPhase = 'during';
 
@@ -14209,19 +14318,20 @@ function pdv2Render(p){
 }
 
 function pdv2HeroPhoto(p){
+  // v3.9.82 — prefer thumb (instant) for the hero; lightbox loads full on tap
   const pp = p.progressPhotos || {};
   const candidates = []
     .concat(pp.after || [])
     .concat(pp.during || [])
     .concat(pp.before || []);
   for(const ph of candidates){
-    const src = (ph && (ph.data || ph.url || ph));
-    if(src && typeof src === 'string') return src;
+    const src = photoThumbSrc(ph) || (ph && (ph.url || (typeof ph === 'string' ? ph : '')));
+    if(src) return src;
   }
   for(const t of (p.tasks||[])){
     const ph = (t.photos||[])[0];
-    const src = (ph && (ph.data || ph.url || ph));
-    if(src && typeof src === 'string') return src;
+    const src = photoThumbSrc(ph) || (ph && (ph.url || (typeof ph === 'string' ? ph : '')));
+    if(src) return src;
   }
   return '';
 }
@@ -14428,6 +14538,94 @@ function _pdMigrateIssues(p){
 }
 
 // ═══════════════════════════════════════════════
+// v3.9.82 — Photo storage migration to IndexedDB Blobs.
+// Strategy: per-project, idempotent, NON-destructive (keeps old `data` field
+// as fallback). Each photo gains a `blobKey` (full-res in IDB) and a small
+// `thumbDataUrl` (≤10KB) that stays in localStorage for instant grid render.
+// ═══════════════════════════════════════════════
+const PHOTO_STORAGE_VERSION = 2;
+
+async function _pdMigratePhotos(p){
+  if(!p) return;
+  if((p._storageVersion || 0) >= PHOTO_STORAGE_VERSION) return;
+  if(!db){ return; } // IDB not available — leave legacy data alone
+  if(!p.progressPhotos || typeof p.progressPhotos !== 'object'){
+    p.progressPhotos = { before: [], during: [], after: [] };
+    p._storageVersion = PHOTO_STORAGE_VERSION;
+    if(typeof saveAll === 'function') saveAll(true);
+    return;
+  }
+
+  let migrated = 0;
+  const phases = ['before','during','after'];
+
+  for(const phase of phases){
+    const arr = p.progressPhotos[phase] || [];
+    for(const ph of arr){
+      if(!ph || ph.blobKey) continue; // already migrated
+      const src = ph.dataFull || ph.data;
+      if(!src || typeof src !== 'string' || !src.startsWith('data:')) continue;
+      const blob = dataUrlToBlob(src);
+      if(!blob) continue;
+      const key = `proj-${p.id}-${phase}-${ph.id || uid()}`;
+      const ok = await mediaPut(key, blob, { projectId: p.id, phase });
+      if(!ok) continue;
+      ph.blobKey = key;
+      // Replace `data` with a tiny thumb if we don't have one
+      if(!ph.thumbDataUrl){
+        const thumb = await makeSmallThumb(ph.data || src);
+        if(thumb) ph.thumbDataUrl = thumb;
+      }
+      migrated++;
+    }
+  }
+
+  // Migrate task photos too
+  for(const t of (p.tasks||[])){
+    for(const ph of (t.photos||[])){
+      if(!ph || ph.blobKey) continue;
+      const src = ph.dataFull || ph.data;
+      if(!src || typeof src !== 'string' || !src.startsWith('data:')) continue;
+      const blob = dataUrlToBlob(src);
+      if(!blob) continue;
+      const key = `task-${p.id}-${t.id || uid()}-${ph.id || uid()}`;
+      const ok = await mediaPut(key, blob, { projectId: p.id, taskId: t.id });
+      if(!ok) continue;
+      ph.blobKey = key;
+      if(!ph.thumbDataUrl){
+        const thumb = await makeSmallThumb(ph.data || src);
+        if(thumb) ph.thumbDataUrl = thumb;
+      }
+      migrated++;
+    }
+  }
+
+  p._storageVersion = PHOTO_STORAGE_VERSION;
+  p._photoMigratedAt = Date.now();
+  if(typeof saveAll === 'function') saveAll(true);
+  if(migrated > 0 && typeof toast === 'function'){
+    toast(`🗄️ הועברו ${migrated} תמונות לאחסון חדש`);
+  }
+}
+
+// Best-available URL for an existing photo object (used by viewer + gallery)
+async function photoResolveUrl(ph){
+  if(!ph) return '';
+  // Prefer IDB Blob if migrated
+  if(ph.blobKey){
+    const url = await mediaGetUrl(ph.blobKey);
+    if(url) return url;
+  }
+  // Fallback to legacy base64
+  return ph.dataFull || ph.data || '';
+}
+// Synchronous best-effort src for thumbnails (gallery grid renders instantly)
+function photoThumbSrc(ph){
+  if(!ph) return '';
+  return ph.thumbDataUrl || ph.data || ph.dataFull || '';
+}
+
+// ═══════════════════════════════════════════════
 // v3.9.78 — Confirm bubble with undo (after free-talk applies)
 // ═══════════════════════════════════════════════
 let _pdv2ConfirmTimer = null;
@@ -14520,17 +14718,54 @@ function pdv2RenderSheetGallery(p){
     body.innerHTML = `<div class="pdv2-empty">אין תמונות בשלב הזה.<br>לחץ "+ צלם" כדי להוסיף.</div>`;
     return;
   }
+  // v3.9.82 — render thumbnails immediately from thumbDataUrl/data; lazy-load full Blob on tap
   body.innerHTML = `<div class="pdv2-gal-grid">
-    ${photos.map(ph => {
-      const src = ph.data || ph.thumbnail || ph.dataFull || (typeof ph==='string'?ph:'');
-      const full = ph.dataFull || ph.data || src;
-      if(!src || !src.startsWith('data:')) return '';
-      const meta = ph.meta ? JSON.stringify(ph.meta).replace(/"/g,'&quot;') : 'null';
-      return `<div class="pdv2-gal-thumb" onclick="openPhotoViewer('${full}','${full}', ${meta!=='null'?meta:'null'})">
-        <img src="${src}" alt="" loading="lazy">
+    ${photos.map((ph, idx) => {
+      const thumb = photoThumbSrc(ph);
+      if(!thumb && !ph.blobKey) return '';
+      // Encode index so handler can fetch the right photo
+      return `<div class="pdv2-gal-thumb" onclick="pdv2GalleryOpenViewer(${idx})">
+        <img src="${esc(thumb||'')}" alt="" loading="lazy" data-blob-key="${esc(ph.blobKey||'')}">
       </div>`;
     }).join('')}
   </div>`;
+  // If any thumb is missing src (only blobKey present), populate it asynchronously
+  body.querySelectorAll('img[data-blob-key]').forEach(async img => {
+    if(img.getAttribute('src')) return; // already has thumb
+    const key = img.getAttribute('data-blob-key');
+    if(!key) return;
+    const url = await mediaGetUrl(key);
+    if(url) img.src = url;
+  });
+}
+
+// v3.9.82 — legacy portfolio tab also gets blob-aware viewer
+async function pdLegacyOpenPhoto(phase, idx){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p) return;
+  const photos = (p.progressPhotos && p.progressPhotos[phase]) || [];
+  const ph = photos[idx];
+  if(!ph) return;
+  const full = await photoResolveUrl(ph);
+  if(!full){ if(typeof toast === 'function') toast('תמונה לא זמינה'); return; }
+  if(typeof openPhotoViewer === 'function') openPhotoViewer(full, full, ph.meta || null);
+}
+
+// v3.9.82 — open viewer with index lookup (so we can resolve blobKey → URL async)
+async function pdv2GalleryOpenViewer(idx){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p) return;
+  const photos = (p.progressPhotos && p.progressPhotos[_pdv2GalleryPhase]) || [];
+  const ph = photos[idx];
+  if(!ph) return;
+  const full = await photoResolveUrl(ph);
+  if(!full){
+    if(typeof toast === 'function') toast('תמונה לא זמינה');
+    return;
+  }
+  if(typeof openPhotoViewer === 'function'){
+    openPhotoViewer(full, full, ph.meta || null);
+  }
 }
 function pdv2GallerySetPhase(phase){
   if(phase !== 'before' && phase !== 'during' && phase !== 'after') return;
@@ -14584,17 +14819,33 @@ async function pdv2HandleMultiFiles(input){
         return compressed;
       } catch(e){ return null; }
     }));
-    results.forEach(r => {
-      if(!r){ failCount++; return; }
-      p.progressPhotos[phase].push({
-        id: (typeof uid === 'function' ? uid() : String(Date.now() + Math.random())),
-        data: r.data,
-        dataFull: r.dataFull || r.data,
+    for(const r of results){
+      if(!r){ failCount++; continue; }
+      const photoId = (typeof uid === 'function' ? uid() : String(Date.now() + Math.random()));
+      const photo = {
+        id: photoId,
         phase,
         ts: (typeof ts === 'function' ? ts() : Date.now())
-      });
+      };
+      // v3.9.82 — write full-res to IDB Blob (saves ~400KB per photo from localStorage)
+      const fullBlob = dataUrlToBlob(r.dataFull || r.data);
+      if(fullBlob && db){
+        const key = `proj-${p.id}-${phase}-${photoId}`;
+        const ok = await mediaPut(key, fullBlob, { projectId: p.id, phase });
+        if(ok){
+          photo.blobKey = key;
+          // small thumbnail stays in localStorage for fast grid
+          photo.thumbDataUrl = await makeSmallThumb(r.data);
+        }
+      }
+      // Backward-compat fallback: if IDB write failed, store base64 like before
+      if(!photo.blobKey){
+        photo.data = r.data;
+        photo.dataFull = r.dataFull || r.data;
+      }
+      p.progressPhotos[phase].push(photo);
       okCount++;
-    });
+    }
   }
   p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
   if(typeof saveAll === 'function') saveAll(true);
@@ -15655,14 +15906,17 @@ function renderPdPortfolio(p){
         </button>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="pd-portfolio-grid-${_pdPhotoPhase}">
       ${photos.map((ph,i)=>{
-        // תמיכה בכל פורמטי שמירה
-        const src = ph.data || ph.thumbnail || ph.dataFull || (typeof ph==='string'?ph:'');
-        const full = ph.dataFull || ph.data || src;
-        if(src && src.startsWith('data:')) return `
-          <div onclick="openPhotoViewer('${full}')" style="aspect-ratio:1;border-radius:12px;overflow:hidden;cursor:pointer;position:relative">
-            <img src="${src}" style="width:100%;height:100%;object-fit:cover">
+        // v3.9.82 — תמיכה ב-blobKey (IDB) בנוסף ל-base64 הישן
+        const thumb = (typeof photoThumbSrc === 'function' ? photoThumbSrc(ph) : '') || ph.data || ph.thumbnail || ph.dataFull || (typeof ph==='string'?ph:'');
+        const hasIdb = !!ph.blobKey;
+        const clickHandler = hasIdb
+          ? `pdLegacyOpenPhoto('${_pdPhotoPhase}',${i})`
+          : `openPhotoViewer('${ph.dataFull || ph.data || thumb}')`;
+        if(thumb || hasIdb) return `
+          <div onclick="${clickHandler}" style="aspect-ratio:1;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;background:var(--ink3)">
+            <img src="${esc(thumb||'')}" data-blob-key="${esc(ph.blobKey||'')}" style="width:100%;height:100%;object-fit:cover">
             ${ph.note?`<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.45);color:#fff;font-size:10px;padding:3px 6px;font-weight:600">${esc(ph.note)}</div>`:''}
           </div>`;
         return `<div style="aspect-ratio:1;border-radius:12px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:36px">🖼️</div>`;
@@ -16035,14 +16289,29 @@ function pdQuickPhoto(){
       p.progressPhotos[phase].push(ph);
     });
   }
-  takePhoto((data, dataFull, meta)=>{
+  takePhoto(async (data, dataFull, meta)=>{
     if(!p) return;
     const phase = _pdPhotoPhase||'during';
     if(!p.progressPhotos[phase]) p.progressPhotos[phase]=[];
 
     // v3.9.12 — שמור meta (כיוון + GPS) אם זמין
-    const photo = {id:uid(), data, dataFull:dataFull||data, phase, ts:ts()};
+    const photo = {id:uid(), phase, ts:ts()};
     if(meta) photo.meta = meta;
+    // v3.9.82 — write full-res to IDB Blob; tiny thumb in metadata
+    const fullBlob = dataUrlToBlob(dataFull || data);
+    if(fullBlob && db){
+      const key = `proj-${p.id}-${phase}-${photo.id}`;
+      const ok = await mediaPut(key, fullBlob, { projectId: p.id, phase });
+      if(ok){
+        photo.blobKey = key;
+        photo.thumbDataUrl = await makeSmallThumb(data);
+      }
+    }
+    if(!photo.blobKey){
+      // Fallback: keep base64 like legacy if IDB write failed
+      photo.data = data;
+      photo.dataFull = dataFull || data;
+    }
     p.progressPhotos[phase].push(photo);
     p.updatedAt=ts(); saveAll();
 
@@ -20897,6 +21166,50 @@ function debugShowProjectData(){
   };
   const el = document.getElementById('debug-output-area');
   if(el){ el.style.display='block'; el.textContent = JSON.stringify(data, null, 2); }
+}
+
+// v3.9.82 — IndexedDB media stats (count + size of stored photo Blobs)
+async function debugShowStorageStats(){
+  const el = document.getElementById('debug-output-area');
+  if(!el) return;
+  el.style.display = 'block';
+  el.textContent = 'בודק...';
+  try {
+    const stats = await mediaStats();
+    const mb = (stats.bytes / (1024*1024)).toFixed(2);
+    let lsBytes = 0;
+    try {
+      for(const k in localStorage){
+        if(Object.prototype.hasOwnProperty.call(localStorage, k)){
+          lsBytes += k.length + (localStorage[k]?.length || 0);
+        }
+      }
+    } catch(e){}
+    const lsKb = (lsBytes / 1024).toFixed(1);
+    let quota = null, usage = null;
+    if(navigator.storage && navigator.storage.estimate){
+      const est = await navigator.storage.estimate();
+      quota = est.quota; usage = est.usage;
+    }
+    const data = {
+      'IndexedDB media': {
+        photos: stats.count,
+        size: `${mb} MB (${stats.bytes.toLocaleString()} bytes)`,
+      },
+      'localStorage': {
+        size: `${lsKb} KB (${lsBytes.toLocaleString()} bytes)`,
+      },
+      'Quota (כולל)': quota ? {
+        used: `${(usage/(1024*1024)).toFixed(2)} MB`,
+        max: `${(quota/(1024*1024)).toFixed(0)} MB`,
+        pct: `${((usage/quota)*100).toFixed(1)}%`
+      } : 'לא זמין',
+      projects: (S.projects||[]).length,
+    };
+    el.textContent = JSON.stringify(data, null, 2);
+  } catch(e){
+    el.textContent = 'שגיאה: ' + e.message;
+  }
 }
 
 // ═══════════════════════════════════════════════════════
