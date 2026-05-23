@@ -4426,7 +4426,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.78'; // v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.79'; // v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -20704,14 +20704,11 @@ function debugShowProjectData(){
 // ═══════════════════════════════════════════════════════
 function seedPerlsteinProject(){
   const SEED_ID = 'demo-perlstein';
-  const existing = (S.projects||[]).find(p => p.id === SEED_ID);
-  if(existing){
-    S.activeProjectId = existing.id;
-    viewStack = ['dash','projects-list','project-detail'];
-    show('project-detail');
-    renderProjectDetail();
-    if(typeof toast === 'function') toast('פרלשטיין כבר טעון — נפתח');
-    return;
+
+  // v3.9.79 — re-seed: replace any prior demo project with the full data
+  if(Array.isArray(S.projects)){
+    const idx = S.projects.findIndex(p => p.id === SEED_ID);
+    if(idx !== -1) S.projects.splice(idx, 1);
   }
 
   // 29/04/2026 — Tuesday of week 1
@@ -20723,58 +20720,84 @@ function seedPerlsteinProject(){
     doneAt: i < doneCount ? startDate + (i+1) * 86400000 : undefined
   }));
 
+  // Task prices total exactly 65,250 ₪ net (per perlstein_full.md §6)
   const tasks = [
-    { name: 'חידוש רוכבים', category: 'ridge', price: 4500,
+    { name: 'חידוש רוכבים', category: 'ridge', price: 8000,
       steps: mkSteps(['שיוף ופירוק ישנים','התקנת רוכבים חדשים','איטום חיבורים'], 3) },
-    { name: 'החלפת תעלות פנימיות (28.5 מ׳)', category: 'gutter_internal', price: 8500,
+    { name: 'החלפת תעלות פנימיות (28.5 מ׳)', category: 'gutter_internal', price: 22000,
       steps: mkSteps(['פירוק תעלות ישנות','מדידה והכנת חומר','התקנת מקטע 14 מ׳','התקנת יתרת המקטעים'], 4) },
-    { name: 'התקנת קופינג היקפי', category: 'coping', price: 6200,
-      steps: mkSteps(['מדידת פינות','הכנת חומר','התקנה היקפית'], 3) },
-    { name: 'קידוח מרזבים חיצוניים', category: 'drain', price: 1800,
+    { name: 'התקנת קופינג היקפי', category: 'coping', price: 11000,
+      steps: mkSteps(['מדידת פינות (פנימיות+חיצוניות)','הכנת חומר','התקנה היקפית'], 3) },
+    { name: 'קידוח מרזבים חיצוניים', category: 'drain', price: 3000,
       steps: mkSteps(['סימון','קידוח'], 2) },
-    { name: 'התקנת צינורות חיצוניים', category: 'pipe', price: 3400,
+    { name: 'התקנת צינורות חיצוניים', category: 'pipe', price: 5500,
       steps: mkSteps(['הכנת חיבורים','התקנה','השלמת צינור ירידה אחרון'], 3) },
-    { name: 'איטום תעלה בוואן', category: 'sealing', price: 2200,
+    { name: 'איטום תעלה בוואן', category: 'sealing', price: 4000,
       steps: mkSteps(['ניקוי','שכבה ראשונה','שכבה סופית'], 0) },
-    { name: 'איטום ופחחות לחלון גג', category: 'flashing', price: 3100,
+    { name: 'איטום ופחחות לחלון גג', category: 'flashing', price: 5500,
       steps: mkSteps(['פירוק קיים','פחחות חדשה','איטום סופי'], 2) },
-    { name: 'גגון דוד+מזגנים (בלת״ם)', category: 'other', price: 4200,
+    { name: 'גגון דוד+מזגנים (בלת״ם)', category: 'other', price: 6250,
       steps: mkSteps(['מדידה ותכנון','התקנה ואיטום'], 0) },
   ];
 
+  // Updated rates per perlstein_full.md §6
   const workers = [
-    { id: 'w-or',     name: 'אור',    dailyRate: 1200 },
-    { id: 'w-ron',    name: 'רון',    dailyRate: 800 },
-    { id: 'w-aviran', name: 'אבירן',  dailyRate: 700 },
+    { id: 'w-or',     name: 'אור',    dailyRate: 1500, daysWorked: 9 },
+    { id: 'w-ron',    name: 'רון',    dailyRate: 800,  daysWorked: 10.5, note: 'עוסק מורשה (+ מע״מ)' },
+    { id: 'w-aviran', name: 'אבירן',  dailyRate: 800,  daysWorked: 4,    note: 'ללא מע״מ' },
   ];
 
   const day = i => startDate + i * 86400000;
+
+  // Materials + external labor + Or self-cost (per perlstein_full.md §6)
+  const expenses = [
+    // חומרים (כולל מע"מ — כפי שעל הקבלה)
+    { id: 'e-alum',    vendor: 'קראדי — אלומיניום (תעלות+קופינג)', amount: 5900, category: 'materials', ts: day(0) },
+    { id: 'e-pipe',    vendor: 'צנרת עגולה חיצונית',               amount: 2500, category: 'materials', ts: day(8) },
+    { id: 'e-cement',  vendor: 'מלט מהיר Megacrete Fast 40',        amount:   50, category: 'materials', ts: day(7) },
+    { id: 'e-primer',  vendor: 'פריימר + איזופלקס כתום (רוכבים)',   amount:  200, category: 'materials', ts: day(3) },
+    { id: 'e-glue',    vendor: 'חומרי הדבקה (כל הפרויקט)',           amount:  354, category: 'materials', ts: day(2) },
+    { id: 'e-tiles',   vendor: 'רעפים + פלטות',                     amount:  200, category: 'materials', ts: day(2) },
+    // עבודה חיצונית
+    { id: 'e-lbr-ron', vendor: 'רון — 10.5 ימים × 800 + מע״מ',      amount: 9912, category: 'labor',     ts: day(15) },
+    { id: 'e-lbr-avi', vendor: 'אבירן — 4 ימים × 800',               amount: 3200, category: 'labor',     ts: day(10) },
+    // עבודת אור (עלות זמן עצמית — להצגת רווח אמיתי במסך מנהלים)
+    { id: 'e-lbr-or',  vendor: 'אור — 9 ימים × 1,500',               amount: 13500, category: 'labor',    ts: day(15) },
+  ];
+
   const issues = [
-    // ── בלת״מים ──
+    // ── בלת״מים (7) ──
     { id: 'b-gagon',   kind:'blatam', tag:'תוספת בתשלום', severity:'good',
       text:'גגון דוד+מזגנים — לא נצפה בהצעה (תומחר מצילומי לוויין). הועלה מול הלקוחות, סוכם כתוספת בתשלום.',
       source:'manual', resolved:false, createdAt: day(1) },
+    { id: 'b-doublebook', kind:'blatam', tag:'לוגיסטיקה', severity:'warn',
+      text:'דאבל-בוקינג — אור נעדר 3 ימים בשבוע 2 (הבטיח לקולגה פרויקט מקביל). העבודה נמשכה ע״י רון ואבירן בלעדיו.',
+      source:'manual', resolved:false, createdAt: day(5) },
     { id: 'b-tashtit', kind:'blatam', tag:'עלות לא מתוכננת', severity:'warn',
-      text:'תשתית רעועה — נשברו לטות/מרישים והובאו ~15 רעפים חדשים. חומר לא תומחר בהצעה המקורית.',
+      text:'תשתית רעועה — נשברו לטות ומרישים והובאו ~15 רעפים חדשים. חומר לא תומחר בהצעה המקורית.',
       source:'manual', resolved:false, createdAt: day(2) },
-    { id: 'b-tealamore', kind:'blatam', tag:'תוספת בתשלום', severity:'good',
-      text:'מקטע תעלה נוסף 2 מ׳ — לא תוכמן. עודכן ללקוחות במקום, הסכימו.',
-      source:'manual', resolved:false, createdAt: day(10) },
     { id: 'b-bonus',   kind:'blatam', tag:'בונוס ללקוח', severity:'good',
       text:'3 מוקדי צנרת חודרת + ארובה — לא קיבלו חשיבות בהצעה. בוצע טיפול ואיטום ללא חיוב.',
       source:'manual', resolved:false, createdAt: day(11) },
+    { id: 'b-tealamore', kind:'blatam', tag:'תוספת בתשלום', severity:'good',
+      text:'מקטע תעלה נוסף ~2 מ׳ — לא תוכמן. עודכן ללקוחות במקום, הסכימו.',
+      source:'manual', resolved:false, createdAt: day(10) },
     { id: 'b-ziv',     kind:'blatam', tag:'בטיחות', severity:'warn',
       text:'פציעת זיו (צלם) — רסיס מרעיון לסרטון. דורש שיחה על נהלי בטיחות בעת צילום באתר.',
       source:'manual', resolved:false, createdAt: day(10) },
-    // ── תובנות מקצועיות ──
-    { id: 'i-coping',  kind:'insight', tag:'תובנה',
-      text:'קופינג — קודם כל פינות. תמיד למדוד פינות פנימיות וחיצוניות ראשונות; בפינות יש עיבוי תשתית שמשבש מידות.',
+    { id: 'b-shipua',  kind:'blatam', tag:'בקרת איכות', severity:'warn',
+      text:'פשלת שיפוע תעלה — רון לא בדק שיפוע לפני חיבור. תוקן באתר באותו יום.',
+      source:'manual', resolved:false, createdAt: day(10) },
+
+    // ── תובנות מקצועיות (3 — קופינג) ──
+    { id: 'i-coping-corners',  kind:'insight', tag:'קופינג',
+      text:'קופינג — קודם כל פינות. בפינות תמיד יש עיבוי של התשתית שיוצר בעיות אם לא מודדים אותו קודם. סדר עבודה: מתחילים בפינות פנימיות וחיצוניות, ומשם משלימים את המקטעים הישרים.',
       source:'manual', resolved:false, createdAt: day(7) },
-    { id: 'i-hizook',  kind:'insight', tag:'תובנה',
-      text:'חיזוק נסתר — מלמטה למעלה: 1.5 כלפי מעלה → תופסן+לשונית → בורג כלפי ה-3 → החלק הבא מתיישב → תפירה מושכת למטה.',
+    { id: 'i-coping-install',  kind:'insight', tag:'קופינג — סדר התקנה',
+      text:'חיזוק נסתר + תפר — מלמטה למעלה: (1) מתחילים מלמטה; (2) שמים את היחידה שה־1.5 שלה כלפי מעלה; (3) תופסן עם לשונית, הבורג פונה כלפי ה־3 כלפי מעלה; (4) החלק הבא מתיישב על הקודם; (5) כשתופרים — המשיכה מושכת את החלק העליון כלפי מטה ומכסה את חורי התפר.',
       source:'manual', resolved:false, createdAt: day(9) },
-    { id: 'i-shipua',  kind:'insight', severity:'warn', tag:'תובנה',
-      text:'לבדוק שיפוע לפני חיבור תעלה. רון לא בדק — תוקן. צ׳קליסט: לפני כל חיבור תעלה — לוודא שיפוע.',
+    { id: 'i-shipua',  kind:'insight', severity:'warn', tag:'בקרת איכות',
+      text:'לבדוק שיפוע לפני חיבור תעלה. צ׳קליסט קבוע: לפני כל חיבור תעלה — לוודא שיפוע. (נובע מפשלה של רון שתוקנה.)',
       source:'manual', resolved:false, createdAt: day(10) },
   ];
 
@@ -20797,6 +20820,7 @@ function seedPerlsteinProject(){
     progressPhotos: { before: [], during: [], after: [] },
     workers,
     payments: [],
+    expenses,
     issues,
     roofType: 'רעפים',
     roofMeters: 28.5,
@@ -20813,7 +20837,7 @@ function seedPerlsteinProject(){
   viewStack = ['dash','projects-list','project-detail'];
   show('project-detail');
   renderProjectDetail();
-  if(typeof toast === 'function') toast('🌅 פרלשטיין נטען — 8 סעיפים, 5 בלת״מים, 3 תובנות');
+  if(typeof toast === 'function') toast('🌅 פרלשטיין נטען מחדש — 8 סעיפים, 7 בלת״מים, 3 תובנות, נתוני כספים מלאים');
 }
 
 // ═══════════════════════════════════════════════════════
