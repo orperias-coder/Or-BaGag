@@ -2830,6 +2830,466 @@ body.theme-finance  .view.on{background:#eef5f0}
 .pd-bnb.on{color:var(--gold2)}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ─── end v2.2.0 ─── */
+
+/* ═══════════════════════════════════════════════
+   RISING SUN — Project Detail v2 (v3.9.76)
+   "שעת הזהב על גג ים-תיכוני"
+   Scoped under #view-project-detail.pdv2 with pdv2- classes
+   ═══════════════════════════════════════════════ */
+#view-project-detail.pdv2 {
+  --pd-stone: #e8dcc8;
+  --pd-stone-d: #d4c5ab;
+  --pd-plaster: #f6f1e6;
+  --pd-sun: #e8a82c;
+  --pd-sun-deep: #cf8f18;
+  --pd-sun-glow: rgba(232,168,44,.4);
+  --pd-amber: #c4941a;
+  --pd-amber-l: #f5e6bf;
+  --pd-sage: #6b8f6b;
+  --pd-sage-l: #dce8dc;
+  --pd-danger: #a64030;
+  --pd-ink: #2a1f12;
+  --pd-ink2: #5c4a36;
+  --pd-ink3: #8a7a66;
+  --pd-sh-1: 0 1px 2px rgba(42,31,18,.04), 0 2px 6px rgba(42,31,18,.05);
+  --pd-sh-2: 0 2px 4px rgba(42,31,18,.05), 0 6px 16px rgba(42,31,18,.07);
+  --pd-sh-3: 0 4px 8px rgba(42,31,18,.06), 0 12px 32px rgba(42,31,18,.10);
+  --pd-sh-press: 0 1px 3px rgba(42,31,18,.08);
+  --pd-hairline: rgba(42,31,18,.06);
+  --pd-hairline-2: rgba(42,31,18,.10);
+  --pd-ease: cubic-bezier(.4,0,.2,1);
+  --pd-ease-out: cubic-bezier(.22,.61,.36,1);
+  --pd-spring: cubic-bezier(.34,1.56,.64,1);
+  background: var(--pd-plaster);
+  font-family: 'Heebo', sans-serif;
+  overflow: hidden;
+  padding: 0;
+  display: block !important;
+}
+/* suppress global theme stripe + theme bg on pdv2 */
+body.theme-projects #view-project-detail.pdv2::before { display: none !important; }
+
+#view-project-detail.pdv2 .pdv2-photo {
+  position: absolute; top: 0; left: 0; right: 0; height: 44%;
+  overflow: hidden;
+  background: linear-gradient(to bottom,
+    #6a5a7a 0%, #9a7a6a 28%, #c89a5a 50%, #d9a85a 65%, var(--pd-plaster) 100%);
+}
+#view-project-detail.pdv2 .pdv2-photo-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0; opacity: .92;
+}
+#view-project-detail.pdv2 .pdv2-photo::after {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 55%, rgba(246,241,230,.6) 90%, var(--pd-plaster) 100%);
+}
+#view-project-detail.pdv2 .pdv2-roof {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 90px; z-index: 2;
+  pointer-events: none;
+}
+#view-project-detail.pdv2 .pdv2-roof svg { width: 100%; height: 100%; display: block; }
+
+#view-project-detail.pdv2 .pdv2-sun-wrap {
+  position: absolute; left: 50%; width: 88px; height: 88px;
+  bottom: 30px; z-index: 3;
+  transform: translate(-50%, 60px) scale(.85); opacity: 0;
+  transition: transform 2s var(--pd-ease-out) .3s, opacity 2s var(--pd-ease-out) .3s;
+}
+#view-project-detail.pdv2.pdv2-loaded .pdv2-sun-wrap {
+  transform: translate(-50%, var(--pd-sun-y, -88px)) scale(1); opacity: 1;
+}
+#view-project-detail.pdv2 .pdv2-sun-rays {
+  position:absolute; top:50%; left:50%; width:150px; height:150px;
+  transform: translate(-50%,-50%);
+  background: repeating-conic-gradient(from 0deg,
+    rgba(255,210,120,.22) 0deg 3deg, transparent 3deg 22.5deg);
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(circle, transparent 44px, #000 50px, transparent 74px);
+  mask: radial-gradient(circle, transparent 44px, #000 50px, transparent 74px);
+  animation: pdv2-rays 60s linear infinite;
+}
+@keyframes pdv2-rays { to { transform: translate(-50%,-50%) rotate(360deg) } }
+#view-project-detail.pdv2 .pdv2-sun-halo {
+  position:absolute; top:50%; left:50%; width:112px; height:112px;
+  transform: translate(-50%,-50%); border-radius:50%;
+  background: radial-gradient(circle, transparent 40%, rgba(255,205,110,.18) 50%, transparent 68%);
+}
+#view-project-detail.pdv2 .pdv2-sun-disc {
+  position:absolute; top:50%; left:50%; width:88px; height:88px;
+  transform: translate(-50%,-50%); border-radius:50%;
+  background: radial-gradient(circle at 50% 40%, #ffd97a 0%, var(--pd-sun) 55%, var(--pd-sun-deep) 100%);
+  box-shadow: 0 0 40px var(--pd-sun-glow), 0 0 80px var(--pd-sun-glow);
+}
+
+#view-project-detail.pdv2 .pdv2-grain {
+  position:absolute; inset:0; opacity:.08; z-index:4; pointer-events:none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 120px;
+}
+#view-project-detail.pdv2 .pdv2-prog-tag {
+  position:absolute; top:96px; left:50%; transform:translateX(-50%); z-index:5;
+  background: rgba(42,31,18,.35);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.12); border-radius:16px;
+  padding: 6px 15px; font-size: 12px; font-weight: 700; letter-spacing: .3px;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.15);
+  opacity: 0; transition: opacity .6s 1.6s;
+}
+#view-project-detail.pdv2.pdv2-loaded .pdv2-prog-tag { opacity: 1; }
+
+#view-project-detail.pdv2 .pdv2-topbar {
+  position: absolute; top: 14px; left: 14px; right: 14px; z-index: 10;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 0; background: transparent; border: none;
+}
+#view-project-detail.pdv2 .pdv2-ic {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,.16);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow: 0 2px 10px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform .2s var(--pd-ease);
+  color: #fff; font-size: 22px; font-weight: 600; padding: 0;
+}
+#view-project-detail.pdv2 .pdv2-ic:active { transform: scale(.9); }
+#view-project-detail.pdv2 .pdv2-chip {
+  background: rgba(255,255,255,.16);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.22); border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.2);
+  padding: 9px 16px; font-size: 12px; font-weight: 600;
+  color: #fff; letter-spacing: .2px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+}
+#view-project-detail.pdv2 .pdv2-live {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #7ddb8a; box-shadow: 0 0 8px #7ddb8a;
+  animation: pdv2-blink 3s ease-in-out infinite;
+}
+@keyframes pdv2-blink { 0%,100%{opacity:.5} 50%{opacity:1} }
+#view-project-detail.pdv2 .pdv2-ph-count {
+  position: absolute; top: 68px; right: 14px; z-index: 10;
+  background: rgba(42,31,18,.42);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 11px; padding: 7px 12px;
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,.9);
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+#view-project-detail.pdv2 .pdv2-cam {
+  width: 13px; height: 10px;
+  border: 1.5px solid rgba(255,255,255,.85); border-radius: 2px;
+  position: relative;
+}
+#view-project-detail.pdv2 .pdv2-cam::before {
+  content:''; position:absolute; width:4px; height:4px; border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.85);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+
+#view-project-detail.pdv2 .pdv2-content {
+  position: absolute; top: 44%; left: 0; right: 0; bottom: 0;
+  padding: 24px 28px 28px;
+  display: flex; flex-direction: column;
+  background: linear-gradient(to bottom, #fbf7ee 0%, var(--pd-plaster) 40%);
+}
+#view-project-detail.pdv2 .pdv2-content::before {
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px;
+}
+
+#view-project-detail.pdv2 .pdv2-name {
+  font-size: 28px; font-weight: 900; color: var(--pd-ink);
+  line-height: 1.05; letter-spacing: -.6px;
+}
+#view-project-detail.pdv2 .pdv2-detail {
+  font-size: 13px; color: var(--pd-ink3); margin-top: 5px;
+  font-weight: 400; letter-spacing: .1px;
+}
+#view-project-detail.pdv2 .pdv2-gold {
+  width: 44px; height: 2.5px; border-radius: 2px; margin: 14px 0;
+  background: linear-gradient(90deg, var(--pd-sun), var(--pd-amber));
+  box-shadow: 0 0 8px var(--pd-sun-glow);
+}
+#view-project-detail.pdv2 .pdv2-mood { margin-bottom: 16px; position: relative; }
+#view-project-detail.pdv2 .pdv2-mood-text {
+  font-size: 15px; font-weight: 600; color: var(--pd-ink2);
+  line-height: 1.6; letter-spacing: .1px;
+}
+#view-project-detail.pdv2 .pdv2-mood-hl { color: var(--pd-sage); font-weight: 800; }
+#view-project-detail.pdv2 .pdv2-mood-meta {
+  font-size: 12px; color: var(--pd-ink3); margin-top: 9px;
+  display: flex; align-items: center; gap: 10px; font-weight: 500; flex-wrap: wrap;
+}
+#view-project-detail.pdv2 .pdv2-sep {
+  width: 3px; height: 3px; border-radius: 50%; background: var(--pd-stone-d);
+}
+#view-project-detail.pdv2 .pdv2-spacer { flex: 1; min-height: 8px; }
+
+#view-project-detail.pdv2 .pdv2-voice-row {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+  position: relative;
+}
+#view-project-detail.pdv2 .pdv2-sun-btn {
+  flex: 1; position: relative; padding: 19px 28px; border-radius: 22px;
+  border: none; cursor: pointer; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-family: inherit; font-size: 17px; font-weight: 800; color: #fff;
+  letter-spacing: .2px;
+  background: linear-gradient(140deg, #f0b53a 0%, var(--pd-sun) 45%, var(--pd-sun-deep) 100%);
+  box-shadow: 0 1px 2px rgba(160,110,10,.2),
+    0 6px 16px var(--pd-sun-glow),
+    0 12px 32px rgba(232,168,44,.25),
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -2px 6px rgba(160,110,10,.15);
+  transition: transform .18s var(--pd-ease), box-shadow .18s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-sun-btn:active {
+  transform: scale(.975);
+  box-shadow: 0 1px 2px rgba(160,110,10,.2),
+    0 3px 8px var(--pd-sun-glow),
+    inset 0 1px 0 rgba(255,255,255,.3),
+    inset 0 -2px 6px rgba(160,110,10,.2);
+}
+#view-project-detail.pdv2 .pdv2-sun-btn::before {
+  content:''; position:absolute; width:120px; height:120px; border-radius:50%;
+  background: radial-gradient(circle, rgba(255,225,150,.45) 0%, transparent 70%);
+  top:50%; left:28%; transform:translate(-50%,-50%);
+  animation: pdv2-glow 4s ease-in-out infinite;
+}
+@keyframes pdv2-glow {
+  0%,100% { opacity:.3; transform: translate(-50%,-50%) scale(.8) }
+  50%     { opacity:.55; transform: translate(-50%,-50%) scale(1.1) }
+}
+#view-project-detail.pdv2 .pdv2-mic {
+  position: relative; z-index: 2; width: 16px; height: 22px; flex-shrink: 0;
+}
+#view-project-detail.pdv2 .pdv2-mic::before {
+  content:''; position:absolute; width:10px; height:15px; border-radius:5px;
+  border:2px solid #fff; top:0; left:3px;
+}
+#view-project-detail.pdv2 .pdv2-mic::after {
+  content:''; position:absolute; width:16px; height:8px;
+  border:2px solid #fff; border-top:none; border-radius:0 0 8px 8px;
+  bottom:2px; left:0;
+}
+#view-project-detail.pdv2 .pdv2-vtxt { position: relative; z-index: 2; }
+#view-project-detail.pdv2 .pdv2-snap {
+  width: 58px; height: 58px; border-radius: 18px;
+  background: linear-gradient(145deg, #ede2cd, var(--pd-stone));
+  border: 1px solid var(--pd-hairline-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  box-shadow: var(--pd-sh-1), inset 0 1px 0 rgba(255,255,255,.5);
+  transition: transform .18s var(--pd-ease), box-shadow .18s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-snap:active {
+  transform: scale(.94); box-shadow: var(--pd-sh-press);
+}
+#view-project-detail.pdv2 .pdv2-snap-ic {
+  width: 22px; height: 17px; border: 2px solid var(--pd-ink2);
+  border-radius: 3px; position: relative;
+}
+#view-project-detail.pdv2 .pdv2-snap-ic::before {
+  content:''; position:absolute; width:8px; height:8px; border-radius:50%;
+  border:2px solid var(--pd-ink2);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+#view-project-detail.pdv2 .pdv2-snap-ic::after {
+  content:''; position:absolute; width:10px; height:5px;
+  background: var(--pd-ink2); border-radius:2px 2px 0 0;
+  top:-6px; left:50%; transform:translateX(-50%);
+}
+
+#view-project-detail.pdv2 .pdv2-access { display: flex; gap: 8px; position: relative; }
+#view-project-detail.pdv2 .pdv2-pill {
+  flex: 1; border-radius: 16px; padding: 13px 8px;
+  text-align: center; cursor: pointer;
+  background: linear-gradient(145deg, #ede2cd, var(--pd-stone));
+  border: 1px solid var(--pd-hairline-2);
+  box-shadow: var(--pd-sh-1), inset 0 1px 0 rgba(255,255,255,.5);
+  transition: transform .2s var(--pd-spring), box-shadow .2s var(--pd-ease), border-color .2s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-pill:active {
+  transform: scale(.95) translateY(1px);
+  border-color: var(--pd-sun); box-shadow: var(--pd-sh-press);
+}
+#view-project-detail.pdv2 .pdv2-pill-ic {
+  width: 26px; height: 26px; margin: 0 auto 5px;
+  display: flex; align-items: center; justify-content: center;
+}
+#view-project-detail.pdv2 .pdv2-bolt {
+  width:0; height:0;
+  border-left:5px solid transparent; border-right:5px solid transparent;
+  border-top:11px solid var(--pd-amber); position: relative;
+}
+#view-project-detail.pdv2 .pdv2-bolt::after {
+  content:''; position:absolute; width:0; height:0;
+  border-left:5px solid transparent; border-right:5px solid transparent;
+  border-bottom:11px solid var(--pd-amber);
+  top:-4px; left:-7px;
+}
+#view-project-detail.pdv2 .pdv2-bulb {
+  width:13px; height:13px; border-radius:50%;
+  border:2px solid var(--pd-amber); position:relative;
+}
+#view-project-detail.pdv2 .pdv2-bulb::after {
+  content:''; position:absolute; width:7px; height:4px;
+  border:2px solid var(--pd-amber); border-top:none; border-radius:0 0 3px 3px;
+  bottom:-5px; left:50%; transform:translateX(-50%);
+}
+#view-project-detail.pdv2 .pdv2-lines { display:flex; flex-direction:column; gap:3px; align-items:center; }
+#view-project-detail.pdv2 .pdv2-lines span { height:2px; background:var(--pd-amber); border-radius:1px; }
+#view-project-detail.pdv2 .pdv2-lines span:nth-child(1){width:16px}
+#view-project-detail.pdv2 .pdv2-lines span:nth-child(2){width:11px}
+#view-project-detail.pdv2 .pdv2-lines span:nth-child(3){width:14px}
+#view-project-detail.pdv2 .pdv2-pill-text {
+  font-size: 11px; font-weight: 700; color: var(--pd-ink2);
+}
+#view-project-detail.pdv2 .pdv2-pill-num {
+  font-size: 11px; font-weight: 800; color: var(--pd-amber); margin-top: 1px;
+}
+
+#view-project-detail.pdv2 .pdv2-sh-bg {
+  position: absolute; inset: 0; background: rgba(42,31,18,.45); z-index: 100;
+  opacity: 0; pointer-events: none; transition: opacity .35s;
+}
+#view-project-detail.pdv2 .pdv2-sh-bg.show { opacity: 1; pointer-events: all; }
+#view-project-detail.pdv2 .pdv2-sh-panel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--pd-plaster);
+  border-radius: 28px 28px 0 0; max-height: 80%;
+  z-index: 101; transform: translateY(100%);
+  transition: transform .42s cubic-bezier(.32,.72,0,1);
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: 0 -8px 40px rgba(42,31,18,.18);
+}
+#view-project-detail.pdv2 .pdv2-sh-panel.show { transform: translateY(0); }
+#view-project-detail.pdv2 .pdv2-sh-handle {
+  width: 38px; height: 4px; background: var(--pd-stone-d);
+  border-radius: 2px; margin: 14px auto 10px;
+}
+#view-project-detail.pdv2 .pdv2-sh-head { padding: 4px 28px 14px; }
+#view-project-detail.pdv2 .pdv2-sh-title {
+  font-size: 20px; font-weight: 900; color: var(--pd-ink);
+}
+#view-project-detail.pdv2 .pdv2-sh-sub {
+  font-size: 12px; color: var(--pd-ink3); margin-top: 2px;
+}
+#view-project-detail.pdv2 .pdv2-sh-body {
+  flex: 1; overflow-y: auto; padding: 0 24px 36px;
+}
+#view-project-detail.pdv2 .pdv2-sh-body::-webkit-scrollbar { display: none; }
+#view-project-detail.pdv2 .pdv2-card {
+  background: #fff; border-radius: 18px; padding: 22px;
+  margin-bottom: 12px; border: 1px solid var(--pd-hairline);
+  box-shadow: var(--pd-sh-2), inset 0 1px 0 rgba(255,255,255,.6);
+}
+#view-project-detail.pdv2 .pdv2-hero {
+  border-radius: 20px; padding: 26px; color: #fff; margin-bottom: 12px;
+  cursor: pointer; position: relative; overflow: hidden;
+  box-shadow: var(--pd-sh-3), inset 0 1px 0 rgba(255,255,255,.18);
+  transition: transform .2s var(--pd-ease), box-shadow .2s var(--pd-ease);
+}
+#view-project-detail.pdv2 .pdv2-hero:active { transform: scale(.98); box-shadow: var(--pd-sh-1); }
+#view-project-detail.pdv2 .pdv2-hc-blue { background: linear-gradient(140deg, #2c5f8a, #1a3d5c); }
+#view-project-detail.pdv2 .pdv2-hc-sun  { background: linear-gradient(140deg, var(--pd-sun), var(--pd-sun-deep)); }
+#view-project-detail.pdv2 .pdv2-hc-glow {
+  position: absolute; width: 160px; height: 160px; border-radius: 50%;
+  filter: blur(50px); opacity: .15; top: -30px; right: -20px;
+}
+#view-project-detail.pdv2 .pdv2-hc-blue .pdv2-hc-glow { background: #80c8ff; }
+#view-project-detail.pdv2 .pdv2-hc-sun  .pdv2-hc-glow { background: #ffe680; }
+#view-project-detail.pdv2 .pdv2-hc-title {
+  font-size: 19px; font-weight: 900; position: relative; z-index: 2;
+}
+#view-project-detail.pdv2 .pdv2-hc-desc {
+  font-size: 13px; opacity: .75; margin-top: 6px;
+  line-height: 1.5; position: relative; z-index: 2;
+}
+#view-project-detail.pdv2 .pdv2-hc-btn {
+  display: inline-block; margin-top: 14px;
+  padding: 9px 20px; background: rgba(255,255,255,.18);
+  border-radius: 12px; font-size: 13px; font-weight: 700;
+  position: relative; z-index: 2;
+}
+
+#view-project-detail.pdv2 .pdv2-dr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-bottom: 1px solid var(--pd-stone); cursor: pointer;
+}
+#view-project-detail.pdv2 .pdv2-dr:last-child { border-bottom: none; }
+#view-project-detail.pdv2 .pdv2-dr-label {
+  font-size: 14px; font-weight: 600; color: var(--pd-ink);
+}
+#view-project-detail.pdv2 .pdv2-dr-val {
+  font-size: 12px; color: var(--pd-ink3); font-weight: 600;
+}
+
+#view-project-detail.pdv2 .pdv2-bi {
+  display: flex; gap: 14px; padding: 14px 0;
+  border-bottom: 1px solid var(--pd-stone);
+}
+#view-project-detail.pdv2 .pdv2-bi:last-child { border-bottom: none; }
+#view-project-detail.pdv2 .pdv2-bi-dot {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-weight: 800; font-size: 14px;
+}
+#view-project-detail.pdv2 .pdv2-bi-body { flex: 1; }
+#view-project-detail.pdv2 .pdv2-bi-name {
+  font-size: 14px; font-weight: 700; color: var(--pd-ink); line-height: 1.3;
+}
+#view-project-detail.pdv2 .pdv2-bi-desc {
+  font-size: 12px; color: var(--pd-ink3); margin-top: 2px;
+}
+#view-project-detail.pdv2 .pdv2-bi-tag {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 8px; margin-top: 5px;
+}
+
+#view-project-detail.pdv2 .pdv2-ii {
+  background: var(--pd-amber-l); border-radius: 14px; padding: 16px;
+  margin-bottom: 10px; border-right: 3px solid var(--pd-amber);
+}
+#view-project-detail.pdv2 .pdv2-ii-title {
+  font-size: 14px; font-weight: 700; color: var(--pd-ink);
+}
+#view-project-detail.pdv2 .pdv2-ii-desc {
+  font-size: 12px; color: var(--pd-ink2); margin-top: 5px; line-height: 1.6;
+}
+#view-project-detail.pdv2 .pdv2-ii-warn {
+  border-color: var(--pd-danger); background: #fdf2ef;
+}
+#view-project-detail.pdv2 .pdv2-empty {
+  text-align: center; padding: 40px 20px; color: var(--pd-ink3);
+  font-size: 14px; line-height: 1.6;
+}
+
+#view-project-detail.pdv2 .pdv2-a {
+  opacity: 0; transform: translateY(12px);
+  transition: all .55s cubic-bezier(.4,0,.2,1);
+}
+#view-project-detail.pdv2.pdv2-loaded .pdv2-a { opacity: 1; transform: translateY(0); }
+#view-project-detail.pdv2.pdv2-loaded .pdv2-a1 { transition-delay: .1s }
+#view-project-detail.pdv2.pdv2-loaded .pdv2-a3 { transition-delay: .3s }
+#view-project-detail.pdv2.pdv2-loaded .pdv2-a4 { transition-delay: .4s }
+#view-project-detail.pdv2.pdv2-loaded .pdv2-a6 { transition-delay: .55s }
+#view-project-detail.pdv2.pdv2-loaded .pdv2-a7 { transition-delay: .65s }
+
+@media (prefers-reduced-motion: reduce) {
+  #view-project-detail.pdv2 *,
+  #view-project-detail.pdv2 *::before,
+  #view-project-detail.pdv2 *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* ─── end RISING SUN ─── */
 </style>
 </head>
 <body>
@@ -3216,32 +3676,120 @@ body.theme-finance  .view.on{background:#eef5f0}
        ═══════════════════════════════════════════ -->
 
   <!-- VIEW: PROJECT DETAIL v2.2.0 -->
-  <div class="view" id="view-project-detail">
-    <div class="topbar" style="display:flex;align-items:center;gap:8px;padding:10px 14px">
-      <button class="back" onclick="goProjectsList()">→</button>
-      <div style="flex:1;min-width:0"><h1 id="pd-title" style="font-size:16px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</h1><div id="pd-addr" style="font-size:11px;color:var(--text3);margin-top:1px"></div></div>
-      <button class="ico" onclick="pdMenu()">⋯</button>
+  <!-- ═══════════════════════════════════════════
+       VIEW: PROJECT DETAIL — "RISING SUN" (v3.9.76)
+       ═══════════════════════════════════════════ -->
+  <div class="view pdv2" id="view-project-detail">
+    <div class="pdv2-photo">
+      <img id="pdv2-photo-img" class="pdv2-photo-img" alt="" style="display:none">
+      <div class="pdv2-sun-wrap">
+        <div class="pdv2-sun-rays"></div>
+        <div class="pdv2-sun-halo"></div>
+        <div class="pdv2-sun-disc"></div>
+      </div>
+      <div class="pdv2-roof">
+        <svg viewBox="0 0 393 90" preserveAspectRatio="none" fill="none">
+          <path d="M0,90 L0,52 L150,52 L393,16 L393,90 Z" fill="#d9a85a" opacity=".25"/>
+          <path d="M0,55 L150,55 L393,18" stroke="#8a6a4a" stroke-width="1.5" opacity=".3" fill="none"/>
+        </svg>
+      </div>
+      <div class="pdv2-grain"></div>
+      <div class="pdv2-prog-tag" id="pdv2-prog-tag">—% הושלם</div>
+      <div class="pdv2-topbar pdv2-a pdv2-a1">
+        <button class="pdv2-ic" onclick="goProjectsList()" aria-label="חזור">→</button>
+        <div class="pdv2-chip" onclick="pdChangeStatus()">
+          <div class="pdv2-live" id="pdv2-chip-dot"></div><span id="pdv2-chip-text">—</span>
+        </div>
+        <button class="pdv2-ic" onclick="pdMenu()" aria-label="תפריט">⋯</button>
+      </div>
+      <div class="pdv2-ph-count pdv2-a pdv2-a1" id="pdv2-ph-count" onclick="pdv2OpenSheet('data')" style="display:none">
+        <div class="pdv2-cam"></div><span id="pdv2-ph-num">0</span>
+      </div>
     </div>
-    <div id="pd-hero" style="display:flex;background:var(--ink2);border-bottom:1px solid var(--line);flex-shrink:0"></div>
-    <div class="body" id="pd-body" style="padding:0;padding-bottom:72px"></div>
-    <div style="display:flex;background:var(--ink2);border-top:1px solid var(--line);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)">
-      <div class="pd-bnb on" id="pd-bn-now" onclick="pdSwitchTab('now')"><div style="font-size:20px">⚡</div><div style="font-size:10px;font-weight:700">עכשיו</div></div>
-      <div class="pd-bnb" id="pd-bn-money" onclick="pdSwitchTab('money')"><div style="font-size:20px">💰</div><div style="font-size:10px;font-weight:700">כסף</div></div>
-      <div class="pd-bnb" id="pd-bn-portfolio" onclick="pdSwitchTab('portfolio')"><div style="font-size:20px">📸</div><div style="font-size:10px;font-weight:700">תיק</div></div>
-      <div class="pd-bnb" id="pd-bn-technical" onclick="pdSwitchTab('technical')"><div style="font-size:20px">📐</div><div style="font-size:10px;font-weight:700">טכני</div></div>
-      <!-- v3.9.33 — "פרופיל" הוסר מהבוטום־נאב, עבר לתפריט 3 הנקודות -->
-      <div class="pd-bnb" id="pd-bn-roof" onclick="pdSwitchTab('roof')" style="display:none"><div style="font-size:20px">🏠</div><div style="font-size:10px;font-weight:700">פרופיל</div></div>
-      <div class="pd-bnb" id="pd-bn-shopping" onclick="pdSwitchTab('shopping')"><div style="font-size:20px">🛒</div><div style="font-size:10px;font-weight:700">קניות</div></div>
-      <div class="pd-bnb" id="pd-bn-report" onclick="pdSwitchTab('report')"><div style="font-size:20px">📊</div><div style="font-size:10px;font-weight:700">דוח</div></div>
+    <div class="pdv2-content">
+      <div class="pdv2-identity pdv2-a pdv2-a3">
+        <div class="pdv2-name" id="pdv2-name">—</div>
+        <div class="pdv2-detail" id="pdv2-detail"></div>
+      </div>
+      <div class="pdv2-gold pdv2-a pdv2-a4"></div>
+      <div class="pdv2-mood pdv2-a pdv2-a4">
+        <div class="pdv2-mood-text" id="pdv2-mood-text">—</div>
+        <div class="pdv2-mood-meta" id="pdv2-mood-meta"></div>
+      </div>
+      <div class="pdv2-spacer"></div>
+      <div class="pdv2-voice-row pdv2-a pdv2-a6">
+        <button class="pdv2-sun-btn" onclick="pdv2OpenVoice()">
+          <div class="pdv2-mic"></div><span class="pdv2-vtxt">עדכן בדיבור</span>
+        </button>
+        <button class="pdv2-snap" onclick="pdv2QuickPhoto()" aria-label="צילום / סריקת חשבונית">
+          <div class="pdv2-snap-ic"></div>
+        </button>
+      </div>
+      <div class="pdv2-access pdv2-a pdv2-a7">
+        <div class="pdv2-pill" onclick="pdv2OpenSheet('blatam')">
+          <div class="pdv2-pill-ic"><div class="pdv2-bolt"></div></div>
+          <div class="pdv2-pill-text">בלת״מים</div>
+          <div class="pdv2-pill-num" id="pdv2-num-blatam">0</div>
+        </div>
+        <div class="pdv2-pill" onclick="pdv2OpenSheet('insights')">
+          <div class="pdv2-pill-ic"><div class="pdv2-bulb"></div></div>
+          <div class="pdv2-pill-text">תובנות</div>
+          <div class="pdv2-pill-num" id="pdv2-num-insights">0</div>
+        </div>
+        <div class="pdv2-pill" onclick="pdv2OpenSheet('data')">
+          <div class="pdv2-pill-ic"><div class="pdv2-lines"><span></span><span></span><span></span></div></div>
+          <div class="pdv2-pill-text">סיכומים</div>
+        </div>
+      </div>
     </div>
-    <button id="pd-fab" onclick="pdQuickPhoto()" style="position:fixed;bottom:72px;left:16px;width:52px;height:52px;border-radius:50%;background:var(--text);color:#fff;font-size:22px;display:none;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(42,31,18,.28);cursor:pointer;z-index:50;border:none">📸</button>
-    <div id="pd-fx" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s"><div id="pd-fx-circle" style="width:110px;height:110px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:52px;transform:scale(0);transition:transform .25s cubic-bezier(.34,1.56,.64,1)">✅</div></div>
-    <div id="pd-overlay" onclick="pdCloseModal()" style="position:fixed;inset:0;background:rgba(42,31,18,.5);z-index:80;display:none;align-items:flex-end">
+
+    <!-- Bottom sheets -->
+    <div class="pdv2-sh-bg" id="pdv2-sh-bg" onclick="pdv2CloseSheet()"></div>
+    <div class="pdv2-sh-panel" id="pdv2-sh-data">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title">סיכומים ונתונים</div>
+        <div class="pdv2-sh-sub" id="pdv2-sh-data-sub">—</div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-data-body"></div>
+    </div>
+    <div class="pdv2-sh-panel" id="pdv2-sh-blatam">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title">בלת״מים</div>
+        <div class="pdv2-sh-sub" id="pdv2-sh-blatam-sub">—</div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-blatam-body"></div>
+    </div>
+    <div class="pdv2-sh-panel" id="pdv2-sh-insights">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title">תובנות מהשטח</div>
+        <div class="pdv2-sh-sub" id="pdv2-sh-insights-sub">—</div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-insights-body"></div>
+    </div>
+
+    <!-- Legacy DOM kept hidden so legacy callers (pd-fx, pd-modal, pd-body) don't NPE -->
+    <button id="pd-fab" onclick="pdQuickPhoto()" style="display:none">📸</button>
+    <div id="pd-fx" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s"><div id="pd-fx-circle" style="width:110px;height:110px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:52px;transform:scale(0);transition:transform .25s cubic-bezier(.34,1.56,.64,1)">✅</div></div>
+    <div id="pd-overlay" onclick="pdCloseModal()" style="position:fixed;inset:0;background:rgba(42,31,18,.5);z-index:180;display:none;align-items:flex-end">
       <div onclick="event.stopPropagation()" style="background:var(--ink2);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:430px;margin:0 auto;position:relative">
         <button onclick="pdCloseModal()" style="position:absolute;top:16px;left:20px;font-size:22px;color:var(--text3);background:none;border:none;cursor:pointer">✕</button>
         <div id="pd-modal-content"></div>
       </div>
     </div>
+    <div id="pd-title" style="display:none">—</div>
+    <div id="pd-addr" style="display:none"></div>
+    <div id="pd-hero" style="display:none"></div>
+    <div id="pd-body" style="display:none"></div>
+    <div id="pd-bn-now" style="display:none"></div>
+    <div id="pd-bn-money" style="display:none"></div>
+    <div id="pd-bn-portfolio" style="display:none"></div>
+    <div id="pd-bn-technical" style="display:none"></div>
+    <div id="pd-bn-shopping" style="display:none"></div>
+    <div id="pd-bn-roof" style="display:none"></div>
+    <div id="pd-bn-report" style="display:none"></div>
   </div>
 
   <!-- ═══════════════════════════════════════════
@@ -3658,7 +4206,7 @@ body.theme-finance  .view.on{background:#eef5f0}
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.75'; // v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.76'; // v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -13232,14 +13780,15 @@ function renderProjectDetail(){
   const p=getProject();
   if(!p){ goProjectsList(); return; }
   // אם פרויקט חדש שטרם נשאב — הצג מסך שאיבה
-  // גם אם הגיע מ-wz4DoCreateProject (הישן) — בדוק אם אין תמונות
   const _needsPull = p._pendingSync ||
     (p.sourceVisitId && !(p.progressPhotos?.before?.length) && !p._pullDone);
   if(_needsPull && p.sourceVisitId){
-    if(!p._pendingSync) p._pendingSync = true; // סמן לשאיבה
+    if(!p._pendingSync) p._pendingSync = true;
+    pdv2SetPullMode(true);
     _renderPullScreen(p);
     return;
   }
+  pdv2SetPullMode(false);
   // Migration: progressPhotos array → object {before,during,after}
   if(Array.isArray(p.progressPhotos)){
     const old = p.progressPhotos;
@@ -13254,16 +13803,380 @@ function renderProjectDetail(){
   if(!p.progressPhotos || typeof p.progressPhotos !== 'object' || Array.isArray(p.progressPhotos)){
     p.progressPhotos = {before:[], during:[], after:[]};
   }
+  // Legacy hidden references
   const titleEl=document.getElementById('pd-title');
   const addrEl=document.getElementById('pd-addr');
   if(titleEl) titleEl.textContent=p.clientName||'—';
   if(addrEl) addrEl.textContent=p.clientAddress||'';
-  renderPdHero(p);
-  renderPdTab();
+
+  // ── v3.9.76 RISING SUN screen ──
+  pdv2Render(p);
+
   const gps=getPdGPS(p);
   if(gps){
     const key=`${gps.ti}_${gps.si}`;
     if(!_pdStepTimers[key]) _pdStepTimers[key]=Date.now();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RISING SUN — v3.9.76 — project detail population
+// ═══════════════════════════════════════════════
+function pdv2Render(p){
+  const root = document.getElementById('view-project-detail');
+  if(!root) return;
+
+  // identity
+  const nameEl = document.getElementById('pdv2-name');
+  const detailEl = document.getElementById('pdv2-detail');
+  if(nameEl) nameEl.textContent = p.clientName || 'ללא שם';
+  if(detailEl){
+    const bits = [];
+    if(p.clientAddress) bits.push(p.clientAddress);
+    if(p.title && p.title !== p.clientName) bits.push(p.title);
+    detailEl.textContent = bits.join(' · ');
+  }
+
+  // status chip
+  const status = p.status || 'active';
+  const chipText = document.getElementById('pdv2-chip-text');
+  const chipDot = document.getElementById('pdv2-chip-dot');
+  const statusLbl = { planned:'מתוכנן', active:'פעיל', done:'הושלם' }[status] || status;
+  const week = pdv2WeekNumber(p);
+  if(chipText) chipText.textContent = (status==='active' && week) ? `שבוע ${week} · ${statusLbl}` : statusLbl;
+  if(chipDot) chipDot.style.background = status==='done' ? 'var(--pd-sage)' : status==='planned' ? '#c9a86a' : '#7ddb8a';
+
+  // sun position from progress (0% → 60px, 100% → -88px; total range 148px)
+  const pct = projProgress(p);
+  const y = 60 - 148 * (pct / 100);
+  root.style.setProperty('--pd-sun-y', y + 'px');
+
+  // progress tag
+  const progTag = document.getElementById('pdv2-prog-tag');
+  if(progTag){
+    if(pct === 100) progTag.textContent = 'הושלם';
+    else if(pct === 0) progTag.textContent = 'התחלה';
+    else progTag.textContent = pct + '% הושלם';
+  }
+
+  // hero photo (latest available)
+  const photoImg = document.getElementById('pdv2-photo-img');
+  const heroSrc = pdv2HeroPhoto(p);
+  if(photoImg){
+    if(heroSrc){ photoImg.src = heroSrc; photoImg.style.display = 'block'; }
+    else { photoImg.removeAttribute('src'); photoImg.style.display = 'none'; }
+  }
+
+  // photo count
+  const phCount = pdv2CountPhotos(p);
+  const phEl = document.getElementById('pdv2-ph-count');
+  const phNum = document.getElementById('pdv2-ph-num');
+  if(phEl) phEl.style.display = phCount > 0 ? 'flex' : 'none';
+  if(phNum) phNum.textContent = phCount;
+
+  // mood sentence — positive, human, chronological
+  const mood = pdv2MoodSentence(p);
+  const moodEl = document.getElementById('pdv2-mood-text');
+  if(moodEl) moodEl.innerHTML = mood;
+
+  // mood meta — days, team, remaining
+  const meta = pdv2MetaBits(p);
+  const metaEl = document.getElementById('pdv2-mood-meta');
+  if(metaEl){
+    metaEl.innerHTML = meta.map((m,i) => (i>0?'<div class="pdv2-sep"></div>':'') + `<span>${esc(m)}</span>`).join('');
+  }
+
+  // pill counts
+  const issues = Array.isArray(p.issues) ? p.issues.filter(i => !i.resolved) : [];
+  const blatamim = issues.filter(i => (i.kind||'insight') === 'blatam');
+  const insightsArr = issues.filter(i => (i.kind||'insight') !== 'blatam');
+  const numBlatam = document.getElementById('pdv2-num-blatam');
+  const numIns = document.getElementById('pdv2-num-insights');
+  if(numBlatam) numBlatam.textContent = blatamim.length;
+  if(numIns) numIns.textContent = insightsArr.length;
+
+  // pre-render sheets
+  pdv2RenderSheetData(p);
+  pdv2RenderSheetBlatam(p, blatamim);
+  pdv2RenderSheetInsights(p, insightsArr);
+
+  // trigger entrance animation once per visit to the screen
+  requestAnimationFrame(() => {
+    root.classList.remove('pdv2-loaded');
+    requestAnimationFrame(() => root.classList.add('pdv2-loaded'));
+  });
+}
+
+function pdv2HeroPhoto(p){
+  const pp = p.progressPhotos || {};
+  const candidates = []
+    .concat(pp.after || [])
+    .concat(pp.during || [])
+    .concat(pp.before || []);
+  for(const ph of candidates){
+    const src = (ph && (ph.data || ph.url || ph));
+    if(src && typeof src === 'string') return src;
+  }
+  for(const t of (p.tasks||[])){
+    const ph = (t.photos||[])[0];
+    const src = (ph && (ph.data || ph.url || ph));
+    if(src && typeof src === 'string') return src;
+  }
+  return '';
+}
+
+function pdv2CountPhotos(p){
+  const pp = p.progressPhotos || {};
+  let n = (pp.before||[]).length + (pp.during||[]).length + (pp.after||[]).length;
+  for(const t of (p.tasks||[])) n += (t.photos||[]).length;
+  return n;
+}
+
+function pdv2WeekNumber(p){
+  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  if(!start) return 0;
+  const days = Math.max(0, Math.floor((Date.now() - start) / 86400000));
+  return Math.floor(days / 7) + 1;
+}
+
+function pdv2MoodSentence(p){
+  const pct = projProgress(p);
+  const tasks = p.tasks || [];
+  const lastDone = [...tasks].reverse().find(t => (t.steps||[]).length && (t.steps||[]).every(s=>s.done));
+  const inProg = tasks.find(t => (t.steps||[]).some(s=>s.done) && (t.steps||[]).some(s=>!s.done));
+  const remTotal = projRemainingSteps(p);
+
+  if(pct === 0){
+    return `התחלה טובה — מוכן להתחיל.<br><span class="pdv2-mood-hl">הפרויקט פתוח, מחכה לראשון מהשלבים.</span>`;
+  }
+  if(pct === 100){
+    return `הכל הושלם.<br><span class="pdv2-mood-hl">עבודה מצוינת — מוכן לסגירה ולסיכום ללקוח.</span>`;
+  }
+  if(pct >= 70){
+    const done = lastDone ? esc(lastDone.name) : 'הסעיפים העיקריים';
+    const next = inProg ? esc(inProg.name) : 'איטומים אחרונים';
+    return `${done} הושלם.<br><span class="pdv2-mood-hl">נשאר ${next} — עוד קצת.</span>`;
+  }
+  if(pct >= 40){
+    return `התקדמות יפה — חצי הדרך מאחור.<br><span class="pdv2-mood-hl">${remTotal} שלבים נותרו.</span>`;
+  }
+  return `יום פרודוקטיבי — העבודה בעיצומה.<br><span class="pdv2-mood-hl">${remTotal} שלבים לפנינו.</span>`;
+}
+
+function pdv2MetaBits(p){
+  const bits = [];
+  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  if(start){
+    const days = Math.max(1, Math.floor((Date.now() - start) / 86400000) + 1);
+    bits.push(`${days} ימי עבודה`);
+  }
+  const workers = (p.workers || []).map(w => w.name).filter(Boolean);
+  if(workers.length) bits.push(workers.slice(0,3).join(' · '));
+  const rem = projRemainingSteps(p);
+  if(rem > 0) bits.push(`~${rem} נותרו`);
+  return bits;
+}
+
+function pdv2RenderSheetData(p){
+  const sub = document.getElementById('pdv2-sh-data-sub');
+  if(sub) sub.textContent = [p.clientName, p.clientAddress].filter(Boolean).join(' · ') || '—';
+
+  const body = document.getElementById('pdv2-sh-data-body');
+  if(!body) return;
+
+  const tasks = p.tasks || [];
+  const totalTasks = tasks.length;
+  const revenue = projRevenue(p);
+  const received = totalReceived(p);
+  const due = totalDue(p);
+  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  const days = start ? Math.max(1, Math.floor((Date.now() - start) / 86400000) + 1) : 0;
+  const workersCount = (p.workers || []).length;
+  const roofType = p.roof?.type || p.roofType || '—';
+  const roofMeters = p.roof?.meters || p.roofMeters;
+
+  body.innerHTML = `
+    <div class="pdv2-hero pdv2-hc-blue" onclick="pdv2OpenClientSummary()">
+      <div class="pdv2-hc-glow"></div>
+      <div class="pdv2-hc-title">סיכום ללקוח</div>
+      <div class="pdv2-hc-desc">דף מרשים עם לפני/אחרי, רשימת עבודות, מוכן לשיתוף</div>
+      <div class="pdv2-hc-btn">שתף ←</div>
+    </div>
+    <div class="pdv2-hero pdv2-hc-sun" onclick="pdv2OpenManagerSummary()">
+      <div class="pdv2-hc-glow"></div>
+      <div class="pdv2-hc-title">סיכום מנהלים</div>
+      <div class="pdv2-hc-desc">רווחיות, ימי עבודה, בלת״מים, תובנות — בשבילך</div>
+      <div class="pdv2-hc-btn">צפה ←</div>
+    </div>
+    <div class="pdv2-card">
+      <div style="font-size:13px;font-weight:800;color:var(--pd-ink3);margin-bottom:6px">נתונים מפורטים</div>
+      <div class="pdv2-dr" onclick="pdv2GoLegacy('now')">
+        <div class="pdv2-dr-label">סעיפי עבודה</div>
+        <div class="pdv2-dr-val">${totalTasks} ›</div>
+      </div>
+      <div class="pdv2-dr" onclick="pdv2GoLegacy('money')">
+        <div class="pdv2-dr-label">כסף</div>
+        <div class="pdv2-dr-val">${fmt(revenue)} ${due > 0 ? '· ' + fmt(due) + ' לחיוב' : (received > 0 ? '· שולם' : '')} ›</div>
+      </div>
+      <div class="pdv2-dr" onclick="pdv2GoLegacy('report')">
+        <div class="pdv2-dr-label">יומן ימים</div>
+        <div class="pdv2-dr-val">${days || '—'} ›</div>
+      </div>
+      <div class="pdv2-dr" onclick="pdv2OpenWorkers()">
+        <div class="pdv2-dr-label">צוות</div>
+        <div class="pdv2-dr-val">${workersCount} עובדים ›</div>
+      </div>
+      <div class="pdv2-dr" onclick="pdv2GoLegacy('roof')">
+        <div class="pdv2-dr-label">פרופיל גג</div>
+        <div class="pdv2-dr-val">${esc(roofType)}${roofMeters ? ' · ' + esc(roofMeters) + ' מ׳' : ''} ›</div>
+      </div>
+      <div class="pdv2-dr" onclick="pdv2GoLegacy('portfolio')">
+        <div class="pdv2-dr-label">תיק תמונות</div>
+        <div class="pdv2-dr-val">${pdv2CountPhotos(p)} ›</div>
+      </div>
+      <div class="pdv2-dr" onclick="pdv2GoLegacy('shopping')">
+        <div class="pdv2-dr-label">קניות</div>
+        <div class="pdv2-dr-val">${(p.shoppingItems||[]).length || '—'} ›</div>
+      </div>
+    </div>
+  `;
+}
+
+function pdv2RenderSheetBlatam(p, items){
+  const sub = document.getElementById('pdv2-sh-blatam-sub');
+  if(sub) sub.textContent = items.length ? `${items.length} אירועים לא מתוכננים` : 'אין בלת״מים פתוחים';
+  const body = document.getElementById('pdv2-sh-blatam-body');
+  if(!body) return;
+  if(!items.length){
+    body.innerHTML = `<div class="pdv2-empty">אין בלת״מים פעילים.<br>אפשר להוסיף דרך כפתור הדיבור.</div>`;
+    return;
+  }
+  body.innerHTML = `<div class="pdv2-card">${items.map(it => pdv2RowItem(it, 'blatam')).join('')}</div>`;
+}
+
+function pdv2RenderSheetInsights(p, items){
+  const sub = document.getElementById('pdv2-sh-insights-sub');
+  if(sub) sub.textContent = items.length ? `${items.length} תובנות שצברת` : 'אין תובנות עדיין';
+  const body = document.getElementById('pdv2-sh-insights-body');
+  if(!body) return;
+  if(!items.length){
+    body.innerHTML = `<div class="pdv2-empty">אין תובנות עדיין.<br>הוסף דרך כפתור הדיבור — תובנה שעלתה תוך כדי עבודה.</div>`;
+    return;
+  }
+  body.innerHTML = items.map(it => {
+    const warn = (it.severity === 'warn' || it.severity === 'danger') ? ' pdv2-ii-warn' : '';
+    const title = (it.text || '').split(/[—\n.]/)[0].slice(0, 50).trim();
+    const rest = (it.text || '').slice(title.length).replace(/^[—\s.]+/, '');
+    return `<div class="pdv2-ii${warn}">
+      <div class="pdv2-ii-title">${esc(title || it.text || '—')}</div>
+      ${rest ? `<div class="pdv2-ii-desc">${esc(rest)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function pdv2RowItem(it, kind){
+  // category letter + color from the first word of the text
+  const text = it.text || '';
+  const firstChar = (text.trim()[0] || '?').toUpperCase();
+  let bg = 'var(--pd-amber-l)', col = 'var(--pd-amber)';
+  if(it.severity === 'warn' || it.severity === 'danger'){ bg = 'var(--pd-danger)'; col = '#fff'; }
+  else if(it.severity === 'good' || it.resolved){ bg = 'var(--pd-sage-l)'; col = 'var(--pd-sage)'; }
+  const tag = it.tag || (kind === 'blatam' ? 'בלת״ם' : 'תובנה');
+  const tagBg = (it.severity === 'good') ? 'var(--pd-sage-l)' : 'var(--pd-amber-l)';
+  const tagCol = (it.severity === 'good') ? 'var(--pd-sage)' : 'var(--pd-amber)';
+  return `<div class="pdv2-bi">
+    <div class="pdv2-bi-dot" style="background:${bg};color:${col}">${esc(firstChar)}</div>
+    <div class="pdv2-bi-body">
+      <div class="pdv2-bi-name">${esc((text.split(/[—\n.]/)[0] || '—').slice(0,60))}</div>
+      ${text.length > 60 ? `<div class="pdv2-bi-desc">${esc(text.slice(60, 200))}${text.length>200?'…':''}</div>` : ''}
+      <div class="pdv2-bi-tag" style="background:${tagBg};color:${tagCol}">${esc(tag)}</div>
+    </div>
+  </div>`;
+}
+
+// ─── Sheet open/close ───
+let _pdv2OpenSheet = null;
+function pdv2OpenSheet(id){
+  pdv2CloseSheet();
+  const bg = document.getElementById('pdv2-sh-bg');
+  const panel = document.getElementById('pdv2-sh-' + id);
+  if(!bg || !panel) return;
+  bg.classList.add('show');
+  panel.classList.add('show');
+  _pdv2OpenSheet = id;
+}
+function pdv2CloseSheet(){
+  if(!_pdv2OpenSheet) return;
+  const bg = document.getElementById('pdv2-sh-bg');
+  const panel = document.getElementById('pdv2-sh-' + _pdv2OpenSheet);
+  if(bg) bg.classList.remove('show');
+  if(panel) panel.classList.remove('show');
+  _pdv2OpenSheet = null;
+}
+
+// ─── Voice + actions ───
+function pdv2OpenVoice(){
+  pdv2CloseSheet();
+  if(typeof _fsOpen === 'function') _fsOpen();
+  else if(typeof toast === 'function') toast('דיבור חופשי לא זמין');
+}
+function pdv2QuickPhoto(){
+  pdv2CloseSheet();
+  if(typeof pdQuickPhoto === 'function') pdQuickPhoto();
+}
+function pdv2OpenWorkers(){
+  pdv2CloseSheet();
+  if(typeof openWorkersForProject === 'function') openWorkersForProject();
+  else if(typeof toast === 'function') toast('בקרוב — ניהול צוות');
+}
+function pdv2OpenClientSummary(){
+  pdv2CloseSheet();
+  if(typeof openClientSummary === 'function') openClientSummary();
+  else if(typeof toast === 'function') toast('בקרוב — סיכום ללקוח');
+}
+function pdv2OpenManagerSummary(){
+  pdv2CloseSheet();
+  if(typeof openManagerSummary === 'function') openManagerSummary();
+  else if(typeof toast === 'function') toast('בקרוב — סיכום מנהלים');
+}
+// fallback to legacy tab content
+function pdv2GoLegacy(tab){
+  pdv2CloseSheet();
+  if(typeof openPdLegacyTab === 'function'){ openPdLegacyTab(tab); return; }
+  // simplest fallback: toast
+  const labels = { now:'סעיפי עבודה', money:'כסף', portfolio:'תיק תמונות', report:'דוח', roof:'פרופיל גג', shopping:'קניות' };
+  if(typeof toast === 'function') toast('בקרוב — ' + (labels[tab] || tab));
+}
+
+// When pulling data from a source visit, the legacy `pd-body` becomes the
+// canvas for the pull animation. Toggle visibility so the new screen
+// doesn't sit on top of (or hide) it during that transient state.
+function pdv2SetPullMode(on){
+  const root = document.getElementById('view-project-detail');
+  if(!root) return;
+  const photo = root.querySelector('.pdv2-photo');
+  const content = root.querySelector('.pdv2-content');
+  const body = document.getElementById('pd-body');
+  if(on){
+    if(photo) photo.style.display = 'none';
+    if(content) content.style.display = 'none';
+    if(body){
+      body.style.display = 'block';
+      body.style.position = 'absolute';
+      body.style.inset = '0';
+      body.style.zIndex = '1';
+      body.style.padding = '0';
+      body.style.overflowY = 'auto';
+      body.style.background = 'var(--pd-plaster, #f6f1e6)';
+    }
+  } else {
+    if(photo) photo.style.display = '';
+    if(content) content.style.display = '';
+    if(body){
+      body.style.display = 'none';
+      body.removeAttribute('style');
+      body.style.display = 'none';
+    }
   }
 }
 
@@ -14722,8 +15635,8 @@ function pdCloseModal(){
 function pdMenu(){
   const p=getProject(); if(!p) return;
   document.getElementById('pd-modal-content').innerHTML=`
-    <div style="font-size:18px;font-weight:800;margin-bottom:16px">⋯ אפשרויות</div>
-    <button class="btn btn-ghost" style="margin-bottom:8px;text-align:right" onclick="pdCloseModal();pdSwitchTab('roof')">🏠 צפה בפרופיל הגג</button>
+    <div style="font-size:18px;font-weight:800;margin-bottom:16px">אפשרויות</div>
+    <button class="btn btn-ghost" style="margin-bottom:8px;text-align:right" onclick="pdCloseModal();pdv2OpenSheet('data')">📊 סיכומים ונתונים</button>
     <button class="btn btn-ghost" style="margin-bottom:8px;text-align:right" onclick="pdCloseModal();pdSendWaUpdate()">📱 שלח עדכון ללקוח</button>
     <button class="btn btn-ghost" style="margin-bottom:8px;text-align:right" onclick="pdCloseModal();pdOpenWorkersModal()">👷 עובדים בפרויקט</button>
     <button class="btn btn-ghost" style="margin-bottom:8px;text-align:right" onclick="pdCloseModal();pdEditSourceVisit()">✏️ ערוך ביקור מקורי</button>
