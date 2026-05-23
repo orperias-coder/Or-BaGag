@@ -3466,6 +3466,16 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
   background: conic-gradient(var(--pd-amber) var(--pdv2-ring-pct, 100%), transparent 0);
   flex-shrink: 0;
 }
+
+/* v3.9.80 — legacy sheet body: host old renderers, give them background + padding */
+#view-project-detail.pdv2 #pdv2-sh-legacy-body {
+  padding: 16px;
+  background: var(--pd-plaster);
+  color: var(--text, #2a1f12);
+}
+#view-project-detail.pdv2 #pdv2-sh-legacy-body * {
+  user-select: text;
+}
 /* ─── end RISING SUN ─── */
 </style>
 </head>
@@ -3989,6 +3999,16 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
       <div class="pdv2-sh-body" id="pdv2-sh-manager-body"></div>
     </div>
 
+    <!-- v3.9.80: Legacy editor sheet (hosts old renderPd* output for full editing) -->
+    <div class="pdv2-sh-panel" id="pdv2-sh-legacy">
+      <div class="pdv2-sh-handle"></div>
+      <div class="pdv2-sh-head">
+        <div class="pdv2-sh-title" id="pdv2-sh-legacy-title">—</div>
+        <div class="pdv2-sh-sub">תצוגה מפורטת לעריכה</div>
+      </div>
+      <div class="pdv2-sh-body" id="pdv2-sh-legacy-body"></div>
+    </div>
+
     <!-- Legacy DOM kept hidden so legacy callers (pd-fx, pd-modal, pd-body) don't NPE -->
     <button id="pd-fab" onclick="pdQuickPhoto()" style="display:none">📸</button>
     <div id="pd-fx" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .2s"><div id="pd-fx-circle" style="width:110px;height:110px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:52px;transform:scale(0);transition:transform .25s cubic-bezier(.34,1.56,.64,1)">✅</div></div>
@@ -4426,7 +4446,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.79'; // v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.80'; // v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -14046,6 +14066,10 @@ function pdv2Render(p){
   const root = document.getElementById('view-project-detail');
   if(!root) return;
 
+  // v3.9.80 — hide legacy floating FAB (camera) — pdv2 has its own snap button
+  const fab = document.getElementById('pd-fab');
+  if(fab) fab.style.display = 'none';
+
   // v3.9.78 — migrate legacy p.insights[] → p.issues[] (idempotent)
   if(typeof _pdMigrateIssues === 'function') _pdMigrateIssues(p);
   // v3.9.78 — reset gallery phase on each project open
@@ -14125,6 +14149,17 @@ function pdv2Render(p){
   pdv2RenderSheetBlatam(p, blatamim);
   pdv2RenderSheetInsights(p, insightsArr);
 
+  // v3.9.80 — if the legacy editor sheet is open, refresh its body so toggles update live
+  if(typeof _pdv2OpenSheet !== 'undefined' && _pdv2OpenSheet === 'legacy' && typeof pdv2RenderLegacyBody === 'function'){
+    pdv2RenderLegacyBody();
+  }
+  // also refresh manager/client sheets if open
+  if(typeof _pdv2OpenSheet !== 'undefined'){
+    if(_pdv2OpenSheet === 'manager' && typeof pdv2RenderSheetManager === 'function') pdv2RenderSheetManager(p);
+    if(_pdv2OpenSheet === 'client'  && typeof pdv2RenderSheetClient  === 'function') pdv2RenderSheetClient(p);
+    if(_pdv2OpenSheet === 'gallery' && typeof pdv2RenderSheetGallery === 'function') pdv2RenderSheetGallery(p);
+  }
+
   // trigger entrance animation once per visit to the screen
   requestAnimationFrame(() => {
     root.classList.remove('pdv2-loaded');
@@ -14189,16 +14224,20 @@ function pdv2MoodSentence(p){
 }
 
 function pdv2MetaBits(p){
+  // v3.9.80 — use owner's daysWorked if available; else weeks since start
   const bits = [];
-  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
-  if(start){
-    const days = Math.max(1, Math.floor((Date.now() - start) / 86400000) + 1);
-    bits.push(`${days} ימי עבודה`);
+  const ownerW = (p.workers || []).find(w => w.daysWorked != null);
+  if(ownerW){
+    const d = ownerW.daysWorked;
+    bits.push(`${d % 1 === 0 ? d : d.toFixed(1)} ימי עבודה`);
+  } else {
+    const w = pdv2WeekNumber(p);
+    if(w > 0) bits.push(`שבוע ${w}`);
   }
   const workers = (p.workers || []).map(w => w.name).filter(Boolean);
   if(workers.length) bits.push(workers.slice(0,3).join(' · '));
   const rem = projRemainingSteps(p);
-  if(rem > 0) bits.push(`~${rem} נותרו`);
+  if(rem > 0) bits.push(`~${rem} שלבים נותרו`);
   return bits;
 }
 
@@ -14552,7 +14591,9 @@ function pdv2RenderSheetClient(p){
 }
 
 function pdv2CalcManagerStats(p){
-  const revenue = projRevenue(p);
+  // v3.9.80 — use NET (totalPrice) not VAT-inclusive (projRevenue) so margins match real cost analysis
+  const revenue = totalPrice(p);
+  const revenueWithVat = projRevenue(p);
   const expenses = (p.expenses||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0), 0);
   const profit = revenue - expenses;
   const marginPct = revenue > 0 ? Math.round(profit/revenue*100) : 0;
@@ -14561,7 +14602,11 @@ function pdv2CalcManagerStats(p){
 
   const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
   let workdays = 0;
-  if(start){
+  // v3.9.80 — prefer summed worker daysWorked over calendar days
+  const workerDaysSum = (p.workers||[]).reduce((s,w)=>s+(parseFloat(w.daysWorked)||0), 0);
+  if(workerDaysSum > 0){
+    workdays = workerDaysSum;
+  } else if(start){
     const dayMs = 86400000;
     const days = Math.floor((Date.now() - start) / dayMs) + 1;
     // exclude Saturdays (day 6 in JS)
@@ -14577,7 +14622,7 @@ function pdv2CalcManagerStats(p){
   const insightsCount = issues.filter(i=>i.kind==='insight').length;
 
   return {
-    revenue, expenses, profit, marginPct, received, due,
+    revenue, revenueWithVat, expenses, profit, marginPct, received, due,
     workdays, dailyAvg: workdays > 0 ? Math.round(profit/workdays) : 0,
     blatamWarn, blatamGood, insightsCount,
     workers: p.workers || []
@@ -14599,11 +14644,12 @@ function pdv2RenderSheetManager(p){
 
   body.innerHTML = `
     <div class="pdv2-mgr-card">
-      <div class="pdv2-mgr-card-label">רווח נטו</div>
+      <div class="pdv2-mgr-card-label">רווח נקי (נטו)</div>
       <div class="pdv2-mgr-card-num ${profitClass}">${fmt(s.profit)} ₪</div>
-      <div class="pdv2-mgr-card-sub">${s.marginPct}% מהמחזור</div>
+      <div class="pdv2-mgr-card-sub">${s.marginPct}% מהכנסה נטו · לעיניך, לא ללקוח</div>
       <div style="margin-top:12px">
-        <div class="pdv2-mgr-row"><span>הכנסה (כולל מע״מ)</span><span>${fmt(s.revenue)} ₪</span></div>
+        <div class="pdv2-mgr-row"><span>הכנסה נטו (לפני מע״מ)</span><span>${fmt(s.revenue)} ₪</span></div>
+        <div class="pdv2-mgr-row"><span>הכנסה לחיוב (כולל מע״מ)</span><span>${fmt(s.revenueWithVat)} ₪</span></div>
         <div class="pdv2-mgr-row"><span>הוצאות שנרשמו</span><span>${fmt(s.expenses)} ₪</span></div>
         <div class="pdv2-mgr-row"><span>נגבה עד כה</span><span>${fmt(s.received)} ₪</span></div>
         <div class="pdv2-mgr-row"><span>יתרה לחיוב</span><span>${fmt(s.due)} ₪</span></div>
@@ -14935,14 +14981,49 @@ function pdv2OpenClientSummary(){
 function pdv2OpenManagerSummary(){
   pdv2OpenSheet('manager');
 }
-// fallback to legacy tab content
-function pdv2GoLegacy(tab){
-  pdv2CloseSheet();
-  if(typeof openPdLegacyTab === 'function'){ openPdLegacyTab(tab); return; }
-  // simplest fallback: toast
-  const labels = { now:'סעיפי עבודה', money:'כסף', portfolio:'תיק תמונות', report:'דוח', roof:'פרופיל גג', shopping:'קניות' };
-  if(typeof toast === 'function') toast('בקרוב — ' + (labels[tab] || tab));
+// v3.9.80 — open a legacy tab renderer inside a sheet (full edit access)
+function pdv2OpenLegacy(tab){
+  const titles = {
+    now:       'סעיפי עבודה',
+    money:     'כסף ותשלומים',
+    portfolio: 'תיק תמונות מפורט',
+    report:    'דוח מלא',
+    roof:      'פרופיל הגג',
+    shopping:  'קניות וחומרים',
+    technical: 'מפרט טכני',
+  };
+  const titleEl = document.getElementById('pdv2-sh-legacy-title');
+  if(titleEl) titleEl.textContent = titles[tab] || tab;
+  // mark active tab so renderPdTab's toggle handlers (which call renderPdTab again)
+  // re-render into the sheet body, not the hidden #pd-body
+  _pdTab = tab;
+  pdv2OpenSheet('legacy');
+  // pdv2OpenSheet doesn't render legacy; trigger now
+  pdv2RenderLegacyBody();
 }
+function pdv2RenderLegacyBody(){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  const body = document.getElementById('pdv2-sh-legacy-body');
+  if(!p || !body) return;
+  if(_pdTab === 'now')           body.innerHTML = renderPdNow(p);
+  else if(_pdTab === 'money')    body.innerHTML = renderPdMoney(p);
+  else if(_pdTab === 'portfolio')body.innerHTML = renderPdPortfolio(p);
+  else if(_pdTab === 'shopping') body.innerHTML = renderPdShopping(p);
+  else if(_pdTab === 'roof')     body.innerHTML = renderPdRoof(p);
+  else if(_pdTab === 'report')   body.innerHTML = renderPdReport(p);
+  else if(_pdTab === 'technical' && typeof _renderPdTechnical === 'function'){
+    // _renderPdTechnical writes directly to #pd-body; temporarily redirect
+    // by giving it our element instead via a transient ID swap.
+    const original = document.getElementById('pd-body');
+    body.id = 'pd-body';
+    if(original) original.id = '_pd-body-stash';
+    try { _renderPdTechnical(); } catch(e){ body.textContent = 'שגיאה: ' + e.message; }
+    body.id = 'pdv2-sh-legacy-body';
+    if(original) original.id = 'pd-body';
+  }
+}
+// keep old name as alias for any in-flight references
+function pdv2GoLegacy(tab){ pdv2OpenLegacy(tab); }
 
 // When pulling data from a source visit, the legacy `pd-body` becomes the
 // canvas for the pull animation. Toggle visibility so the new screen
@@ -15053,20 +15134,34 @@ function pdSwitchTab(tab){
 function renderPdTab(){
   const p=getProject();
   if(!p) return;
-  const body=document.getElementById('pd-body');
+  // v3.9.80 — when legacy sheet is open, render into it instead of the hidden #pd-body
+  const legacySheetOpen = (typeof _pdv2OpenSheet !== 'undefined' && _pdv2OpenSheet === 'legacy');
+  const body = legacySheetOpen
+    ? document.getElementById('pdv2-sh-legacy-body')
+    : document.getElementById('pd-body');
   if(!body) return;
   if(_pdTab==='now')           body.innerHTML=renderPdNow(p);
   else if(_pdTab==='money')     body.innerHTML=renderPdMoney(p);
   else if(_pdTab==='portfolio') body.innerHTML=renderPdPortfolio(p);
-  // v3.9.4 — הטאב הטכני כותב ישירות ל-pd-body, אז קוראים לפונקציה ולא מציבים HTML
-  else if(_pdTab==='technical') _renderPdTechnical();
+  // v3.9.4 — הטאב הטכני כותב ישירות ל-pd-body. במצב sheet: זמנית מחליפים IDs כדי שתכתוב לסikkin הנכון.
+  else if(_pdTab==='technical'){
+    if(legacySheetOpen){
+      const original = document.getElementById('pd-body');
+      body.id = 'pd-body';
+      if(original) original.id = '_pd-body-stash';
+      try { _renderPdTechnical(); } catch(e){ body.textContent = 'שגיאה: ' + e.message; }
+      body.id = 'pdv2-sh-legacy-body';
+      if(original) original.id = 'pd-body';
+    } else {
+      _renderPdTechnical();
+    }
+  }
   else if(_pdTab==='shopping')  body.innerHTML=renderPdShopping(p);
   else if(_pdTab==='roof')      body.innerHTML=renderPdRoof(p);
   else                          body.innerHTML=renderPdReport(p);
 
-  // v3.9.21 — הוסף סקשן משימות בטאב "עכשיו" ו-"דוח"
-  if((_pdTab === 'now' || _pdTab === 'report') && p.id){
-    // הוסף div בקצה
+  // v3.9.21 — סקשן משימות בטאב "עכשיו" ו-"דוח" — רק במצב הישן
+  if(!legacySheetOpen && (_pdTab === 'now' || _pdTab === 'report') && p.id){
     const tasksSection = document.createElement('div');
     tasksSection.id = 'pd-tasks-section';
     tasksSection.style.cssText = 'margin:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:12px';
@@ -20711,8 +20806,8 @@ function seedPerlsteinProject(){
     if(idx !== -1) S.projects.splice(idx, 1);
   }
 
-  // 29/04/2026 — Tuesday of week 1
-  const startDate = new Date(2026, 3, 29).getTime(); // month is 0-indexed → April
+  // v3.9.80 — dynamic startDate so demo always shows "week 3" regardless of today's date
+  const startDate = Date.now() - 17 * 86400000;
 
   const mkSteps = (names, doneCount) => names.map((n, i) => ({
     name: n,
