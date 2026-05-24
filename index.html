@@ -814,6 +814,51 @@ body.theme-finance  .view.on::before{
 .lead-tab{flex-shrink:0;padding:7px 12px;border-radius:18px;font-size:12px;font-weight:700;background:var(--ink3);color:var(--text2);border:1.5px solid var(--line);cursor:pointer;white-space:nowrap}
 .lead-tab.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 
+/* ─── WhatsApp import (v3.9.98) ─── */
+.lead-launcher{display:flex;align-items:center;gap:10px;background:var(--ink2);border:1.5px solid var(--gold);border-radius:14px;padding:12px 14px;margin-bottom:14px;cursor:pointer;font-family:inherit;width:100%;text-align:right;transition:transform .08s}
+.lead-launcher:active{transform:scale(.98)}
+.lead-launcher .ll-ico{width:38px;height:38px;border-radius:50%;background:var(--gold-l);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0;border:1.5px solid var(--gold)}
+.lead-launcher .ll-body{flex:1;min-width:0}
+.lead-launcher .ll-title{font-size:14px;font-weight:800;color:var(--text)}
+.lead-launcher .ll-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.lead-launcher .ll-arrow{color:var(--gold2);font-size:14px;flex-shrink:0}
+
+.wai-hdr{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.wai-hdr .wh-count{font-size:14px;font-weight:800;color:var(--text)}
+.wai-hdr .wh-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.wai-hdr .wh-actions{display:flex;gap:6px;flex-wrap:wrap}
+.wai-hdr .wh-btn{padding:6px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--ink3);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.wai-hdr .wh-btn:active{background:var(--ink2)}
+
+.wai-row{background:var(--ink2);border:1.5px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;transition:border-color .15s,background .15s}
+.wai-row.wai-checked{border-color:var(--gold);background:var(--gold-l)}
+.wai-row .wai-cb{width:22px;height:22px;border:2px solid var(--gold);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--ink2);color:var(--gold2);font-weight:900;font-size:14px;margin-top:2px}
+.wai-row.wai-checked .wai-cb{background:var(--gold);color:#fff}
+.wai-row .wai-body{flex:1;min-width:0;cursor:pointer}
+.wai-row .wai-name{font-size:14px;font-weight:800;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wai-row .wai-phone{font-size:11px;color:var(--text2);margin-top:2px;direction:ltr;text-align:right}
+.wai-row .wai-snippet{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wai-row .wai-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;align-items:center}
+
+.wai-chip{font-size:10px;font-weight:800;padding:2px 8px;border-radius:8px;letter-spacing:.02em;white-space:nowrap}
+.wai-chip.r-label   {background:#efe1f0;color:#6a2c70;border:1px solid #b687bd}
+.wai-chip.r-keyword {background:#dbeafd;color:#1a4d8a;border:1px solid #7fa9d9}
+.wai-chip.r-name    {background:#e1f1f7;color:#1f6585;border:1px solid #7fb6cf}
+.wai-chip.r-unknown {background:#ececec;color:#555;border:1px solid #c0c0c0}
+.wai-chip.r-dup     {background:var(--red-l);color:var(--red);border:1px solid var(--red);font-weight:900}
+.wai-chip.r-time    {background:transparent;color:var(--text3);border:1px dashed var(--line)}
+
+.wai-dup-actions{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed var(--line)}
+.wai-dup-btn{padding:5px 10px;border-radius:9px;border:1.5px solid var(--line);background:var(--ink3);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.wai-dup-btn.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+
+.wai-empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.wai-empty .we-ico{font-size:48px;margin-bottom:10px;opacity:.6}
+.wai-empty h3{font-size:18px;font-weight:800;color:var(--text2);margin-bottom:6px}
+.wai-empty p{font-size:13px;line-height:1.5;margin-bottom:14px}
+
+.wai-cta{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(248,243,236,0) 0%,var(--bg) 30%);padding:14px 0 4px;margin:0 -8px;z-index:5}
+
 /* ═══════════════════════════════════════════════
    PROJECTS extras (V2.5 / V2.11)
    ═══════════════════════════════════════════════ */
@@ -3890,6 +3935,24 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
   </div>
 
   <!-- ═══════════════════════════════════════════
+       VIEW: WHATSAPP IMPORT (v3.9.98)
+       ═══════════════════════════════════════════ -->
+  <div class="view" id="view-wa-import">
+    <div class="topbar">
+      <button class="back" onclick="goBack()">→</button>
+      <h1 class="small">ייבוא לידים מ-WhatsApp</h1>
+      <button class="ico" onclick="waImportHelp()" title="עזרה">?</button>
+    </div>
+    <div class="body" id="wa-import-body"></div>
+  </div>
+
+  <!-- Hidden file input used by waImportPickFile() -->
+  <input type="file" id="wa-import-file" accept="application/json,.json"
+    style="position:fixed;left:-9999px;top:-9999px;opacity:0;pointer-events:none"
+    onchange="waImportHandleFile(event)">
+
+
+  <!-- ═══════════════════════════════════════════
        VIEW: PROJECTS LIST
        ═══════════════════════════════════════════ -->
   <div class="view" id="view-projects-list">
@@ -4534,7 +4597,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.97'; // v3.9.97 — תיקון יצירת PDF להצעת מחיר + toggles להפעלה/ביטול פר פרמטר. (1) הוחלף popup+document.write ב-Blob URL — אמין יותר ב-iOS/PWA, לא נחסם, ולא נכשל על תמונות base64 גדולות. הוספת fallback אוטומטי להורדה כקובץ HTML אם popup נחסם. (2) toggles חדשים פר הצעת מחיר: showItemDescription, showProductDescription, showPaymentTerms, showNotes, showSignatures, showEstimatedStart — כל אחד שולט אם הפרמטר יוצג ב-PDF. ברירת מחדל true (לא שובר הצעות קיימות). הוספו ל-quoteTemplate, createQuoteFromVisit, ול-UI של quote-edit עם כפתורי toggle זהובים. v3.9.96 — שני שיפורים בגלריה: (1) ה-picker של כפתור 📸 הראשי כעת כולל בחירת שלב מובנית (לפני/תוך כדי/אחרי) עם chips זהובים, כך שברור לאן התמונה הולכת לפני שמעלים — תיקון לבלבול "לאן הלכה התמונה". (2) מצב "✏️ עריכה" בתוך sheet הגלריה: לחיצה על כפתור עריכה מפעילה בחירה מרובה, כל לחיצה על thumbnail בוחרת/מבטלת (overlay זהוב עם ✓). סרגל פעולות מציע: בחר הכל, 🗑 מחק (עם confirm + ניקוי IDB), ⤴ העבר ל"לפני"/"תוך כדי"/"אחרי" — מעביר את כל הבחורות ל-phase יעד. החלפת phase מאפסת בחירה. v3.9.95 — תיקון Multi-upload (כפתור מצלמה במסך הפרויקט): השורש האמיתי לא היה ב-input של הגלריה אלא בכפתור 📸 הראשי (.pdv2-snap) — שהפעיל את ה-picker הגנרי _showPhotoSourcePicker → _doTakePhoto שיצר input ללא `multiple` ולקח רק files[0] גם בבחירת "גלריה". נכתב picker ייעודי ל-pdv2 שמנתב: "מצלמה" → צילום בודד (כמו היום), "גלריה" → pdv2GalleryUploadMultiple שתומך multi+IDB. ה-picker הגנרי בביקור (wz4PickInteriorFromGallery וכו') ממשיך לעבוד דרך pickPhoto הקיים. v3.9.94 — תיקון Multi-upload (השורש האמיתי): `display:none` על input קבצים גרם לדפדפן (Mac/Android/iOS) לפתוח פיקר "מצומצם" שמתעלם מ-`multiple`. הוחלף ל-opacity:0 + offscreen positioning. גם accept חזר ל-image/* (סטנדרטי). v3.9.93 — נתוני פרלשטיין מדויקים מהצעת מחיר 61 (03/05/2026): 7 סעיפים עם quantity+unitPrice — תעלות פנימיות 28.5מ׳×900=25,650 | רוכבים 4,000 | קידוח ניקוז 4×1,000=4,000 | צינור חיצוני 34מ׳×200=6,800 | קופינג אלומיניום 85×200=17,000 | איטום חלון 6,000 | איטום תעלה קטנה 0 (בונוס). סה"כ הצעה 63,450. בלת"ם תעלה 2מ׳=1,800 (will_bill). גגון דוד+מזגנים → blatam will_bill (סכום לעדכון). 3 מוקדי צנרת+ארובה → free. SEED_VERSION=7. v3.9.92 — תיקוני שורש: (1) Multi-upload: input accept שונה מ-"image/*" ל-extensions בודדים (.jpg,.png,.webp,.heic) — אנדרואיד מאלץ את ה-Files picker (תומך מרובה) במקום Google Photos picker (לא תומך). (2) מחירי פרלשטיין: עודכנו לפי מה שאור אמר בעבר — חידוש רוכבים 4000 (לא 8000), קידוח מרזבים 4×1000=4000 (לא 3000), והשאר אומדן כדי שסה"כ ישאר 65,250. PERLSTEIN_SEED_VERSION bumped ל-6 → רענון אוטומטי לכל מי שטען לפני. v3.9.91 — חזרה ל-v3.9.85 (בסיס שעבד). בוטלו השינויים מ-3.9.86-3.9.90 שגרמו לבעיות: Web Share Target, sw.js חדש, manifest blob, iterative upload bar, diagnostics — הכל הוסר. Multi-upload עובד עם input multiple רגיל; iOS/Android picker מטפל. אם הפיקר נתן רק 1 — זה quirk של גוגל פוטוס, נסה "קבצים" במקום. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.98'; // v3.9.98 — ייבוא לידים מ-WhatsApp: כפתור חדש בראש מסך הלידים שפותח OS file picker (תומך ב-Drive/קבצים), קורא JSON שיוצא מהסקריפט המקומי `scripts/whatsapp-scrape.js`, ומציג מסך תצוגה מקדימה (view-wa-import) עם checkbox לכל ליד, chip סיבה צבעוני (label/keyword/name/unknown), זמן אחרון, ו-snippet. dedup פר-טלפון מנורמל (strip +972/0/רווחים) כנגד S.leads/S.visits/S.projects — כשיש התנגשות מוצג chip 🔁 + סלקטור פעולה (דלג / מזג ל-notes / צור חדש בכל זאת). Field mapping: displayName||title→clientName (אם title הוא טלפון בלבד → ריק), phone→phone, reason+matchedKeyword→source ("WhatsApp · ..."), lastMsgPreview→description (240 תווים), messages[]→notes (12 אחרונות, "[ts] who: text", מדיה כ-[תמונה]). State transient ב-window._waImport, הקובץ עצמו לא נשמר. v3.9.97 — תיקון יצירת PDF להצעת מחיר + toggles להפעלה/ביטול פר פרמטר. (1) הוחלף popup+document.write ב-Blob URL — אמין יותר ב-iOS/PWA, לא נחסם, ולא נכשל על תמונות base64 גדולות. הוספת fallback אוטומטי להורדה כקובץ HTML אם popup נחסם. (2) toggles חדשים פר הצעת מחיר: showItemDescription, showProductDescription, showPaymentTerms, showNotes, showSignatures, showEstimatedStart — כל אחד שולט אם הפרמטר יוצג ב-PDF. ברירת מחדל true (לא שובר הצעות קיימות). הוספו ל-quoteTemplate, createQuoteFromVisit, ול-UI של quote-edit עם כפתורי toggle זהובים. v3.9.96 — שני שיפורים בגלריה: (1) ה-picker של כפתור 📸 הראשי כעת כולל בחירת שלב מובנית (לפני/תוך כדי/אחרי) עם chips זהובים, כך שברור לאן התמונה הולכת לפני שמעלים — תיקון לבלבול "לאן הלכה התמונה". (2) מצב "✏️ עריכה" בתוך sheet הגלריה: לחיצה על כפתור עריכה מפעילה בחירה מרובה, כל לחיצה על thumbnail בוחרת/מבטלת (overlay זהוב עם ✓). סרגל פעולות מציע: בחר הכל, 🗑 מחק (עם confirm + ניקוי IDB), ⤴ העבר ל"לפני"/"תוך כדי"/"אחרי" — מעביר את כל הבחורות ל-phase יעד. החלפת phase מאפסת בחירה. v3.9.95 — תיקון Multi-upload (כפתור מצלמה במסך הפרויקט): השורש האמיתי לא היה ב-input של הגלריה אלא בכפתור 📸 הראשי (.pdv2-snap) — שהפעיל את ה-picker הגנרי _showPhotoSourcePicker → _doTakePhoto שיצר input ללא `multiple` ולקח רק files[0] גם בבחירת "גלריה". נכתב picker ייעודי ל-pdv2 שמנתב: "מצלמה" → צילום בודד (כמו היום), "גלריה" → pdv2GalleryUploadMultiple שתומך multi+IDB. ה-picker הגנרי בביקור (wz4PickInteriorFromGallery וכו') ממשיך לעבוד דרך pickPhoto הקיים. v3.9.94 — תיקון Multi-upload (השורש האמיתי): `display:none` על input קבצים גרם לדפדפן (Mac/Android/iOS) לפתוח פיקר "מצומצם" שמתעלם מ-`multiple`. הוחלף ל-opacity:0 + offscreen positioning. גם accept חזר ל-image/* (סטנדרטי). v3.9.93 — נתוני פרלשטיין מדויקים מהצעת מחיר 61 (03/05/2026): 7 סעיפים עם quantity+unitPrice — תעלות פנימיות 28.5מ׳×900=25,650 | רוכבים 4,000 | קידוח ניקוז 4×1,000=4,000 | צינור חיצוני 34מ׳×200=6,800 | קופינג אלומיניום 85×200=17,000 | איטום חלון 6,000 | איטום תעלה קטנה 0 (בונוס). סה"כ הצעה 63,450. בלת"ם תעלה 2מ׳=1,800 (will_bill). גגון דוד+מזגנים → blatam will_bill (סכום לעדכון). 3 מוקדי צנרת+ארובה → free. SEED_VERSION=7. v3.9.92 — תיקוני שורש: (1) Multi-upload: input accept שונה מ-"image/*" ל-extensions בודדים (.jpg,.png,.webp,.heic) — אנדרואיד מאלץ את ה-Files picker (תומך מרובה) במקום Google Photos picker (לא תומך). (2) מחירי פרלשטיין: עודכנו לפי מה שאור אמר בעבר — חידוש רוכבים 4000 (לא 8000), קידוח מרזבים 4×1000=4000 (לא 3000), והשאר אומדן כדי שסה"כ ישאר 65,250. PERLSTEIN_SEED_VERSION bumped ל-6 → רענון אוטומטי לכל מי שטען לפני. v3.9.91 — חזרה ל-v3.9.85 (בסיס שעבד). בוטלו השינויים מ-3.9.86-3.9.90 שגרמו לבעיות: Web Share Target, sw.js חדש, manifest blob, iterative upload bar, diagnostics — הכל הוסר. Multi-upload עובד עם input multiple רגיל; iOS/Android picker מטפל. אם הפיקר נתן רק 1 — זה quirk של גוגל פוטוס, נסה "קבצים" במקום. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -12109,6 +12172,15 @@ function renderLeadsList(){
   const sorted = [...filtered].sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
 
   document.getElementById('leads-list-body').innerHTML = `
+    <button class="lead-launcher" onclick="waImportPickFile()">
+      <div class="ll-ico">↓</div>
+      <div class="ll-body">
+        <div class="ll-title">ייבוא מ-WhatsApp</div>
+        <div class="ll-sub">בחר קובץ JSON שיוצא מהסקריפט (Drive / קבצים)</div>
+      </div>
+      <div class="ll-arrow">←</div>
+    </button>
+
     <div class="lead-tabs">
       ${tabs.map(t => `
         <div class="lead-tab ${t.key === leadFilterStatus ? 'on' : ''}" onclick="setLeadFilter('${t.key}')">${t.label}${t.key !== 'all' ? ` (${S.leads.filter(l => l.status === t.key).length})` : ''}</div>
@@ -12119,7 +12191,7 @@ function renderLeadsList(){
       <div class="empty">
         <div class="ei">💬</div>
         <h3>אין לידים בקטגוריה זו</h3>
-        <p>לחץ על + למעלה כדי להוסיף ליד חדש מטלפון או מוואטסאפ</p>
+        <p>לחץ על + למעלה כדי להוסיף ליד חדש, או ייבא מ-WhatsApp מהכפתור למעלה</p>
         <button class="btn btn-gold" style="margin-top:18px" onclick="openNewLeadModal()">+ הוסף ליד</button>
       </div>
     ` : sorted.map(l => leadRowHtml(l)).join('')}
@@ -12849,6 +12921,287 @@ function doConvertLeadToVisit(leadId){
   push('wizard');
   wzRender();
   toast(`🚀 ביקור #${v.visitNumber} התחיל`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   v3.9.98 — WHATSAPP LEADS IMPORT
+   זרימה: file picker → parse → preview עם checkbox + dedup → commit
+   ═══════════════════════════════════════════════════════ */
+
+// Transient state for the import session (not persisted)
+window._waImport = null;
+
+function waImportPickFile(){
+  const inp = document.getElementById('wa-import-file');
+  if(!inp){ toast('⚠️ קלט קובץ לא נמצא'); return; }
+  inp.value = ''; // allow re-selecting same file
+  inp.click();
+}
+
+function waImportHandleFile(ev){
+  const f = ev.target.files && ev.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data || !Array.isArray(data.leads)){
+        toast('⚠️ קובץ JSON לא תקין — חסר leads[]');
+        return;
+      }
+      if(data.leads.length === 0){
+        toast('הקובץ ריק — אין לידים לייבא');
+        return;
+      }
+      _waImport = {
+        fileName: f.name,
+        exportedAt: data.exportedAt || null,
+        items: data.leads.map((L, idx) => {
+          const phone = (L.phone || '').trim();
+          const dup = _waFindDup(phone);
+          return {
+            idx, raw: L,
+            phone, displayName: L.displayName || null, title: L.title || '',
+            reason: L.reason || 'unknown',
+            matchedKeyword: L.matchedKeyword || null,
+            preview: L.lastMsgPreview || '',
+            lastTime: L.lastTimeText || '',
+            messages: Array.isArray(L.messages) ? L.messages : [],
+            checked: !dup, // אם dup, ברירת מחדל לא לסמן (משתמש מחליט מודע)
+            dupAction: 'new', // 'new' | 'skip' | 'merge' | 'open'
+            dup
+          };
+        })
+      };
+      push('wa-import');
+      _waImportRender();
+    }catch(e){
+      console.error('[wa-import] parse error', e);
+      toast('⚠️ שגיאת ניתוח: ' + (e.message || 'JSON לא תקין'));
+    }
+  };
+  reader.onerror = () => toast('⚠️ קריאת הקובץ נכשלה');
+  reader.readAsText(f, 'utf-8');
+}
+
+// Normalize phone for dedup matching:
+// strip +, 972 prefix (Israel), spaces, hyphens, parens, leading 0.
+function _waNormPhone(p){
+  if(!p) return '';
+  let s = String(p).replace(/[^0-9]/g, '');
+  if(s.startsWith('972')) s = s.slice(3);
+  if(s.startsWith('0'))   s = s.slice(1);
+  return s;
+}
+
+function _waFindDup(phone){
+  const norm = _waNormPhone(phone);
+  if(!norm) return null;
+  // Search leads first, then visits, then projects
+  const inLeads = (S.leads||[]).find(l => _waNormPhone(l.phone) === norm);
+  if(inLeads) return { kind: 'lead', id: inLeads.id, name: inLeads.clientName || inLeads.phone };
+  const inVisits = (S.visits||[]).find(v => _waNormPhone(v.phone) === norm);
+  if(inVisits) return { kind: 'visit', id: inVisits.id, name: inVisits.clientName || inVisits.phone };
+  const inProjects = (S.projects||[]).find(p => _waNormPhone(p.clientPhone) === norm);
+  if(inProjects) return { kind: 'project', id: inProjects.id, name: inProjects.clientName || inProjects.clientPhone };
+  return null;
+}
+
+function waImportHelp(){
+  openMo(`
+    <h3 style="margin:0 0 10px;font-size:16px">ייבוא לידים מ-WhatsApp</h3>
+    <p style="font-size:13px;line-height:1.6;color:var(--text2);margin:0 0 10px">
+      הסקריפט שרץ ב-Mac מייצר קובץ JSON עם שיחות שסומנו כליד (תווית/מילת מפתח/שולח לא מוכר).
+      פה מסמנים אילו לידים באמת רלוונטיים ומוסיפים אותם לאפליקציה.
+    </p>
+    <ul style="font-size:12px;color:var(--text2);padding-right:20px;line-height:1.6;margin:0">
+      <li>סמן ☐ ליד אמיתי, השאר ריק לליד שגוי (כמו צ'אט פרטי).</li>
+      <li>אם הטלפון כבר קיים באפליקציה → סלקטור פעולה: דלג / מזג / פתח קיים.</li>
+      <li>הקובץ עצמו לא נשמר — רק הלידים שתבחר.</li>
+    </ul>
+    <div style="text-align:center;margin-top:14px"><button class="btn btn-gold" onclick="closeMo()">הבנתי</button></div>
+  `);
+}
+
+function _waReasonChip(item){
+  const r = item.reason;
+  const labels = {
+    label:   `תווית: ${item.raw.labels && item.raw.labels[0] ? item.raw.labels[0] : 'ליד'}`,
+    keyword: `מילת מפתח${item.matchedKeyword ? ': ' + item.matchedKeyword : ''}`,
+    name:    'שם נראה כטלפון',
+    unknown: 'שולח לא מוכר'
+  };
+  const cls = ({label:'r-label',keyword:'r-keyword',name:'r-name',unknown:'r-unknown'})[r] || 'r-unknown';
+  return `<span class="wai-chip ${cls}">${esc(labels[r] || r)}</span>`;
+}
+
+function _waImportRender(){
+  if(!_waImport){ goBack(); return; }
+  const items = _waImport.items;
+  const selectedCount = items.filter(i => i.checked).length;
+  const dupCount = items.filter(i => i.dup).length;
+  const fmtExportedAt = _waImport.exportedAt
+    ? new Date(_waImport.exportedAt).toLocaleString('he-IL', { dateStyle:'short', timeStyle:'short' })
+    : '—';
+
+  const body = document.getElementById('wa-import-body');
+  if(!body) return;
+  body.innerHTML = `
+    <div class="wai-hdr">
+      <div>
+        <div class="wh-count">נבחרו ${selectedCount} מתוך ${items.length}</div>
+        <div class="wh-sub">קובץ: ${esc(_waImport.fileName)} · ייוצא ב-${esc(fmtExportedAt)}${dupCount?` · ${dupCount} כבר קיימים`:''}</div>
+      </div>
+      <div class="wh-actions">
+        <button class="wh-btn" onclick="_waSelectAll(true)">בחר הכל</button>
+        <button class="wh-btn" onclick="_waSelectAll(false)">נקה</button>
+      </div>
+    </div>
+
+    ${items.map((it,i) => _waRowHtml(it, i)).join('')}
+
+    <div class="wai-cta">
+      <button class="btn btn-gold" style="width:100%" onclick="_waImportCommit()"
+        ${selectedCount===0?'disabled style="width:100%;opacity:.55"':''}>
+        ייבא נבחרים (${selectedCount})
+      </button>
+    </div>
+  `;
+}
+
+function _waRowHtml(item, idx){
+  const name = item.displayName || item.title || item.phone || '(ללא שם)';
+  const phoneStr = item.phone || '(ללא טלפון)';
+  const dupBlock = item.dup ? `
+    <div class="wai-dup-actions">
+      <span style="font-size:11px;color:var(--text3);align-self:center">פעולה ל-${esc(item.dup.kind === 'lead' ? 'ליד הקיים' : item.dup.kind === 'visit' ? 'הביקור הקיים' : 'הפרויקט הקיים')}:</span>
+      <button class="wai-dup-btn ${item.dupAction==='skip'?'on':''}" onclick="_waSetDup(${idx},'skip')">דלג</button>
+      ${item.dup.kind === 'lead' ? `<button class="wai-dup-btn ${item.dupAction==='merge'?'on':''}" onclick="_waSetDup(${idx},'merge')">מזג ל-notes</button>` : ''}
+      <button class="wai-dup-btn ${item.dupAction==='new'?'on':''}" onclick="_waSetDup(${idx},'new')">צור חדש בכל זאת</button>
+    </div>
+  ` : '';
+  return `
+    <div class="wai-row ${item.checked?'wai-checked':''}">
+      <div class="wai-cb" onclick="_waToggleRow(${idx})">${item.checked?'✓':''}</div>
+      <div class="wai-body" onclick="_waToggleRow(${idx})">
+        <div class="wai-name">${esc(name)}</div>
+        <div class="wai-phone">${esc(phoneStr)}</div>
+        <div class="wai-chips">
+          ${_waReasonChip(item)}
+          ${item.lastTime?`<span class="wai-chip r-time">${esc(item.lastTime)}</span>`:''}
+          ${item.dup?`<span class="wai-chip r-dup">🔁 כבר קיים (${esc(item.dup.kind)})</span>`:''}
+        </div>
+        ${item.preview?`<div class="wai-snippet">${esc(item.preview)}</div>`:''}
+        ${dupBlock}
+      </div>
+    </div>
+  `;
+}
+
+function _waToggleRow(idx){
+  if(!_waImport) return;
+  const it = _waImport.items[idx];
+  if(!it) return;
+  it.checked = !it.checked;
+  _waImportRender();
+}
+
+function _waSelectAll(on){
+  if(!_waImport) return;
+  _waImport.items.forEach(i => { i.checked = !!on; });
+  _waImportRender();
+}
+
+function _waSetDup(idx, action){
+  if(!_waImport) return;
+  const it = _waImport.items[idx];
+  if(!it) return;
+  it.dupAction = action;
+  // 'skip' implies unchecked
+  if(action === 'skip') it.checked = false;
+  else if(!it.checked) it.checked = true; // re-enable if user explicitly chose merge/new
+  _waImportRender();
+}
+
+// Build app lead object from a WA item.
+function _waBuildLead(item){
+  const now = ts();
+  const reasonLabels = {
+    label: 'WhatsApp · תווית ליד',
+    keyword: `WhatsApp · מילת מפתח${item.matchedKeyword?`: ${item.matchedKeyword}`:''}`,
+    name: 'WhatsApp · שם נראה כטלפון',
+    unknown: 'WhatsApp · שולח לא מוכר'
+  };
+  return {
+    id: uid(),
+    createdAt: now,
+    occurredAt: now,
+    updatedAt: now,
+    clientName: (item.displayName || (item.title && !/^\+?\d[\d\s\-]+$/.test(item.title) ? item.title : '') || '').trim(),
+    phone: item.phone || '',
+    address: '',
+    source: reasonLabels[item.reason] || 'WhatsApp',
+    description: (item.preview || '').slice(0, 240),
+    photos: [],
+    status: 'new',
+    nextActionAt: null,
+    notes: _waFormatMessages(item.messages),
+    linkedVisitId: null
+  };
+}
+
+// Format messages for notes field. Keep last 12, format "[time] role: text".
+function _waFormatMessages(messages){
+  if(!messages || !messages.length) return '';
+  const last = messages.slice(-12);
+  const lines = last.map(m => {
+    const who = m.from === 'me' ? 'אני' : (m.sender || 'לקוח');
+    const t = m.ts ? `[${m.ts}] ` : '';
+    let text = m.text || '';
+    if(!text && m.mediaType){
+      const mediaMap = { image:'תמונה', video:'סרטון', audio:'הקלטה', document:'קובץ', sticker:'מדבקה' };
+      text = `[${mediaMap[m.mediaType] || m.mediaType}]`;
+    }
+    return `${t}${who}: ${text}`;
+  });
+  const header = `--- הודעות אחרונות מ-WhatsApp (${last.length}/${messages.length}) ---`;
+  return header + '\n' + lines.join('\n');
+}
+
+function _waImportCommit(){
+  if(!_waImport) return;
+  const selected = _waImport.items.filter(i => i.checked && i.dupAction !== 'skip');
+  if(!selected.length){ toast('לא נבחרו לידים'); return; }
+  let added = 0, merged = 0;
+  selected.forEach(it => {
+    if(it.dup && it.dupAction === 'merge'){
+      // Append messages to existing lead's notes
+      const targetId = it.dup.kind === 'lead' ? it.dup.id : null;
+      const target = targetId ? S.leads.find(l => l.id === targetId) : null;
+      if(target){
+        const block = _waFormatMessages(it.messages);
+        target.notes = (target.notes ? target.notes + '\n\n' : '') + block;
+        target.updatedAt = ts();
+        merged++;
+      } else {
+        // dup is a visit/project — fall back to creating a new lead so info isn't lost
+        S.leads.unshift(_waBuildLead(it));
+        added++;
+      }
+    } else {
+      // 'new' (or dup with explicit 'new')
+      S.leads.unshift(_waBuildLead(it));
+      added++;
+    }
+  });
+  saveAll(true);
+  _waImport = null;
+  goBack(); // back to leads-list
+  if(typeof renderLeadsList === 'function') renderLeadsList();
+  const parts = [];
+  if(added)  parts.push(`${added} נוספו`);
+  if(merged) parts.push(`${merged} מוזגו`);
+  toast('✅ ' + (parts.join(' · ') || 'בוצע'));
 }
 
 /* ═══════════════════════════════════════════════════════
