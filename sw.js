@@ -5,7 +5,7 @@
  * Cache strategy: network-first (we want fresh app on every load — SW just enables PWA + share target)
  */
 
-const CACHE_NAME = 'or-bagag-v3.9.88';
+const CACHE_NAME = 'or-bagag-v3.9.89';
 const SHARE_DB = 'orBagagVisits';
 const SHARE_STORE = 'media';
 const INCOMING_STORE = 'incoming-share';
@@ -55,6 +55,11 @@ self.addEventListener('fetch', event => {
       }
       if(incoming.length){
         await saveIncomingMedia(incoming);
+        // v3.9.89 — also notify any open clients so they can show the assign modal immediately
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for(const c of clients){
+          c.postMessage({ type: 'share-received', count: incoming.length });
+        }
       }
       // Redirect to app with incoming flag
       return Response.redirect('./?incoming=' + incoming.length, 303);
