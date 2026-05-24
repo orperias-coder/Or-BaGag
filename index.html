@@ -4534,7 +4534,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.94'; // v3.9.94 — תיקון Multi-upload (השורש האמיתי): `display:none` על input קבצים גרם לדפדפן (Mac/Android/iOS) לפתוח פיקר "מצומצם" שמתעלם מ-`multiple`. הוחלף ל-opacity:0 + offscreen positioning. גם accept חזר ל-image/* (סטנדרטי). v3.9.93 — נתוני פרלשטיין מדויקים מהצעת מחיר 61 (03/05/2026): 7 סעיפים עם quantity+unitPrice — תעלות פנימיות 28.5מ׳×900=25,650 | רוכבים 4,000 | קידוח ניקוז 4×1,000=4,000 | צינור חיצוני 34מ׳×200=6,800 | קופינג אלומיניום 85×200=17,000 | איטום חלון 6,000 | איטום תעלה קטנה 0 (בונוס). סה"כ הצעה 63,450. בלת"ם תעלה 2מ׳=1,800 (will_bill). גגון דוד+מזגנים → blatam will_bill (סכום לעדכון). 3 מוקדי צנרת+ארובה → free. SEED_VERSION=7. v3.9.92 — תיקוני שורש: (1) Multi-upload: input accept שונה מ-"image/*" ל-extensions בודדים (.jpg,.png,.webp,.heic) — אנדרואיד מאלץ את ה-Files picker (תומך מרובה) במקום Google Photos picker (לא תומך). (2) מחירי פרלשטיין: עודכנו לפי מה שאור אמר בעבר — חידוש רוכבים 4000 (לא 8000), קידוח מרזבים 4×1000=4000 (לא 3000), והשאר אומדן כדי שסה"כ ישאר 65,250. PERLSTEIN_SEED_VERSION bumped ל-6 → רענון אוטומטי לכל מי שטען לפני. v3.9.91 — חזרה ל-v3.9.85 (בסיס שעבד). בוטלו השינויים מ-3.9.86-3.9.90 שגרמו לבעיות: Web Share Target, sw.js חדש, manifest blob, iterative upload bar, diagnostics — הכל הוסר. Multi-upload עובד עם input multiple רגיל; iOS/Android picker מטפל. אם הפיקר נתן רק 1 — זה quirk של גוגל פוטוס, נסה "קבצים" במקום. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.95'; // v3.9.95 — תיקון Multi-upload (כפתור מצלמה במסך הפרויקט): השורש האמיתי לא היה ב-input של הגלריה אלא בכפתור 📸 הראשי (.pdv2-snap) — שהפעיל את ה-picker הגנרי _showPhotoSourcePicker → _doTakePhoto שיצר input ללא `multiple` ולקח רק files[0] גם בבחירת "גלריה". נכתב picker ייעודי ל-pdv2 שמנתב: "מצלמה" → צילום בודד (כמו היום), "גלריה" → pdv2GalleryUploadMultiple שתומך multi+IDB. ה-picker הגנרי בביקור (wz4PickInteriorFromGallery וכו') ממשיך לעבוד דרך pickPhoto הקיים. v3.9.94 — תיקון Multi-upload (השורש האמיתי): `display:none` על input קבצים גרם לדפדפן (Mac/Android/iOS) לפתוח פיקר "מצומצם" שמתעלם מ-`multiple`. הוחלף ל-opacity:0 + offscreen positioning. גם accept חזר ל-image/* (סטנדרטי). v3.9.93 — נתוני פרלשטיין מדויקים מהצעת מחיר 61 (03/05/2026): 7 סעיפים עם quantity+unitPrice — תעלות פנימיות 28.5מ׳×900=25,650 | רוכבים 4,000 | קידוח ניקוז 4×1,000=4,000 | צינור חיצוני 34מ׳×200=6,800 | קופינג אלומיניום 85×200=17,000 | איטום חלון 6,000 | איטום תעלה קטנה 0 (בונוס). סה"כ הצעה 63,450. בלת"ם תעלה 2מ׳=1,800 (will_bill). גגון דוד+מזגנים → blatam will_bill (סכום לעדכון). 3 מוקדי צנרת+ארובה → free. SEED_VERSION=7. v3.9.92 — תיקוני שורש: (1) Multi-upload: input accept שונה מ-"image/*" ל-extensions בודדים (.jpg,.png,.webp,.heic) — אנדרואיד מאלץ את ה-Files picker (תומך מרובה) במקום Google Photos picker (לא תומך). (2) מחירי פרלשטיין: עודכנו לפי מה שאור אמר בעבר — חידוש רוכבים 4000 (לא 8000), קידוח מרזבים 4×1000=4000 (לא 3000), והשאר אומדן כדי שסה"כ ישאר 65,250. PERLSTEIN_SEED_VERSION bumped ל-6 → רענון אוטומטי לכל מי שטען לפני. v3.9.91 — חזרה ל-v3.9.85 (בסיס שעבד). בוטלו השינויים מ-3.9.86-3.9.90 שגרמו לבעיות: Web Share Target, sw.js חדש, manifest blob, iterative upload bar, diagnostics — הכל הוסר. Multi-upload עובד עם input multiple רגיל; iOS/Android picker מטפל. אם הפיקר נתן רק 1 — זה quirk של גוגל פוטוס, נסה "קבצים" במקום. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -15803,9 +15803,107 @@ function pdv2OpenVoice(){
   if(typeof _fsOpen === 'function') _fsOpen();
   else if(typeof toast === 'function') toast('דיבור חופשי לא זמין');
 }
+// v3.9.95 — picker ייעודי שמנתב גלריה → multi-upload pdv2 (תמך multi + IDB),
+// במקום ה-picker הגנרי שפתח input ללא `multiple` וגרם להעלאת קובץ יחיד בלבד.
 function pdv2QuickPhoto(){
   pdv2CloseSheet();
-  if(typeof pdQuickPhoto === 'function') pdQuickPhoto();
+  _pdv2ShowPhotoPicker();
+}
+
+function _pdv2ShowPhotoPicker(){
+  document.getElementById('pdv2-photo-picker')?.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'pdv2-photo-picker';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s';
+  overlay.onclick = (e)=>{ if(e.target===overlay) overlay.remove(); };
+  overlay.innerHTML = `
+    <div style="background:var(--ink2);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px 20px 28px;animation:slideUp 0.25s">
+      <div style="width:40px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 16px"></div>
+      <div style="text-align:center;font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px">הוספת תמונות לפרויקט</div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);margin-bottom:18px">גלריה תומכת בבחירת מספר תמונות</div>
+      <div style="display:flex;gap:12px">
+        <button id="pdv2-pp-cam" style="flex:1;padding:18px 12px;border-radius:14px;background:var(--ink3);border:1.5px solid var(--line);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span style="font-size:32px">📸</span>
+          <span>מצלמה</span>
+          <span style="font-size:11px;color:var(--text3);font-weight:500">צילום בודד</span>
+        </button>
+        <button id="pdv2-pp-gal" style="flex:1;padding:18px 12px;border-radius:14px;background:var(--ink3);border:1.5px solid var(--gold);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span style="font-size:32px">🖼️</span>
+          <span>גלריה</span>
+          <span style="font-size:11px;color:var(--gold);font-weight:600">מרובה ✓</span>
+        </button>
+      </div>
+      <button id="pdv2-pp-cancel" style="width:100%;margin-top:14px;padding:12px;border-radius:12px;background:transparent;border:none;color:var(--text3);font-size:14px;cursor:pointer">ביטול</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('pdv2-pp-cam').onclick = ()=>{
+    overlay.remove();
+    _pdv2DoCameraCapture();
+  };
+  document.getElementById('pdv2-pp-gal').onclick = ()=>{
+    overlay.remove();
+    if(typeof pdv2GalleryUploadMultiple === 'function') pdv2GalleryUploadMultiple();
+  };
+  document.getElementById('pdv2-pp-cancel').onclick = ()=>{ overlay.remove(); };
+}
+
+// צילום בודד מהמצלמה — מדלג על ה-picker הגנרי וקורא ישירות ל-_doTakePhoto(...,true).
+// משכפל את שמירת התמונה כמו pdQuickPhoto (IDB + מצפן ידני אם צריך)
+function _pdv2DoCameraCapture(){
+  const p = (typeof getProject === 'function') ? getProject() : null;
+  if(!p){ if(typeof toast==='function') toast('אין פרויקט פעיל'); return; }
+  if(!p.progressPhotos || Array.isArray(p.progressPhotos)){
+    const old = Array.isArray(p.progressPhotos) ? p.progressPhotos : [];
+    p.progressPhotos = {before:[], during:[], after:[]};
+    old.forEach(ph=>{
+      const phase = ph.phase||'during';
+      if(!p.progressPhotos[phase]) p.progressPhotos[phase]=[];
+      p.progressPhotos[phase].push(ph);
+    });
+  }
+  _doTakePhoto(async (data, dataFull, meta)=>{
+    const phase = (typeof _pdPhotoPhase!=='undefined' && _pdPhotoPhase) || 'during';
+    if(!p.progressPhotos[phase]) p.progressPhotos[phase]=[];
+    const photo = {id:uid(), phase, ts:ts()};
+    if(meta) photo.meta = meta;
+    const fullBlob = dataUrlToBlob(dataFull || data);
+    if(fullBlob && db){
+      const key = `proj-${p.id}-${phase}-${photo.id}`;
+      const ok = await mediaPut(key, fullBlob, { projectId: p.id, phase });
+      if(ok){
+        photo.blobKey = key;
+        photo.thumbDataUrl = await makeSmallThumb(data);
+      }
+    }
+    if(!photo.blobKey){
+      photo.data = data;
+      photo.dataFull = dataFull || data;
+    }
+    p.progressPhotos[phase].push(photo);
+    p.updatedAt = ts(); saveAll();
+    if(!meta || !meta.direction){
+      _openManualCompass(
+        (manualMeta)=>{
+          photo.meta = Object.assign({}, photo.meta || {}, manualMeta);
+          p.updatedAt = ts(); saveAll();
+          if(typeof toast==='function') toast('📸 תמונה + כיוון (' + manualMeta.direction.label + ')');
+          if(typeof _pdv2OpenSheet!=='undefined' && _pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
+          pdv2Render(p);
+        },
+        ()=>{
+          if(typeof toast==='function') toast('📸 תמונה נשמרה — '+{before:'לפני',during:'במהלך',after:'אחרי'}[phase]);
+          if(typeof _pdv2OpenSheet!=='undefined' && _pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
+          pdv2Render(p);
+        }
+      );
+    } else {
+      const dirTxt = ' (' + meta.direction.label + ')';
+      if(typeof toast==='function') toast('📸 תמונה נשמרה — '+{before:'לפני',during:'במהלך',after:'אחרי'}[phase] + dirTxt);
+      if(typeof _pdv2OpenSheet!=='undefined' && _pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
+      pdv2Render(p);
+    }
+  }, true);
 }
 function pdv2OpenWorkers(){
   pdv2CloseSheet();
