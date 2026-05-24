@@ -2,8 +2,9 @@
   "name": "אור בגג — קבלן גגות",
   "short_name": "אור בגג",
   "description": "אפליקציית ניהול עסק לקבלן גגות",
-  "start_url": "./",
-  "scope": "./",
+  "id": "/Or-BaGag/",
+  "start_url": "/Or-BaGag/",
+  "scope": "/Or-BaGag/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1a1a2e",
@@ -11,11 +12,13 @@
   "lang": "he",
   "dir": "rtl",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "share_target": {
-    "action": "./share",
+    "action": "/Or-BaGag/share",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
@@ -24,7 +27,7 @@
       "files": [
         {
           "name": "media",
-          "accept": ["image/*"]
+          "accept": ["image/*", "image/jpeg", "image/png", "image/webp"]
         }
       ]
     }
