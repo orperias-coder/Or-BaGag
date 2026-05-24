@@ -3312,15 +3312,18 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 /* ─── v3.9.78 additions: gallery + summaries + confirm sheet ─── */
 
 /* Gallery tabs */
+/* v3.9.90 — phase tabs: each takes equal 1/3 width, no jiggle when .on */
 #view-project-detail.pdv2 .pdv2-gal-tabs {
-  display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 12px;
 }
 #view-project-detail.pdv2 .pdv2-gal-tabs button {
-  background: var(--pd-stone); border: 1px solid var(--pd-hairline-2);
-  border-radius: 12px; padding: 8px 14px;
+  background: var(--pd-stone); border: 1.5px solid var(--pd-hairline-2);
+  border-radius: 12px; padding: 10px 8px;
   font-family: inherit; font-size: 13px; font-weight: 700;
   color: var(--pd-ink2); cursor: pointer;
-  transition: all .18s var(--pd-ease);
+  transition: background .18s var(--pd-ease), color .18s var(--pd-ease), border-color .18s var(--pd-ease);
+  text-align: center;
+  min-width: 0;
 }
 #view-project-detail.pdv2 .pdv2-gal-tabs button.on {
   background: var(--pd-amber-l); color: var(--pd-amber);
@@ -4345,6 +4348,8 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowStorageStats()">💾 שימוש באחסון (IDB)</button>
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShareTargetHelp()">📤 שיתוף מ-Google Photos לא עובד?</button>
         <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="checkIncomingMedia(false)">🔍 בדוק תמונות ששותפו (אם יש)</button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugTestShareTarget()">🧪 בדיקת SW: שלח תמונה לעצמך</button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowSWStatus()">⚙️ סטטוס Service Worker</button>
         <button class="btn btn-gold btn-sm" style="width:100%;margin-bottom:8px" onclick="seedPerlsteinProject()">🌅 טען פרויקט פרלשטיין (דמו)</button>
         <div id="debug-output-area" style="display:none;background:var(--ink3);border-radius:10px;padding:12px;font-size:11px;font-family:monospace;word-break:break-all;white-space:pre-wrap;max-height:300px;overflow-y:auto;margin-top:8px;direction:ltr;text-align:left"></div>
       </div>
@@ -4542,7 +4547,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.9.89'; // v3.9.89 — (1) תמונות ששותפו ל-PWA לא נראו: תוקן ע"י בדיקה אוטומטית של ה-IDB בכל עליית אפליקציה (לא תלוי ב-URL params שאנדרואיד מסיר). הוסף גם הודעה ל-window ב-SW + listener להצגת מודאל מיד. הוסף כפתור "🔍 בדוק תמונות ששותפו" בהגדרות → אבחון. (2) Multi-upload עדיין החזיר 1: הוספת toast דיאגנוסטיקה שמראה כמה הפיקר באמת החזיר, ואם 1 — מודאל אוטומטי עם "+ הוסף עוד" לזרימה איטרטיבית. v3.9.88 — מתקן השורש של PWA: היתה החלפת manifest ל-blob URL — אנדרואיד מסרב להתקין כ-PWA אמיתי מ-blob (לכן הסמל של כרום מופיע על האייקון, ו-share_target לא פועל). הוסר ה-override; ה-manifest הסטטי מנצח. manifest.json תוקן: paths אבסולוטיים (/Or-BaGag/), id מפורש, icons נפרדים ל-any+maskable, accept מורחב. multi-upload: הוסף hint במסך ("לבחירה מרובה: בחר קבצים/גלריה, לא Google Photos"). v3.9.87 — 3 תיקוני באג: (1) מודאל סטטוס בלת״ם הופיע מאחורי ה-sheet — bumped #mo z-index ל-9999. (2) Multi-upload לא תפס יותר מתמונה אחת — הועבר input ל-body root עם opacity:0 (במקום display:none בתוך sheet שגרם לאנדרואיד לפתוח single-select). (3) שיתוף מ-Google Photos לא הופיע — מסך עזרה חדש בהגדרות → אבחון שמסביר שצריך להסיר ולהתקין מחדש את ה-PWA (אנדרואיד קורא share_target רק בהתקנה). v3.9.86 — Web Share Target: שיתוף תמונות מאפליקציית Google Photos / גלריה ישירות ל-Or BaGag (Android). דורש sw.js + manifest.json בנפרד ב-deploy. אחרי קבלת תמונות → מסך אשור עם בחירת פרויקט+שלב, או ביטול. iOS לא תומך בקבצים ב-share — שם file picker (קיים) ימשיך לשמש. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.9.90'; // v3.9.90 — (1) Multi-upload איטרטיבי: לחיצה על "העלה" → picker נפתח → אחרי כל קבוצה מופיע bar צף עם "+ עוד" / "סיימתי". הוא חוזר כל פעם עד שהמשתמש לוחץ "סיימתי". כך הגבלת ה-picker של Google Photos נעקפת לחלוטין. (2) 3 הטאבים לפני/תוך כדי/אחרי עכשיו ברוחב שווה (grid) — לא קופצים יותר. (3) דיאגנוסטיקה חדשה: "🧪 בדיקת SW: שלח תמונה לעצמך" — מבצע POST סינטטי ל-/share ובודק אם ה-SW קלט. "⚙️ סטטוס Service Worker" — מציג scope, active state, controller. v3.9.89 — (1) תמונות ששותפו ל-PWA לא נראו: תוקן ע"י בדיקה אוטומטית של ה-IDB בכל עליית אפליקציה (לא תלוי ב-URL params שאנדרואיד מסיר). הוסף גם הודעה ל-window ב-SW + listener להצגת מודאל מיד. הוסף כפתור "🔍 בדוק תמונות ששותפו" בהגדרות → אבחון. (2) Multi-upload עדיין החזיר 1: הוספת toast דיאגנוסטיקה שמראה כמה הפיקר באמת החזיר, ואם 1 — מודאל אוטומטי עם "+ הוסף עוד" לזרימה איטרטיבית. v3.9.88 — מתקן השורש של PWA: היתה החלפת manifest ל-blob URL — אנדרואיד מסרב להתקין כ-PWA אמיתי מ-blob (לכן הסמל של כרום מופיע על האייקון, ו-share_target לא פועל). הוסר ה-override; ה-manifest הסטטי מנצח. manifest.json תוקן: paths אבסולוטיים (/Or-BaGag/), id מפורש, icons נפרדים ל-any+maskable, accept מורחב. multi-upload: הוסף hint במסך ("לבחירה מרובה: בחר קבצים/גלריה, לא Google Photos"). v3.9.87 — 3 תיקוני באג: (1) מודאל סטטוס בלת״ם הופיע מאחורי ה-sheet — bumped #mo z-index ל-9999. (2) Multi-upload לא תפס יותר מתמונה אחת — הועבר input ל-body root עם opacity:0 (במקום display:none בתוך sheet שגרם לאנדרואיד לפתוח single-select). (3) שיתוף מ-Google Photos לא הופיע — מסך עזרה חדש בהגדרות → אבחון שמסביר שצריך להסיר ולהתקין מחדש את ה-PWA (אנדרואיד קורא share_target רק בהתקנה). v3.9.86 — Web Share Target: שיתוף תמונות מאפליקציית Google Photos / גלריה ישירות ל-Or BaGag (Android). דורש sw.js + manifest.json בנפרד ב-deploy. אחרי קבלת תמונות → מסך אשור עם בחירת פרויקט+שלב, או ביטול. iOS לא תומך בקבצים ב-share — שם file picker (קיים) ימשיך לשמש. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -15412,9 +15417,13 @@ function pdv2GalleryQuickPhoto(){
 
 // v3.9.81 — multi-file upload from file picker (parallel compression + save)
 // v3.9.87 — robust click: ensure input is in body, not in a transformed/hidden parent
+// v3.9.90 — start iterative session so user can add many photos one-by-one
 function pdv2GalleryUploadMultiple(){
+  // Start iterative session if not already (or continue existing)
+  if(!window._pdv2UploadSession || !window._pdv2UploadSession.active){
+    window._pdv2UploadSession = { active: true, total: 0 };
+  }
   let input = document.getElementById('pdv2-multi-file-input');
-  // Defensive: if input was somehow removed or moved into a translated sheet, recreate at body root
   if(!input || input.parentElement !== document.body){
     if(input) input.remove();
     input = document.createElement('input');
@@ -15427,7 +15436,6 @@ function pdv2GalleryUploadMultiple(){
     document.body.appendChild(input);
   }
   input.value = '';
-  // Use requestAnimationFrame to ensure click happens in user-gesture context after style mutations
   requestAnimationFrame(() => input.click());
 }
 // v3.9.83 — entry from legacy portfolio tab. Sets phase then opens multi-upload.
@@ -15436,34 +15444,36 @@ function pdLegacyMultiUploadForPhase(phase){
   if(typeof window !== 'undefined') window._pdPhotoPhase = phase;
   pdv2GalleryUploadMultiple();
 }
+// v3.9.90 — iterative upload session: bypasses Android picker single-only limit
+window._pdv2UploadSession = window._pdv2UploadSession || { active: false, total: 0 };
+
 async function pdv2HandleMultiFiles(input){
   const files = Array.from(input.files || []);
-  // v3.9.89 — explicit diagnostic so user knows what the picker returned
-  if(typeof toast === 'function'){
-    toast(`📥 הפיקר החזיר ${files.length} קבצים`);
+  // Cancelled (no files picked) — end session if active
+  if(!files.length){
+    if(window._pdv2UploadSession.active){
+      const total = window._pdv2UploadSession.total;
+      window._pdv2UploadSession = { active: false, total: 0 };
+      if(total > 0 && typeof toast === 'function') toast(`✅ סה״כ נשמרו ${total} תמונות`);
+    }
+    return;
   }
-  if(!files.length) return;
   const p = (typeof getProject === 'function') ? getProject() : null;
-  if(!p){ toast('אין פרויקט פעיל'); return; }
+  if(!p){ toast('אין פרויקט פעיל'); window._pdv2UploadSession = { active: false, total: 0 }; return; }
   if(!p.progressPhotos || typeof p.progressPhotos !== 'object'){
     p.progressPhotos = { before: [], during: [], after: [] };
   }
   const phase = _pdv2GalleryPhase || 'during';
   if(!Array.isArray(p.progressPhotos[phase])) p.progressPhotos[phase] = [];
 
-  if(files.length === 1 && typeof toast === 'function'){
-    toast(`💡 הפיקר נתן רק 1 — לבחירה מרובה, נסה "קבצים" במקום "Google Photos"`);
-  }
   let okCount = 0, failCount = 0;
-  // Parallel compression (up to N at once to avoid memory spikes)
   const BATCH = 3;
   for(let i = 0; i < files.length; i += BATCH){
     const slice = files.slice(i, i + BATCH);
     const results = await Promise.all(slice.map(async f => {
       try {
         if(!f.type || !f.type.startsWith('image/')) return null;
-        const compressed = await compressImgDual(f);
-        return compressed;
+        return await compressImgDual(f);
       } catch(e){ return null; }
     }));
     for(const r of results){
@@ -15474,18 +15484,15 @@ async function pdv2HandleMultiFiles(input){
         phase,
         ts: (typeof ts === 'function' ? ts() : Date.now())
       };
-      // v3.9.82 — write full-res to IDB Blob (saves ~400KB per photo from localStorage)
       const fullBlob = dataUrlToBlob(r.dataFull || r.data);
       if(fullBlob && db){
         const key = `proj-${p.id}-${phase}-${photoId}`;
         const ok = await mediaPut(key, fullBlob, { projectId: p.id, phase });
         if(ok){
           photo.blobKey = key;
-          // small thumbnail stays in localStorage for fast grid
           photo.thumbDataUrl = await makeSmallThumb(r.data);
         }
       }
-      // Backward-compat fallback: if IDB write failed, store base64 like before
       if(!photo.blobKey){
         photo.data = r.data;
         photo.dataFull = r.dataFull || r.data;
@@ -15496,28 +15503,73 @@ async function pdv2HandleMultiFiles(input){
   }
   p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
   if(typeof saveAll === 'function') saveAll(true);
-  if(typeof toast === 'function'){
-    toast(failCount > 0
-      ? `✅ נשמרו ${okCount}, נכשלו ${failCount}`
-      : `✅ נשמרו ${okCount} תמונות בשלב "${phase==='before'?'לפני':phase==='after'?'אחרי':'תוך כדי'}"`);
-  }
-  // v3.9.89 — if only 1 returned, immediately offer to add another (iterative workflow)
-  if(okCount === 1 && files.length === 1){
-    setTimeout(() => {
-      if(typeof openMo === 'function'){
-        openMo(`
-          <div class="mo-title">תמונה נשמרה</div>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:14px">הפיקר של אנדרואיד נתן רק תמונה אחת. רוצה להוסיף עוד?</div>
-          <button class="btn btn-gold" style="margin-bottom:8px" onclick="closeMo();pdv2GalleryUploadMultiple()">+ הוסף עוד תמונה</button>
-          <button class="btn btn-ghost" onclick="closeMo()">סיימתי</button>
-        `);
-      }
-    }, 400);
-  }
+
+  // Refresh UI
   if(_pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
   if(_pdv2OpenSheet === 'legacy' && _pdTab === 'portfolio' && typeof pdv2RenderLegacyBody === 'function') pdv2RenderLegacyBody();
   if(typeof _pdTab !== 'undefined' && _pdTab === 'portfolio' && typeof renderPdTab === 'function') renderPdTab();
   pdv2Render(p);
+
+  // v3.9.90 — iterative loop: if multi-select didn't work, keep prompting until user dismisses
+  if(window._pdv2UploadSession.active){
+    window._pdv2UploadSession.total += okCount;
+    const total = window._pdv2UploadSession.total;
+    // Show floating "add more" UI immediately (replaces previous instance if any)
+    pdv2ShowIterativeBar(total);
+  } else {
+    // First-shot mode (button pressed not via iterative)
+    if(typeof toast === 'function'){
+      toast(failCount > 0 ? `✅ נשמרו ${okCount}, נכשלו ${failCount}` : `✅ נשמרו ${okCount} תמונות`);
+    }
+  }
+}
+
+// v3.9.90 — floating "add more" bar that persists across iterations
+function pdv2ShowIterativeBar(total){
+  const existing = document.getElementById('pdv2-upload-bar');
+  if(existing) existing.remove();
+  const bar = document.createElement('div');
+  bar.id = 'pdv2-upload-bar';
+  bar.style.cssText = `
+    position: fixed; bottom: 20px; left: 16px; right: 16px;
+    z-index: 9998;
+    background: linear-gradient(140deg, #e8a82c, #cf8f18);
+    color: #fff;
+    border-radius: 18px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 32px rgba(232,168,44,.4);
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Heebo', sans-serif;
+    animation: pdv2-bar-in .3s cubic-bezier(.34,1.56,.64,1);
+  `;
+  bar.innerHTML = `
+    <div style="flex:1">
+      <div style="font-size:15px;font-weight:800">${total} תמונות נשמרו ✓</div>
+      <div style="font-size:12px;opacity:.85;margin-top:2px">בחר עוד כדי להמשיך, או "סיימתי" לסיום</div>
+    </div>
+    <button onclick="pdv2IterativeAddMore()" style="background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.4);color:#fff;border-radius:12px;padding:10px 14px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit">+ עוד</button>
+    <button onclick="pdv2IterativeFinish()" style="background:rgba(0,0,0,.25);border:none;color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">סיימתי</button>
+  `;
+  document.body.appendChild(bar);
+  // Add animation keyframe if missing
+  if(!document.getElementById('pdv2-bar-style')){
+    const s = document.createElement('style');
+    s.id = 'pdv2-bar-style';
+    s.textContent = '@keyframes pdv2-bar-in{from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1}}';
+    document.head.appendChild(s);
+  }
+}
+
+function pdv2IterativeAddMore(){
+  // Don't end session — just open picker again
+  pdv2GalleryUploadMultiple();
+}
+function pdv2IterativeFinish(){
+  const total = window._pdv2UploadSession.total;
+  window._pdv2UploadSession = { active: false, total: 0 };
+  const bar = document.getElementById('pdv2-upload-bar');
+  if(bar) bar.remove();
+  if(total > 0 && typeof toast === 'function') toast(`✅ סה״כ נשמרו ${total} תמונות`);
 }
 
 // ═══════════════════════════════════════════════
@@ -21875,6 +21927,60 @@ function debugShowProjectData(){
   };
   const el = document.getElementById('debug-output-area');
   if(el){ el.style.display='block'; el.textContent = JSON.stringify(data, null, 2); }
+}
+
+// v3.9.90 — fire a synthetic POST to /share to verify the SW intercepts it
+async function debugTestShareTarget(){
+  const el = document.getElementById('debug-output-area');
+  if(el){ el.style.display='block'; el.textContent='מבצע בדיקה...'; }
+  try {
+    // 1x1 red png
+    const dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
+    const blob = dataUrlToBlob(dataUrl);
+    const fd = new FormData();
+    fd.append('media', blob, 'test.png');
+    const res = await fetch('./share', { method:'POST', body: fd, redirect:'manual' });
+    // wait briefly for SW to commit IDB write
+    await new Promise(r => setTimeout(r, 400));
+    const items = await mediaListIncoming();
+    const testItems = items.filter(it => it.meta && it.meta.name === 'test.png');
+    if(testItems.length > 0){
+      // cleanup test items
+      for(const it of testItems){ await mediaDelete(it.key); }
+      if(el) el.textContent = '✅ ה-Service Worker עובד! קלט ' + testItems.length + ' תמונת בדיקה ושמר ל-IDB.\nזה אומר ש-share_target צריך לעבוד מ-Google Photos גם.\nאם זה עדיין לא עובד מ-GP — האנדרואיד שלך לא קלט את ה-share_target בעת ההתקנה. צריך הסרה+התקנה מחדש.';
+    } else {
+      if(el) el.textContent = '❌ ה-SW לא קלט את הבקשה!\nresponse status: ' + res.status + '\nresponse type: ' + res.type + '\nזה אומר ש-SW לא פעיל או scope לא נכון.\nראה כפתור "סטטוס Service Worker" לפרטים.';
+    }
+  } catch(e){
+    if(el) el.textContent = 'שגיאה: ' + e.message;
+  }
+}
+
+// v3.9.90 — show SW registration status, scope, active version
+async function debugShowSWStatus(){
+  const el = document.getElementById('debug-output-area');
+  if(!el) return;
+  el.style.display='block';
+  el.textContent = 'בודק...';
+  try {
+    if(!('serviceWorker' in navigator)){ el.textContent = '❌ דפדפן לא תומך Service Worker'; return; }
+    const reg = await navigator.serviceWorker.getRegistration();
+    if(!reg){ el.textContent = '❌ לא רשום Service Worker'; return; }
+    const data = {
+      scope: reg.scope,
+      active: reg.active ? reg.active.state : 'NO ACTIVE',
+      installing: reg.installing ? reg.installing.state : 'none',
+      waiting: reg.waiting ? reg.waiting.state : 'none',
+      'script URL': reg.active?.scriptURL || 'unknown',
+      'controller': navigator.serviceWorker.controller ? 'present' : '✗ MISSING (refresh page)',
+      'page URL': window.location.href,
+      'display-mode standalone': window.matchMedia('(display-mode: standalone)').matches,
+      'iOS standalone': window.navigator.standalone === true
+    };
+    el.textContent = JSON.stringify(data, null, 2);
+  } catch(e){
+    el.textContent = 'שגיאה: ' + e.message;
+  }
 }
 
 // v3.9.87 — Share Target troubleshooting help

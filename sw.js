@@ -5,7 +5,7 @@
  * Cache strategy: network-first (we want fresh app on every load — SW just enables PWA + share target)
  */
 
-const CACHE_NAME = 'or-bagag-v3.9.89';
+const CACHE_NAME = 'or-bagag-v3.9.90';
 const SHARE_DB = 'orBagagVisits';
 const SHARE_STORE = 'media';
 const INCOMING_STORE = 'incoming-share';
