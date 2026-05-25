@@ -847,6 +847,8 @@ body.theme-finance  .view.on::before{
 .lead-row:active{border-color:var(--gold)}
 .lead-row .lr-thumb{width:54px;height:54px;background:var(--ink3);border-radius:10px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text3)}
 .lead-row .lr-thumb img{width:100%;height:100%;object-fit:cover}
+/* v3.11.5 — deterministic colored avatar (when no photo); palette stays warm/Mediterranean */
+.lr-thumb.lr-avatar{font-size:22px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);letter-spacing:-.5px}
 .lead-row .lr-body{flex:1;min-width:0}
 .lead-row .lr-name{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lead-row .lr-meta{font-size:11px;color:var(--text2);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -4699,7 +4701,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.11.4'; // v3.11.4 — מודל "ג'וב" (עבודה קטנה): סגירה ישירה של ליד בלי ביקור/פרויקט. (1) status חדש `'job-done'` ב-LEAD_STATUS עם pill ירוק-מרווה. (2) כפתור "✓ סגור כג'וב בוצע (בלי ביקור)" ב-lead-detail מתחת לכפתורי הפעולה. (3) מודאל קומפקטי: chips לסוג עבודה (12 ברירות מחדל: איטום גג/נזילה/קופינג/מרזב/...), סכום, checkbox "שולם", chips לאמצעי תשלום (מזומן/ביט/העברה/צ'ק) שמופיעים כש-paid, הערה חופשית. ולידציה: workType + amount > 0. (4) ה-jobData נשמר על הליד (`l.jobData = {workType, amount, paid, paymentMethod, notes, completedAt}`) — מודל עתידי יכול להיות נפרד אבל מספיק כרגע. (5) בלידים-list: שורה עם status='job-done' מציגה גם סכום וסימן ✓ אם שולם. (6) Status filter tab חדש "✓ ג'וב" בין "הומר" ל"נסגר". (7) `_calcIncomeBetween` כולל עכשיו גם jobs ששולמו בתקופה — נספרים בהכנסות החודש. (8) כרטיס ג'וב מוצג ב-lead-detail כשהליד נסגר (sage gradient, סכום, תשלום, הערה, כפתור ערוך). v3.11.3 — תיקון 2 צבעים שעדיין הופיעו לא בפלטה בדשבורד (אחרי screenshot מהמשתמש): (1) כרטיס "משימות פתוחות" — היה לו `style="background:linear-gradient(135deg,#667eea,#764ba2)"` inline על ה-.dg-img-bg ששבר את כל הכלל "אף פעם לא סגול". הוסר; כעת ה-warm-amber bg של .dg-tasks מציג ישירות. (2) ה-4 SVG-image-bg ב-CSS (לידים/ביקורים/פרויקטים/כספים) השתמשו בגרדיאנטים בצבעים שלא בפלטה (נייבי `#1a4480→#0a2548` ב-leads). שוכתבו ל-warm palette: לידים=amber/sun רקע + מוטיב שמש עולה, ביקורים=amber-deep, פרויקטים=terra-bright, כספים=sage-deep, כולם עם גוונים זהובים/מרווה מהמסמך. v3.11.2 — תיקון UI לא מתעדכן + סינון לפי עיר: (1) **באג מערכתי**: כל פעולה באפליקציה הייתה מתעדכנת ב-state ונשמרת, אבל לא מתרעננת על המסך עד שסוגרים ופותחים. השורש: `show(viewId)` רק החליף את ה-`.on` בין views אבל לא קרא ל-render. הוסף `VIEW_RENDERERS` map שמרענן את ה-view בכל הפעלה (dash/leads/visits/projects/finance/quote-edit וכו'). (2) ברשימת הלידים: שם הליד מציג עכשיו גם את העיר אם קיימת ("דניאל · חיפה"). (3) Filter chips חדש לפי עיר — מציג את כל הערים הקיימות בלידים עם counts + "ללא עיר". משולב עם filter המקור (WhatsApp/ידני) ו-status. שדרוג ה-CITIES_HE עם קריית טבעון, בנימינה-גבעת עדה, בית דגן, שוהם, טבעון. v3.11.1 — תיקוני אינטרקציה ב-WA + חילוץ חכם: (1) כפתור גדול ירוק "פתח את השיחה ב-WhatsApp" בליד מ-WA (linkאל wa.me/<phone> פותח את הצ'אט הקיים), מעל כפתור הדיבור. (2) סינון לידים לפי מקור: chips חדשים מעל ה-status tabs — "כל המקורות / 📱 WhatsApp / ✋ ידני" עם counts. (3) **סקריפט v0.6** — `extractClientInfo(messages)` חדש: מחלץ שם מ"שמי X" / "קוראים לי X" / "השם שלי X" וכתובת מ"רחוב/שדרת/כיכר X N" + מאגר 60 ערים. בודק רק 8 הודעות נכנסות ראשונות. נוסף ל-JSON כשדות `extractedName` + `extractedAddress`. (4) **App `_waBuildLead`** — clientName נופל לactionedName אם אין displayName; address ממולא אוטומטית מ-extractedAddress; **notes נשמר ריק** (לא מעתיקים יותר את 5 הראשונות + 12 האחרונות לתוך הליד — אם רוצים לראות שיחה, לחיצה אחת על כפתור WhatsApp). v3.11.0 — Design overhaul phase 1 — foundation. (1) הוכרזו טוקנים גלובלית לפי `design/or_bagag_design_system.md` §3+§7.5: --stone/--stone-d/--plaster (rocks), --terra/--terra-d (terracotta), --sun/--sun-deep/--sun-glow (השמש המרכזית), --amber/--amber-l (זהב מיושן), --sage/--sage-l (ירוק מרווה), --danger (אדום חם), --dusk (כחול-דמדומים, שימוש מוגבל). נוספו שכבות צל --sh-1/2/3/--sh-press, --hairline/--hairline-2, ועקומות --ease/--ease-out/--spring. תוספתי — לא ביטל את --gold/--green/--red הישנים. (2) דשבורד נצבע מחדש: כותרת מ-נייבי קר (#1a1a2e/#16213e/#0f3460) ל-warm-terra (#2a1f12/#3d2208/#5c3a22). חמשת כרטיסי הקטגוריות מ-cold-blue/dark-purple ל-warm earth-tones: leads=terra-deep, visits=amber-deep, projects=terra-bright, finance=sage-deep, tasks=warm-amber (במקום הסגול שעבר על הכלל "אף פעם לא סגול"). v3.10.5 — Audit cleanup batch (Tier 2): (1) ב-WhatsApp import — chips של label/keyword/name/unknown הוחלפו מסגול/כחול/תכלת/אפור (לא בפלטה) ל-gold/green/yellow/ink3 בפלטת הפרויקט. (2) שדות `*` בליד: כתובת ומקור הפנייה כבר לא חובה — נשארו רק שם וטלפון, אכיפה אמיתית. (3) Provenance של WhatsApp ב-visit-detail: badge "📱 מ-WhatsApp" ב-card הלקוח, ו-link "→ הליד המקורי" כשיש leadId. (4) Photos מ-WhatsApp בליד: badge "WA" קטן בפינה הימנית-תחתונה של thumbnail. (5) מסך הגדרות אוטומציות: הוסף banner "🚧 פיצ'ר בהכנה" — ה-toggles עובדים אבל מנוע יצירת המשימות עוד לא חובר. (6) Gallery default tab עבר מ-"נבחרת" (שתמיד היה ריק) ל-"פרויקטים"; ה-empty state של "נבחרת" עכשיו מסביר מה לעשות. (7) Archive empty state: הסבר מלא על איך תבניות נצברות + כפתור "→ לפרויקטים". (8) הצעה מ-visit-summary: כפתורים מושבתים כשהטוטל 0₪, hint צהוב "הוסף מחיר". v3.10.4 — תיקוני קריסה אחרי audit (Tier 1): (1) מסך "כספים" התרסק לחלוטין ב-`PROJECT_STATUS is not defined` — הקבוע נוצר עם תוויות planned/active/done/paused. (2) רשימת ביקורים הציגה "#undefined" לכל ביקור בלי visitNumber — wrap עם תנאי. (3) Visit-detail היה ריק לכל ביקור ישן (v.access.ladder בלי null-guard) — תוקן עם `(v.access||{})` בכל הקריאות. (4) `visitRowHtml` קרס על roofPhotos/outsidePhotos undefined — `(arr||[])[0]?.data`. (5) הוצאות פרויקט: רנדר השתמש ב-`e.name` בלבד; הוסף fallback `name||vendor||catLabel` + תווית `labor:'עבודה'`. v3.10.3 — "הבוקר שלך" — כרטיס חדש בראש הדשבורד שמופיע רק לפני 12:00 וכאשר יש משהו להראות. שולף מ-`ds_collectMorningData()` הקיים: featuredVisit (הביקור הקרוב — "ב-9:30 אצל פרלשטיין · בעוד 47 דק'") + משימה דחופה אחת (overdue או today, עם counter "עוד N באיחור" אם רלוונטי). ברכת בוקר מותאמת שעה (לפני 6:00 "עוד מוקדם", 6-11 "בוקר טוב", 11-12 "לקראת צהריים") + שם מ-S.business.ownerName. CTA "סיכום בוקר" שפותח את כרטיס סיכום היום המלא. בלי תוכן → לא מוצג. CSS חדש (.dmc-*) — גרדיאנט זהב, רחב, בולט. v3.10.2 — סגירת הלולאה: ליד מ-WhatsApp → ביקור. (1) `convertLeadToVisit` כעת מקבל ליד WA ללא clientName אם יש phone — מילוי אוטומטי של phone כשם זמני (ניתן לעריכה בביקור). לידים שאינם מ-WA עדיין דורשים שם מפורש. (2) `doConvertLeadToVisit` בונה finalNote מ-description+notes — כל תוכן השיחה (5 ראשונות + 12 אחרונות) זמין במסך הביקור. (3) flag חדש v.fromWhatsApp לזיהוי provenance. (4) confirm popup מפורט — מודיע אם תמונות יועתקו וכמה, אם תוכן השיחה נכנס. v3.10.1 — עושר תוכן לייבוא WhatsApp: (1) **סקריפט** (`whatsapp-scrape.js` v0.4) — captureFirstImageBase64() החדש: מוצא את ה-img הראשונה (blob:) ב-#main בגודל סביר, מוריד ל-canvas (max 600px, JPEG q=0.7) ומחזיר data URL. ה-thumb מצורף ל-mediaThumb של הודעת התמונה הראשונה ב-JSON. (2) **אפליקציה** — _waBuildLead סורק את messages ל-mediaThumb ודוחף ל-lead.photos[{id,data,ts,source:'whatsapp'}] — מסך לי הקיים מציג אותם אוטומטית. (3) **notes משופר** — אם total≤12 הודעות, מציג הכל בבלוק אחד. אחרת מציג "5 הודעות ראשונות (השיחה התחילה כך)" + "12 הודעות אחרונות" — קונטקסט מלא של איך הצ'אט התחיל ולא רק הסוף. (4) **preview row** — chip "📷 N תמונות" צבעוני זהוב, ו-thumbnail (180×140 max) של התמונה הראשונה ישירות בשורה. v3.10.0 — סינון משופר לייבוא WhatsApp (שתי שכבות): (1) **סקריפט** (`whatsapp-scrape.js`) — auto-skip של צ'אטים שהכותרת שלהם מתחילה במילת קרבה משפחתית (אשתי/אמא/אבא/אחי/דוד/...). מסונן לפני שלושת בלוקי הבחירה (label/unknown/keyword), לא נכנס ל-JSON, לא מקבל reason. רשימת prefixes ניתנת לעדכון דרך `SKIP_RELATION_PREFIXES` env. (2) **אפליקציה** — `S.waBlocklist[]` חדש (persisted ב-IDB+localStorage): רשימת טלפונים מנורמלים שתמיד יסוננו בייבוא. כפתור "✕ חסום ממספר זה תמיד" בכל שורה במסך הייבוא (עם confirm). מסך ניהול חדש (`view-wa-blocklist`) בהגדרות → אבחון: רשימה + "הסר חסימה" לכל ערך. הייבוא מסנן בשקט לפני preview ומציג בכותרת "X סוננו אוטומטית". v3.9.99 — תיקוני ייבוא WhatsApp (אחרי code-review): (1) באג קריטי — כפתורי dup-action ("דלג"/"מזג"/"חדש") היו בתוך wai-body עם onclick שלה; click bubble גרם לכך שכל בחירה התהפכה מיד. הוספת event.stopPropagation() לכפתורים ול-container. (2) באג ויזואלי — כפתור commit כש-disabled היה מקבל 2x style= attribute והדפדפן זרק את השני, opacity:.55 לא הופעלה. אוחד ל-style attribute אחד. (3) Counter בכותרת "נבחרו N מתוך M" לא שיקף dupAction='skip' — עכשיו משתמש באותו predicate כמו commit. (4) Merge עם הודעות ריקות (messages:[]) כבר לא מציין שגיאה "X מוזגו" — לא מעדכן ספירה אם אין מה למזג. v3.9.98 — ייבוא לידים מ-WhatsApp: כפתור חדש בראש מסך הלידים שפותח OS file picker (תומך ב-Drive/קבצים), קורא JSON שיוצא מהסקריפט המקומי `scripts/whatsapp-scrape.js`, ומציג מסך תצוגה מקדימה (view-wa-import) עם checkbox לכל ליד, chip סיבה צבעוני (label/keyword/name/unknown), זמן אחרון, ו-snippet. dedup פר-טלפון מנורמל (strip +972/0/רווחים) כנגד S.leads/S.visits/S.projects — כשיש התנגשות מוצג chip 🔁 + סלקטור פעולה (דלג / מזג ל-notes / צור חדש בכל זאת). Field mapping: displayName||title→clientName (אם title הוא טלפון בלבד → ריק), phone→phone, reason+matchedKeyword→source ("WhatsApp · ..."), lastMsgPreview→description (240 תווים), messages[]→notes (12 אחרונות, "[ts] who: text", מדיה כ-[תמונה]). State transient ב-window._waImport, הקובץ עצמו לא נשמר. v3.9.97 — תיקון יצירת PDF להצעת מחיר + toggles להפעלה/ביטול פר פרמטר. (1) הוחלף popup+document.write ב-Blob URL — אמין יותר ב-iOS/PWA, לא נחסם, ולא נכשל על תמונות base64 גדולות. הוספת fallback אוטומטי להורדה כקובץ HTML אם popup נחסם. (2) toggles חדשים פר הצעת מחיר: showItemDescription, showProductDescription, showPaymentTerms, showNotes, showSignatures, showEstimatedStart — כל אחד שולט אם הפרמטר יוצג ב-PDF. ברירת מחדל true (לא שובר הצעות קיימות). הוספו ל-quoteTemplate, createQuoteFromVisit, ול-UI של quote-edit עם כפתורי toggle זהובים. v3.9.96 — שני שיפורים בגלריה: (1) ה-picker של כפתור 📸 הראשי כעת כולל בחירת שלב מובנית (לפני/תוך כדי/אחרי) עם chips זהובים, כך שברור לאן התמונה הולכת לפני שמעלים — תיקון לבלבול "לאן הלכה התמונה". (2) מצב "✏️ עריכה" בתוך sheet הגלריה: לחיצה על כפתור עריכה מפעילה בחירה מרובה, כל לחיצה על thumbnail בוחרת/מבטלת (overlay זהוב עם ✓). סרגל פעולות מציע: בחר הכל, 🗑 מחק (עם confirm + ניקוי IDB), ⤴ העבר ל"לפני"/"תוך כדי"/"אחרי" — מעביר את כל הבחורות ל-phase יעד. החלפת phase מאפסת בחירה. v3.9.95 — תיקון Multi-upload (כפתור מצלמה במסך הפרויקט): השורש האמיתי לא היה ב-input של הגלריה אלא בכפתור 📸 הראשי (.pdv2-snap) — שהפעיל את ה-picker הגנרי _showPhotoSourcePicker → _doTakePhoto שיצר input ללא `multiple` ולקח רק files[0] גם בבחירת "גלריה". נכתב picker ייעודי ל-pdv2 שמנתב: "מצלמה" → צילום בודד (כמו היום), "גלריה" → pdv2GalleryUploadMultiple שתומך multi+IDB. ה-picker הגנרי בביקור (wz4PickInteriorFromGallery וכו') ממשיך לעבוד דרך pickPhoto הקיים. v3.9.94 — תיקון Multi-upload (השורש האמיתי): `display:none` על input קבצים גרם לדפדפן (Mac/Android/iOS) לפתוח פיקר "מצומצם" שמתעלם מ-`multiple`. הוחלף ל-opacity:0 + offscreen positioning. גם accept חזר ל-image/* (סטנדרטי). v3.9.93 — נתוני פרלשטיין מדויקים מהצעת מחיר 61 (03/05/2026): 7 סעיפים עם quantity+unitPrice — תעלות פנימיות 28.5מ׳×900=25,650 | רוכבים 4,000 | קידוח ניקוז 4×1,000=4,000 | צינור חיצוני 34מ׳×200=6,800 | קופינג אלומיניום 85×200=17,000 | איטום חלון 6,000 | איטום תעלה קטנה 0 (בונוס). סה"כ הצעה 63,450. בלת"ם תעלה 2מ׳=1,800 (will_bill). גגון דוד+מזגנים → blatam will_bill (סכום לעדכון). 3 מוקדי צנרת+ארובה → free. SEED_VERSION=7. v3.9.92 — תיקוני שורש: (1) Multi-upload: input accept שונה מ-"image/*" ל-extensions בודדים (.jpg,.png,.webp,.heic) — אנדרואיד מאלץ את ה-Files picker (תומך מרובה) במקום Google Photos picker (לא תומך). (2) מחירי פרלשטיין: עודכנו לפי מה שאור אמר בעבר — חידוש רוכבים 4000 (לא 8000), קידוח מרזבים 4×1000=4000 (לא 3000), והשאר אומדן כדי שסה"כ ישאר 65,250. PERLSTEIN_SEED_VERSION bumped ל-6 → רענון אוטומטי לכל מי שטען לפני. v3.9.91 — חזרה ל-v3.9.85 (בסיס שעבד). בוטלו השינויים מ-3.9.86-3.9.90 שגרמו לבעיות: Web Share Target, sw.js חדש, manifest blob, iterative upload bar, diagnostics — הכל הוסר. Multi-upload עובד עם input multiple רגיל; iOS/Android picker מטפל. אם הפיקר נתן רק 1 — זה quirk של גוגל פוטוס, נסה "קבצים" במקום. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
+const APP_VERSION = '3.11.5'; // v3.11.5 — Avatars + Calendar + .ics + scraper fix. (1) **Avatars צבעוניים בלידים** — כשאין תמונה, עיגול בצבע יציב (hash של טלפון/שם) עם אות ראשונה. פלטה: amber/terra/sage/danger/sun-deep/terra-deep/sage-deep/amber-brown. (2) **קביעת מועד לליד** — כפתור "📅 קבע מועד" + מודאל תאריך/שעה/משך → `l.scheduledAt` + סטטוס "מתואם". (3) **ייצוא ליומן Google** — כפתור "📥 ליומן Google" יוצר `.ics` (עם VALARM 30 דק' לפני) → לחיצה ב-Files → נכנס ליומן עם תזכורת אמיתית. (4) **לוח שנה פנימי הורחב**: מציג גם לידים מתואמים (amber), ביקורים מתוכננים (sun-deep), ג'ובים שבוצעו (sage) — בנוסף לפעילויות פרויקטים הקיימות. (5) **תיקון scraper** — WhatsApp Web שינתה את ה-DOM: `span[title]` עכשיו מחזיר tooltip "click here for contact info" במקום שם הצ'אט. הכותרת האמיתית עברה ל-`[data-testid="conversation-header"] span`. עודכן `waitForChatOpened` ו-`prevHeader`. בריצה הראשונה אחרי התיקון: 6/11 לידים נשלפו (קודם 0/10), 3 עם תמונות בייס64, 1 עם חילוץ עיר אוטומטי. v3.11.4 — מודל "ג'וב" (עבודה קטנה): סגירה ישירה של ליד בלי ביקור/פרויקט. (1) status חדש `'job-done'` ב-LEAD_STATUS עם pill ירוק-מרווה. (2) כפתור "✓ סגור כג'וב בוצע (בלי ביקור)" ב-lead-detail מתחת לכפתורי הפעולה. (3) מודאל קומפקטי: chips לסוג עבודה (12 ברירות מחדל: איטום גג/נזילה/קופינג/מרזב/...), סכום, checkbox "שולם", chips לאמצעי תשלום (מזומן/ביט/העברה/צ'ק) שמופיעים כש-paid, הערה חופשית. ולידציה: workType + amount > 0. (4) ה-jobData נשמר על הליד (`l.jobData = {workType, amount, paid, paymentMethod, notes, completedAt}`) — מודל עתידי יכול להיות נפרד אבל מספיק כרגע. (5) בלידים-list: שורה עם status='job-done' מציגה גם סכום וסימן ✓ אם שולם. (6) Status filter tab חדש "✓ ג'וב" בין "הומר" ל"נסגר". (7) `_calcIncomeBetween` כולל עכשיו גם jobs ששולמו בתקופה — נספרים בהכנסות החודש. (8) כרטיס ג'וב מוצג ב-lead-detail כשהליד נסגר (sage gradient, סכום, תשלום, הערה, כפתור ערוך). v3.11.3 — תיקון 2 צבעים שעדיין הופיעו לא בפלטה בדשבורד (אחרי screenshot מהמשתמש): (1) כרטיס "משימות פתוחות" — היה לו `style="background:linear-gradient(135deg,#667eea,#764ba2)"` inline על ה-.dg-img-bg ששבר את כל הכלל "אף פעם לא סגול". הוסר; כעת ה-warm-amber bg של .dg-tasks מציג ישירות. (2) ה-4 SVG-image-bg ב-CSS (לידים/ביקורים/פרויקטים/כספים) השתמשו בגרדיאנטים בצבעים שלא בפלטה (נייבי `#1a4480→#0a2548` ב-leads). שוכתבו ל-warm palette: לידים=amber/sun רקע + מוטיב שמש עולה, ביקורים=amber-deep, פרויקטים=terra-bright, כספים=sage-deep, כולם עם גוונים זהובים/מרווה מהמסמך. v3.11.2 — תיקון UI לא מתעדכן + סינון לפי עיר: (1) **באג מערכתי**: כל פעולה באפליקציה הייתה מתעדכנת ב-state ונשמרת, אבל לא מתרעננת על המסך עד שסוגרים ופותחים. השורש: `show(viewId)` רק החליף את ה-`.on` בין views אבל לא קרא ל-render. הוסף `VIEW_RENDERERS` map שמרענן את ה-view בכל הפעלה (dash/leads/visits/projects/finance/quote-edit וכו'). (2) ברשימת הלידים: שם הליד מציג עכשיו גם את העיר אם קיימת ("דניאל · חיפה"). (3) Filter chips חדש לפי עיר — מציג את כל הערים הקיימות בלידים עם counts + "ללא עיר". משולב עם filter המקור (WhatsApp/ידני) ו-status. שדרוג ה-CITIES_HE עם קריית טבעון, בנימינה-גבעת עדה, בית דגן, שוהם, טבעון. v3.11.1 — תיקוני אינטרקציה ב-WA + חילוץ חכם: (1) כפתור גדול ירוק "פתח את השיחה ב-WhatsApp" בליד מ-WA (linkאל wa.me/<phone> פותח את הצ'אט הקיים), מעל כפתור הדיבור. (2) סינון לידים לפי מקור: chips חדשים מעל ה-status tabs — "כל המקורות / 📱 WhatsApp / ✋ ידני" עם counts. (3) **סקריפט v0.6** — `extractClientInfo(messages)` חדש: מחלץ שם מ"שמי X" / "קוראים לי X" / "השם שלי X" וכתובת מ"רחוב/שדרת/כיכר X N" + מאגר 60 ערים. בודק רק 8 הודעות נכנסות ראשונות. נוסף ל-JSON כשדות `extractedName` + `extractedAddress`. (4) **App `_waBuildLead`** — clientName נופל לactionedName אם אין displayName; address ממולא אוטומטית מ-extractedAddress; **notes נשמר ריק** (לא מעתיקים יותר את 5 הראשונות + 12 האחרונות לתוך הליד — אם רוצים לראות שיחה, לחיצה אחת על כפתור WhatsApp). v3.11.0 — Design overhaul phase 1 — foundation. (1) הוכרזו טוקנים גלובלית לפי `design/or_bagag_design_system.md` §3+§7.5: --stone/--stone-d/--plaster (rocks), --terra/--terra-d (terracotta), --sun/--sun-deep/--sun-glow (השמש המרכזית), --amber/--amber-l (זהב מיושן), --sage/--sage-l (ירוק מרווה), --danger (אדום חם), --dusk (כחול-דמדומים, שימוש מוגבל). נוספו שכבות צל --sh-1/2/3/--sh-press, --hairline/--hairline-2, ועקומות --ease/--ease-out/--spring. תוספתי — לא ביטל את --gold/--green/--red הישנים. (2) דשבורד נצבע מחדש: כותרת מ-נייבי קר (#1a1a2e/#16213e/#0f3460) ל-warm-terra (#2a1f12/#3d2208/#5c3a22). חמשת כרטיסי הקטגוריות מ-cold-blue/dark-purple ל-warm earth-tones: leads=terra-deep, visits=amber-deep, projects=terra-bright, finance=sage-deep, tasks=warm-amber (במקום הסגול שעבר על הכלל "אף פעם לא סגול"). v3.10.5 — Audit cleanup batch (Tier 2): (1) ב-WhatsApp import — chips של label/keyword/name/unknown הוחלפו מסגול/כחול/תכלת/אפור (לא בפלטה) ל-gold/green/yellow/ink3 בפלטת הפרויקט. (2) שדות `*` בליד: כתובת ומקור הפנייה כבר לא חובה — נשארו רק שם וטלפון, אכיפה אמיתית. (3) Provenance של WhatsApp ב-visit-detail: badge "📱 מ-WhatsApp" ב-card הלקוח, ו-link "→ הליד המקורי" כשיש leadId. (4) Photos מ-WhatsApp בליד: badge "WA" קטן בפינה הימנית-תחתונה של thumbnail. (5) מסך הגדרות אוטומציות: הוסף banner "🚧 פיצ'ר בהכנה" — ה-toggles עובדים אבל מנוע יצירת המשימות עוד לא חובר. (6) Gallery default tab עבר מ-"נבחרת" (שתמיד היה ריק) ל-"פרויקטים"; ה-empty state של "נבחרת" עכשיו מסביר מה לעשות. (7) Archive empty state: הסבר מלא על איך תבניות נצברות + כפתור "→ לפרויקטים". (8) הצעה מ-visit-summary: כפתורים מושבתים כשהטוטל 0₪, hint צהוב "הוסף מחיר". v3.10.4 — תיקוני קריסה אחרי audit (Tier 1): (1) מסך "כספים" התרסק לחלוטין ב-`PROJECT_STATUS is not defined` — הקבוע נוצר עם תוויות planned/active/done/paused. (2) רשימת ביקורים הציגה "#undefined" לכל ביקור בלי visitNumber — wrap עם תנאי. (3) Visit-detail היה ריק לכל ביקור ישן (v.access.ladder בלי null-guard) — תוקן עם `(v.access||{})` בכל הקריאות. (4) `visitRowHtml` קרס על roofPhotos/outsidePhotos undefined — `(arr||[])[0]?.data`. (5) הוצאות פרויקט: רנדר השתמש ב-`e.name` בלבד; הוסף fallback `name||vendor||catLabel` + תווית `labor:'עבודה'`. v3.10.3 — "הבוקר שלך" — כרטיס חדש בראש הדשבורד שמופיע רק לפני 12:00 וכאשר יש משהו להראות. שולף מ-`ds_collectMorningData()` הקיים: featuredVisit (הביקור הקרוב — "ב-9:30 אצל פרלשטיין · בעוד 47 דק'") + משימה דחופה אחת (overdue או today, עם counter "עוד N באיחור" אם רלוונטי). ברכת בוקר מותאמת שעה (לפני 6:00 "עוד מוקדם", 6-11 "בוקר טוב", 11-12 "לקראת צהריים") + שם מ-S.business.ownerName. CTA "סיכום בוקר" שפותח את כרטיס סיכום היום המלא. בלי תוכן → לא מוצג. CSS חדש (.dmc-*) — גרדיאנט זהב, רחב, בולט. v3.10.2 — סגירת הלולאה: ליד מ-WhatsApp → ביקור. (1) `convertLeadToVisit` כעת מקבל ליד WA ללא clientName אם יש phone — מילוי אוטומטי של phone כשם זמני (ניתן לעריכה בביקור). לידים שאינם מ-WA עדיין דורשים שם מפורש. (2) `doConvertLeadToVisit` בונה finalNote מ-description+notes — כל תוכן השיחה (5 ראשונות + 12 אחרונות) זמין במסך הביקור. (3) flag חדש v.fromWhatsApp לזיהוי provenance. (4) confirm popup מפורט — מודיע אם תמונות יועתקו וכמה, אם תוכן השיחה נכנס. v3.10.1 — עושר תוכן לייבוא WhatsApp: (1) **סקריפט** (`whatsapp-scrape.js` v0.4) — captureFirstImageBase64() החדש: מוצא את ה-img הראשונה (blob:) ב-#main בגודל סביר, מוריד ל-canvas (max 600px, JPEG q=0.7) ומחזיר data URL. ה-thumb מצורף ל-mediaThumb של הודעת התמונה הראשונה ב-JSON. (2) **אפליקציה** — _waBuildLead סורק את messages ל-mediaThumb ודוחף ל-lead.photos[{id,data,ts,source:'whatsapp'}] — מסך לי הקיים מציג אותם אוטומטית. (3) **notes משופר** — אם total≤12 הודעות, מציג הכל בבלוק אחד. אחרת מציג "5 הודעות ראשונות (השיחה התחילה כך)" + "12 הודעות אחרונות" — קונטקסט מלא של איך הצ'אט התחיל ולא רק הסוף. (4) **preview row** — chip "📷 N תמונות" צבעוני זהוב, ו-thumbnail (180×140 max) של התמונה הראשונה ישירות בשורה. v3.10.0 — סינון משופר לייבוא WhatsApp (שתי שכבות): (1) **סקריפט** (`whatsapp-scrape.js`) — auto-skip של צ'אטים שהכותרת שלהם מתחילה במילת קרבה משפחתית (אשתי/אמא/אבא/אחי/דוד/...). מסונן לפני שלושת בלוקי הבחירה (label/unknown/keyword), לא נכנס ל-JSON, לא מקבל reason. רשימת prefixes ניתנת לעדכון דרך `SKIP_RELATION_PREFIXES` env. (2) **אפליקציה** — `S.waBlocklist[]` חדש (persisted ב-IDB+localStorage): רשימת טלפונים מנורמלים שתמיד יסוננו בייבוא. כפתור "✕ חסום ממספר זה תמיד" בכל שורה במסך הייבוא (עם confirm). מסך ניהול חדש (`view-wa-blocklist`) בהגדרות → אבחון: רשימה + "הסר חסימה" לכל ערך. הייבוא מסנן בשקט לפני preview ומציג בכותרת "X סוננו אוטומטית". v3.9.99 — תיקוני ייבוא WhatsApp (אחרי code-review): (1) באג קריטי — כפתורי dup-action ("דלג"/"מזג"/"חדש") היו בתוך wai-body עם onclick שלה; click bubble גרם לכך שכל בחירה התהפכה מיד. הוספת event.stopPropagation() לכפתורים ול-container. (2) באג ויזואלי — כפתור commit כש-disabled היה מקבל 2x style= attribute והדפדפן זרק את השני, opacity:.55 לא הופעלה. אוחד ל-style attribute אחד. (3) Counter בכותרת "נבחרו N מתוך M" לא שיקף dupAction='skip' — עכשיו משתמש באותו predicate כמו commit. (4) Merge עם הודעות ריקות (messages:[]) כבר לא מציין שגיאה "X מוזגו" — לא מעדכן ספירה אם אין מה למזג. v3.9.98 — ייבוא לידים מ-WhatsApp: כפתור חדש בראש מסך הלידים שפותח OS file picker (תומך ב-Drive/קבצים), קורא JSON שיוצא מהסקריפט המקומי `scripts/whatsapp-scrape.js`, ומציג מסך תצוגה מקדימה (view-wa-import) עם checkbox לכל ליד, chip סיבה צבעוני (label/keyword/name/unknown), זמן אחרון, ו-snippet. dedup פר-טלפון מנורמל (strip +972/0/רווחים) כנגד S.leads/S.visits/S.projects — כשיש התנגשות מוצג chip 🔁 + סלקטור פעולה (דלג / מזג ל-notes / צור חדש בכל זאת). Field mapping: displayName||title→clientName (אם title הוא טלפון בלבד → ריק), phone→phone, reason+matchedKeyword→source ("WhatsApp · ..."), lastMsgPreview→description (240 תווים), messages[]→notes (12 אחרונות, "[ts] who: text", מדיה כ-[תמונה]). State transient ב-window._waImport, הקובץ עצמו לא נשמר. v3.9.97 — תיקון יצירת PDF להצעת מחיר + toggles להפעלה/ביטול פר פרמטר. (1) הוחלף popup+document.write ב-Blob URL — אמין יותר ב-iOS/PWA, לא נחסם, ולא נכשל על תמונות base64 גדולות. הוספת fallback אוטומטי להורדה כקובץ HTML אם popup נחסם. (2) toggles חדשים פר הצעת מחיר: showItemDescription, showProductDescription, showPaymentTerms, showNotes, showSignatures, showEstimatedStart — כל אחד שולט אם הפרמטר יוצג ב-PDF. ברירת מחדל true (לא שובר הצעות קיימות). הוספו ל-quoteTemplate, createQuoteFromVisit, ול-UI של quote-edit עם כפתורי toggle זהובים. v3.9.96 — שני שיפורים בגלריה: (1) ה-picker של כפתור 📸 הראשי כעת כולל בחירת שלב מובנית (לפני/תוך כדי/אחרי) עם chips זהובים, כך שברור לאן התמונה הולכת לפני שמעלים — תיקון לבלבול "לאן הלכה התמונה". (2) מצב "✏️ עריכה" בתוך sheet הגלריה: לחיצה על כפתור עריכה מפעילה בחירה מרובה, כל לחיצה על thumbnail בוחרת/מבטלת (overlay זהוב עם ✓). סרגל פעולות מציע: בחר הכל, 🗑 מחק (עם confirm + ניקוי IDB), ⤴ העבר ל"לפני"/"תוך כדי"/"אחרי" — מעביר את כל הבחורות ל-phase יעד. החלפת phase מאפסת בחירה. v3.9.95 — תיקון Multi-upload (כפתור מצלמה במסך הפרויקט): השורש האמיתי לא היה ב-input של הגלריה אלא בכפתור 📸 הראשי (.pdv2-snap) — שהפעיל את ה-picker הגנרי _showPhotoSourcePicker → _doTakePhoto שיצר input ללא `multiple` ולקח רק files[0] גם בבחירת "גלריה". נכתב picker ייעודי ל-pdv2 שמנתב: "מצלמה" → צילום בודד (כמו היום), "גלריה" → pdv2GalleryUploadMultiple שתומך multi+IDB. ה-picker הגנרי בביקור (wz4PickInteriorFromGallery וכו') ממשיך לעבוד דרך pickPhoto הקיים. v3.9.94 — תיקון Multi-upload (השורש האמיתי): `display:none` על input קבצים גרם לדפדפן (Mac/Android/iOS) לפתוח פיקר "מצומצם" שמתעלם מ-`multiple`. הוחלף ל-opacity:0 + offscreen positioning. גם accept חזר ל-image/* (סטנדרטי). v3.9.93 — נתוני פרלשטיין מדויקים מהצעת מחיר 61 (03/05/2026): 7 סעיפים עם quantity+unitPrice — תעלות פנימיות 28.5מ׳×900=25,650 | רוכבים 4,000 | קידוח ניקוז 4×1,000=4,000 | צינור חיצוני 34מ׳×200=6,800 | קופינג אלומיניום 85×200=17,000 | איטום חלון 6,000 | איטום תעלה קטנה 0 (בונוס). סה"כ הצעה 63,450. בלת"ם תעלה 2מ׳=1,800 (will_bill). גגון דוד+מזגנים → blatam will_bill (סכום לעדכון). 3 מוקדי צנרת+ארובה → free. SEED_VERSION=7. v3.9.92 — תיקוני שורש: (1) Multi-upload: input accept שונה מ-"image/*" ל-extensions בודדים (.jpg,.png,.webp,.heic) — אנדרואיד מאלץ את ה-Files picker (תומך מרובה) במקום Google Photos picker (לא תומך). (2) מחירי פרלשטיין: עודכנו לפי מה שאור אמר בעבר — חידוש רוכבים 4000 (לא 8000), קידוח מרזבים 4×1000=4000 (לא 3000), והשאר אומדן כדי שסה"כ ישאר 65,250. PERLSTEIN_SEED_VERSION bumped ל-6 → רענון אוטומטי לכל מי שטען לפני. v3.9.91 — חזרה ל-v3.9.85 (בסיס שעבד). בוטלו השינויים מ-3.9.86-3.9.90 שגרמו לבעיות: Web Share Target, sw.js חדש, manifest blob, iterative upload bar, diagnostics — הכל הוסר. Multi-upload עובד עם input multiple רגיל; iOS/Android picker מטפל. אם הפיקר נתן רק 1 — זה quirk של גוגל פוטוס, נסה "קבצים" במקום. v3.9.85 — יומן פרויקטים פנימי: מסך חדש (כפתור 📅 בדשבורד), תצוגת חודש עם נקודות צבעוניות פר פרויקט פר יום (פעילות = שלב שהושלם / הוצאה / תשלום / תמונה / בלת״ם / תובנה / תאריך התחלה). לחיצה על יום → פירוט אירועים פר פרויקט. לחיצה על שם פרויקט → ניווט. צבעים: 8 גוונים חוזרים. v3.9.84 — קישור סעיפי עבודה לקטלוג: כל task מקבל catalogId אוטומטית במיגרציה (fuzzy match על שם, סף 60%). מסך הסעיפים מציג ▣ ליד שם מקושר ו-⊕ ליד לא מקושר. לחיצה: מציגה טופ-5 התאמות מהקטלוג + אופציה לשמור פריט חדש לקטלוג. כל task מקבל id (גם אם לא היה לו). v3.9.83 — (1) העלאת תמונות מרובות הוצגה כפתור ראשי בולט בגלריה, וגם נוסף לתצוגה הישנה ("תיק תמונות מפורט"). (2) כל בלת״ם מקבל סטטוס חיוב: כלול בהצעה / לחיוב נפרד / חויב / בונוס חינם. עדכון בלחיצה. (3) "סיכום ללקוח" עם סקשן נפרד לתוספות לחיוב vs בונוסים. (4) "סיכום מנהלים" עם כרטיס "פוטנציאל חיוב נוסף" שמסכם בלת״מים שעוד לא חויבו. (5) ההודעה לוואטסאפ מפורטת לפי סטטוס. מיגרציה אוטומטית של בלת״מים קיימים לפי tag/severity. v3.9.82 — תשתית IndexedDB לתמונות: שמירת blobs טבעיים ב-IDB במקום base64 ב-localStorage (פתרון לתקרת ~25 תמונות). מיגרציה אוטומטית, idempotent, non-destructive (data legacy נשאר כ-fallback). הוספת helpers: mediaPut/Get/Delete/GetUrl/Stats + makeSmallThumb + dataUrlToBlob. כל הצגות תמונה תומכות גם blobKey וגם base64 ישן. גלריית pdv2 + portfolio ישן + pdQuickPhoto + multi-upload עברו לכתיבה ל-IDB. כפתור חדש בהגדרות → אבחון: "💾 שימוש באחסון". v3.9.81 — תיקונים וחיבורים: (1) הסתרת כפתור דיבור צף ישן במסך הפרויקט החדש (כפילות). (2) כפתור ✕ סגירה מפורש בראש כל sheet (חוץ מ-swipe). (3) דוח מלא כעת מציג סקשן "צוות הפרויקט" עם ימי עבודה ותעריף. (4) זיהוי אוטומטי של נתוני דמו פרלשטיין ישנים — רענון אוטומטי לגרסה החדשה. (5) העלאת מספר תמונות במקביל מסייר הקבצים (+ העלה — multi-select). v3.9.80 — חיבור מסך החדש לאפליקציה: (1) שורת "סיכומים ונתונים" עכשיו פותחת sheet עריכה מלא עם renderers ישנים (סעיפי עבודה, כסף, תמונות, גג, קניות, דוח, טכני) — כל ה-toggles, +תשלום, +הוצאה, +תמונה עובדים. (2) "ימי עבודה" במטא משתמש ב-daysWorked של אור (9 ימים) במקום calendar days. (3) FAB ישן (📸 צף) הוסתר. (4) סיכום מנהלים מציג רווח נטו (49% במקום 71% מטעה — תואם perlstein_full.md). (5) seed דינמי: התחלה=היום-17 כך שתמיד "שבוע 3". v3.9.79 — דמו פרלשטיין מעודכן: 8 סעיפים בסכום מדויק ₪65,250 נטו, 7 בלת״מים (נוספו דאבל-בוקינג ופשלת שיפוע), 3 תובנות מורחבות (קופינג: פינות + סדר התקנה), צוות עם daysWorked, p.expenses[] מלא (חומרים+עבודה ע״פ perlstein_full.md). הפונקציה re-seed: מחליפה גרסה ישנה אוטומטית. v3.9.78 — שלושת השלבים של מסך הפרויקט: (1) דיבור חופשי → AI מסווג כל פריט ל-blatam/insight אוטומטית עם few-shot, ומעלה ל-p.issues[] עם undo bubble. מיגרציה אוטומטית מ-p.insights ישן. (2) גלריית תמונות sheet חדש (לפני/תוך כדי/אחרי + צילום מהיר). (3) שני סיכומים: ללקוח (hero לפני/אחרי, עבודות עם badges, בונוסים) ולמנהל (רווח, ימי עבודה, בלת״מים, צוות, תובנות). שיתוף לקוח ב-4 דרכים: וואטסאפ, navigator.share, HTML, PNG. v3.9.77 — דמו: כפתור "🌅 טען פרויקט פרלשטיין (דמו)" בהגדרות → אבחון. טוען פרויקט מלא (8 סעיפים, 5 בלת״מים, 3 תובנות, צוות, ~74% התקדמות) ופותח אותו במסך החדש. v3.9.76 — מסך פרויקט חדש "Rising Sun": תמונה+שמש עולה (מד התקדמות), משפט עידוד אנושי, כפתור דיבור זוהר, 3 גישות מהירות (בלת״מים/תובנות/סיכומים) בגיליונות עולים. החליף את 6 הטאבים הישנים. v3.9.75 — UX: כפתור דיבור חופשי הועבר ל-topbar במסך צפייה בביקור (במקום ✏️ עריכה — שזמין דרך תפריט ⋯). הכפתור הצף מוסתר במסך זה. v3.9.74 — Critical fix: TypeError in wz4Render when S.wz is null (fmSave/fmRemove called from visit-detail). v3.9.73 — Security: tabnabbing. v3.9.72 — A11y: for= ל-98 תוויות. v3.9.71 — Polish: ניגודיות + 44px touch targets. v3.9.70 — Quick Wins.
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -6055,6 +6057,25 @@ function _calBuildActivityMap(year, month){
     });
     // issues
     (p.issues||[]).forEach(i => addEvent(i.createdAt, p.id, name, color, i.kind==='blatam'?'בלת״ם':'תובנה'));
+  });
+  // v3.11.5 — also include scheduled leads / scheduled visits / completed jobs / generic meetings
+  const COLOR_LEAD  = '#c4941a'; // amber
+  const COLOR_VISIT = '#cf8f18'; // sun-deep
+  const COLOR_JOB   = '#6b8f6b'; // sage
+  (S.leads||[]).forEach(l => {
+    // Scheduled appointments
+    if(l.scheduledAt){
+      addEvent(l.scheduledAt, `lead-${l.id}`, l.clientName || '(ליד)', COLOR_LEAD, 'ביקור מתואם');
+    }
+    // Completed jobs
+    if(l.status === 'job-done' && l.jobData?.completedAt){
+      addEvent(l.jobData.completedAt, `lead-${l.id}`, l.clientName || '(ג\'וב)', COLOR_JOB, 'ג\'וב בוצע');
+    }
+  });
+  (S.visits||[]).forEach(v => {
+    if(v.scheduledAt){
+      addEvent(v.scheduledAt, `visit-${v.id}`, v.clientName || '(ביקור)', COLOR_VISIT, 'ביקור מתוכנן');
+    }
   });
   return map;
 }
@@ -12366,6 +12387,41 @@ function setFinancePeriod(p){
    V2.5 — LEADS / OPPORTUNITIES PIPELINE
    ═══════════════════════════════════════════════════════ */
 
+// v3.11.5 — Deterministic colored avatar palette (warm Mediterranean, no purple/cyan).
+// Used in leads list when there's no photo, to make rows visually distinct.
+const AVATAR_PALETTE = [
+  '#c4941a', // amber
+  '#8b5e3c', // terra
+  '#6b8f6b', // sage
+  '#a64030', // danger/terracotta-red
+  '#cf8f18', // sun-deep
+  '#5c3a22', // terra-deep
+  '#3d5530', // sage-deep
+  '#7a5230', // amber-brown
+];
+
+// Hash a string deterministically to a palette index
+function _avatarColor(seed){
+  const s = String(seed || '');
+  let h = 0;
+  for(let i = 0; i < s.length; i++){
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return AVATAR_PALETTE[Math.abs(h) % AVATAR_PALETTE.length];
+}
+
+// First character(s) for the avatar — name initial, or last 2 digits of phone if no name
+function _avatarInitial(l){
+  const name = (l.clientName || '').trim();
+  if(name){
+    // Take first char (Hebrew or Latin)
+    return name.charAt(0);
+  }
+  const ph = (l.phone || '').replace(/\D/g, '');
+  if(ph.length >= 2) return ph.slice(-2);
+  return '?';
+}
+
 const LEAD_STATUS = {
   'new':        { label: 'חדש', icon: '🆕', cls: 's-new' },
   'contacted':  { label: 'יצרתי קשר', icon: '📞', cls: 's-contacted' },
@@ -12543,9 +12599,13 @@ function setLeadCityFilter(key){
 
 function leadRowHtml(l){
   const st = LEAD_STATUS[l.status] || LEAD_STATUS['new'];
-  const thumb = l.photos && l.photos.length
+  // v3.11.5 — colored avatar when no photo, deterministic by name/phone
+  const hasPhoto = l.photos && l.photos.length;
+  const avColor = _avatarColor(l.phone || l.clientName || l.id);
+  const avInitial = _avatarInitial(l);
+  const thumb = hasPhoto
     ? `<img src="${l.photos[0].data}">`
-    : '💬';
+    : `<div class="lr-avatar" style="width:100%;height:100%;background:${avColor};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25)">${esc(avInitial)}</div>`;
   const created = fmtD(l.createdAt);
   const description = l.description ? l.description.slice(0, 60) + (l.description.length > 60 ? '...' : '') : '';
   // v3.11.2 — show city next to client name: "לילו · קריית טבעון"
@@ -12583,6 +12643,7 @@ function openNewLeadModal(){
     photos: [],
     status: 'new',
     nextActionAt: null,
+    scheduledAt: null,  // v3.11.5 — timestamp when scheduled (calendar appearance + .ics export)
     notes: '',
     linkedVisitId: null,
   };
@@ -12671,7 +12732,15 @@ function renderLeadDetail(isNew=false){
     `}
     <!-- v3.11.4 — "Close as job" — for work that's done without a visit/project flow -->
     ${l.status !== 'job-done' ? `
-      <button class="btn btn-ghost btn-sm" onclick="openCloseAsJobModal()" style="width:100%;margin-bottom:14px;border-color:var(--sage);color:var(--sage)">✓ סגור כג'וב בוצע (בלי ביקור)</button>
+      <button class="btn btn-ghost btn-sm" onclick="openCloseAsJobModal()" style="width:100%;margin-bottom:8px;border-color:var(--sage);color:var(--sage)">✓ סגור כג'וב בוצע (בלי ביקור)</button>
+    ` : ''}
+
+    <!-- v3.11.5 — Schedule appointment / view scheduled time + Google Calendar export -->
+    ${l.status !== 'job-done' ? `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <button class="btn btn-ghost btn-sm" onclick="openScheduleLeadModal()" style="border-color:var(--gold);color:var(--gold2)">📅 ${l.scheduledAt ? `${esc(fmtD(l.scheduledAt))} ${esc(fmtT(l.scheduledAt))}` : 'קבע מועד'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="leadDownloadIcs()" ${!l.scheduledAt?'disabled style="opacity:.5;cursor:not-allowed"':''}>📥 ליומן Google</button>
+      </div>
     ` : ''}
 
     <!-- Client details -->
@@ -13431,6 +13500,160 @@ function _saveLeadAsJob(){
   window._jobDraft = null;
   renderLeadDetail();
   toast(`✓ ג'וב נשמר · ${fmt(l.jobData.amount)}₪${l.jobData.paid ? ' · שולם' : ''}`);
+}
+
+/* ═══════════════════════════════════════════════════════
+   v3.11.5 — Schedule a lead appointment + Google Calendar export (.ics)
+   ═══════════════════════════════════════════════════════ */
+
+function openScheduleLeadModal(){
+  const l = getLead();
+  if(!l){ toast('⚠️ אין ליד פתוח'); return; }
+  // Default to existing scheduledAt, or tomorrow at 10:00
+  let initial;
+  if(l.scheduledAt){
+    initial = new Date(l.scheduledAt);
+  } else {
+    initial = new Date(); initial.setDate(initial.getDate() + 1); initial.setHours(10, 0, 0, 0);
+  }
+  const yyyy = initial.getFullYear();
+  const mm = String(initial.getMonth() + 1).padStart(2, '0');
+  const dd = String(initial.getDate()).padStart(2, '0');
+  const hh = String(initial.getHours()).padStart(2, '0');
+  const min = String(initial.getMinutes()).padStart(2, '0');
+  openMo(`
+    <div class="mo-title">📅 קבע מועד ביקור</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5">
+      המועד יישמר בליד וייכנס ליומן הפנימי. אפשר לייצא ליומן Google בלחיצה.
+    </div>
+    <div class="fg">
+      <label class="fl">תאריך</label>
+      <input type="date" id="sched-date" value="${yyyy}-${mm}-${dd}">
+    </div>
+    <div class="fg" style="margin-top:10px">
+      <label class="fl">שעה</label>
+      <input type="time" id="sched-time" value="${hh}:${min}">
+    </div>
+    <div class="fg" style="margin-top:10px">
+      <label class="fl">משך משוער</label>
+      <select id="sched-dur" style="background:var(--ink2);border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px;width:100%;color:var(--text)">
+        <option value="30">30 דקות</option>
+        <option value="60" selected>שעה</option>
+        <option value="90">שעה וחצי</option>
+        <option value="120">שעתיים</option>
+        <option value="180">3 שעות</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="closeMo()">ביטול</button>
+      ${l.scheduledAt ? `<button class="btn btn-ghost btn-sm" style="flex:1;color:var(--red);border-color:var(--red)" onclick="_clearLeadSchedule()">בטל מועד</button>` : ''}
+      <button class="btn btn-gold" style="flex:2" onclick="_saveLeadSchedule()">📅 שמור</button>
+    </div>
+  `);
+}
+
+function _saveLeadSchedule(){
+  const l = getLead();
+  if(!l) return;
+  const d = document.getElementById('sched-date').value;
+  const t = document.getElementById('sched-time').value;
+  const dur = parseInt(document.getElementById('sched-dur').value, 10) || 60;
+  if(!d || !t){ toast('⚠️ הזן תאריך ושעה'); return; }
+  const dt = new Date(`${d}T${t}:00`);
+  if(isNaN(dt.getTime())){ toast('⚠️ פורמט שגוי'); return; }
+  l.scheduledAt = dt.getTime();
+  l.scheduledDurationMin = dur;
+  // If status is 'new' or 'contacted', advance to 'scheduled'
+  if(l.status === 'new' || l.status === 'contacted') l.status = 'scheduled';
+  l.updatedAt = ts();
+  saveAll(true);
+  closeMo();
+  renderLeadDetail();
+  toast(`📅 מועד נקבע: ${fmtD(dt)} ${fmtT(dt)}`);
+}
+
+function _clearLeadSchedule(){
+  const l = getLead();
+  if(!l) return;
+  confirmAction({
+    title: 'בטל מועד?', msg: 'המועד יוסר מהליד ומהיומן.', ok: 'בטל מועד', okCls: 'btn-red',
+    cb: () => {
+      l.scheduledAt = null;
+      l.scheduledDurationMin = null;
+      if(l.status === 'scheduled') l.status = 'contacted';
+      l.updatedAt = ts();
+      saveAll(true);
+      closeMo();
+      renderLeadDetail();
+      toast('המועד הוסר');
+    }
+  });
+}
+
+// Build .ics file content for a lead with a scheduledAt
+function _leadToIcs(l){
+  if(!l || !l.scheduledAt) return null;
+  const dur = l.scheduledDurationMin || 60;
+  const start = new Date(l.scheduledAt);
+  const end = new Date(l.scheduledAt + dur * 60 * 1000);
+  const fmt = d => {
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mn = String(d.getUTCMinutes()).padStart(2, '0');
+    const ss = String(d.getUTCSeconds()).padStart(2, '0');
+    return `${y}${m}${dd}T${hh}${mn}${ss}Z`;
+  };
+  const safe = s => String(s || '').replace(/[\r\n]+/g, '\\n').replace(/[,;]/g, '\\$&');
+  const summary = `ביקור: ${l.clientName || '(ללא שם)'}`;
+  const locParts = [l.address, _leadCity(l)].filter(Boolean);
+  const location = [...new Set(locParts)].join(', ');
+  const descParts = [];
+  if(l.phone) descParts.push(`טלפון: ${l.phone}`);
+  if(l.description) descParts.push(l.description);
+  if(l.source) descParts.push(`מקור: ${l.source}`);
+  const description = descParts.join('\\n');
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Or BaGag//Lead Schedule//HE',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    `UID:lead-${l.id}@or-bagag`,
+    `DTSTAMP:${fmt(new Date())}`,
+    `DTSTART:${fmt(start)}`,
+    `DTEND:${fmt(end)}`,
+    `SUMMARY:${safe(summary)}`,
+    location ? `LOCATION:${safe(location)}` : null,
+    description ? `DESCRIPTION:${safe(description)}` : null,
+    'BEGIN:VALARM',
+    'TRIGGER:-PT30M',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:${safe('תזכורת: ביקור עוד 30 דקות — ' + (l.clientName || ''))}`,
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].filter(Boolean).join('\r\n');
+}
+
+function leadDownloadIcs(){
+  const l = getLead();
+  if(!l){ toast('⚠️ אין ליד'); return; }
+  if(!l.scheduledAt){ toast('⚠️ קבע מועד קודם'); return; }
+  const ics = _leadToIcs(l);
+  if(!ics){ toast('⚠️ שגיאה ביצירת הקובץ'); return; }
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const safeName = (l.clientName || 'ביקור').replace(/[^\w֐-׿ -]/g, '');
+  a.download = `${safeName}-${new Date(l.scheduledAt).toISOString().slice(0,10)}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('📥 הקובץ הורד — פתח אותו ביומן Google');
 }
 
 /* ═══════════════════════════════════════════════════════
