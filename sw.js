@@ -1,12 +1,12 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.32 — reverted the unreliable chronological auto-distribution in closure;
- * added an explicit "auto-distribute by time" tool in the gallery edit mode that
- * actually moves photos in storage, with a reverse-order option.
+ * v3.21.33 — fix the gallery "צלם" capture button writing to window._pdPhotoPhase
+ * instead of the let _pdPhotoPhase that pdQuickPhoto actually reads — every photo
+ * silently landed in "during" regardless of the active phase tab.
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.32';
+const CACHE_NAME = 'or-bagag-v3.21.33';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
