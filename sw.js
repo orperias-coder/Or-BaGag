@@ -1,11 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.30 — bumped for the wholesale fix of the legacy ph.data anti-pattern across
- * closure / client gallery / portfolio / pull-from-visit / task card / hero strip.
+ * v3.21.31 — bumped for the closure chronological-distribution fallback (so 'before' and
+ * 'after' sections aren't empty when the user dumped everything into 'during').
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.30';
+const CACHE_NAME = 'or-bagag-v3.21.31';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
