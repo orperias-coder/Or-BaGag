@@ -1,11 +1,12 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.35 — manager summary sheet rebuilt as an executive dashboard with
- * hero KPI, kpi grid, action items, billing breakdown, and worker list.
+ * v3.21.36 — visit summary emoji → iconify swap + selector bug fix in
+ * the closure 'add bullet' focus path (selectors hadn't been updated to
+ * the v3.21.34 magazine bullets).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.35';
+const CACHE_NAME = 'or-bagag-v3.21.36';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
