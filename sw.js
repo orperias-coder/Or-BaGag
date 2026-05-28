@@ -1,11 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.20 — bumped after hero fade-overlay z-index fix.
+ * v3.21.21 — bumped for the hero carousel + the real fade override removal.
  * Added fetch passthrough so Chrome recognizes this as an installable PWA. Without a fetch
  * handler the "Install app" prompt is suppressed and the user only gets "Add to home screen".
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.20';
+const CACHE_NAME = 'or-bagag-v3.21.21';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
