@@ -1,11 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.26 — bumped so PWAs upgrade past the broken-photos report after .25's install fix.
- * App-side: forced orphan re-scan + carousel re-render after recovery (see APP_VERSION comment).
+ * v3.21.27 — bumped so PWAs upgrade past the unclickable-task-name fix in renderPdNow.
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.26';
+const CACHE_NAME = 'or-bagag-v3.21.27';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
