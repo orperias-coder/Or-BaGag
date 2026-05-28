@@ -1,9 +1,9 @@
 /**
  * Or BaGag — Service Worker (minimal, notifications only)
- * v3.21.14 — bumped cache name so installed PWAs pick up the data-loss hotfix
+ * v3.21.15 — auto-reseed of demo-perlstein disabled; bumped cache name
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.14';
+const CACHE_NAME = 'or-bagag-v3.21.15';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
