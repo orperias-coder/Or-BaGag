@@ -1,11 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.17-r2 — bumped to force PWA refresh after the progressPhotos migration fix.
+ * v3.21.18 — bumped after reseed-cleans-blobs fix so PWA picks up the new HTML.
  * Added fetch passthrough so Chrome recognizes this as an installable PWA. Without a fetch
  * handler the "Install app" prompt is suppressed and the user only gets "Add to home screen".
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.17-r2';
+const CACHE_NAME = 'or-bagag-v3.21.18';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
