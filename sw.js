@@ -1,11 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.25 — bumped for the PWA install fix (static manifest, no blob swap) + cream icons.
- * Added fetch passthrough so Chrome recognizes this as an installable PWA. Without a fetch
- * handler the "Install app" prompt is suppressed and the user only gets "Add to home screen".
+ * v3.21.26 — bumped so PWAs upgrade past the broken-photos report after .25's install fix.
+ * App-side: forced orphan re-scan + carousel re-render after recovery (see APP_VERSION comment).
+ * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.25';
+const CACHE_NAME = 'or-bagag-v3.21.26';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
