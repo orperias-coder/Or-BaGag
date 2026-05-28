@@ -1,11 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.34 — magazine-grade redesign of the project closure presentation +
- * client summary sheet fix (legacy ph.data anti-pattern still lived there).
+ * v3.21.35 — manager summary sheet rebuilt as an executive dashboard with
+ * hero KPI, kpi grid, action items, billing breakdown, and worker list.
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.34';
+const CACHE_NAME = 'or-bagag-v3.21.35';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
