@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.27 — bumped so PWAs upgrade past the unclickable-task-name fix in renderPdNow.
+ * v3.21.28 — bumped for the static-audit cleanup + photo viewer fixes + back button intercept.
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.27';
+const CACHE_NAME = 'or-bagag-v3.21.28';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
