@@ -1,11 +1,12 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.31 — bumped for the closure chronological-distribution fallback (so 'before' and
- * 'after' sections aren't empty when the user dumped everything into 'during').
+ * v3.21.32 — reverted the unreliable chronological auto-distribution in closure;
+ * added an explicit "auto-distribute by time" tool in the gallery edit mode that
+ * actually moves photos in storage, with a reverse-order option.
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.31';
+const CACHE_NAME = 'or-bagag-v3.21.32';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
