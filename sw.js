@@ -1,11 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.24 — bumped for PWA icon bg switch to cream (#fbf7ee).
+ * v3.21.25 — bumped for the PWA install fix (static manifest, no blob swap) + cream icons.
  * Added fetch passthrough so Chrome recognizes this as an installable PWA. Without a fetch
  * handler the "Install app" prompt is suppressed and the user only gets "Add to home screen".
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.24';
+const CACHE_NAME = 'or-bagag-v3.21.25';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
