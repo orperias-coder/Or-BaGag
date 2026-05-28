@@ -1,12 +1,11 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.33 — fix the gallery "צלם" capture button writing to window._pdPhotoPhase
- * instead of the let _pdPhotoPhase that pdQuickPhoto actually reads — every photo
- * silently landed in "during" regardless of the active phase tab.
+ * v3.21.34 — magazine-grade redesign of the project closure presentation +
+ * client summary sheet fix (legacy ph.data anti-pattern still lived there).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.33';
+const CACHE_NAME = 'or-bagag-v3.21.34';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
