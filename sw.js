@@ -3,7 +3,7 @@
  * v3.21.15 — auto-reseed of demo-perlstein disabled; bumped cache name
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.15';
+const CACHE_NAME = 'or-bagag-v3.21.16';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
