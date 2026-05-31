@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.58 — Solar Editorial design migration Phase 1 (global palette alignment).
+ * v3.21.59 — Solar Editorial migration: dashboard hero reskin (flagship).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.58';
+const CACHE_NAME = 'or-bagag-v3.21.59';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
