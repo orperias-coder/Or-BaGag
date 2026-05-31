@@ -1,12 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.36 — visit summary emoji → iconify swap + selector bug fix in
- * the closure 'add bullet' focus path (selectors hadn't been updated to
- * the v3.21.34 magazine bullets).
+ * v3.21.56 — Phase-2 catalog reskinned to Solar Editorial palette (CSS variable swap).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.54';
+const CACHE_NAME = 'or-bagag-v3.21.56';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
