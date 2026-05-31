@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.56 — Phase-2 catalog reskinned to Solar Editorial palette (CSS variable swap).
+ * v3.21.57 — settings-screen audit fixes (gallery, clearAll, dev-tools gate, quote copy).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.56';
+const CACHE_NAME = 'or-bagag-v3.21.57';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
