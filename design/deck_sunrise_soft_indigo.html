@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>אור בגג · זריחה רכה</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;800&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+:root{
+  /* soft warm sunrise — muted, elegant */
+  --bg1:#FCF7EE; --bg2:#F4EBD8;
+  --paper:#FFFDF8; --line:#ECDCBF; --line-soft:#F3E9D6;
+  --ink:#3A2C18; --ink-2:#6B5638; --ink-3:#94815F;
+  --gold:#C99A45; --gold-deep:#A87B2E; --gold-soft:#E7C57E; --gold-l:#F7EAD0;
+  --clay:#BE6A4A; --clay-l:#F3E1D6;
+  /* ===== the contrasting accent (swap this one var to recolor) ===== */
+  --c:#4C5C86; --c-deep:#34416A; --c-l:#E4E7F1;
+  --serif:'Frank Ruhl Libre',Georgia,serif; --sans:'Heebo',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#bca888;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;padding:0 0 50px}
+::-webkit-scrollbar{display:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.showcase-head{text-align:center;padding:24px 18px 4px;color:#3a2812}
+.showcase-head h1{font-family:var(--serif);font-size:26px;font-weight:800;letter-spacing:-.4px}
+.showcase-head h1 em{font-style:italic;color:#fff}
+.showcase-head p{font-size:12.5px;color:#5a4427;margin-top:6px}
+
+.scr{max-width:412px;margin:14px auto 0;height:838px;display:flex;flex-direction:column;
+  background:linear-gradient(178deg,var(--bg1),var(--bg2));color:var(--ink);
+  border-radius:30px;overflow:hidden;box-shadow:0 22px 60px rgba(40,25,5,.38);border:7px solid #1c140a;line-height:1.45}
+.money{font-family:var(--serif);font-weight:800;letter-spacing:-.5px;direction:ltr;unicode-bidi:plaintext}
+
+/* top */
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 8px;position:relative;overflow:hidden;flex:none}
+.top .sun{position:absolute;top:-66px;left:-26px;width:172px;height:172px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,rgba(243,201,120,.55) 0%,rgba(224,168,87,.22) 42%,transparent 70%)}
+.top .who{position:relative;z-index:1}
+.top .who .hi{font-family:var(--serif);font-size:23px;font-weight:800;letter-spacing:-.3px;line-height:1}
+.top .who .hi em{font-style:italic;color:var(--gold-deep)}
+.top .who .dt{font-size:10px;font-weight:700;color:var(--gold-deep);margin-top:6px;letter-spacing:.13em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.top .who .dt::before{content:"";width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 45% 40%,#F6DCA0,#E7C57E 55%,#C99A45);box-shadow:0 0 0 3px rgba(224,168,87,.25)}
+.top .acts{position:relative;z-index:1;display:flex;gap:7px}
+.top .acts button{width:38px;height:38px;border-radius:12px;background:var(--paper);border:1px solid var(--line);color:var(--ink-2);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 1px 3px rgba(60,42,15,.06)}
+
+/* focus = soft sun */
+.focus{flex:none;margin:6px 16px 0;border-radius:22px;padding:17px 18px;position:relative;overflow:hidden;
+  background:linear-gradient(146deg,#F4D596 0%,#E7B36A 48%,#D49A4C 100%);
+  color:#3a2a12;box-shadow:0 14px 30px rgba(201,154,69,.32),inset 0 1px 0 rgba(255,255,255,.4)}
+.focus .ray{position:absolute;top:-40px;left:-30px;width:150px;height:150px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,248,230,.6),transparent 66%)}
+.focus .lab{position:relative;z-index:1;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#7a521e;display:inline-flex;align-items:center;gap:7px}
+.focus .lab::before{content:"";width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+.focus .ttl{position:relative;z-index:1;font-family:var(--serif);font-size:23px;font-weight:800;letter-spacing:-.4px;margin-top:9px;line-height:1.1}
+.focus .sub{position:relative;z-index:1;font-size:12px;color:#6e4f22;margin-top:5px;display:flex;align-items:center;gap:6px;font-weight:600}
+.focus .cta{position:relative;z-index:1;display:flex;gap:8px;margin-top:13px}
+.focus .cta button{flex:1;border:none;border-radius:13px;padding:11px;font-family:var(--sans);font-weight:800;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer}
+.focus .cta .go{background:#3a2a12;color:#F6E4BE}
+.focus .cta .alt{background:var(--c);color:#fff;box-shadow:0 4px 12px rgba(76,92,134,.32)}
+
+/* grid */
+.grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 6px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:13px 14px;box-shadow:0 1px 3px rgba(60,42,15,.05);
+  display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.tile .th{display:flex;align-items:center;justify-content:space-between}
+.tile .ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--gold-l);color:var(--gold-deep)}
+.tile .badge{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--line-soft);color:var(--ink-3)}
+.tile .v{font-family:var(--serif);font-weight:800;font-size:27px;letter-spacing:-.6px;line-height:1;margin-top:9px;color:var(--gold-deep)}
+.tile .l{font-size:12px;font-weight:700;color:var(--ink-2);margin-top:3px}
+.tile .s{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+/* contrast tile = leads (cool counterpoint) */
+.tile.cool .ic{background:var(--c-l);color:var(--c-deep)} .tile.cool .v{color:var(--c-deep)} .tile.cool .badge{background:var(--c-l);color:var(--c-deep)}
+/* urgent = soft clay */
+.tile.urg .ic{background:var(--clay-l);color:var(--clay)} .tile.urg .v{color:var(--clay)} .tile.urg .badge{background:var(--clay);color:#fff}
+
+/* voice */
+.voice{flex:none;margin:6px 16px 0;border:none;border-radius:15px;padding:12px 15px;display:flex;align-items:center;gap:12px;color:#3a2a12;cursor:pointer;
+  background:linear-gradient(120deg,#EAC987,#D9A954);box-shadow:0 8px 20px rgba(201,154,69,.28)}
+.voice .vi{width:40px;height:40px;border-radius:12px;flex:none;background:rgba(255,255,255,.42);display:flex;align-items:center;justify-content:center;font-size:22px}
+.voice .vt{font-weight:800;font-size:15px}.voice .vs{font-size:11px;font-weight:600;opacity:.78;margin-top:2px}
+
+/* nav */
+.nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(255,253,248,.96);border-top:1px solid var(--line);padding:9px 6px;margin-top:8px}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-4,#A2917A);font-size:10px;font-weight:700;text-decoration:none;color:#A2917A}
+.nav a iconify-icon{font-size:23px}
+.nav a.on{color:var(--c-deep)}.nav a.on iconify-icon{color:var(--c)}
+.nav a.on .pip{display:block}
+</style>
+</head>
+<body>
+<div class="showcase-head"><h1>זריחה <em>רכה</em></h1><p>פלטה חמה מעודנת + קונטרסט קריר (אינדיגו)</p></div>
+
+<div class="scr">
+  <div class="top">
+    <div class="sun"></div>
+    <div class="who"><div class="hi">בוקר טוב, <em>אור</em></div><div class="dt">רביעי · 31 מאי</div></div>
+    <div class="acts"><button><iconify-icon icon="mdi:magnify"></iconify-icon></button><button><iconify-icon icon="mdi:calendar-month-outline"></iconify-icon></button></div>
+  </div>
+
+  <div class="focus">
+    <div class="ray"></div>
+    <div class="lab">עכשיו · העצירה הבאה</div>
+    <div class="ttl">08:30 · משפ׳ פרלשטיין</div>
+    <div class="sub"><iconify-icon icon="mdi:map-marker-outline"></iconify-icon> הרצל 14, כפר סבא · המשך פרויקט גג</div>
+    <div class="cta"><button class="go"><iconify-icon icon="mdi:navigation-variant"></iconify-icon> נווט</button><button class="alt"><iconify-icon icon="mdi:whatsapp"></iconify-icon> הודעה</button></div>
+  </div>
+
+  <div class="grid">
+    <div class="tile"><div class="th"><div class="ic"><iconify-icon icon="mdi:map-marker-path"></iconify-icon></div><span class="badge">לפי שעה</span></div><div><div class="v">3</div><div class="l">המסלול של היום</div><div class="s">עצירות · 47 ק״מ</div></div></div>
+    <div class="tile cool"><div class="th"><div class="ic"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon></div><span class="badge">2 חדשים</span></div><div><div class="v">7</div><div class="l">לידים פעילים</div><div class="s">2 ממתינים למענה</div></div></div>
+    <div class="tile urg"><div class="th"><div class="ic"><iconify-icon icon="mdi:phone-alert-outline"></iconify-icon></div><span class="badge">היום</span></div><div><div class="v">1</div><div class="l">פולו-אפ</div><div class="s">לוי — הצעה נשלחה</div></div></div>
+    <div class="tile"><div class="th"><div class="ic"><iconify-icon icon="mdi:cash-multiple"></iconify-icon></div><span class="badge">לגבות</span></div><div><div class="v">13.6K</div><div class="l">כסף לגבות</div><div class="s">2 לקוחות</div></div></div>
+    <div class="tile urg"><div class="th"><div class="ic"><iconify-icon icon="mdi:receipt-text-alert-outline"></iconify-icon></div><span class="badge">חסרה</span></div><div><div class="v">1</div><div class="l">חשבונית להפיק</div><div class="s">כהן · 9,400₪</div></div></div>
+    <div class="tile"><div class="th"><div class="ic"><iconify-icon icon="mdi:hammer-wrench"></iconify-icon></div><span class="badge">פעילים</span></div><div><div class="v">2</div><div class="l">פרויקטים</div><div class="s">פרלשטיין · מזרחי</div></div></div>
+  </div>
+
+  <button class="voice"><div class="vi"><iconify-icon icon="mdi:microphone"></iconify-icon></div><div><div class="vt">דיבור חופשי</div><div class="vs">ספר מה היה — אעדכן הכל</div></div></button>
+
+  <div class="nav">
+    <a class="on"><iconify-icon icon="mdi:view-dashboard"></iconify-icon>בקרה</a>
+    <a><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon>לידים</a>
+    <a><iconify-icon icon="mdi:hammer-wrench"></iconify-icon>פרויקטים</a>
+    <a><iconify-icon icon="mdi:cash-multiple"></iconify-icon>כספים</a>
+    <a><iconify-icon icon="mdi:dots-horizontal"></iconify-icon>עוד</a>
+  </div>
+</div>
+</body>
+</html>
