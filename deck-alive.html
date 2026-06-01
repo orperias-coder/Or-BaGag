@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>אור בגג · לוח הבקרה</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;800&family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+:root{
+  --bg1:#FCF7EE; --bg2:#F3E9D5;
+  --paper:#FFFDF8; --line:#ECDCBF; --line-soft:#F3E9D6;
+  --ink:#3A2C18; --ink-2:#6B5638; --ink-3:#94815F; --ink-4:#A2917A;
+  --gold:#C99A45; --gold-deep:#A87B2E; --gold-soft:#E7C57E; --gold-l:#F7EAD0;
+  --clay:#BE6A4A; --clay-l:#F3E1D6;
+  --c:#16808A; --c-deep:#0E5E66; --c-l:#DBEEEF;   /* teal contrast */
+  --serif:'Frank Ruhl Libre',Georgia,serif; --sans:'Heebo',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#bca888;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+::-webkit-scrollbar{display:none}
+
+.scr{width:100%;max-width:480px;min-height:100dvh;background:linear-gradient(178deg,var(--bg1),var(--bg2));
+  display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+/* ===== live sun header ===== */
+.top{display:flex;align-items:center;justify-content:space-between;padding:max(18px,env(safe-area-inset-top)) 20px 10px;position:relative;flex:none;z-index:2}
+.sun-wrap{position:absolute;top:-92px;left:-58px;width:230px;height:230px;pointer-events:none}
+.sun-rays{position:absolute;inset:0;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg, rgba(231,180,98,.30) 0deg 6deg, transparent 6deg 18deg);
+  -webkit-mask:radial-gradient(circle,transparent 38%,#000 40%,#000 60%,transparent 66%);
+          mask:radial-gradient(circle,transparent 38%,#000 40%,#000 60%,transparent 66%);
+  animation:spin 38s linear infinite}
+.sun-core{position:absolute;inset:64px;border-radius:50%;
+  background:radial-gradient(circle at 50% 48%,rgba(246,220,160,.85),rgba(231,180,98,.45) 45%,transparent 72%);
+  animation:breathe 5s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.08);opacity:1}}
+.who{position:relative;z-index:1}
+.who .hi{font-family:var(--serif);font-size:24px;font-weight:800;letter-spacing:-.3px;line-height:1}
+.who .hi em{font-style:italic;color:var(--gold-deep)}
+.who .dt{font-size:10px;font-weight:700;color:var(--gold-deep);margin-top:6px;letter-spacing:.13em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.who .dt b{font-weight:800;color:var(--ink-2)}
+.acts{position:relative;z-index:1;display:flex;gap:7px}
+.acts button{width:40px;height:40px;border-radius:13px;background:var(--paper);border:1px solid var(--line);color:var(--ink-2);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 1px 3px rgba(60,42,15,.06);transition:transform .15s}
+.acts button:active{transform:scale(.9)}
+
+/* ===== focus = breathing sun card ===== */
+.focus{flex:none;margin:6px 16px 0;border-radius:22px;padding:14px 18px;position:relative;overflow:hidden;
+  background:linear-gradient(146deg,#F4D596 0%,#E7B36A 48%,#D49A4C 100%);color:#3a2a12;
+  box-shadow:0 14px 32px rgba(201,154,69,.34),inset 0 1px 0 rgba(255,255,255,.45);
+  opacity:0;transform:translateY(12px);animation:rise .6s .05s forwards cubic-bezier(.22,.61,.36,1)}
+.focus .halo{position:absolute;top:-46px;left:-34px;width:160px;height:160px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,248,230,.7),transparent 66%);animation:breathe 6s ease-in-out infinite}
+.focus .lab{position:relative;z-index:1;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#7a521e;display:inline-flex;align-items:center;gap:7px}
+.focus .lab .pip{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35);animation:pulse 2.4s ease-in-out infinite}
+.focus .ttl{position:relative;z-index:1;font-family:var(--serif);font-size:22px;font-weight:800;letter-spacing:-.4px;margin-top:8px;line-height:1.08}
+.focus .sub{position:relative;z-index:1;font-size:12px;color:#6e4f22;margin-top:5px;display:flex;align-items:center;gap:6px;font-weight:600}
+.focus .cta{position:relative;z-index:1;display:flex;gap:8px;margin-top:11px}
+.focus .cta button{flex:1;border:none;border-radius:13px;padding:12px;font-family:var(--sans);font-weight:800;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;transition:transform .12s}
+.focus .cta button:active{transform:scale(.96)}
+.focus .cta .go{background:#3a2a12;color:#F6E4BE}
+.focus .cta .alt{background:var(--c);color:#fff;box-shadow:0 4px 12px rgba(22,128,138,.32)}
+
+/* ===== tiles ===== */
+.grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px 16px calc(6px + env(safe-area-inset-bottom));align-content:stretch}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:19px;padding:12px 13px;position:relative;overflow:hidden;
+  box-shadow:0 1px 3px rgba(60,42,15,.05);display:flex;flex-direction:column;justify-content:space-between;min-height:0;
+  opacity:0;transform:translateY(12px);animation:rise .55s var(--d,0ms) forwards cubic-bezier(.22,.61,.36,1);transition:transform .12s}
+.tile:active{transform:scale(.975)}
+/* faded characterizing watermark */
+.tile .wm{position:absolute;bottom:-14px;left:-12px;width:96px;height:96px;opacity:.13;pointer-events:none}
+.tile .wm svg{width:100%;height:100%;display:block}
+.th{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.ic{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;background:var(--gold-l);color:var(--gold-deep)}
+.badge{font-size:9.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--line-soft);color:var(--ink-3)}
+.tn{position:relative;z-index:1}
+.v{font-family:var(--serif);font-weight:800;font-size:27px;letter-spacing:-.6px;line-height:1;margin-top:6px;color:var(--gold-deep);font-variant-numeric:tabular-nums}
+.l{font-size:12.5px;font-weight:700;color:var(--ink-2);margin-top:3px}
+.s{font-size:10.5px;color:var(--ink-3);margin-top:2px}
+.tile.cool .ic{background:var(--c-l);color:var(--c-deep)} .tile.cool .v{color:var(--c-deep)} .tile.cool .wm{color:var(--c-deep)}
+.tile.urg .ic{background:var(--clay-l);color:var(--clay)} .tile.urg .v{color:var(--clay)} .tile.urg .wm{color:var(--clay)} .tile.urg .badge{background:var(--clay);color:#fff;animation:pulse 2.4s ease-in-out infinite}
+.tile.gold .wm{color:var(--gold-deep)}
+
+/* ===== voice ===== */
+.voice{flex:none;margin:2px 16px 0;border:none;border-radius:16px;padding:11px 15px;display:flex;align-items:center;gap:12px;color:#3a2a12;cursor:pointer;
+  background:linear-gradient(120deg,#EAC987,#D9A954);box-shadow:0 8px 22px rgba(201,154,69,.3);
+  opacity:0;transform:translateY(12px);animation:rise .55s .42s forwards cubic-bezier(.22,.61,.36,1);transition:transform .12s}
+.voice:active{transform:scale(.985)}
+.voice .vi{width:42px;height:42px;border-radius:13px;flex:none;background:rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:23px}
+.voice .vt{font-weight:800;font-size:15px}.voice .vs{font-size:11px;font-weight:600;opacity:.78;margin-top:2px}
+
+/* ===== nav ===== */
+.nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(255,253,248,.97);border-top:1px solid var(--line);padding:9px 6px calc(9px + env(safe-area-inset-bottom));margin-top:10px}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:3px;color:#A2917A;font-size:10px;font-weight:700;text-decoration:none}
+.nav a iconify-icon{font-size:23px}
+.nav a.on{color:var(--c-deep)}.nav a.on iconify-icon{color:var(--c)}
+
+@keyframes rise{to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.9)}}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .focus,.tile,.voice{opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+<div class="scr">
+  <div class="top">
+    <div class="sun-wrap"><div class="sun-rays"></div><div class="sun-core"></div></div>
+    <div class="who"><div class="hi">בוקר טוב, <em>אור</em></div><div class="dt">רביעי · 31 מאי · <b>3 עצירות</b></div></div>
+    <div class="acts"><button><iconify-icon icon="mdi:magnify"></iconify-icon></button><button><iconify-icon icon="mdi:calendar-month-outline"></iconify-icon></button></div>
+  </div>
+
+  <div class="focus">
+    <div class="halo"></div>
+    <div class="lab"><span class="pip"></span> עכשיו · העצירה הבאה</div>
+    <div class="ttl">08:30 · משפ׳ פרלשטיין</div>
+    <div class="sub"><iconify-icon icon="mdi:map-marker-outline"></iconify-icon> הרצל 14, כפר סבא · המשך פרויקט גג</div>
+    <div class="cta"><button class="go"><iconify-icon icon="mdi:navigation-variant"></iconify-icon> נווט</button><button class="alt"><iconify-icon icon="mdi:whatsapp"></iconify-icon> הודעה</button></div>
+  </div>
+
+  <div class="grid">
+    <!-- route -->
+    <div class="tile gold" style="--d:120ms">
+      <div class="wm"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M22 88 C 22 60, 70 64, 70 40 S 30 22, 30 8" stroke-dasharray="2 9"/><circle cx="30" cy="8" r="7" fill="currentColor" stroke="none"/></svg></div>
+      <div class="th"><div class="ic"><iconify-icon icon="mdi:map-marker-path"></iconify-icon></div><span class="badge">לפי שעה</span></div>
+      <div class="tn"><div class="v" data-count="3">0</div><div class="l">המסלול של היום</div><div class="s">עצירות · 47 ק״מ</div></div>
+    </div>
+    <!-- leads (cool) -->
+    <div class="tile cool" style="--d:180ms">
+      <div class="wm"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.2"><circle cx="34" cy="44" r="15"/><path d="M14 86 a20 20 0 0 1 40 0"/><circle cx="68" cy="40" r="12"/><path d="M52 80 a18 18 0 0 1 36 0"/></svg></div>
+      <div class="th"><div class="ic"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon></div><span class="badge" style="background:var(--c-l);color:var(--c-deep)">2 חדשים</span></div>
+      <div class="tn"><div class="v" data-count="7">0</div><div class="l">לידים פעילים</div><div class="s">2 ממתינים למענה</div></div>
+    </div>
+    <!-- follow-up (urgent) -->
+    <div class="tile urg" style="--d:240ms">
+      <div class="wm"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M34 64 a22 22 0 0 1 -8 -30 l8 -6 12 16 -8 8 a30 30 0 0 0 14 14 l8 -8 16 12 -6 8 a22 22 0 0 1 -30 -8"/><path d="M70 22 q10 4 10 16" opacity=".7"/></svg></div>
+      <div class="th"><div class="ic"><iconify-icon icon="mdi:phone-alert-outline"></iconify-icon></div><span class="badge">היום</span></div>
+      <div class="tn"><div class="v" data-count="1">0</div><div class="l">פולו-אפ</div><div class="s">לוי — הצעה נשלחה</div></div>
+    </div>
+    <!-- money -->
+    <div class="tile gold" style="--d:300ms">
+      <div class="wm"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"><ellipse cx="50" cy="30" rx="26" ry="9"/><path d="M24 30 v18 a26 9 0 0 0 52 0 v-18"/><path d="M24 48 v18 a26 9 0 0 0 52 0 v-18" opacity=".75"/><path d="M24 66 v14 a26 9 0 0 0 52 0 v-14" opacity=".5"/></svg></div>
+      <div class="th"><div class="ic"><iconify-icon icon="mdi:cash-multiple"></iconify-icon></div><span class="badge">לגבות</span></div>
+      <div class="tn"><div class="v" data-count="13.6" data-dec="1" data-suffix="K">0</div><div class="l">כסף לגבות</div><div class="s">2 לקוחות</div></div>
+    </div>
+    <!-- invoice (urgent) -->
+    <div class="tile urg" style="--d:360ms">
+      <div class="wm"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"><path d="M26 12 h40 v76 l-8 -6 -6 6 -6 -6 -6 6 -6 -6 -8 6 z"/><path d="M36 34 h20 M36 48 h20 M36 62 h12" stroke-linecap="round"/></svg></div>
+      <div class="th"><div class="ic"><iconify-icon icon="mdi:receipt-text-alert-outline"></iconify-icon></div><span class="badge">חסרה</span></div>
+      <div class="tn"><div class="v" data-count="1">0</div><div class="l">חשבונית להפיק</div><div class="s">כהן · 9,400₪</div></div>
+    </div>
+    <!-- projects (roof — on brand) -->
+    <div class="tile gold" style="--d:420ms">
+      <div class="wm"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"><path d="M14 50 L50 20 L86 50"/><path d="M24 46 V86 H76 V46"/><path d="M44 86 V62 H58 V86"/></svg></div>
+      <div class="th"><div class="ic"><iconify-icon icon="mdi:hammer-wrench"></iconify-icon></div><span class="badge">פעילים</span></div>
+      <div class="tn"><div class="v" data-count="2">0</div><div class="l">פרויקטים</div><div class="s">פרלשטיין · מזרחי</div></div>
+    </div>
+  </div>
+
+  <button class="voice"><div class="vi"><iconify-icon icon="mdi:microphone"></iconify-icon></div><div><div class="vt">דיבור חופשי</div><div class="vs">ספר מה היה — אעדכן הכל</div></div></button>
+
+  <div class="nav">
+    <a class="on"><iconify-icon icon="mdi:view-dashboard"></iconify-icon>בקרה</a>
+    <a><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon>לידים</a>
+    <a><iconify-icon icon="mdi:hammer-wrench"></iconify-icon>פרויקטים</a>
+    <a><iconify-icon icon="mdi:cash-multiple"></iconify-icon>כספים</a>
+    <a><iconify-icon icon="mdi:dots-horizontal"></iconify-icon>עוד</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function count(el){
+    var target=parseFloat(el.dataset.count||'0'), dec=parseInt(el.dataset.dec||'0',10), suf=el.dataset.suffix||'';
+    if(rm){ el.textContent=target.toFixed(dec)+suf; return; }
+    var dur=750, t0=performance.now();
+    function tick(t){ var p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3), v=target*e;
+      el.textContent=v.toFixed(dec)+suf; if(p<1) requestAnimationFrame(tick); else el.textContent=target.toFixed(dec)+suf; }
+    requestAnimationFrame(tick);
+  }
+  // start counters slightly after the tiles begin rising
+  window.addEventListener('load', function(){
+    var els=[].slice.call(document.querySelectorAll('.v[data-count]'));
+    els.forEach(function(el,i){ setTimeout(function(){count(el);}, rm?0:(180+i*60)); });
+  });
+})();
+</script>
+</body>
+</html>
