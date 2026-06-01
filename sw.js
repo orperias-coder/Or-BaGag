@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.60 — Solar Editorial migration Tier A: finance + fixed-expenses reskin.
+ * v3.21.61 — "Sunrise Alive" Foundation: global :root palette swap + teal contrast token.
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.60';
+const CACHE_NAME = 'or-bagag-v3.21.61';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
