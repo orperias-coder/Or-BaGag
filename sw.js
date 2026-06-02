@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.62 — Sunrise Alive cockpit (dashboard redesign).
+ * v3.21.63 — Sunrise Alive leads screen (reskin + follow-up lifecycle).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.62';
+const CACHE_NAME = 'or-bagag-v3.21.63';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
