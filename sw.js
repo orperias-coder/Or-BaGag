@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.64 — Sunrise Alive finance screen (reskin + invoice tracking).
+ * v3.21.65 — critical save/perf fix: lightweight localStorage backup (no inline base64).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.64';
+const CACHE_NAME = 'or-bagag-v3.21.65';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
