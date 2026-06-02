@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.65 — critical save/perf fix: lightweight localStorage backup (no inline base64).
+ * v3.21.66 — Sunrise Alive projects list (topbar serif + masthead + 0 emoji).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.65';
+const CACHE_NAME = 'or-bagag-v3.21.66';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
