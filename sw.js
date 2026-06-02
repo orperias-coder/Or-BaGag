@@ -1,10 +1,10 @@
 /**
  * Or BaGag — Service Worker
- * v3.21.66 — Sunrise Alive projects list (topbar serif + masthead + 0 emoji).
+ * v3.21.67 — Sunrise Alive global pass (serif topbars + eyebrow-sun labels + cream section topbars).
  * SW itself has no caching — IDB handles data, browser handles HTML.
  */
 
-const CACHE_NAME = 'or-bagag-v3.21.66';
+const CACHE_NAME = 'or-bagag-v3.21.67';
 
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
