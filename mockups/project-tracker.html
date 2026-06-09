@@ -98,6 +98,7 @@
   .day.weekend::before{border-color:var(--line);background:var(--bg)}
   .day.today::before{border-color:var(--teal);background:var(--teal);
     box-shadow:0 0 0 4px var(--bg),0 0 0 7px rgba(16,128,126,.18)}
+  .day.next::before{border-color:var(--ink-soft);background:var(--bg);border-style:dashed}
 
   .daycard{background:var(--card);border:1px solid var(--line);border-radius:16px;
     padding:13px 14px;box-shadow:var(--shadow-sm)}
@@ -135,27 +136,40 @@
     color:var(--ink-soft);font-weight:600;font-size:13px;padding:9px}
 
   /* open / continuation slot */
-  .day.today .daycard{border:2px dashed var(--teal);background:var(--teal-soft)}
-  .open-line{font-size:13px;color:var(--teal);font-weight:700;display:flex;align-items:center;gap:7px;margin-top:4px}
-  .open-line::before{content:"›";font-size:18px;font-weight:800}
+  .day.today .daycard{border:1.5px solid var(--teal)}
+  .day.next .daycard{border:2px dashed var(--ink-soft);background:#FFFDF8}
+  .next-title{font-weight:800;font-size:14.5px;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .next-title::before{content:"⏭";font-size:13px}
   .future{border:2px dashed var(--line);border-radius:14px;text-align:center;padding:14px;
     color:#A89F92;font-weight:700;font-size:13px;margin-top:4px}
 
-  /* ---------- Stages ---------- */
-  .stage{background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:14px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
-  .stage-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .stage-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-    font-weight:800;color:#fff;font-size:15px;flex-shrink:0}
-  .stage-name{font-weight:800;font-size:16px;flex:1}
-  .stage-pct{font-weight:800;font-size:15px}
-  .bar{height:9px;border-radius:6px;background:#F0E9DC;overflow:hidden}
+  /* ---------- Roofs (by-roof view) ---------- */
+  .roof{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:14px;margin-bottom:14px;box-shadow:var(--shadow-sm)}
+  .roof-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .roof-ic{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;background:linear-gradient(135deg,#F2A03D,#E0701B)}
+  .roof-ic svg{width:20px;height:20px}
+  .roof-name{font-weight:800;font-size:17px;flex:1;line-height:1.1}
+  .roof-name small{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft)}
+  .roof-pct{font-weight:800;font-size:17px;color:var(--amber-deep)}
+  .bar{height:9px;border-radius:6px;background:#F0E9DC;overflow:hidden;margin:8px 0 12px}
   .bar > span{display:block;height:100%;border-radius:6px;transition:width .5s}
-  .stage-meta{display:flex;justify-content:space-between;margin-top:9px;font-size:12px;color:var(--ink-soft)}
-  .stage-note{font-size:13px;color:var(--ink);margin-top:8px;background:var(--bg);border-radius:9px;padding:8px 10px}
-  .done{color:var(--teal)}
-  .stage-done .stage-pct{color:var(--teal)}
-  .stage-active .stage-pct{color:var(--amber-deep)}
+
+  .tasklist{display:flex;flex-direction:column;gap:0}
+  .task{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line);font-size:14px}
+  .task:first-child{border-top:none}
+  .task-name{flex:1}
+  .task-name small{color:var(--ink-soft);font-weight:500}
+  .st{font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .st-done{background:var(--teal-soft);color:var(--teal)}
+  .st-prog{background:#FDEBD3;color:var(--amber-deep)}
+  .st-wait{background:#F1EEE8;color:#9A938A}
+  .task.done .task-name{color:var(--ink-soft)}
+
+  .banner{display:flex;gap:9px;align-items:flex-start;background:#FBF4DF;border-right:3px solid var(--gold);
+    border-radius:11px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  .banner b{color:#9A7A1A}
 
   /* ---------- Capture bar ---------- */
   .capture{
@@ -187,15 +201,15 @@
 <div class="topbar">
   <div class="brand"><span class="mark"></span><span>אור בגג · מעקב פרויקט</span></div>
   <div class="proj-title">החלפת גג רעפים</div>
-  <div class="proj-sub">שני מפלסים — גג תחתון (גדול) + גג עליון</div>
+  <div class="proj-sub">פרויקט שני גגות — תחתון (גדול/נמוך) + עליון</div>
 
   <div class="stats">
     <div class="stat"><div class="num">6</div><div class="lbl">ימי עבודה</div></div>
-    <div class="stat"><div class="num">~80%</div><div class="lbl">התקדמות</div></div>
+    <div class="stat"><div class="num">~65%</div><div class="lbl">התקדמות</div></div>
     <div class="stat"><div class="num">~3ש'</div><div class="lbl">אבדו לתקלות</div></div>
     <div class="stat"><div class="num">3</div><div class="lbl">תקלות</div></div>
   </div>
-  <span class="status-pill"><span class="dot"></span>באמצע · התחלה 2.6 · היום תפירה וסיום</span>
+  <span class="status-pill"><span class="dot"></span>באמצע · גג תחתון ~90% · נשאר עליון + קופינג</span>
 </div>
 
 <!-- ===== Tabs ===== -->
@@ -204,9 +218,9 @@
     <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
     ציר זמן
   </div>
-  <div class="tab" data-pane="stages">
-    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 18V8M10 18V5M16 18v-7M22 18H2"/></svg>
-    שלבים
+  <div class="tab" data-pane="roofs">
+    <svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg>
+    לפי גג
   </div>
 </div>
 
@@ -221,14 +235,14 @@
       <div class="daycard">
         <div class="day-head">
           <div class="day-date"><span class="dow">יום ג׳</span> · 2.6</div>
-          <div class="prog-mini">פירוק הושלם</div>
+          <div class="prog-mini">פירוק תחתון הושלם</div>
         </div>
         <div class="crew">
           <span class="who">אני</span><span class="who">עובד ב׳</span>
           <span class="who off">עובד א׳ · עד 12:00</span>
         </div>
         <ul class="did">
-          <li>פירוק רעפים + רוכבים (שעה)</li>
+          <li>פירוק רעפים + רוכבים בגג התחתון (שעה)</li>
           <li>פירוק התעלה — הושלם עד סוף היום</li>
         </ul>
         <div class="event fault"><span class="etag">תקלה</span><span class="etxt">עובד א׳ פגע בצינור מים — פיצוץ, טיפול במקום</span><span class="lost">~1ש'</span></div>
@@ -245,7 +259,7 @@
         </div>
         <div class="crew"><span class="who">אני</span><span class="who">עובד ב׳</span></div>
         <ul class="did">
-          <li>נסיעה לבית המלאכה — כיפוף תעלות + הבאה לשטח (חצי יום)</li>
+          <li>נסיעה לבית מלאכה — כיפוף תעלות + הבאה לשטח (חצי יום)</li>
           <li>הפסקת צהריים</li>
           <li>עלייה לגג — התקנת ניקוז אחד בתעלה</li>
         </ul>
@@ -285,7 +299,7 @@
           <span class="who sub">קבלני משנה</span>
         </div>
         <ul class="did">
-          <li>אני: מדידת תעלה בבוקר → נסיעה לבית המלאכה לייצור</li>
+          <li>אני: מדידת תעלה בבוקר → נסיעה לבית מלאכה לייצור</li>
           <li>קבלני המשנה: פירקו את כל התעלה העליונה + סידרו את הגג</li>
         </ul>
         <div class="event note"><span class="etag">לוגיסטי</span><span class="etxt">הרכב בתיקון — החלפת רדיאטור (לא עיכב, קבלני המשנה עבדו)</span></div>
@@ -302,10 +316,10 @@
         <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who off">עובד ב׳ · לא היה</span></div>
         <ul class="did">
           <li>עובד א׳ הביא את התעלות החדשות לגג העליון</li>
-          <li>התקדמות בתעלה — כל הפינות וכל ההכנות הושלמו</li>
+          <li>התקדמות בתעלה התחתונה — כל הפינות וכל ההכנות הושלמו</li>
           <li>נותר: לתפור את התעלות</li>
         </ul>
-        <div class="event note"><span class="etag">קצב</span><span class="etxt">יום של הימרחות — ביקור גורם חיצוני + אזעקות</span></div>
+        <div class="event note"><span class="etag">קצב</span><span class="etxt">יום של הימרחות — ביקור של גורם חיצוני + אזעקות</span></div>
       </div>
     </div>
 
@@ -314,10 +328,29 @@
       <div class="daycard">
         <div class="day-head">
           <div class="day-date"><span class="dow">היום · יום ג׳</span> · 9.6</div>
-          <div class="prog-mini">בעבודה</div>
+          <div class="prog-mini">גג תחתון ~90%</div>
         </div>
-        <div class="open-line">המשימה להיום: תפירת התעלות → סיום בעזרת השם</div>
-        <div class="open-line" style="opacity:.7">ממתין לעדכון מהשטח — דבר חופשי למטה ↓</div>
+        <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who">עובד ב׳</span></div>
+        <ul class="did">
+          <li>תפירת התעלה בגג התחתון <b>הושלמה</b> — ניקוזים, חפיפות, הכל מחובר ובמקום</li>
+          <li>החזרת רעפים בגג התחתון — כל הרעפים הוחזרו (חוץ מהרוכבים)</li>
+          <li>העלאת התעלות החדשות לגג העליון + סידור וניקיון</li>
+        </ul>
+        <div class="event note"><span class="etag">קצב</span><span class="etxt">יום חצי — נעצר ב־14:00, העובדים היו צריכים ללכת</span></div>
+      </div>
+    </div>
+
+    <!-- נשאר לסיום -->
+    <div class="day next">
+      <div class="daycard">
+        <div class="next-title">נשאר לסיום</div>
+        <ul class="did">
+          <li>גג עליון: התקנת התעלה</li>
+          <li>גג עליון: סגירה — רעפים + רוכבים</li>
+          <li>גג תחתון: רוכבים</li>
+          <li>קופינג היקפי — על שני הגגות (כנראה ביחד)</li>
+          <li>4 קידוחי אוברפלו (2 בכל גג)</li>
+        </ul>
       </div>
     </div>
 
@@ -326,54 +359,53 @@
   </div>
 </div>
 
-<!-- ===== STAGES PANE ===== -->
-<div class="pane" id="stages">
+<!-- ===== ROOFS PANE ===== -->
+<div class="pane" id="roofs">
 
-  <div class="stage stage-done">
-    <div class="stage-head">
-      <div class="stage-ic" style="background:var(--teal)">1</div>
-      <div class="stage-name">פירוק</div>
-      <div class="stage-pct">100%</div>
-    </div>
-    <div class="bar"><span style="width:100%;background:var(--teal)"></span></div>
-    <div class="stage-meta"><span>רעפים · רוכבים · תעלה ישנה</span><span>הושלם 7.6</span></div>
-    <div class="stage-note">תחתון פורק ג׳ 2.6 · עליון פורק ע״י קבלני המשנה א׳ 7.6</div>
+  <div class="banner">
+    <div><b>קופינג + אוברפלו</b> — הקופינג ההיקפי ייעשה על שני הגגות יחד בסוף. סה״כ 4 קידוחי אוברפלו (2 בכל גג).</div>
   </div>
 
-  <div class="stage stage-done">
-    <div class="stage-head">
-      <div class="stage-ic" style="background:var(--teal)">2</div>
-      <div class="stage-name">ייצור (בית מלאכה)</div>
-      <div class="stage-pct">~95%</div>
+  <!-- גג תחתון -->
+  <div class="roof">
+    <div class="roof-head">
+      <div class="roof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg></div>
+      <div class="roof-name">גג תחתון <small>הגדול / הנמוך · גג ראשון</small></div>
+      <div class="roof-pct" style="color:var(--teal)">~90%</div>
     </div>
-    <div class="bar"><span style="width:95%;background:var(--teal)"></span></div>
-    <div class="stage-meta"><span>כיפוף תעלות חדשות</span><span>עודכן 8.6</span></div>
-    <div class="stage-note">תעלות תחתון יוצרו 3.6 · תעלות עליון 7.6 והובאו 8.6</div>
+    <div class="bar"><span style="width:90%;background:var(--teal)"></span></div>
+    <div class="tasklist">
+      <div class="task done"><div class="task-name">פירוק (רעפים · רוכבים · תעלה)</div><span class="st st-done">✓ 100%</span></div>
+      <div class="task done"><div class="task-name">ייצור תעלה</div><span class="st st-done">✓ 100%</span></div>
+      <div class="task done"><div class="task-name">התקנת + תפירת תעלה <small>ניקוזים · חפיפות</small></div><span class="st st-done">✓ 100%</span></div>
+      <div class="task"><div class="task-name">החזרת רעפים</div><span class="st st-prog">80%</span></div>
+      <div class="task"><div class="task-name">רוכבים</div><span class="st st-wait">ממתין</span></div>
+      <div class="task"><div class="task-name">קופינג היקפי</div><span class="st st-wait">ביחד</span></div>
+      <div class="task"><div class="task-name">2 קידוחי אוברפלו</div><span class="st st-wait">ממתין</span></div>
+    </div>
   </div>
 
-  <div class="stage stage-active">
-    <div class="stage-head">
-      <div class="stage-ic" style="background:var(--amber-deep)">3</div>
-      <div class="stage-name">התקנת תעלה</div>
-      <div class="stage-pct">~80%</div>
+  <!-- גג עליון -->
+  <div class="roof">
+    <div class="roof-head">
+      <div class="roof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg></div>
+      <div class="roof-name">גג עליון <small>גג שני</small></div>
+      <div class="roof-pct">~40%</div>
     </div>
-    <div class="bar"><span style="width:80%;background:linear-gradient(90deg,var(--amber),var(--amber-deep))"></span></div>
-    <div class="stage-meta"><span>ניקוזים · פינות · הצמדה</span><span>פעיל</span></div>
-    <div class="stage-note">תחתון: ~חצי+ הותקן · עליון: כל הפינות וההכנות מוכנות</div>
+    <div class="bar"><span style="width:40%;background:linear-gradient(90deg,var(--amber),var(--amber-deep))"></span></div>
+    <div class="tasklist">
+      <div class="task done"><div class="task-name">פירוק (תעלה · רוכבים · רעפים)</div><span class="st st-done">✓ 100%</span></div>
+      <div class="task done"><div class="task-name">ייצור תעלות חדשות <small>על הגג</small></div><span class="st st-done">✓ 100%</span></div>
+      <div class="task done"><div class="task-name">פינוי זבל</div><span class="st st-done">✓</span></div>
+      <div class="task"><div class="task-name">התקנת תעלה</div><span class="st st-prog">הבא בתור</span></div>
+      <div class="task"><div class="task-name">סגירת גג — רעפים</div><span class="st st-wait">0%</span></div>
+      <div class="task"><div class="task-name">רוכבים</div><span class="st st-wait">0%</span></div>
+      <div class="task"><div class="task-name">קופינג היקפי</div><span class="st st-wait">ביחד</span></div>
+      <div class="task"><div class="task-name">2 קידוחי אוברפלו</div><span class="st st-wait">0%</span></div>
+    </div>
   </div>
 
-  <div class="stage stage-active">
-    <div class="stage-head">
-      <div class="stage-ic" style="background:var(--gold)">4</div>
-      <div class="stage-name">תפירת תעלות</div>
-      <div class="stage-pct">~10%</div>
-    </div>
-    <div class="bar"><span style="width:10%;background:var(--gold)"></span></div>
-    <div class="stage-meta"><span>החיבור הסופי</span><span>היום · 9.6</span></div>
-    <div class="stage-note">המשימה של היום — סיום הפרויקט בעזרת השם</div>
-  </div>
-
-  <div class="future" style="margin-top:4px">+ מקום לשלבים נוספים (איטום / רעפים חדשים / מסירה)</div>
+  <div class="future">+ מקום לגג / אזור נוסף</div>
 
 </div>
 
@@ -382,7 +414,7 @@
 <!-- ===== Capture bar ===== -->
 <div class="capture">
   <div class="cap-tags">
-    <span class="ctag">#יום</span><span class="ctag">#צוות</span>
+    <span class="ctag">#יום</span><span class="ctag">#גג</span>
     <span class="ctag f">#תקלה</span><span class="ctag f">#זמן-אבוד</span>
     <span class="ctag">#התקדמות</span>
   </div>
@@ -392,7 +424,7 @@
     </div>
     <div class="cap-input">ספר מה קרה היום — אני אתייג ואסדר אוטומטית…</div>
   </div>
-  <div class="cap-hint">תפיסה: דיבור חופשי → תיוג אוטומטי · הצגה: ציר זמן + שלבים</div>
+  <div class="cap-hint">תפיסה: דיבור חופשי → תיוג אוטומטי · הצגה: ציר זמן + לפי גג</div>
 </div>
 
 <script>
