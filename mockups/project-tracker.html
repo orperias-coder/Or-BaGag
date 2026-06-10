@@ -242,12 +242,12 @@
   <div class="proj-sub">פרויקט שני גגות — תחתון (גדול/נמוך) + עליון</div>
 
   <div class="stats">
-    <div class="stat"><div class="num">6</div><div class="lbl">ימי עבודה</div></div>
-    <div class="stat"><div class="num">~65%</div><div class="lbl">התקדמות</div></div>
+    <div class="stat"><div class="num">7</div><div class="lbl">ימי עבודה</div></div>
+    <div class="stat"><div class="num">~72%</div><div class="lbl">התקדמות</div></div>
     <div class="stat"><div class="num">~3ש'</div><div class="lbl">אבדו לתקלות</div></div>
     <div class="stat"><div class="num">3</div><div class="lbl">תקלות</div></div>
   </div>
-  <span class="status-pill"><span class="dot"></span>באמצע · גג תחתון ~90% · נשאר עליון + קופינג</span>
+  <span class="status-pill"><span class="dot"></span>באמצע · תחתון ~95% · עליון ~50% · נשאר עליון + קופינג</span>
   <button class="exec-btn" onclick="document.getElementById('execOverlay').classList.add('open')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h6M8 12h8M8 16h5"/></svg>
     סיכום מנהלים
@@ -365,11 +365,11 @@
       </div>
     </div>
 
-    <!-- היום 9.6 -->
-    <div class="day today">
+    <!-- יום שלישי 9.6 -->
+    <div class="day">
       <div class="daycard">
         <div class="day-head">
-          <div class="day-date"><span class="dow">היום · יום ג׳</span> · 9.6</div>
+          <div class="day-date"><span class="dow">יום ג׳</span> · 9.6</div>
           <div class="prog-mini">גג תחתון ~90%</div>
         </div>
         <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who">עובד ב׳</span></div>
@@ -382,16 +382,31 @@
       </div>
     </div>
 
+    <!-- היום 10.6 -->
+    <div class="day today">
+      <div class="daycard">
+        <div class="day-head">
+          <div class="day-date"><span class="dow">היום · יום ד׳</span> · 10.6</div>
+          <div class="prog-mini">תחתון נסגר · עליון 40% תעלה</div>
+        </div>
+        <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who">עובד ב׳</span></div>
+        <ul class="did">
+          <li>גג תחתון: כיסוי הרעפים הושלם + <b>ביטון הרוכבים</b> — הגג נסגר</li>
+          <li>גג עליון: התקנת 2 תעלות + 2 ניקוזים — ~40% מהתעלה העליונה</li>
+        </ul>
+        <div class="event note"><span class="etag">יום מלא</span><span class="etxt">בלי בלת"מים מיוחדים, ברוך השם. מחר (ה׳) לא עובדים — 4 ימי עבודה השבוע. ממשיכים בשבוע הבא.</span></div>
+      </div>
+    </div>
+
     <!-- נשאר לסיום -->
     <div class="day next">
       <div class="daycard">
         <div class="next-title">נשאר לסיום</div>
         <ul class="did">
-          <li>גג עליון: התקנת התעלה</li>
-          <li>גג עליון: סגירה — רעפים + רוכבים</li>
-          <li>גג תחתון: רוכבים</li>
-          <li>קופינג היקפי — על שני הגגות (כנראה ביחד)</li>
-          <li>4 קידוחי אוברפלו (2 בכל גג)</li>
+          <li>גג עליון: השלמת התעלה (~60% נותר) + סגירת הגג — רעפים + רוכבים</li>
+          <li>גג תחתון: קידוח אוברפלו + צינור ירידה בקידוח</li>
+          <li>קופינג היקפי — שני הגגות ביחד</li>
+          <li>קידוחי אוברפלו בגג העליון</li>
         </ul>
       </div>
     </div>
@@ -413,17 +428,17 @@
     <div class="roof-head">
       <div class="roof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg></div>
       <div class="roof-name">גג תחתון <small>הגדול / הנמוך · גג ראשון</small></div>
-      <div class="roof-pct" style="color:var(--teal)">~90%</div>
+      <div class="roof-pct" style="color:var(--teal)">~95%</div>
     </div>
-    <div class="bar"><span style="width:90%;background:var(--teal)"></span></div>
+    <div class="bar"><span style="width:95%;background:var(--teal)"></span></div>
     <div class="tasklist">
       <div class="task done"><div class="task-name">פירוק (רעפים · רוכבים · תעלה)</div><span class="st st-done">✓ 100%</span></div>
       <div class="task done"><div class="task-name">ייצור תעלה</div><span class="st st-done">✓ 100%</span></div>
       <div class="task done"><div class="task-name">התקנת + תפירת תעלה <small>ניקוזים · חפיפות</small></div><span class="st st-done">✓ 100%</span></div>
-      <div class="task"><div class="task-name">החזרת רעפים</div><span class="st st-prog">80%</span></div>
-      <div class="task"><div class="task-name">רוכבים</div><span class="st st-wait">ממתין</span></div>
+      <div class="task done"><div class="task-name">כיסוי רעפים</div><span class="st st-done">✓ 100%</span></div>
+      <div class="task done"><div class="task-name">רוכבים <small>ביטון</small></div><span class="st st-done">✓ 100%</span></div>
       <div class="task"><div class="task-name">קופינג היקפי</div><span class="st st-wait">ביחד</span></div>
-      <div class="task"><div class="task-name">2 קידוחי אוברפלו</div><span class="st st-wait">ממתין</span></div>
+      <div class="task"><div class="task-name">אוברפלו + צינור ירידה</div><span class="st st-wait">ממתין</span></div>
     </div>
   </div>
 
@@ -432,14 +447,14 @@
     <div class="roof-head">
       <div class="roof-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg></div>
       <div class="roof-name">גג עליון <small>גג שני</small></div>
-      <div class="roof-pct">~40%</div>
+      <div class="roof-pct">~50%</div>
     </div>
-    <div class="bar"><span style="width:40%;background:linear-gradient(90deg,var(--amber),var(--amber-deep))"></span></div>
+    <div class="bar"><span style="width:50%;background:linear-gradient(90deg,var(--amber),var(--amber-deep))"></span></div>
     <div class="tasklist">
       <div class="task done"><div class="task-name">פירוק (תעלה · רוכבים · רעפים)</div><span class="st st-done">✓ 100%</span></div>
       <div class="task done"><div class="task-name">ייצור תעלות חדשות <small>על הגג</small></div><span class="st st-done">✓ 100%</span></div>
       <div class="task done"><div class="task-name">פינוי זבל</div><span class="st st-done">✓</span></div>
-      <div class="task"><div class="task-name">התקנת תעלה</div><span class="st st-prog">הבא בתור</span></div>
+      <div class="task"><div class="task-name">התקנת תעלה <small>2 תעלות + 2 ניקוזים</small></div><span class="st st-prog">40%</span></div>
       <div class="task"><div class="task-name">סגירת גג — רעפים</div><span class="st st-wait">0%</span></div>
       <div class="task"><div class="task-name">רוכבים</div><span class="st st-wait">0%</span></div>
       <div class="task"><div class="task-name">קופינג היקפי</div><span class="st st-wait">ביחד</span></div>
@@ -459,15 +474,15 @@
     <div class="exec-hd">
       <button class="exec-close" onclick="document.getElementById('execOverlay').classList.remove('open')">×</button>
       <div class="ttl">סיכום מנהלים</div>
-      <div class="dt">החלפת גג רעפים · שני גגות · נכון ל-9.6.2026</div>
+      <div class="dt">החלפת גג רעפים · שני גגות · נכון ל-10.6.2026</div>
     </div>
     <div class="exec-body">
 
       <div class="es-sec">
         <div class="es-h">מבט-על</div>
         <div class="es-kpis">
-          <div class="es-kpi"><div class="v">~65%</div><div class="l">התקדמות</div></div>
-          <div class="es-kpi"><div class="v">6</div><div class="l">ימי עבודה</div></div>
+          <div class="es-kpi"><div class="v">~72%</div><div class="l">התקדמות</div></div>
+          <div class="es-kpi"><div class="v">7</div><div class="l">ימי עבודה</div></div>
           <div class="es-kpi"><div class="v">~3ש'</div><div class="l">אבדו לתקלות</div></div>
         </div>
       </div>
@@ -475,20 +490,20 @@
       <div class="es-sec">
         <div class="es-h">סטטוס לפי גג</div>
         <div class="es-roof">
-          <div class="es-roof-top"><span>גג תחתון (הגדול)</span><span class="p">~90%</span></div>
-          <div class="bar"><span style="width:90%;background:var(--teal)"></span></div>
+          <div class="es-roof-top"><span>גג תחתון (הגדול)</span><span class="p">~95%</span></div>
+          <div class="bar"><span style="width:95%;background:var(--teal)"></span></div>
           <div class="es-tags">
             <span class="es-tag ok">פירוק ✓</span><span class="es-tag ok">תעלה+תפירה ✓</span>
-            <span class="es-tag ok">רעפים 80%</span><span class="es-tag open">רוכבים</span>
-            <span class="es-tag open">קופינג</span><span class="es-tag open">2 אוברפלו</span>
+            <span class="es-tag ok">כיסוי רעפים ✓</span><span class="es-tag ok">רוכבים ✓</span>
+            <span class="es-tag open">קופינג</span><span class="es-tag open">אוברפלו</span>
           </div>
         </div>
         <div class="es-roof">
-          <div class="es-roof-top"><span>גג עליון</span><span class="p">~40%</span></div>
-          <div class="bar"><span style="width:40%;background:linear-gradient(90deg,var(--amber),var(--amber-deep))"></span></div>
+          <div class="es-roof-top"><span>גג עליון</span><span class="p">~50%</span></div>
+          <div class="bar"><span style="width:50%;background:linear-gradient(90deg,var(--amber),var(--amber-deep))"></span></div>
           <div class="es-tags">
             <span class="es-tag ok">פירוק ✓</span><span class="es-tag ok">ייצור תעלות ✓</span>
-            <span class="es-tag ok">פינוי זבל ✓</span><span class="es-tag open">התקנת תעלה</span>
+            <span class="es-tag ok">פינוי זבל ✓</span><span class="es-tag open">תעלה 40%</span>
             <span class="es-tag open">רעפים+רוכבים</span><span class="es-tag open">2 אוברפלו</span>
           </div>
         </div>
@@ -503,6 +518,7 @@
           <li><b>7.6</b> — פירוק מלא של הגג העליון (קבלני משנה)</li>
           <li><b>8.6</b> — הכנות + כל הפינות בגג התחתון</li>
           <li><b>9.6</b> — תפירת התעלה התחתונה הושלמה, החזרת רעפים</li>
+          <li><b>10.6</b> — גג תחתון נסגר (כיסוי + ביטון רוכבים) · 40% תעלה בעליון</li>
         </ul>
       </div>
 
@@ -519,11 +535,11 @@
       <div class="es-sec">
         <div class="es-h">נשאר לסיום</div>
         <ul class="es-list">
-          <li>גג עליון: התקנת התעלה (הבא בתור)</li>
+          <li>גג עליון: השלמת התעלה (~60% נותר) + ניקוזים</li>
           <li>גג עליון: סגירה — רעפים + רוכבים</li>
-          <li>גג תחתון: רוכבים</li>
-          <li>קופינג היקפי — על שני הגגות יחד</li>
-          <li>4 קידוחי אוברפלו (2 בכל גג)</li>
+          <li>גג תחתון: קידוח אוברפלו + צינור ירידה בקידוח</li>
+          <li>קופינג היקפי — שני הגגות יחד</li>
+          <li>קידוחי אוברפלו בגג העליון</li>
         </ul>
       </div>
 
