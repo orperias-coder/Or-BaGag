@@ -132,18 +132,23 @@
   .event .lost{font-weight:800;color:var(--terra);white-space:nowrap}
   .event.note .lost{color:#9A7A1A}
 
-  /* ---------- daily labor cost ---------- */
-  .tl-cost{background:#F1F4EE;border:1px solid #E0E8DA;border-radius:14px;padding:11px 14px;margin-bottom:16px;
-    display:flex;justify-content:space-between;align-items:center}
-  .tl-cost .l{font-size:12px;font-weight:800;color:var(--sage)}
-  .tl-cost .v{font-size:18px;font-weight:900;color:var(--ink)}
-  .tl-cost .v small{font-size:11px;color:var(--terra);font-weight:700}
-  .cost{margin-top:10px;background:#F1F4EE;border:1px solid #E0E8DA;border-radius:10px;padding:8px 11px}
-  .cost-top{display:flex;justify-content:space-between;align-items:baseline}
-  .cost-lbl{font-size:11.5px;font-weight:800;color:var(--sage)}
-  .cost-val{font-size:15px;font-weight:800;color:var(--ink)}
-  .cost-val .q{color:var(--terra);font-weight:700;font-size:12px}
-  .cost-bd{font-size:11px;color:var(--ink-soft);font-weight:600;margin-top:2px}
+  /* ---------- daily labor cost (split) ---------- */
+  .tl-cost{background:#F1F4EE;border:1px solid #E0E8DA;border-radius:14px;padding:12px 14px;margin-bottom:16px}
+  .tlc-title{font-size:11.5px;font-weight:800;color:var(--sage);margin-bottom:9px;text-align:center}
+  .tlc-row{display:flex;gap:6px}
+  .tlc-i{flex:1;text-align:center}
+  .tlc-i.tlc-tot{border-right:1.5px solid #D5E0CC}
+  .tlc-v{font-size:18px;font-weight:900;color:var(--ink);line-height:1}
+  .tlc-i.tlc-tot .tlc-v{color:var(--teal)}
+  .tlc-l{font-size:10px;font-weight:700;color:var(--sage);margin-top:4px}
+  .cost{margin-top:10px;background:#F1F4EE;border:1px solid #E0E8DA;border-radius:10px;padding:9px 10px}
+  .cost-split{display:flex;gap:4px}
+  .cs-i{flex:1;text-align:center;padding:2px 0}
+  .cs-i.cs-tot{border-right:1.5px solid #D5E0CC}
+  .cs-v{font-size:14px;font-weight:800;color:var(--ink);line-height:1.1}
+  .cs-i.cs-tot .cs-v{color:var(--teal)}
+  .cs-l{font-size:9.5px;font-weight:700;color:var(--sage);margin-top:3px}
+  .cost-bd{font-size:10.5px;color:var(--ink-soft);font-weight:600;margin-top:7px;text-align:center;border-top:1px dashed #DDE5D6;padding-top:6px}
 
   .day.weekend .daycard{background:transparent;border-style:dashed;box-shadow:none;text-align:center;
     color:var(--ink-soft);font-weight:600;font-size:13px;padding:9px}
@@ -284,120 +289,68 @@
 <!-- ===== TIMELINE PANE ===== -->
 <div class="pane active" id="timeline">
   <div class="tl-cost">
-    <span class="l">עלות עבודה מצטברת</span>
-    <span class="v">₪16,550 <small>+ קבלני 7.6 ?</small></span>
+    <div class="tlc-title">עלות עבודה מצטברת</div>
+    <div class="tlc-row">
+      <div class="tlc-i"><div class="tlc-v">₪8,400</div><div class="tlc-l">עובדים</div></div>
+      <div class="tlc-i"><div class="tlc-v">₪9,750</div><div class="tlc-l">אני</div></div>
+      <div class="tlc-i tlc-tot"><div class="tlc-v">₪18,150</div><div class="tlc-l">סה"כ</div></div>
+    </div>
   </div>
   <div class="tl">
 
-    <!-- יום שלישי 2.6 -->
-    <div class="day">
+    <!-- נשאר לסיום -->
+    <div class="day next">
       <div class="daycard">
-        <div class="day-head">
-          <div class="day-date"><span class="dow">יום ג׳</span> · 2.6</div>
-          <div class="prog-mini">פירוק תחתון הושלם</div>
-        </div>
-        <div class="crew">
-          <span class="who">אני</span><span class="who">עובד ב׳</span>
-          <span class="who off">עובד א׳ · עד 12:00</span>
-        </div>
+        <div class="next-title">נשאר לסיום</div>
         <ul class="did">
-          <li>פירוק רעפים + רוכבים בגג התחתון (שעה)</li>
-          <li>פירוק התעלה — הושלם עד סוף היום</li>
+          <li>גג עליון: השלמת התעלה (~60% נותר) + סגירת הגג — רעפים + רוכבים</li>
+          <li>גג תחתון: קידוח אוברפלו + צינור ירידה בקידוח</li>
+          <li>קופינג היקפי — שני הגגות ביחד</li>
+          <li>קידוחי אוברפלו בגג העליון</li>
         </ul>
-        <div class="event fault"><span class="etag">תקלה</span><span class="etxt">עובד א׳ פגע בצינור מים — פיצוץ, טיפול במקום</span><span class="lost">~1ש'</span></div>
-        <div class="event note"><span class="etag">צוות</span><span class="etxt">עובד א׳ לא הרגיש טוב ב־12:00, עזב הביתה; אני+עובד ב׳ המשכנו</span></div>
+      </div>
+    </div>
+
+    <!-- צפי לשבוע הבא -->
+    <div class="day next">
+      <div class="daycard">
+        <div class="next-title">צפי לשבוע הבא — סיום עד ה׳</div>
+        <ul class="did">
+          <li>אני: ~5 ימים (א׳–ה׳) → ₪7,500</li>
+          <li>עובד א׳: 2 ימים (א׳ + ב׳) → ₪1,600</li>
+          <li>עובד ב׳: 3–4 ימים → ₪2,400–3,200</li>
+        </ul>
         <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪2,700</span></div>
-          <div class="cost-bd">אני 1,500 · עובד ב׳ 800 · עובד א׳ 400 (½)</div>
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪4,000–4,800</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪7,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪11.5–12.3K</div><div class="cs-l">צפי שנותר</div></div>
+          </div>
+          <div class="cost-bd">צפי עלות עבודה סופית ~₪29.7–30.5K · מבוסס על ההערכה שלך (אני 5 ימים — תקן אם שונה)</div>
         </div>
       </div>
     </div>
 
-    <!-- יום רביעי 3.6 -->
-    <div class="day">
+    <!-- היום 10.6 -->
+    <div class="day today">
       <div class="daycard">
         <div class="day-head">
-          <div class="day-date"><span class="dow">יום ד׳</span> · 3.6</div>
-          <div class="prog-mini">ניקוז ראשון מותקן</div>
-        </div>
-        <div class="crew"><span class="who">אני</span><span class="who">עובד ב׳</span></div>
-        <ul class="did">
-          <li>נסיעה לבית מלאכה — כיפוף תעלות + הבאה לשטח (חצי יום)</li>
-          <li>הפסקת צהריים</li>
-          <li>עלייה לגג — התקנת ניקוז אחד בתעלה</li>
-        </ul>
-        <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪2,300</span></div>
-          <div class="cost-bd">אני 1,500 · עובד ב׳ 800</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- יום חמישי 4.6 -->
-    <div class="day">
-      <div class="daycard">
-        <div class="day-head">
-          <div class="day-date"><span class="dow">יום ה׳</span> · 4.6</div>
-          <div class="prog-mini">~½ תעלה בגג תחתון</div>
+          <div class="day-date"><span class="dow">היום · יום ד׳</span> · 10.6</div>
+          <div class="prog-mini">תחתון נסגר · עליון 40% תעלה</div>
         </div>
         <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who">עובד ב׳</span></div>
         <ul class="did">
-          <li>המשך התקנת תעלה בגג התחתון (הגדול)</li>
+          <li>גג תחתון: כיסוי הרעפים הושלם + <b>ביטון הרוכבים</b> — הגג נסגר</li>
+          <li>גג עליון: התקנת 2 תעלות + 2 ניקוזים — ~40% מהתעלה העליונה</li>
         </ul>
-        <div class="event fault"><span class="etag">תקלה</span><span class="etxt">פגיעה בכבל חשמל — תיקון וסידור</span><span class="lost">~2ש'</span></div>
-        <div class="event note"><span class="etag">תקלה</span><span class="etxt">התגלה בלם נוסף — קרה בפירוק ביום ג׳, נראה רק היום</span></div>
+        <div class="event note"><span class="etag">יום מלא</span><span class="etxt">בלי בלת"מים מיוחדים, ברוך השם. מחר (ה׳) לא עובדים — 4 ימי עבודה השבוע. ממשיכים בשבוע הבא.</span></div>
         <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪3,100</span></div>
-          <div class="cost-bd">אני 1,500 · עובד א׳ 800 · עובד ב׳ 800</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- סופ"ש -->
-    <div class="day weekend">
-      <div class="daycard">שישי–שבת · 5–6.6 — סוף שבוע, ללא עבודה</div>
-    </div>
-
-    <!-- יום ראשון 7.6 -->
-    <div class="day">
-      <div class="daycard">
-        <div class="day-head">
-          <div class="day-date"><span class="dow">יום א׳</span> · 7.6</div>
-          <div class="prog-mini">גג עליון פורק כולו</div>
-        </div>
-        <div class="crew">
-          <span class="who">אני · בוקר→בית מלאכה</span>
-          <span class="who sub">קבלני משנה</span>
-        </div>
-        <ul class="did">
-          <li>אני: מדידת תעלה בבוקר → נסיעה לבית מלאכה לייצור</li>
-          <li>קבלני המשנה: פירקו את כל התעלה העליונה + סידרו את הגג</li>
-        </ul>
-        <div class="event note"><span class="etag">לוגיסטי</span><span class="etxt">הרכב בתיקון — החלפת רדיאטור (לא עיכב, קבלני המשנה עבדו)</span></div>
-        <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪1,500 <span class="q">+ קבלנים ?</span></span></div>
-          <div class="cost-bd">אני 1,500 · קבלני משנה — להשלים</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- יום שני 8.6 -->
-    <div class="day">
-      <div class="daycard">
-        <div class="day-head">
-          <div class="day-date"><span class="dow">יום ב׳</span> · 8.6</div>
-          <div class="prog-mini">פינות + הכנות מוכנות</div>
-        </div>
-        <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who off">עובד ב׳ · לא היה</span></div>
-        <ul class="did">
-          <li>עובד א׳ הביא את התעלות החדשות לגג העליון</li>
-          <li>התקדמות בתעלה התחתונה — כל הפינות וכל ההכנות הושלמו</li>
-          <li>נותר: לתפור את התעלות</li>
-        </ul>
-        <div class="event note"><span class="etag">קצב</span><span class="etxt">יום של הימרחות — ביקור של גורם חיצוני + אזעקות</span></div>
-        <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪2,300</span></div>
-          <div class="cost-bd">אני 1,500 · עובד א׳ 800</div>
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪1,600</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪1,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪3,100</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">עובד א׳ 800 · עובד ב׳ 800</div>
         </div>
       </div>
     </div>
@@ -417,46 +370,148 @@
         </ul>
         <div class="event note"><span class="etag">קצב</span><span class="etxt">יום חצי — נעצר ב־14:00, העובדים היו צריכים ללכת</span></div>
         <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪1,550</span></div>
-          <div class="cost-bd">יום חצי: אני 750 · עובד א׳ 400 · עובד ב׳ 400</div>
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪800</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪750</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪1,550</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">יום חצי · עובד א׳ 400 · עובד ב׳ 400</div>
         </div>
       </div>
     </div>
 
-    <!-- היום 10.6 -->
-    <div class="day today">
+    <!-- יום שני 8.6 -->
+    <div class="day">
       <div class="daycard">
         <div class="day-head">
-          <div class="day-date"><span class="dow">היום · יום ד׳</span> · 10.6</div>
-          <div class="prog-mini">תחתון נסגר · עליון 40% תעלה</div>
+          <div class="day-date"><span class="dow">יום ב׳</span> · 8.6</div>
+          <div class="prog-mini">פינות + הכנות מוכנות</div>
+        </div>
+        <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who off">עובד ב׳ · לא היה</span></div>
+        <ul class="did">
+          <li>עובד א׳ הביא את התעלות החדשות לגג העליון</li>
+          <li>התקדמות בתעלה התחתונה — כל הפינות וכל ההכנות הושלמו</li>
+          <li>נותר: לתפור את התעלות</li>
+        </ul>
+        <div class="event note"><span class="etag">קצב</span><span class="etxt">יום של הימרחות — ביקור של גורם חיצוני + אזעקות</span></div>
+        <div class="cost">
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪800</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪1,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪2,300</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">עובד א׳ 800</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- יום ראשון 7.6 -->
+    <div class="day">
+      <div class="daycard">
+        <div class="day-head">
+          <div class="day-date"><span class="dow">יום א׳</span> · 7.6</div>
+          <div class="prog-mini">גג עליון פורק כולו</div>
+        </div>
+        <div class="crew">
+          <span class="who">אני · בוקר→בית מלאכה</span>
+          <span class="who">עובד א׳</span><span class="who">עובד ב׳</span>
+        </div>
+        <ul class="did">
+          <li>אני: מדידת תעלה בבוקר → נסיעה לבית מלאכה לייצור</li>
+          <li>עובד א׳ ועובד ב׳: פירקו את כל התעלה העליונה + סידרו את הגג</li>
+        </ul>
+        <div class="event note"><span class="etag">לוגיסטי</span><span class="etxt">הרכב בתיקון — החלפת רדיאטור (לא עיכב, עובד א׳ ועובד ב׳ עבדו)</span></div>
+        <div class="cost">
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪1,600</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪1,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪3,100</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">עובד א׳ 800 · עובד ב׳ 800</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- סופ"ש -->
+    <div class="day weekend">
+      <div class="daycard">שישי–שבת · 5–6.6 — סוף שבוע, ללא עבודה</div>
+    </div>
+
+    <!-- יום חמישי 4.6 -->
+    <div class="day">
+      <div class="daycard">
+        <div class="day-head">
+          <div class="day-date"><span class="dow">יום ה׳</span> · 4.6</div>
+          <div class="prog-mini">~½ תעלה בגג תחתון</div>
         </div>
         <div class="crew"><span class="who">אני</span><span class="who">עובד א׳</span><span class="who">עובד ב׳</span></div>
         <ul class="did">
-          <li>גג תחתון: כיסוי הרעפים הושלם + <b>ביטון הרוכבים</b> — הגג נסגר</li>
-          <li>גג עליון: התקנת 2 תעלות + 2 ניקוזים — ~40% מהתעלה העליונה</li>
+          <li>המשך התקנת תעלה בגג התחתון (הגדול)</li>
         </ul>
-        <div class="event note"><span class="etag">יום מלא</span><span class="etxt">בלי בלת"מים מיוחדים, ברוך השם. מחר (ה׳) לא עובדים — 4 ימי עבודה השבוע. ממשיכים בשבוע הבא.</span></div>
+        <div class="event fault"><span class="etag">תקלה</span><span class="etxt">פגיעה בכבל חשמל — תיקון וסידור</span><span class="lost">~2ש'</span></div>
+        <div class="event note"><span class="etag">תקלה</span><span class="etxt">התגלה בלם נוסף — קרה בפירוק ביום ג׳, נראה רק היום</span></div>
         <div class="cost">
-          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪3,100</span></div>
-          <div class="cost-bd">אני 1,500 · עובד א׳ 800 · עובד ב׳ 800</div>
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪1,600</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪1,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪3,100</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">עובד א׳ 800 · עובד ב׳ 800</div>
         </div>
       </div>
     </div>
 
-    <!-- נשאר לסיום -->
-    <div class="day next">
+    <!-- יום רביעי 3.6 -->
+    <div class="day">
       <div class="daycard">
-        <div class="next-title">נשאר לסיום</div>
+        <div class="day-head">
+          <div class="day-date"><span class="dow">יום ד׳</span> · 3.6</div>
+          <div class="prog-mini">ניקוז ראשון מותקן</div>
+        </div>
+        <div class="crew"><span class="who">אני</span><span class="who">עובד ב׳</span></div>
         <ul class="did">
-          <li>גג עליון: השלמת התעלה (~60% נותר) + סגירת הגג — רעפים + רוכבים</li>
-          <li>גג תחתון: קידוח אוברפלו + צינור ירידה בקידוח</li>
-          <li>קופינג היקפי — שני הגגות ביחד</li>
-          <li>קידוחי אוברפלו בגג העליון</li>
+          <li>נסיעה לבית מלאכה — כיפוף תעלות + הבאה לשטח (חצי יום)</li>
+          <li>הפסקת צהריים</li>
+          <li>עלייה לגג — התקנת ניקוז אחד בתעלה</li>
         </ul>
+        <div class="cost">
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪800</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪1,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪2,300</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">עובד ב׳ 800</div>
+        </div>
       </div>
     </div>
 
-    <div class="future">+ מקום לימים הבאים</div>
+    <!-- יום שלישי 2.6 -->
+    <div class="day">
+      <div class="daycard">
+        <div class="day-head">
+          <div class="day-date"><span class="dow">יום ג׳</span> · 2.6</div>
+          <div class="prog-mini">פירוק תחתון הושלם</div>
+        </div>
+        <div class="crew">
+          <span class="who">אני</span><span class="who">עובד ב׳</span>
+          <span class="who off">עובד א׳ · עד 12:00</span>
+        </div>
+        <ul class="did">
+          <li>פירוק רעפים + רוכבים בגג התחתון (שעה)</li>
+          <li>פירוק התעלה — הושלם עד סוף היום</li>
+        </ul>
+        <div class="event fault"><span class="etag">תקלה</span><span class="etxt">עובד א׳ פגע בצינור מים — פיצוץ, טיפול במקום</span><span class="lost">~1ש'</span></div>
+        <div class="event note"><span class="etag">צוות</span><span class="etxt">עובד א׳ לא הרגיש טוב ב־12:00, עזב הביתה; אני+עובד ב׳ המשכנו</span></div>
+        <div class="cost">
+          <div class="cost-split">
+            <div class="cs-i"><div class="cs-v">₪1,200</div><div class="cs-l">עובדים</div></div>
+            <div class="cs-i"><div class="cs-v">₪1,500</div><div class="cs-l">אני</div></div>
+            <div class="cs-i cs-tot"><div class="cs-v">₪2,700</div><div class="cs-l">סה"כ</div></div>
+          </div>
+          <div class="cost-bd">עובד ב׳ 800 · עובד א׳ 400 (½)</div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -556,17 +611,22 @@
 
       <div class="es-sec">
         <div class="es-h">עלות עבודה</div>
-        <div class="es-roof" style="margin-bottom:0">
-          <div class="es-roof-top"><span>סה"כ עד כה</span><span class="p" style="color:var(--ink)">₪16,550 <span style="color:var(--terra);font-size:12px">+ קבלני 7.6 ?</span></span></div>
+        <div class="es-roof">
+          <div class="es-roof-top"><span>עד כה</span><span class="p" style="color:var(--ink)">₪18,150</span></div>
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:700;margin:2px 0 4px">עובדים ₪8,400 · אני ₪9,750</div>
           <ul class="es-list" style="margin-top:6px">
-            <li><b>2.6</b> — ₪2,700 <small style="color:var(--ink-soft)">(אני 1,500 · עובד ב׳ 800 · עובד א׳ 400 ½)</small></li>
-            <li><b>3.6</b> — ₪2,300 <small style="color:var(--ink-soft)">(אני 1,500 · עובד ב׳ 800)</small></li>
-            <li><b>4.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(אני 1,500 · עובד א׳ 800 · עובד ב׳ 800)</small></li>
-            <li><b>7.6</b> — ₪1,500 <small style="color:var(--terra)">+ קבלני משנה ? (להשלים)</small></li>
-            <li><b>8.6</b> — ₪2,300 <small style="color:var(--ink-soft)">(אני 1,500 · עובד א׳ 800)</small></li>
-            <li><b>9.6</b> — ₪1,550 <small style="color:var(--ink-soft)">(יום חצי: אני 750 · עובד א׳ 400 · עובד ב׳ 400)</small></li>
-            <li><b>10.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(אני 1,500 · עובד א׳ 800 · עובד ב׳ 800)</small></li>
+            <li><b>10.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(עובדים 1,600 · אני 1,500)</small></li>
+            <li><b>9.6</b> — ₪1,550 <small style="color:var(--ink-soft)">(יום חצי · עובדים 800 · אני 750)</small></li>
+            <li><b>8.6</b> — ₪2,300 <small style="color:var(--ink-soft)">(עובדים 800 · אני 1,500)</small></li>
+            <li><b>7.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(עובדים 1,600 · אני 1,500)</small></li>
+            <li><b>4.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(עובדים 1,600 · אני 1,500)</small></li>
+            <li><b>3.6</b> — ₪2,300 <small style="color:var(--ink-soft)">(עובדים 800 · אני 1,500)</small></li>
+            <li><b>2.6</b> — ₪2,700 <small style="color:var(--ink-soft)">(עובדים 1,200 · אני 1,500)</small></li>
           </ul>
+        </div>
+        <div class="es-roof" style="margin-top:9px">
+          <div class="es-roof-top"><span>צפי לסיום (שבוע הבא, עד ה׳)</span><span class="p">+₪11.5–12.3K</span></div>
+          <div style="font-size:12px;color:var(--ink-soft);font-weight:600;margin-top:4px">אני ~5 ימים · עובד א׳ 2 · עובד ב׳ 3–4 → צפי עלות עבודה סופית ~₪29.7–30.5K</div>
         </div>
       </div>
 
@@ -576,7 +636,7 @@
           <li><b>2.6</b> — פירוק מלא של הגג התחתון</li>
           <li><b>3.6</b> — ייצור תעלות בבית מלאכה + ניקוז ראשון</li>
           <li><b>4.6</b> — חצי תעלה בגג התחתון</li>
-          <li><b>7.6</b> — פירוק מלא של הגג העליון (קבלני משנה)</li>
+          <li><b>7.6</b> — פירוק מלא של הגג העליון (עובד א׳ ועובד ב׳)</li>
           <li><b>8.6</b> — הכנות + כל הפינות בגג התחתון</li>
           <li><b>9.6</b> — תפירת התעלה התחתונה הושלמה, החזרת רעפים</li>
           <li><b>10.6</b> — גג תחתון נסגר (כיסוי + ביטון רוכבים) · 40% תעלה בעליון</li>
