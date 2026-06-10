@@ -132,6 +132,19 @@
   .event .lost{font-weight:800;color:var(--terra);white-space:nowrap}
   .event.note .lost{color:#9A7A1A}
 
+  /* ---------- daily labor cost ---------- */
+  .tl-cost{background:#F1F4EE;border:1px solid #E0E8DA;border-radius:14px;padding:11px 14px;margin-bottom:16px;
+    display:flex;justify-content:space-between;align-items:center}
+  .tl-cost .l{font-size:12px;font-weight:800;color:var(--sage)}
+  .tl-cost .v{font-size:18px;font-weight:900;color:var(--ink)}
+  .tl-cost .v small{font-size:11px;color:var(--terra);font-weight:700}
+  .cost{margin-top:10px;background:#F1F4EE;border:1px solid #E0E8DA;border-radius:10px;padding:8px 11px}
+  .cost-top{display:flex;justify-content:space-between;align-items:baseline}
+  .cost-lbl{font-size:11.5px;font-weight:800;color:var(--sage)}
+  .cost-val{font-size:15px;font-weight:800;color:var(--ink)}
+  .cost-val .q{color:var(--terra);font-weight:700;font-size:12px}
+  .cost-bd{font-size:11px;color:var(--ink-soft);font-weight:600;margin-top:2px}
+
   .day.weekend .daycard{background:transparent;border-style:dashed;box-shadow:none;text-align:center;
     color:var(--ink-soft);font-weight:600;font-size:13px;padding:9px}
 
@@ -270,6 +283,10 @@
 
 <!-- ===== TIMELINE PANE ===== -->
 <div class="pane active" id="timeline">
+  <div class="tl-cost">
+    <span class="l">עלות עבודה מצטברת</span>
+    <span class="v">₪16,550 <small>+ קבלני 7.6 ?</small></span>
+  </div>
   <div class="tl">
 
     <!-- יום שלישי 2.6 -->
@@ -289,6 +306,10 @@
         </ul>
         <div class="event fault"><span class="etag">תקלה</span><span class="etxt">עובד א׳ פגע בצינור מים — פיצוץ, טיפול במקום</span><span class="lost">~1ש'</span></div>
         <div class="event note"><span class="etag">צוות</span><span class="etxt">עובד א׳ לא הרגיש טוב ב־12:00, עזב הביתה; אני+עובד ב׳ המשכנו</span></div>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪2,700</span></div>
+          <div class="cost-bd">אני 1,500 · עובד ב׳ 800 · עובד א׳ 400 (½)</div>
+        </div>
       </div>
     </div>
 
@@ -305,6 +326,10 @@
           <li>הפסקת צהריים</li>
           <li>עלייה לגג — התקנת ניקוז אחד בתעלה</li>
         </ul>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪2,300</span></div>
+          <div class="cost-bd">אני 1,500 · עובד ב׳ 800</div>
+        </div>
       </div>
     </div>
 
@@ -321,6 +346,10 @@
         </ul>
         <div class="event fault"><span class="etag">תקלה</span><span class="etxt">פגיעה בכבל חשמל — תיקון וסידור</span><span class="lost">~2ש'</span></div>
         <div class="event note"><span class="etag">תקלה</span><span class="etxt">התגלה בלם נוסף — קרה בפירוק ביום ג׳, נראה רק היום</span></div>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪3,100</span></div>
+          <div class="cost-bd">אני 1,500 · עובד א׳ 800 · עובד ב׳ 800</div>
+        </div>
       </div>
     </div>
 
@@ -345,6 +374,10 @@
           <li>קבלני המשנה: פירקו את כל התעלה העליונה + סידרו את הגג</li>
         </ul>
         <div class="event note"><span class="etag">לוגיסטי</span><span class="etxt">הרכב בתיקון — החלפת רדיאטור (לא עיכב, קבלני המשנה עבדו)</span></div>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪1,500 <span class="q">+ קבלנים ?</span></span></div>
+          <div class="cost-bd">אני 1,500 · קבלני משנה — להשלים</div>
+        </div>
       </div>
     </div>
 
@@ -362,6 +395,10 @@
           <li>נותר: לתפור את התעלות</li>
         </ul>
         <div class="event note"><span class="etag">קצב</span><span class="etxt">יום של הימרחות — ביקור של גורם חיצוני + אזעקות</span></div>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪2,300</span></div>
+          <div class="cost-bd">אני 1,500 · עובד א׳ 800</div>
+        </div>
       </div>
     </div>
 
@@ -379,6 +416,10 @@
           <li>העלאת התעלות החדשות לגג העליון + סידור וניקיון</li>
         </ul>
         <div class="event note"><span class="etag">קצב</span><span class="etxt">יום חצי — נעצר ב־14:00, העובדים היו צריכים ללכת</span></div>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪1,550</span></div>
+          <div class="cost-bd">יום חצי: אני 750 · עובד א׳ 400 · עובד ב׳ 400</div>
+        </div>
       </div>
     </div>
 
@@ -395,6 +436,10 @@
           <li>גג עליון: התקנת 2 תעלות + 2 ניקוזים — ~40% מהתעלה העליונה</li>
         </ul>
         <div class="event note"><span class="etag">יום מלא</span><span class="etxt">בלי בלת"מים מיוחדים, ברוך השם. מחר (ה׳) לא עובדים — 4 ימי עבודה השבוע. ממשיכים בשבוע הבא.</span></div>
+        <div class="cost">
+          <div class="cost-top"><span class="cost-lbl">עלות עבודה</span><span class="cost-val">₪3,100</span></div>
+          <div class="cost-bd">אני 1,500 · עובד א׳ 800 · עובד ב׳ 800</div>
+        </div>
       </div>
     </div>
 
@@ -506,6 +551,22 @@
             <span class="es-tag ok">פינוי זבל ✓</span><span class="es-tag open">תעלה 40%</span>
             <span class="es-tag open">רעפים+רוכבים</span><span class="es-tag open">2 אוברפלו</span>
           </div>
+        </div>
+      </div>
+
+      <div class="es-sec">
+        <div class="es-h">עלות עבודה</div>
+        <div class="es-roof" style="margin-bottom:0">
+          <div class="es-roof-top"><span>סה"כ עד כה</span><span class="p" style="color:var(--ink)">₪16,550 <span style="color:var(--terra);font-size:12px">+ קבלני 7.6 ?</span></span></div>
+          <ul class="es-list" style="margin-top:6px">
+            <li><b>2.6</b> — ₪2,700 <small style="color:var(--ink-soft)">(אני 1,500 · עובד ב׳ 800 · עובד א׳ 400 ½)</small></li>
+            <li><b>3.6</b> — ₪2,300 <small style="color:var(--ink-soft)">(אני 1,500 · עובד ב׳ 800)</small></li>
+            <li><b>4.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(אני 1,500 · עובד א׳ 800 · עובד ב׳ 800)</small></li>
+            <li><b>7.6</b> — ₪1,500 <small style="color:var(--terra)">+ קבלני משנה ? (להשלים)</small></li>
+            <li><b>8.6</b> — ₪2,300 <small style="color:var(--ink-soft)">(אני 1,500 · עובד א׳ 800)</small></li>
+            <li><b>9.6</b> — ₪1,550 <small style="color:var(--ink-soft)">(יום חצי: אני 750 · עובד א׳ 400 · עובד ב׳ 400)</small></li>
+            <li><b>10.6</b> — ₪3,100 <small style="color:var(--ink-soft)">(אני 1,500 · עובד א׳ 800 · עובד ב׳ 800)</small></li>
+          </ul>
         </div>
       </div>
 
