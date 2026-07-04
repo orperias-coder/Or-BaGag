@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.22.41 — cache bump (משפט "עבודות בלתי-צפויות" בהצעות).
  * v3.22.22 — cache bump (audit 7.5: CACHE_NAME was stuck on v3.21.86 → frozen CDN libs).
  * v3.21.86 — REAL offline caching so the app opens with no internet at all.
  *
@@ -12,7 +13,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.22.40';
+const CACHE_NAME = 'or-bagag-cache-v3.22.41';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
