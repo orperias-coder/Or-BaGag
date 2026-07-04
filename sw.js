@@ -12,7 +12,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.22.33';
+const CACHE_NAME = 'or-bagag-cache-v3.22.34';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
@@ -24,7 +24,7 @@ const SHELL = [
   './icon-192.png',
   './icon-512.png',
   'https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js'
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.js'
 ];
 
 // Hosts whose GET responses we are allowed to cache (besides same-origin).
