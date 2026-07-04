@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.22.44 — cache bump (מהירות-טעינה: changelog לקובץ-צד + פונטים לא-חוסמים).
  * v3.22.43 — cache bump ("סכום משוער" עקבי לפני-מע"מ).
  * v3.22.42 — cache bump (תוספת גישה/סיכון אופציונלית בהצעה).
  * v3.22.41 — cache bump (משפט "עבודות בלתי-צפויות" בהצעות).
@@ -15,7 +16,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.22.43';
+const CACHE_NAME = 'or-bagag-cache-v3.22.44';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
