@@ -6604,7 +6604,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.22.44'; // v3.22.44 — מהירות-טעינה (#4): הצ'יינג'לוג הוצא ל-CHANGELOG.md (קובץ קטן יותר) + פונטי-גוגל בראש לא-חוסמים (זירוז הפתיחה). היסטוריית-שינויים מלאה: CHANGELOG.md
+const APP_VERSION = '3.22.48'; // v3.22.48 — סעיף עבודות-בצ"מ (quoteUnforeseenClause) נוסף גם לוואטסאפ-הצעה וגם לייצוא-HTML. היסטוריה: CHANGELOG.md
 
 // v3.22.41 (#1 — תוספות-עבודה) — משפט קבוע לכל הצעה: עבודה שהתגלתה באתר ואינה כלולה בהצעה תתומחר בנפרד.
 // מוגדר לפני S כי quoteTemplate מפנה אליו. quoteUnforeseenClause() מטה מרכז הצעה→תבנית→ברירת-מחדל.
@@ -15272,9 +15272,9 @@ function getClientTotalDue(clientId){
     // אינו חוב-לקוח; רק active/done נספרים. קודם לקוח עם פרויקט-מתוכנן הוצג כחייב.
     const st = p.status || 'active';
     if(st !== 'active' && st !== 'done') return;
-    const total = parseFloat(p.estimatedTotal) || 0;
-    const paid = (p.payments || []).reduce((s, pay) => s + (parseFloat(pay.amount) || 0), 0);
-    const projDue = total - paid;
+    // v3.22.45 (T2) — estimatedTotal הוא לפני-מע"מ מאז v3.22.43 בעוד ש-payments כוללים מע"מ;
+    // total-paid החזיר חוב נמוך/שלילי. totalDue(p) הוא מקור-האמת (כולל מע"מ), כמו _openReceivables.
+    const projDue = totalDue(p);
     if(projDue > 0) due += projDue;
   });
   getClientLeads(clientId).forEach(l => {
@@ -15866,8 +15866,8 @@ function renderClientDetail(){
     const before = (p.progressPhotos && !Array.isArray(p.progressPhotos)) ? (p.progressPhotos.before || []) : [];
     const thumbSrc = before[0]?.data || (function(){ for(const t of (p.tasks||[])){ if(t.photos && t.photos[0]) return t.photos[0].data || t.photos[0]; } return ''; })();
     const total = parseFloat(p.estimatedTotal) || 0;
-    const paid = (p.payments || []).reduce((s, pay) => s + (parseFloat(pay.amount) || 0), 0);
-    const projDue = total - paid;
+    // v3.22.45 (T2) — כמו getClientTotalDue: total-paid שגוי כי estimatedTotal לפני-מע"מ; totalDue(p) הוא מקור-האמת.
+    const projDue = totalDue(p);
     const status = p.status || 'active';
     const statusLabel = ({active:'פעיל', done:'הושלם', planned:'מתוכנן', paused:'מושהה'}[status]) || status;
     return `
@@ -29883,9 +29883,8 @@ function qCopyToWhatsApp(){
     return;
   }
 
-  const subtotal = visibleItems.reduce((s, i) => s + (parseFloat(i.total)||0), 0);
-  const vatAmount = Math.round(subtotal * (parseFloat(q.vatRate)||0) / 100);
-  const grandTotal = subtotal + vatAmount;
+  const A = _quoteAmounts(q);   // v3.22.47 — מקור-אמת יחיד (כולל הנחה), במקום חישוב ידני שהתעלם ממנה
+  const subtotal = A.subtotal;
 
   const sortedItems = [...visibleItems];   // v3.22.13 (APP-20) — respect the user's manual order everywhere
 
@@ -29950,6 +29949,10 @@ function qCopyToWhatsApp(){
     estStart = labels[q.estimatedStartDate] || '';
   }
 
+  // T5 (plan execution) — סעיף עבודות בלתי-צפויות גם בהודעת הוואטסאפ (כבר קיים ב-PDF/דוח-תמונות)
+  const _uc = quoteUnforeseenClause(q);
+  const ucSection = (_uc.show && _uc.text) ? `\n\n_${_uc.text}_` : '';
+
   const txt = `שלום ${q.clientName} 👋
 
 אחרי הביקור אצלכם הכנתי עבורכם *אומדן ראשוני* לעבודות הגג.
@@ -29959,7 +29962,7 @@ function qCopyToWhatsApp(){
 ${itemLines}
 ${modSection}──────────────
 *סה"כ אומדן (כולל מע"מ ${q.vatRate}%):*
-*${fmt(rangeTotalLoVAT)}–${fmt(rangeTotalHiVAT)}₪*${estStart ? `\n\n⏱ תחילת עבודה משוערת: *${estStart}*` : ''}
+*${fmt(rangeTotalLoVAT)}–${fmt(rangeTotalHiVAT)}₪*${A.hasDiscount ? `\n*הנחה${A.discountType==='percent'?` (${A.discountValue}%)`:''}:* −${fmt(A.discount)}₪\n*סה"כ לתשלום (לאחר הנחה, כולל מע"מ):* *${fmt(A.grandTotal)}₪*` : ''}${ucSection}${estStart ? `\n\n⏱ תחילת עבודה משוערת: *${estStart}*` : ''}
 
 ℹ️ זהו אומדן ראשוני — המחיר הסופי ייקבע לאחר בדיקה מעמיקה ותיאום מלא.${q.notes ? `\n\n📝 ${q.notes}` : ''}
 
@@ -37174,6 +37177,7 @@ function qExportAsHTML(){
   const vatRate = _qa.vatRate;
   const vatAmount = _qa.vatAmount;
   const grandTotal = _qa.grandTotal;
+  const _uc = quoteUnforeseenClause(q);   // T5 (plan execution) — סעיף עבודות בלתי-צפויות גם בייצוא-HTML
 
   const today = new Date();
   const validUntil = new Date(today.getTime() + (q.validityDays||30)*86400000);
@@ -37233,7 +37237,7 @@ function qExportAsHTML(){
       <label>תוקף עד</label>
       <div class="val">${validUntil.toLocaleDateString('he-IL')}</div>
     </div>
-    ${q.address?`<div class="meta-block"><label>כתובת</label><div class="val">${esc(q.address)}</div></div>`:''}
+    ${q.clientAddress?`<div class="meta-block"><label>כתובת</label><div class="val">${esc(q.clientAddress)}</div></div>`:''}
     ${q.clientPhone?`<div class="meta-block"><label>טלפון</label><div class="val">${esc(q.clientPhone)}</div></div>`:''}
   </div>
 
@@ -37242,9 +37246,9 @@ function qExportAsHTML(){
       <div class="item">
         <div class="item-num">${i+1}</div>
         <div class="item-body">
-          <div class="item-title">${esc(it.name||'')}</div>
+          <div class="item-title">${esc(it.title||'')}</div>
           ${it.description?`<div class="item-desc">${esc(it.description)}</div>`:''}
-          <div class="item-meta">${it.qty||''}${it.unit?' '+esc(it.unit):''} ${it.unitPrice?'× '+fmt(it.unitPrice)+'₪':''}</div>
+          <div class="item-meta">${it.quantity||''}${it.unit?' '+esc(it.unit):''} ${it.pricePerUnit?'× '+fmt(it.pricePerUnit)+'₪':''}</div>
         </div>
         <div class="item-price">${fmt(parseFloat(it.total)||0)}₪</div>
       </div>
@@ -37259,7 +37263,9 @@ function qExportAsHTML(){
     <div class="total-row grand"><span>סה"כ לתשלום</span><span>${fmt(grandTotal)} ₪</span></div>
   </div>
 
-  ${q.terms?`<div class="terms"><strong>תנאים:</strong><br>${esc(q.terms).replace(/\n/g,'<br>')}</div>`:''}
+  ${q.paymentTerms?`<div class="terms"><strong>תנאים:</strong><br>${esc(q.paymentTerms).replace(/\n/g,'<br>')}</div>`:''}
+
+  ${(_uc.show && _uc.text)?`<div class="terms" style="border:1px dashed #d9a441;background:#fdf6ec"><strong>הבהרה — עבודות בלתי-צפויות:</strong><br>${esc(_uc.text).replace(/\n/g,'<br>')}</div>`:''}
 
   <div class="footer">
     <div class="biz">${esc(b.businessName||'אור בגג')}</div>
