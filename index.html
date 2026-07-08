@@ -948,7 +948,7 @@ body.theme-finance  .view.on::before{
 .fin-row:last-child{border-bottom:none}
 .fin-row .fr-name{font-weight:600;color:var(--text)}
 .fin-row .fr-meta{font-size:11px;color:var(--text2)}
-.fin-row .fr-amt{font-weight:800;color:var(--gold2)}
+.fin-row .fr-amt{font-weight:800;color:var(--gold2);font-variant-numeric:tabular-nums}
 .fin-row .fr-amt.neg{color:var(--red)}
 
 
@@ -957,7 +957,7 @@ body.theme-finance  .view.on::before{
 /* Quote status badge in quote-edit */
 .q-status-badge{display:inline-block;font-size:10px;font-weight:800;padding:3px 9px;border-radius:10px;letter-spacing:.02em}
 .q-status-badge.s-draft{background:var(--ink3);color:var(--text3);border:1px solid var(--line)}
-.q-status-badge.s-sent{background:#e3f0ff;color:#1f5b9c;border:1px solid #6ea7e0}
+.q-status-badge.s-sent{background:var(--clay-l);color:var(--clay-deep,var(--clay));border:1px solid var(--clay)}
 .q-status-badge.s-accepted{background:var(--green-l);color:var(--green);border:1px solid var(--green)}
 .q-status-badge.s-rejected{background:var(--red-l);color:var(--red);border:1px solid var(--red)}
 
@@ -3928,8 +3928,8 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 .ch-stat{background:rgba(255,255,255,.65);border-radius:10px;padding:8px 6px;text-align:center}
 .ch-stat-num{font-weight:900;font-size:16px;color:#3d2812;font-feature-settings:"tnum"}
 .ch-stat-label{font-size:10px;color:rgba(94,58,24,.75);font-weight:700;margin-top:2px}
-.ch-stat.danger .ch-stat-num{color:#a02828}
-.ch-stat.income .ch-stat-num{color:#3d5530}
+.ch-stat.danger .ch-stat-num{color:#a02828;font-variant-numeric:tabular-nums}
+.ch-stat.income .ch-stat-num{color:#3d5530;font-variant-numeric:tabular-nums}
 
 .cv-toggle{margin:14px 12px 6px;display:flex;gap:6px;background:rgba(122,82,48,.08);border:1px solid rgba(122,82,48,.14);border-radius:12px;padding:4px}
 .cv-toggle button{flex:1;background:transparent;border:none;padding:8px 10px;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;color:#5e3a18;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,color .15s}
@@ -3971,8 +3971,8 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 .cs-row-body{flex:1;min-width:0}
 .cs-row-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cs-row-meta{font-size:11px;color:var(--text3);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
-.cs-row-meta .price{color:var(--gold2);font-weight:800}
-.cs-row-meta .due{color:#a02828;font-weight:800}
+.cs-row-meta .price{color:var(--gold2);font-weight:800;font-size:12px;font-variant-numeric:tabular-nums}
+.cs-row-meta .due{color:#a02828;font-weight:800;font-size:12px;font-variant-numeric:tabular-nums}
 .cs-row-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
 
 .cs-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
@@ -5015,7 +5015,7 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
 #finance-body .fin-row .fr-name iconify-icon{font-size:15px; color:var(--gold2); flex:none}
 #finance-body .fin-row .fr-amt{
   font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:16px;
-  color:var(--green); letter-spacing:0;
+  color:var(--green); letter-spacing:0; font-variant-numeric:tabular-nums;
 }
 #finance-body .fin-row .fr-amt.neg{color:var(--terra)}
 
@@ -6590,7 +6590,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 </div>
 
 <!-- Toast -->
-<div id="toast"><span id="t-msg"></span></div>
+<div id="toast" role="status" aria-live="polite"><span id="t-msg"></span></div>
 
 <!-- Auto-save indicator -->
 <div class="save-indicator" id="save-ind">✓ נשמר</div>
@@ -6604,7 +6604,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.22.55'; // v3.22.55 — תמונות לידים/פרופיל-גג/צ'קים עוברות למסלול-האחסון האמין (IDB blobs) כמו תמונות-ביקור, עם מיגרציה חד-פעמית. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.22.58'; // v3.22.58 — ניקוי חוב-ממשק: צבע .s-sent מהפלטה, נגישות-טוסט (aria), וספרות-כסף מיושרות וקריאות (tabular-nums, 12px+). היסטוריה: CHANGELOG.md
 
 // v3.22.41 (#1 — תוספות-עבודה) — משפט קבוע לכל הצעה: עבודה שהתגלתה באתר ואינה כלולה בהצעה תתומחר בנפרד.
 // מוגדר לפני S כי quoteTemplate מפנה אליו. quoteUnforeseenClause() מטה מרכז הצעה→תבנית→ברירת-מחדל.
@@ -7109,7 +7109,7 @@ async function _saveAllInner(quiet){
       // גיבוי-ה-localStorage שלמעלה כן נכתב — רשת-ביטחון עד שהמשתמש מפנה מקום.
       if(!window.__idbFailToastTs || Date.now() - window.__idbFailToastTs > 60000){
         window.__idbFailToastTs = Date.now();
-        toast('⚠️ השמירה למסד המקומי נכשלה — ייתכן שהאחסון מלא. ייצא גיבוי ופנה מקום');
+        toast('השמירה למסד המקומי נכשלה — ייתכן שהאחסון מלא. ייצא גיבוי ופנה מקום');
       }
       return false;
     }
@@ -7847,7 +7847,7 @@ function _doTakePhoto(onData, fromCamera){
       onData(data, dataFull, meta);
     }catch(err){
       console.error('takePhoto error:', err);
-      toast('⚠️ שגיאה בעיבוד תמונה');
+      toast('שגיאה בעיבוד תמונה');
     }finally{
       try{ inp.remove(); }catch(e){}
     }
@@ -7875,7 +7875,7 @@ function pickPhoto(onData){
       }
     }catch(err){
       console.error('pickPhoto error:', err);
-      toast('⚠️ שגיאה בעיבוד תמונה');
+      toast('שגיאה בעיבוד תמונה');
     }finally{
       try{ inp.remove(); }catch(e){}
     }
@@ -8053,7 +8053,7 @@ function pvSaveToGallery(){
     setTimeout(()=>{ try{ document.body.removeChild(a); }catch(e){} }, 200);
     toast('💾 נשמר לתיקיית הורדות');
   } catch(e){
-    toast('⚠️ לא ניתן לשמור — נסה לחיצה ארוכה על התמונה');
+    toast('לא ניתן לשמור — נסה לחיצה ארוכה על התמונה');
   }
 }
 function _pvApplyTransform(){
@@ -8373,17 +8373,46 @@ function closeMo(){
 }
 function moOutside(e){ if(e.target === document.getElementById('mo')){ if(_moDirty && !confirm('יש פרטים שהקלדת ולא נשמרו — לסגור בכל זאת?')) return; closeMo(); } }  /* v3.21.95 (#3) — confirm before discarding a touched form on backdrop tap */
 
-function confirmAction({title, msg, ok='אשר', okCls='btn-red', cb}){
+function confirmAction({title, msg, ok='אשר', okCls='btn-red', cb, cancelToast}){
   document.getElementById('co-title').textContent = title;
   document.getElementById('co-msg').textContent = msg;
   confirmCb = cb;
+  // v3.22.56 (T14) — optional short toast when the user presses ביטול (used for delete
+  // confirmations, so cancelling gives the same clear feedback a closed native confirm() had).
+  // Backward-compatible: omitted for every pre-existing caller, so behavior there is unchanged.
+  const cancelOnclick = cancelToast ? `closeConfirm(); toast(${JSON.stringify(cancelToast)})` : 'closeConfirm()';
   document.getElementById('co-btns').innerHTML = `
-    <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">ביטול</button>
+    <button class="btn btn-ghost btn-sm" onclick="${cancelOnclick}">ביטול</button>
     <button class="btn ${okCls} btn-sm" onclick="doConfirm()">${ok}</button>`;
   document.getElementById('co').classList.add('on');
 }
 function closeConfirm(){ document.getElementById('co').classList.remove('on'); confirmCb = null; }
 function doConfirm(){ const cb = confirmCb; closeConfirm(); if(cb) cb(); }
+
+/* v3.22.56 (T14) — small text-input modal, replacing native prompt() in user flows.
+   Async (callback), mirrors confirmAction: cb(value) fires only when the user presses the
+   OK button; pressing ביטול (or the ✕/backdrop, via the existing closeMo()) just closes with
+   no callback — same as prompt() returning null on cancel. */
+let _paCb = null;
+function promptAction({title, label, value='', placeholder='', ok='אישור', okCls='btn-gold', cb}){
+  _paCb = cb;
+  openMo(`
+    <div class="mo-title">${esc(title || '')}</div>
+    ${label ? `<div style="color:var(--text2);font-size:13px;margin-bottom:10px;line-height:1.5">${esc(label)}</div>` : ''}
+    <input id="pa-input" type="text" value="${esc(value)}" placeholder="${esc(placeholder)}" style="width:100%;padding:13px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;margin-bottom:14px;box-sizing:border-box">
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeMo()">ביטול</button>
+      <button class="btn ${okCls}" style="flex:1" onclick="_paSubmit()">${esc(ok)}</button>
+    </div>`);
+  setTimeout(()=>{ const el = document.getElementById('pa-input'); if(el){ el.focus(); el.select(); } }, 60);
+}
+function _paSubmit(){
+  const el = document.getElementById('pa-input');
+  const val = el ? el.value : '';
+  const cb = _paCb; _paCb = null;
+  closeMo();
+  if(cb) cb(val);
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    v3.21.83 — Supabase Phase 1: cloud connect + login (auth ONLY).
@@ -9872,7 +9901,7 @@ function gdriveDisconnect(){
 // ─── גיבוי ידני / ראשוני ─────────────────────────────────────────
 async function gdriveBackupNow(silent){
   if(!S.gdrive.enabled){
-    toast('⚠️ קודם התחבר לגוגל דרייב');
+    toast('קודם התחבר לגוגל דרייב');
     return;
   }
   try {
@@ -9929,7 +9958,7 @@ function gdriveMarkChange(){
 // ─── הצגת היסטוריית גיבויים ──────────────────────────────────────
 async function gdriveShowHistory(){
   if(!S.gdrive.enabled){
-    toast('⚠️ קודם התחבר לגוגל דרייב');
+    toast('קודם התחבר לגוגל דרייב');
     return;
   }
   try {
@@ -10232,7 +10261,7 @@ async function gitVerifyPat(){
     }
     const info = await resp.json();
     if(!info.permissions || !info.permissions.push){
-      toast('⚠️ אין הרשאת כתיבה. ודא ש-Contents=Read and Write');
+      toast('אין הרשאת כתיבה. ודא ש-Contents=Read and Write');
       return false;
     }
     toast('✅ מחובר ל-' + info.full_name);
@@ -10964,7 +10993,7 @@ async function clearAll(){
     setTimeout(() => URL.revokeObjectURL(_url), 60000);
   } catch(e){
     console.warn('[clearAll] backup failed', e);
-    if(typeof toast==='function') toast('⚠️ בניית הגיבוי נכשלה — המחיקה בוטלה');
+    if(typeof toast==='function') toast('בניית הגיבוי נכשלה — המחיקה בוטלה');
     return;
   }
   // v3.21.57 — now wipes ALL work/client data. Previously cleared only visits/projects/quotes,
@@ -11411,7 +11440,7 @@ function mt_saveEdit(taskId){
 
   const newTitle = (titleEl.value || '').trim();
   if(!newTitle){
-    toast('⚠️ הכותרת לא יכולה להיות ריקה');
+    toast('הכותרת לא יכולה להיות ריקה');
     titleEl.focus();
     return;
   }
@@ -11865,7 +11894,7 @@ function mt_submitLinked(linkedType, linkedId){
   const hasDate = document.getElementById('mt-link-has-date');
   if(!txtEl) return;
   const title = (txtEl.value || '').trim();
-  if(!title){ toast('⚠️ צריך לכתוב משהו'); txtEl.focus(); return; }
+  if(!title){ toast('צריך לכתוב משהו'); txtEl.focus(); return; }
 
   const promised = (hasDate && hasDate.checked && dateEl && dateEl.value)
     ? new Date(dateEl.value + 'T08:00:00').getTime()
@@ -11888,22 +11917,23 @@ function mt_submitLinked(linkedType, linkedId){
 
 // v3.9.51 — הוספת תובנה ידנית לפרויקט
 function _pdAddIssue(projectId){
-  const text = prompt('תובנה / הערה לפרויקט:');
-  if(!text || !text.trim()) return;
-  const p = (S.projects || []).find(x => x.id === projectId);
-  if(!p) return;
-  if(!Array.isArray(p.issues)) p.issues = [];
-  p.issues.push({
-    id: uid(),
-    text: text.trim(),
-    source: 'manual',
-    createdAt: Date.now(),
-    resolved: false
-  });
-  p.updatedAt = Date.now();
-  saveAll(true);
-  toast('✓ נוספה תובנה');
-  if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  promptAction({title:'תובנה חדשה', label:'תובנה / הערה לפרויקט:', ok:'הוסף', cb:function(text){
+    if(!text || !text.trim()) return;
+    const p = (S.projects || []).find(x => x.id === projectId);
+    if(!p) return;
+    if(!Array.isArray(p.issues)) p.issues = [];
+    p.issues.push({
+      id: uid(),
+      text: text.trim(),
+      source: 'manual',
+      createdAt: Date.now(),
+      resolved: false
+    });
+    p.updatedAt = Date.now();
+    saveAll(true);
+    toast('✓ נוספה תובנה');
+    if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  }});
 }
 
 // v3.9.51 — סימון תובנה כפתור (resolved)
@@ -11922,14 +11952,15 @@ function _pdResolveIssue(projectId, issueId){
 
 // v3.9.51 — מחיקת תובנה
 function _pdDeleteIssue(projectId, issueId){
-  if(!confirm('למחוק את התובנה?')) return;
-  const p = (S.projects || []).find(x => x.id === projectId);
-  if(!p || !Array.isArray(p.issues)) return;
-  p.issues = p.issues.filter(i => i.id !== issueId);
-  p.updatedAt = Date.now();
-  saveAll(true);
-  toast('🗑️ נמחקה');
-  if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  confirmAction({title:'מחיקת תובנה', msg:'למחוק את התובנה?', ok:'מחק', cancelToast:'בוטל', cb:function(){
+    const p = (S.projects || []).find(x => x.id === projectId);
+    if(!p || !Array.isArray(p.issues)) return;
+    p.issues = p.issues.filter(i => i.id !== issueId);
+    p.updatedAt = Date.now();
+    saveAll(true);
+    toast('🗑️ נמחקה');
+    if(typeof renderProjectDetail === 'function') renderProjectDetail();
+  }});
 }
 
 /* v3.22.28 (3.1) — נמחקו: _renderTaskCardCompact (0 קוראים) ומסך "הגדרות משימות
@@ -13564,7 +13595,7 @@ function _catalogEnsureWorkType(name, unit, base){
 
 function findingSave(){
   const v = getVisit(); if(!v) return;
-  if(_activeFinding && !_activeFinding.type){ toast('⚠️ בחר סוג ממצא'); return; }
+  if(_activeFinding && !_activeFinding.type){ toast('בחר סוג ממצא'); return; }
   // חשב מחיר מהקטלוג
   if(_activeFinding) findingCalcPrice();
   // v3.21.98 — סוג עבודה ייחודי חדש → נשמר אוטומטית לקטלוג לפעם הבאה
@@ -14501,7 +14532,7 @@ function wz4FinishConfirm(){
   if(!v.phone || !v.phone.trim())           _miss.push('טלפון');
   if(!v.address || !v.address.trim())        _miss.push('כתובת');
   if(_miss.length){
-    toast('⚠️ להשלמת הביקור חסר: ' + _miss.join(', '));
+    toast('להשלמת הביקור חסר: ' + _miss.join(', '));
     S.wz.step = 1; wz4Render();
     return;
   }
@@ -14665,7 +14696,7 @@ async function wz4BuildPhotoReport(){
   const validFindings = (v.findings||[]).filter(f => f.title && f.title.trim());
 
   if(!validFindings.length){
-    toast('⚠️ אין ממצאים עם כותרת'); return;
+    toast('אין ממצאים עם כותרת'); return;
   }
 
   const rangeOf = price => ({
@@ -14776,7 +14807,7 @@ async function wz4BuildPhotoReport(){
   // v3.21.95 (fix) — NO noopener: it makes window.open() return null even on success, so the
   // !w check fired a false "enable popups" toast on every open. Without it the handle is real.
   const w = window.open(_url, '_blank');
-  if(!w){ try{ const a=document.createElement('a'); a.href=_url; a.download='הצעה-עם-תמונות.html'; document.body.appendChild(a); a.click(); a.remove(); toast('💾 ההצעה הורדה — פתח ולחץ הדפסה / שמירה כ-PDF'); }catch(e){ toast('⚠️ אפשר חלונות קופצים בדפדפן'); } }
+  if(!w){ try{ const a=document.createElement('a'); a.href=_url; a.download='הצעה-עם-תמונות.html'; document.body.appendChild(a); a.click(); a.remove(); toast('💾 ההצעה הורדה — פתח ולחץ הדפסה / שמירה כ-PDF'); }catch(e){ toast('אפשר חלונות קופצים בדפדפן'); } }
   setTimeout(()=>{ try{ URL.revokeObjectURL(_url); }catch(e){} }, 60000);
 }
 
@@ -16288,7 +16319,7 @@ function saveClientEdit(clientId){
     propagateAddress: document.getElementById('ced-propagate')?.checked || false,
   };
   if(!updates.clientName.trim()){
-    toast('⚠️ שם לקוח חובה');
+    toast('שם לקוח חובה');
     return;
   }
   _writeClientThrough(clientId, updates);
@@ -16618,14 +16649,14 @@ function pdEditWarrantyMonths(projectId){
   const p = (S.projects||[]).find(x=>x.id===projectId) || getProject();
   if(!p) return;
   const cur = (p.warranty && p.warranty.months) || WARRANTY_DEFAULT_MONTHS;
-  const val = prompt('אורך אחריות בחודשים (לדוגמה 12, 24, 60):', String(cur));
-  if(val===null) return;
-  const m = Math.max(0, Math.round(parseFloat(val)||0));
-  if(!m) return;
-  p.warranty = p.warranty || { startAt: p.actualEndDate || p.updatedAt, note:'' };
-  p.warranty.months = m;
-  p.updatedAt = ts(); saveAll();
-  try{ if(typeof renderProjectDetail==='function' && S.activeProjectId===p.id) renderProjectDetail(); }catch(e){}
+  promptAction({title:'עריכת אחריות', label:'אורך אחריות בחודשים (לדוגמה 12, 24, 60):', value:String(cur), ok:'שמור', cb:function(val){
+    const m = Math.max(0, Math.round(parseFloat(val)||0));
+    if(!m) return;
+    p.warranty = p.warranty || { startAt: p.actualEndDate || p.updatedAt, note:'' };
+    p.warranty.months = m;
+    p.updatedAt = ts(); saveAll();
+    try{ if(typeof renderProjectDetail==='function' && S.activeProjectId===p.id) renderProjectDetail(); }catch(e){}
+  }});
 }
 
 // כרטיס "אחריות ושירות" בפרויקט-שהושלם (מוזרק בראש טאב-העכשיו).
@@ -16717,8 +16748,8 @@ function saveExpense(){
   const projectId = document.getElementById('exp-proj')?.value || null;
   const dateStr = document.getElementById('exp-date')?.value;
 
-  if(!amt || amt <= 0){ toast('⚠️ סכום חסר'); return; }
-  if(!desc){ toast('⚠️ תיאור חסר'); return; }
+  if(!amt || amt <= 0){ toast('סכום חסר'); return; }
+  if(!desc){ toast('תיאור חסר'); return; }
 
   const tsVal = dateStr ? new Date(dateStr + 'T12:00:00').getTime() : ts();
   S.expenses.unshift({
@@ -18627,7 +18658,7 @@ function convertLeadToVisit(){
   // (we'll fall back to phone). For other leads, still require explicit name.
   const hasName = l.clientName && l.clientName.trim();
   if(!hasName && !(fromWa && l.phone)){
-    toast('⚠️ הזן שם לקוח קודם');
+    toast('הזן שם לקוח קודם');
     document.getElementById('ld-name')?.focus();
     return;
   }
@@ -18711,7 +18742,7 @@ const JOB_PAYMENT_METHODS = ['מזומן', 'ביט', 'העברה', "צ'ק"];
 
 function openCloseAsJobModal(isEdit){
   const l = getLead();
-  if(!l){ toast('⚠️ אין ליד פתוח'); return; }
+  if(!l){ toast('אין ליד פתוח'); return; }
   const existing = (isEdit && l.jobData) ? l.jobData : null;
   // Draft is stored on window for chip click handlers
   window._jobDraft = {
@@ -18792,8 +18823,8 @@ function _saveLeadAsJob(){
   const d = window._jobDraft;
   if(!l || !d) return;
   // Light validation: require workType + amount
-  if(!d.workType){ toast('⚠️ בחר סוג עבודה'); return; }
-  if(!d.amount || d.amount <= 0){ toast('⚠️ הזן סכום'); return; }
+  if(!d.workType){ toast('בחר סוג עבודה'); return; }
+  if(!d.amount || d.amount <= 0){ toast('הזן סכום'); return; }
   const finalWorkType = d.workType === 'אחר' ? (d.workTypeCustom || 'אחר').trim() : d.workType;
   l.jobData = {
     workType:       finalWorkType,
@@ -18819,7 +18850,7 @@ function _saveLeadAsJob(){
 
 function openScheduleLeadModal(){
   const l = getLead();
-  if(!l){ toast('⚠️ אין ליד פתוח'); return; }
+  if(!l){ toast('אין ליד פתוח'); return; }
   // Default to existing scheduledAt, or tomorrow at 10:00
   let initial;
   if(l.scheduledAt){
@@ -18869,9 +18900,9 @@ function _saveLeadSchedule(){
   const d = document.getElementById('sched-date').value;
   const t = document.getElementById('sched-time').value;
   const dur = parseInt(document.getElementById('sched-dur').value, 10) || 60;
-  if(!d || !t){ toast('⚠️ הזן תאריך ושעה'); return; }
+  if(!d || !t){ toast('הזן תאריך ושעה'); return; }
   const dt = new Date(`${d}T${t}:00`);
-  if(isNaN(dt.getTime())){ toast('⚠️ פורמט שגוי'); return; }
+  if(isNaN(dt.getTime())){ toast('פורמט שגוי'); return; }
   l.scheduledAt = dt.getTime();
   l.scheduledDurationMin = dur;
   // If status is 'new' or 'contacted', advance to 'scheduled'
@@ -18950,10 +18981,10 @@ function _leadToIcs(l){
 
 function leadDownloadIcs(){
   const l = getLead();
-  if(!l){ toast('⚠️ אין ליד'); return; }
-  if(!l.scheduledAt){ toast('⚠️ קבע מועד קודם'); return; }
+  if(!l){ toast('אין ליד'); return; }
+  if(!l.scheduledAt){ toast('קבע מועד קודם'); return; }
   const ics = _leadToIcs(l);
-  if(!ics){ toast('⚠️ שגיאה ביצירת הקובץ'); return; }
+  if(!ics){ toast('שגיאה ביצירת הקובץ'); return; }
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -18977,7 +19008,7 @@ window._waImport = null;
 
 function waImportPickFile(){
   const inp = document.getElementById('wa-import-file');
-  if(!inp){ toast('⚠️ קלט קובץ לא נמצא'); return; }
+  if(!inp){ toast('קלט קובץ לא נמצא'); return; }
   inp.value = ''; // allow re-selecting same file
   inp.click();
 }
@@ -18987,7 +19018,7 @@ function waImportHandleFile(ev){
   if(!f) return;
   const reader = new FileReader();
   reader.onload = () => _waImportProcessJsonText(reader.result, f.name);
-  reader.onerror = () => toast('⚠️ קריאת הקובץ נכשלה');
+  reader.onerror = () => toast('קריאת הקובץ נכשלה');
   reader.readAsText(f, 'utf-8');
 }
 
@@ -18997,7 +19028,7 @@ function _waImportProcessJsonText(text, sourceLabel){
   try{
     const data = JSON.parse(text);
     if(!data || !Array.isArray(data.leads)){
-      toast('⚠️ קובץ JSON לא תקין — חסר leads[]');
+      toast('קובץ JSON לא תקין — חסר leads[]');
       return;
     }
     if(data.leads.length === 0){
@@ -19052,7 +19083,7 @@ function _waImportProcessJsonText(text, sourceLabel){
     _waImportRender();
   }catch(e){
     console.error('[wa-import] parse error', e);
-    toast('⚠️ שגיאת ניתוח: ' + (e.message || 'JSON לא תקין'));
+    toast('שגיאת ניתוח: ' + (e.message || 'JSON לא תקין'));
   }
 }
 
@@ -19074,11 +19105,11 @@ async function _waFetchLatestDriveText(){
   }
   try { await _gdriveEnsureToken(); }
   catch(e){
-    toast('⚠️ נדרשת התחברות ל-Google Drive. הגדרות → ניהול נתונים');
+    toast('נדרשת התחברות ל-Google Drive. הגדרות → ניהול נתונים');
     return null;
   }
   if(typeof _gdriveAccessToken !== 'string' || !_gdriveAccessToken){
-    toast('⚠️ אין token. הפעל גיבוי Drive ב-הגדרות פעם אחת.');
+    toast('אין token. הפעל גיבוי Drive ב-הגדרות פעם אחת.');
     return null;
   }
 
@@ -19200,8 +19231,8 @@ async function waUpdateLeadsFromDrive(){
   if(!fetched) return;
   let data;
   try { data = JSON.parse(fetched.text); }
-  catch(e){ toast('⚠️ שגיאת ניתוח JSON'); return; }
-  if(!data || !Array.isArray(data.leads)){ toast('⚠️ קובץ JSON לא תקין — חסר leads[]'); return; }
+  catch(e){ toast('שגיאת ניתוח JSON'); return; }
+  if(!data || !Array.isArray(data.leads)){ toast('קובץ JSON לא תקין — חסר leads[]'); return; }
   if(data.leads.length === 0){ toast('הקובץ ריק'); return; }
 
   const blocked = new Set((S.waBlocklist || []).map(b => _waNormPhone(b.phone)).filter(Boolean));
@@ -21423,7 +21454,7 @@ function saveProduct(id, isNew){
   const description = document.getElementById('pe-desc')?.value.trim();
   const essence = document.getElementById('pe-essence')?.value.trim();
   const procedure = document.getElementById('pe-procedure')?.value.trim();
-  if(!name){ toast('⚠️ שם חסר'); return; }
+  if(!name){ toast('שם חסר'); return; }
 
   let pricing;
   if(ptype === 'fixed'){
@@ -21432,7 +21463,7 @@ function saveProduct(id, isNew){
   } else if(ptype === 'range'){
     const min = parseFloat(document.getElementById('pe-min')?.value) || 0;
     const max = parseFloat(document.getElementById('pe-max')?.value) || 0;
-    if(min > max){ toast('⚠️ מינימום גדול ממקסימום'); return; }
+    if(min > max){ toast('מינימום גדול ממקסימום'); return; }
     pricing = { type: 'range', base: null, min, max };
   } else {
     pricing = { type: 'depends', base: null, min: null, max: null };
@@ -21518,17 +21549,17 @@ function loadCatalogFile(e){
 
 function importCatalog(mode){
   const txt = document.getElementById('ci-text')?.value.trim();
-  if(!txt){ toast('⚠️ אין JSON'); return; }
+  if(!txt){ toast('אין JSON'); return; }
   let parsed;
   try {
     parsed = JSON.parse(txt);
   } catch(err){
-    toast('⚠️ JSON לא תקין: ' + (err.message || 'שגיאה'));
+    toast('JSON לא תקין: ' + (err.message || 'שגיאה'));
     return;
   }
   const result = _parseCatalogJson(parsed);
   if(!result.products.length && !result.modifiers.length){
-    toast('⚠️ לא נטען אף פריט תקין');
+    toast('לא נטען אף פריט תקין');
     return;
   }
   // v3.22.37 (ביקורת C4#7) — הקטלוג קורא מ-S.workTypeTemplates; ייבוא ל-S.products נעלם עד רענון.
@@ -21822,10 +21853,10 @@ function saveModifier(id, isNew){
   const pmin = parseFloat(document.getElementById('me-pmin')?.value) || 0;
   const pmax = parseFloat(document.getElementById('me-pmax')?.value) || 0;
   const description = document.getElementById('me-desc')?.value.trim();
-  if(!name){ toast('⚠️ חסר שם'); return; }
+  if(!name){ toast('חסר שם'); return; }
   // v3.22.35 (ביקורת C4#20) — ולידציית טווח כמו saveProduct
-  if(type === 'addition_percent'){ if(pmin > pmax){ toast('⚠️ מינימום גדול ממקסימום'); return; } }
-  else if(min > max){ toast('⚠️ מינימום גדול ממקסימום'); return; }
+  if(type === 'addition_percent'){ if(pmin > pmax){ toast('מינימום גדול ממקסימום'); return; } }
+  else if(min > max){ toast('מינימום גדול ממקסימום'); return; }
   const data = {
     name, type,
     min: type === 'addition_percent' ? null : min,
@@ -22216,8 +22247,8 @@ function fxSave(id, isNew){
   const categoryKey = window._fxEditCatKey || 'other_biz';
   const category = window._fxEditCat || 'business';
 
-  if(!name){ toast('⚠️ חסר שם'); return; }
-  if(amount <= 0){ toast('⚠️ סכום לא תקין'); return; }
+  if(!name){ toast('חסר שם'); return; }
+  if(amount <= 0){ toast('סכום לא תקין'); return; }
 
   if(isNew){
     S.fixedExpenses.unshift({
@@ -22742,7 +22773,7 @@ async function executePullFromVisit(projectId){
     // stuck forever on the "שואב נתונים" animation: clear the pull flags, persist, and render it
     // normally so it becomes openable. (Previously this returned without clearing _pendingSync/
     // _pullDone, so every open replayed the dead animation and the project was unopenable.)
-    toast('⚠️ ביקור מקור לא נמצא');
+    toast('ביקור מקור לא נמצא');
     p._pendingSync = false;
     p._pullDone = true;
     _pullInFlight.delete(p.id);   // v3.21.95 — allow a future legit re-pull
@@ -24272,9 +24303,9 @@ function pdv2EditBillingAmount(issueId, status){
   const it = (p?.issues||[]).find(x => x.id === issueId);
   if(!it) return;
   const cur = it.billedAmount || '';
-  const amt = prompt('סכום (₪) — אופציונלי, ריק כדי לדלג:', cur);
-  if(amt === null) return; // cancelled
-  pdv2SetIssueBilledStatus(issueId, status, amt === '' ? null : amt);
+  promptAction({title:'סכום לחיוב', label:'סכום (₪) — אופציונלי, ריק כדי לדלג:', value:cur, ok:'שמור', cb:function(amt){
+    pdv2SetIssueBilledStatus(issueId, status, amt === '' ? null : amt);
+  }});
 }
 
 // ═══════════════════════════════════════════════
@@ -24879,25 +24910,26 @@ async function pdv2GalleryDeleteSelected(){
   const p = (typeof getProject === 'function') ? getProject() : null;
   if(!p || !_pdv2GallerySelected.size) return;
   const n = _pdv2GallerySelected.size;
-  if(!confirm(`למחוק ${n} תמונות מ"${({before:'לפני',during:'תוך כדי',after:'אחרי'})[_pdv2GalleryPhase]}"?\n\nלא ניתן לבטל.`)) return;
-  const photos = p.progressPhotos[_pdv2GalleryPhase] || [];
-  const toKeep = [], toDelete = [];
-  for(const ph of photos){
-    if(ph.id && _pdv2GallerySelected.has(ph.id)) toDelete.push(ph);
-    else toKeep.push(ph);
-  }
-  p.progressPhotos[_pdv2GalleryPhase] = toKeep;   // v3.22.18 — מסירים קודם, ואז מוחקים blob רק אם הוא יתום באמת
-  p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
-  for(const ph of toDelete){
-    if(ph.blobKey && typeof mediaDelete === 'function' && !_blobKeyReferencedAnywhere(ph.blobKey)){
-      try { await mediaDelete(ph.blobKey); } catch(e){}
+  confirmAction({title:'מחיקת תמונות', msg:`למחוק ${n} תמונות מ"${({before:'לפני',during:'תוך כדי',after:'אחרי'})[_pdv2GalleryPhase]}"?\n\nלא ניתן לבטל.`, ok:'מחק', cancelToast:'בוטל', cb: async function(){
+    const photos = p.progressPhotos[_pdv2GalleryPhase] || [];
+    const toKeep = [], toDelete = [];
+    for(const ph of photos){
+      if(ph.id && _pdv2GallerySelected.has(ph.id)) toDelete.push(ph);
+      else toKeep.push(ph);
     }
-  }
-  _pdv2GallerySelected.clear();
-  if(typeof saveAll === 'function') saveAll(true);
-  if(typeof toast === 'function') toast(`🗑 נמחקו ${n} תמונות`);
-  pdv2RenderSheetGallery(p);
-  if(typeof pdv2Render === 'function') pdv2Render(p);
+    p.progressPhotos[_pdv2GalleryPhase] = toKeep;   // v3.22.18 — מסירים קודם, ואז מוחקים blob רק אם הוא יתום באמת
+    p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
+    for(const ph of toDelete){
+      if(ph.blobKey && typeof mediaDelete === 'function' && !_blobKeyReferencedAnywhere(ph.blobKey)){
+        try { await mediaDelete(ph.blobKey); } catch(e){}
+      }
+    }
+    _pdv2GallerySelected.clear();
+    if(typeof saveAll === 'function') saveAll(true);
+    if(typeof toast === 'function') toast(`🗑 נמחקו ${n} תמונות`);
+    pdv2RenderSheetGallery(p);
+    if(typeof pdv2Render === 'function') pdv2Render(p);
+  }});
 }
 // v3.21.32 — Auto-distribute ALL photos by timestamp into before/during/after.
 // One-tap helper for when the user uploaded everything via the default "during" tab
@@ -27327,7 +27359,7 @@ function copyProjectClosure(){
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(
       () => toast('✓ הטקסט הועתק'),
-      () => toast('⚠️ לא ניתן להעתיק')
+      () => toast('לא ניתן להעתיק')
     );
   } else {
     // Fallback for older browsers
@@ -27335,7 +27367,7 @@ function copyProjectClosure(){
     ta.value = text;
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); toast('✓ הטקסט הועתק'); } catch(e){ toast('⚠️ לא ניתן להעתיק'); }
+    try { document.execCommand('copy'); toast('✓ הטקסט הועתק'); } catch(e){ toast('לא ניתן להעתיק'); }
     document.body.removeChild(ta);
   }
 }
@@ -28280,8 +28312,9 @@ function pdSectionMove(i, dir){
 function pdSectionDelete(i){
   const p = getProject(); if(!p || !Array.isArray(p.tasks)) return;
   const t = p.tasks[i]; if(!t) return;
-  if(!confirm(`למחוק את הסעיף "${t.name || ''}"? (הביקור המקורי לא יושפע)`)) return;
-  p.tasks.splice(i, 1); p.updatedAt = ts(); saveAll(true); pdManageSections();
+  confirmAction({title:'מחיקת סעיף', msg:`למחוק את הסעיף "${t.name || ''}"? (הביקור המקורי לא יושפע)`, ok:'מחק', cancelToast:'בוטל', cb:function(){
+    p.tasks.splice(i, 1); p.updatedAt = ts(); saveAll(true); pdManageSections();
+  }});
 }
 // Inline name/price edit — no re-render (keeps focus); price also updates the live total.
 function pdSectionSet(i, field, val){
@@ -28924,23 +28957,24 @@ function pdAddShoppingItem(){
   const p = getProject();
   if(!p) return;
   if(!p.shopping) p.shopping = [];
-  
-  const name = prompt('שם הפריט:');
-  if(!name) return;
-  
-  const notes = prompt('הערות (אופציונלי):');
-  
-  p.shopping.push({
-    name,
-    notes: notes || '',
-    bought: false,
-    addedAt: Date.now()
-  });
-  
-  p.updatedAt = Date.now();
-  saveAll();
-  renderPdTab();
-  toast('✅ פריט נוסף');
+
+  promptAction({title:'פריט חדש', label:'שם הפריט:', ok:'המשך', cb:function(name){
+    if(!name) return;
+
+    promptAction({title:'פריט חדש', label:'הערות (אופציונלי):', ok:'הוסף', cb:function(notes){
+      p.shopping.push({
+        name,
+        notes: notes || '',
+        bought: false,
+        addedAt: Date.now()
+      });
+
+      p.updatedAt = Date.now();
+      saveAll();
+      renderPdTab();
+      toast('✅ פריט נוסף');
+    }});
+  }});
 }
 
 function pdToggleShoppingItem(idx){
@@ -29525,7 +29559,7 @@ function pdShowExpDoc(idx){
         <div style="font-size:15px;font-weight:800">${esc(exp.name)}</div>
         <div style="font-size:12px;opacity:0.7">${fmt(exp.amount)}₪ · ${exp.occurredAt?new Date(exp.occurredAt).toLocaleDateString('he-IL'):''}</div>
       </div>
-      <button data-role="close" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer">×</button>
+      <button data-role="close" aria-label="סגור" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer">×</button>
     </div>
     <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:auto">
       <img src="${exp.documentImage}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">
@@ -29587,15 +29621,16 @@ function _markPaymentInvoiced(projectId, payId){
 function _markAllInvoiced(){
   const pending = _paymentsAwaitingInvoice();
   if(!pending.length) return;
-  if(!confirm(`לסמן ${pending.length} תשלומים כ"חשבונית הופקה"? הפעולה רק מכבה את ההתראה — היא לא מנפיקה חשבוניות.`)) return;
-  const now = ts();
-  pending.forEach(({ project, pay }) => {
-    pay.invoiceIssued = true; pay.invoiceIssuedAt = now; pay.updatedAt = now;
-    project.updatedAt = now;
-  });
-  saveAll(true);
-  toast('סומן — אין חשבוניות ממתינות');
-  _refreshInvoiceSurfaces();
+  confirmAction({title:'סימון חשבוניות', msg:`לסמן ${pending.length} תשלומים כ"חשבונית הופקה"? הפעולה רק מכבה את ההתראה — היא לא מנפיקה חשבוניות.`, ok:'סמן', okCls:'btn-gold', cb:function(){
+    const now = ts();
+    pending.forEach(({ project, pay }) => {
+      pay.invoiceIssued = true; pay.invoiceIssuedAt = now; pay.updatedAt = now;
+      project.updatedAt = now;
+    });
+    saveAll(true);
+    toast('סומן — אין חשבוניות ממתינות');
+    _refreshInvoiceSurfaces();
+  }});
 }
 
 // Re-render whichever invoice-aware surface is currently showing.
@@ -30099,14 +30134,14 @@ function _touchLead(id){
 function leadOpenWA(id, ev){
   if(ev){ ev.stopPropagation(); ev.preventDefault(); }
   const l = (S.leads||[]).find(x => x.id === id);
-  if(!l || !l.phone){ toast('⚠️ אין מספר טלפון לליד הזה'); return; }
+  if(!l || !l.phone){ toast('אין מספר טלפון לליד הזה'); return; }
   _touchLead(id);
   openWhatsApp(l.phone);
 }
 function leadNavigate(id, ev){
   if(ev){ ev.stopPropagation(); ev.preventDefault(); }
   const l = (S.leads||[]).find(x => x.id === id);
-  if(!l || !l.address){ toast('⚠️ אין כתובת לליד הזה'); return; }
+  if(!l || !l.address){ toast('אין כתובת לליד הזה'); return; }
   _touchLead(id);
   _openNavSheet(l.address);
 }
@@ -30145,10 +30180,10 @@ function _openNavSheet(address){
 
 function qCopyToWhatsApp(){
   const q = getQuote();
-  if(!q){ toast('⚠️ אין הצעה'); return; }
+  if(!q){ toast('אין הצעה'); return; }
   const visibleItems = q.items.filter(i => i.visible && !i.pendingDelete);
   if(!visibleItems.length){
-    toast('⚠️ אין שורות מוצגות');
+    toast('אין שורות מוצגות');
     return;
   }
 
@@ -30261,10 +30296,10 @@ function qExit(){ goBack(); }
 
 async function qGeneratePDF(autoPrint=true, lang='he', qOverride=null){
   const q = qOverride || getQuote();
-  if(!q){ toast('⚠️ אין הצעה'); return; }
+  if(!q){ toast('אין הצעה'); return; }
   const visibleItems = q.items.filter(i => i.visible && !i.pendingDelete);
   if(!visibleItems.length){
-    toast('⚠️ אין שורות מוצגות בהצעה');
+    toast('אין שורות מוצגות בהצעה');
     return;
   }
 
@@ -30641,7 +30676,7 @@ ${autoPrint ? `<`+`script>window.addEventListener('load', () => { setTimeout(() 
     toast(autoPrint ? '📄 PDF נפתח בחלון חדש — לחץ Cmd+P לשמירה' : '👁 תצוגה נפתחה');
   } catch (e) {
     console.error('qGeneratePDF error:', e);
-    toast('⚠️ שגיאה בהפקת PDF: ' + (e.message || 'לא ידוע'));
+    toast('שגיאה בהפקת PDF: ' + (e.message || 'לא ידוע'));
   }
 }
 
@@ -30651,7 +30686,7 @@ function qPreview(){ qGeneratePDF(false); }
 // Shared translation helper — translates all user-entered content in a quote
 async function _qTranslateContent(q){
   if(!_aiIsConnected()){
-    toast('⚠️ נדרש חיבור AI לתרגום — הגדרות ← חיבור AI (Gemini)');
+    toast('נדרש חיבור AI לתרגום — הגדרות ← חיבור AI (Gemini)');
     return null;
   }
   toast('⏳ מתרגם לאנגלית...');
@@ -30681,7 +30716,7 @@ async function _qTranslateContent(q){
     const raw = await _callGemini([{text: prompt}], {json: true, maxTokens: 4096, temperature: 0.1});
     tr = JSON.parse(raw);
   } catch(err){
-    toast('⚠️ שגיאת תרגום — ' + (err.hint || err.message || 'נסה שוב'));
+    toast('שגיאת תרגום — ' + (err.hint || err.message || 'נסה שוב'));
     return null;
   }
 
@@ -30708,7 +30743,7 @@ async function _qTranslateContent(q){
 
 async function qGeneratePDFEn(){
   const q = getQuote();
-  if(!q){ toast('⚠️ אין הצעה'); return; }
+  if(!q){ toast('אין הצעה'); return; }
   const result = await _qTranslateContent(q);
   if(!result) return;
   await qGeneratePDF(true, 'en', result.quote);
@@ -30737,7 +30772,7 @@ function qPhotoExport(){
 
 async function qBuildPhotoReport(lang='he'){
   const q = getQuote();
-  if(!q){ toast('⚠️ אין הצעה'); return; }
+  if(!q){ toast('אין הצעה'); return; }
 
   let displayQ = q;
   let svClientName = '';
@@ -30777,7 +30812,7 @@ async function qBuildPhotoReport(lang='he'){
   const showNotesSec = displayQ.showNotes !== false;
 
   const visibleItems = (displayQ.items||[]).filter(i => i.visible && !i.pendingDelete);
-  if(!visibleItems.length){ toast('⚠️ אין שורות מוצגות בהצעה'); return; }
+  if(!visibleItems.length){ toast('אין שורות מוצגות בהצעה'); return; }
 
   const findingsMap = {};
   if(sourceVisit){ (sourceVisit.findings||[]).forEach(f => { findingsMap[f.id] = f; }); }
@@ -30888,7 +30923,7 @@ async function qBuildPhotoReport(lang='he'){
   const _blob = new Blob([html], {type:'text/html;charset=utf-8'});
   const _url = URL.createObjectURL(_blob);
   const w = window.open(_url, '_blank');
-  if(!w){ try{ const a=document.createElement('a'); a.href=_url; a.download='quote-with-photos.html'; document.body.appendChild(a); a.click(); a.remove(); toast('💾 הורד — פתח ולחץ הדפסה / שמירה כ-PDF'); }catch(e){ toast('⚠️ אפשר חלונות קופצים בדפדפן'); } }
+  if(!w){ try{ const a=document.createElement('a'); a.href=_url; a.download='quote-with-photos.html'; document.body.appendChild(a); a.click(); a.remove(); toast('💾 הורד — פתח ולחץ הדפסה / שמירה כ-PDF'); }catch(e){ toast('אפשר חלונות קופצים בדפדפן'); } }
   setTimeout(()=>{ try{ URL.revokeObjectURL(_url); }catch(e){} }, 60000);
 }
 
@@ -30915,7 +30950,7 @@ function vdMenu(){
 
 function editCurrentVisit(){
   const v = getVisit();
-  if(!v){ toast('⚠️ אין ביקור פעיל'); return; }
+  if(!v){ toast('אין ביקור פעיל'); return; }
   // Make sure no other modal is in the way
   closeMo();
   // Open the wizard for this visit
@@ -30996,9 +31031,9 @@ function qCopyAndOpenWA(){
     _markQuoteSent();  // V2.6
     closeMo();
     if(txt.length > 2000){
-      toast('📋 הועתק. הטקסט ארוך — הדבק ידנית בוואצאפ');
+      toast('הועתק. הטקסט ארוך — הדבק ידנית בוואצאפ');
     } else {
-      toast('📋 הועתק. פותח וואצאפ...');
+      toast('הועתק. פותח וואצאפ...');
       // Open WhatsApp directly to client's phone (V2.6 — was generic before)
       const q = getQuote();
       const phone = q && q.clientPhone ? q.clientPhone : null;
@@ -31025,7 +31060,7 @@ function qCopyOnly(){
   if(!txt) return;
   doCopy(txt, () => {
     _markQuoteSent();  // V2.6 — track that we shipped it
-    toast('📋 הועתק ללוח');
+    toast('הועתק ללוח');
     closeMo();
     _afterSendBackToVisitOrFinish();
   });
@@ -31131,7 +31166,7 @@ function doCopy(text, onSuccess){
           document.execCommand('copy');
           onSuccess();
         }catch(e){
-          toast('⚠️ בחר את הטקסט והעתק ידנית');
+          toast('בחר את הטקסט והעתק ידנית');
         }
       }
     });
@@ -31143,7 +31178,7 @@ function doCopy(text, onSuccess){
         document.execCommand('copy');
         onSuccess();
       }catch(e){
-        toast('⚠️ בחר את הטקסט והעתק ידנית');
+        toast('בחר את הטקסט והעתק ידנית');
       }
     }
   }
@@ -31834,11 +31869,11 @@ function convertQuoteToProject(){
 
 function createQuoteFromVisit(visitId){
   const v = S.visits.find(x => x.id === visitId);
-  if(!v){ toast('⚠️ לא נמצא ביקור'); return; }
+  if(!v){ toast('לא נמצא ביקור'); return; }
 
   // Validation 1: client name
   if(!v.clientName || !v.clientName.trim()){
-    toast('⚠️ הביקור צריך שם לקוח');
+    toast('הביקור צריך שם לקוח');
     return;
   }
 
@@ -31851,7 +31886,7 @@ function createQuoteFromVisit(visitId){
     if(noTitle > 0){
       toast(`⚠️ ${noTitle} ממצאים ללא כותרת — הוסף כותרות ומחיר`);
     } else {
-      toast('⚠️ אין ממצאים עם מחיר');
+      toast('אין ממצאים עם מחיר');
     }
     return;
   }
@@ -33301,7 +33336,7 @@ function fmSave(){
     document.getElementById('fm-title')?.classList.add('err');
     document.getElementById('fm-title')?.scrollIntoView({behavior:'smooth', block:'center'});
     document.getElementById('fm-title')?.focus();
-    toast('⚠️ חובה למלא כותרת');
+    toast('חובה למלא כותרת');
     return;
   }
   // Title is valid → finding is real, no ghost-delete on close
@@ -33421,7 +33456,7 @@ async function exportBackupNow(){
     toast('📥 גיבוי מלא הורד — שמור בגוגל דרייב!');
   } catch(e){
     console.error('Backup failed:', e);
-    toast('⚠️ שגיאה בגיבוי: '+e.message);
+    toast('שגיאה בגיבוי: '+e.message);
   }
 }
 
@@ -34302,7 +34337,7 @@ function wizRequestMicPermission(){
     })
     .catch(err => {
       if(err.name === 'NotAllowedError'){
-        toast('⚠️ ההרשאה נדחתה — שנה ידנית בהגדרות');
+        toast('ההרשאה נדחתה — שנה ידנית בהגדרות');
       } else {
         toast('שגיאה: ' + err.message);
       }
@@ -34474,7 +34509,7 @@ function openManualProjectCreate(){
 
 function saveManualProject(){
   const name = document.getElementById('mp-name')?.value?.trim();
-  if(!name){ toast('⚠️ חובה להזין שם לקוח'); return; }
+  if(!name){ toast('חובה להזין שם לקוח'); return; }
   const price = parseFloat(document.getElementById('mp-price')?.value||0)||0;
   const desc  = document.getElementById('mp-desc')?.value?.trim()||'';
   const date  = document.getElementById('mp-date')?.value||'';
@@ -34593,7 +34628,7 @@ function openWorkerEdit(idx){
 
 function saveWorker(idx){
   const name = document.getElementById('w-name')?.value?.trim();
-  if(!name){ toast('⚠️ חובה להזין שם'); return; }
+  if(!name){ toast('חובה להזין שם'); return; }
   const list = _workersList();
   const worker = {
     id: list[idx]?.id || uid(),
@@ -34615,12 +34650,13 @@ function saveWorker(idx){
 }
 
 function deleteWorker(idx){
-  if(!confirm('למחוק עובד זה?')) return;
-  const list = _workersList();
-  list.splice(idx, 1);
-  S.workers = []; // ניקוי הישן
-  saveAll(true);
-  _renderWorkersList();   // v3.22.38 (3.6)
+  confirmAction({title:'מחיקת עובד', msg:'למחוק עובד זה?', ok:'מחק', cancelToast:'בוטל', cb:function(){
+    const list = _workersList();
+    list.splice(idx, 1);
+    S.workers = []; // ניקוי הישן
+    saveAll(true);
+    _renderWorkersList();   // v3.22.38 (3.6)
+  }});
 }
 
 // ── שיוך עובדים לפרויקט ──────────────────────────────
@@ -36214,9 +36250,9 @@ function ds_toggleTask(taskId){
 
 function pdEditSourceVisit(){
   const p = getProject(); if(!p) return;
-  if(!p.sourceVisitId){ toast('⚠️ אין ביקור מקורי'); return; }
+  if(!p.sourceVisitId){ toast('אין ביקור מקורי'); return; }
   const v = S.visits.find(x=>x.id===p.sourceVisitId);
-  if(!v){ toast('⚠️ הביקור לא נמצא'); return; }
+  if(!v){ toast('הביקור לא נמצא'); return; }
   S.activeVisitId = v.id;
   S._syncBackToProject = p.id;
   push('visit-detail');
@@ -37448,7 +37484,7 @@ function _runInsightAction(idx){
 
 function qExportAsHTML(){
   const q = getQuote();
-  if(!q){ toast('⚠️ אין הצעה'); return; }
+  if(!q){ toast('אין הצעה'); return; }
   const items = (q.items||[]).filter(i=>i.visible && !i.pendingDelete);
   if(!items.length){ toast('אין סעיפים מוצגים'); return; }
 
@@ -37799,7 +37835,7 @@ async function _doRequestNotifs(){
     toast('✅ התראות הופעלו!');
     _updateNotifStatusSub();
   } else {
-    toast('⚠️ ההתראות לא הופעלו');
+    toast('ההתראות לא הופעלו');
   }
 }
 
@@ -37986,9 +38022,9 @@ function _saveAIKey(){
   const inp = document.getElementById('ai-key-input');
   if(!inp) return;
   const key = inp.value.trim();
-  if(!key){ toast('⚠️ הזן מפתח'); return; }
+  if(!key){ toast('הזן מפתח'); return; }
   if(!key.startsWith('AIza')){
-    toast('⚠️ מפתח לא תקין — אמור להתחיל ב-AIza');
+    toast('מפתח לא תקין — אמור להתחיל ב-AIza');
     return;
   }
   _setGeminiKey(key);
@@ -37998,11 +38034,12 @@ function _saveAIKey(){
 }
 
 function _disconnectAI(){
-  if(!confirm('לנתק את AI? פיצ\'רי AI יפסיקו לעבוד')) return;
-  _setGeminiKey('');
-  closeMo();
-  toast('🔌 AI נותק');
-  _updateAIStatusSub();
+  confirmAction({title:'ניתוק AI', msg:'לנתק את AI? פיצ\'רי AI יפסיקו לעבוד', ok:'נתק', cb:function(){
+    _setGeminiKey('');
+    closeMo();
+    toast('🔌 AI נותק');
+    _updateAIStatusSub();
+  }});
 }
 
 function _updateAIStatusSub(){
@@ -38181,12 +38218,13 @@ function _deleteActualMaterial(idx){
 }
 
 function _deleteSketch(idx){
-  if(!confirm('למחוק שרטוט?')) return;
-  const p = getProject(); if(!p) return;
-  p.technical.sketches.splice(idx, 1);
-  p.updatedAt = Date.now();
-  saveAll();
-  _renderPdTechnical();
+  confirmAction({title:'מחיקת שרטוט', msg:'למחוק שרטוט?', ok:'מחק', cancelToast:'בוטל', cb:function(){
+    const p = getProject(); if(!p) return;
+    p.technical.sketches.splice(idx, 1);
+    p.updatedAt = Date.now();
+    saveAll();
+    _renderPdTechnical();
+  }});
 }
 
 // ═══════════════════════════════════════════════════════
@@ -39323,7 +39361,7 @@ function _aiConfirmWizard(opts){
       toast('✓ עודכן');
     } catch(e){
       console.error(e);
-      toast('⚠️ שגיאה בעדכון');
+      toast('שגיאה בעדכון');
     }
   };
 
@@ -39374,9 +39412,9 @@ function _aiConfirmWizard(opts){
 function _fsOpen(){
   // בדוק אם AI מחובר
   if(!_aiIsConnected()){
-    if(confirm('צריך לחבר את ה-AI (Gemini) לפני שאפשר להשתמש בדיבור חופשי. לפתוח הגדרות עכשיו?')){
+    confirmAction({title:'חיבור AI נדרש', msg:'צריך לחבר את ה-AI (Gemini) לפני שאפשר להשתמש בדיבור חופשי. לפתוח הגדרות עכשיו?', ok:'פתח הגדרות', okCls:'btn-gold', cb:function(){
       openAISettings();
-    }
+    }});
     return;
   }
 
