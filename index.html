@@ -6604,7 +6604,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.22.48'; // v3.22.48 — סעיף עבודות-בצ"מ (quoteUnforeseenClause) נוסף גם לוואטסאפ-הצעה וגם לייצוא-HTML. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.22.55'; // v3.22.55 — תמונות לידים/פרופיל-גג/צ'קים עוברות למסלול-האחסון האמין (IDB blobs) כמו תמונות-ביקור, עם מיגרציה חד-פעמית. היסטוריה: CHANGELOG.md
 
 // v3.22.41 (#1 — תוספות-עבודה) — משפט קבוע לכל הצעה: עבודה שהתגלתה באתר ואינה כלולה בהצעה תתומחר בנפרד.
 // מוגדר לפני S כי quoteTemplate מפנה אליו. quoteUnforeseenClause() מטה מרכז הצעה→תבנית→ברירת-מחדל.
@@ -7049,6 +7049,10 @@ function _lsBackupReplacer(key, val){
 
 async function _saveAllInner(quiet){
   try {
+    // v3.22.49 (APP-21) — לפני השמירה: זהה singleton שהתוכן שלו השתנה מקומית מאז הבדיקה הקודמת,
+    // ורשום מתי (__singleTs) — כדי ש-_cloudPull הבא ידע להגן על עריכה מקומית טרייה מדריסה על-ידי
+    // ערך-שרת ישן ממכשיר אחר. ראה _touchSingletonLocalTs.
+    if(typeof _touchSingletonLocalTs === 'function') _touchSingletonLocalTs();
     // v3.21.14 — strip redundant photo base64 before saving so the localStorage backup
     // doesn't overflow quota. The IDB blob remains the source of truth.
     if(typeof _compactPhotosForStorage === 'function') _compactPhotosForStorage();
@@ -8435,10 +8439,12 @@ async function _cloudLogin(){
   const password=(document.getElementById('cs-pass')?.value||'');
   if(!email || !email.includes('@')){ toast('הקלד אימייל תקין'); return; }
   if(password.length<6){ toast('סיסמה — לפחות 6 תווים'); return; }
-  try{
-    // נסה התחברות; אם המשתמש לא קיים — הירשם (signup). דורש "Confirm email" כבוי כדי לקבל session מיד.
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if(error){
+  // v3.22.52 (T10) — signInWithPassword ו-signUp מחזירים אותה שגיאה גנרית גם לאימייל
+  // לא-קיים וגם לסיסמה שגויה (Supabase לא מבדיל, כדי לא לחשוף אילו אימיילים רשומים).
+  // לכן אסור להירשם אוטומטית על כשל-התחברות — טעות-הקלדה הייתה יוצרת בשקט חשבון ריק
+  // חדש. מציגים שאלה מפורשת; רק אישור מריץ את ה-signUp (אותו קוד כמו קודם).
+  const doSignUp = async () => {
+    try{
       const up = await sb.auth.signUp({ email, password });
       if(up.error){
         toast(/already registered/i.test(up.error.message) ? 'סיסמה שגויה לאימייל הזה' : ('שגיאה: '+up.error.message));
@@ -8448,6 +8454,20 @@ async function _cloudLogin(){
         toast('נרשמת — אך נדרש אישור-מייל. כבה "Confirm email" בהגדרות Supabase ונסה שוב.');
         return;
       }
+      closeMo(); toast('מחובר לסנכרון'); _updateCloudSub();
+    }catch(e){ toast('שגיאת רשת — נסה שוב'); }
+  };
+  try{
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){
+      confirmAction({
+        title: 'התחברות נכשלה',
+        msg: 'לא נמצא חשבון עם האימייל הזה. לבדוק את הכתובת, או ליצור חשבון חדש?',
+        ok: 'צור חשבון חדש',
+        okCls: 'btn-gold',
+        cb: doSignUp
+      });
+      return;
     }
     closeMo(); toast('מחובר לסנכרון'); _updateCloudSub();
   }catch(e){ toast('שגיאת רשת — נסה שוב'); }
@@ -8505,6 +8525,26 @@ function _applyPulledSingleton(ent, nv){
   }
   S[ent] = nv;
 }
+// v3.22.49 (APP-21) — סנכרון-הגדרות בין מכשירים: לכל singleton לא-מונוטוני (business/quoteTemplate/
+// settings/taskSettings/learnedTags) שומרים מתי השתנה התוכן *מקומית* לאחרונה (__singleTs), כדי
+// ש-_cloudPull ידע לדחות ערך-שרת שמגיע ממכשיר אחר אם הוא ישן מהעריכה המקומית. __singleSeen שומר
+// את חתימת-התוכן האחרונה שנצפתה, כדי לזהות שינוי *אמיתי* (ולא לבלבל בין "המשתמש ערך" לבין
+// "שמירה כללית רצה בלי ששינוי הגיע ל-singleton הזה"). התצפית הראשונה על כל ent רק קובעת בסיס —
+// אינה נספרת כעריכה — כך שמכשיר טרי (או שדרוג מגרסה בלי המנגנון הזה) נשאר בלי __singleTs, ו-pull
+// יראה בכך "אין חותמת מקומית" ותמיד יחיל את ערך-השרת (נפילה-רכה, לא נעילה).
+function _touchSingletonLocalTs(){
+  const seen = _syncSig.__singleSeen || (_syncSig.__singleSeen={});
+  const ts = _syncSig.__singleTs || (_syncSig.__singleTs={});
+  let changed=false;
+  for(const ent of SYNC_SINGLETONS){
+    if(_MONOTONIC_SINGLETONS.includes(ent)) continue;
+    if(typeof S[ent]==='undefined') continue;
+    const sig=_singletonSig(S[ent]);
+    if(!(ent in seen)){ seen[ent]=sig; continue; }   // first observation — establish baseline, not an edit
+    if(seen[ent]!==sig){ seen[ent]=sig; ts[ent]=Date.now(); changed=true; }
+  }
+  if(changed) _saveSyncSig();
+}
 // v3.22.39 (ביקורת C1#3) — אחרי שחזור-גיבוי: מסיר מ-מפת-החתימות מזהים שלא קיימים במצב
 // המשוחזר, כדי שהם לא ייחתמו כ-tombstones וימחקו פריטים חדשים בכל המכשירים.
 function _reconcileSyncSigAfterImport(){
@@ -8548,7 +8588,11 @@ async function cloudSyncNow(){
   if(_syncing){ _syncAgain=true; return {ok:false,reason:'busy'}; }   // queue a re-run instead of dropping
   _syncing=true;
   try{
-    const pulled = await _cloudPull(sb, uid2);   // pull first (LWW protects local-newer)
+    // pull first — LWW protects local-newer: items compare updatedAt, singletons compare
+    // __singleTs (local last-edit) vs. the server row's updated_at (v3.22.49, APP-21;
+    // before that, singletons had NO time comparison here — a stale server value from
+    // another device could clobber a fresh unpushed local edit).
+    const pulled = await _cloudPull(sb, uid2);
     const pushed = await _cloudPush(sb, uid2);    // then push local changes
     try{ await _cloudUploadMedia(sb, uid2); }catch(e){}   // upload new photo blobs to Supabase Storage
     _lastSyncAt = Date.now(); try{ localStorage.setItem('obv_sync_at', String(_lastSyncAt)); }catch(e){}
@@ -8632,11 +8676,29 @@ async function _cloudPull(sb, uid2){
     if(row.client_id===_tabId) continue;            // skip our own echo
     if(SYNC_SINGLETONS.includes(row.entity)){
       if(!row.deleted && row.payload && typeof row.payload==='object' && 'v' in row.payload){
-        const nv=row.payload.v;
-        // v3.22.39 (3.8) — מונים מונוטוניים לא נסוגים; שאר-ה-singletons LWW כרגיל
-        const _before = JSON.stringify(S[row.entity]);
-        _applyPulledSingleton(row.entity, nv);
-        if(JSON.stringify(S[row.entity]) !== _before) applied++;
+        const nv=row.payload.v, ent=row.entity;
+        if(_MONOTONIC_SINGLETONS.includes(ent)){
+          // מונים מונוטוניים: תמיד מוחל (Math.max פנימה) — לא נסוגים, לא צריך השוואת-זמן.
+          const _before = JSON.stringify(S[ent]);
+          _applyPulledSingleton(ent, nv);
+          if(JSON.stringify(S[ent]) !== _before) applied++;
+        } else {
+          // v3.22.49 (APP-21) — LWW אמיתי לפי-חותמת: ערך-שרת (ממכשיר אחר) מוחל רק אם הוא חדש
+          // מהעריכה המקומית האחרונה (__singleTs, ראה _touchSingletonLocalTs). אין חותמת מקומית
+          // (מכשיר טרי / שדרוג-גרסה) → נפילה-רכה: ערך-השרת מוחל בכל מקרה, לא ננעלים על ברירת-מחדל.
+          const serverTs = Date.parse(row.updated_at) || 0;
+          const localTs = (_syncSig.__singleTs && _syncSig.__singleTs[ent]) || 0;
+          if(serverTs > localTs){
+            const _before = JSON.stringify(S[ent]);
+            _applyPulledSingleton(ent, nv);
+            if(JSON.stringify(S[ent]) !== _before){
+              applied++;
+              const seen=_syncSig.__singleSeen||(_syncSig.__singleSeen={});
+              const tsm=_syncSig.__singleTs||(_syncSig.__singleTs={});
+              seen[ent]=_singletonSig(S[ent]); tsm[ent]=serverTs;
+            }
+          }
+        }
       }
       continue;
     }
@@ -12330,6 +12392,25 @@ function _dashHtml(){
       sub:esc((_svcTop.p.clientName||'לקוח'))+' · '+_svcWhen,
       cnt:_dueSvc.length, act:'תזמן', onclick:`openProjectDetail('${esc(_svcTop.p.id)}')` });
   }
+  // v3.22.50 (T7) — gdriveBackupNow(silent=true) fails silently, so a dead auto-backup is invisible.
+  // _gdriveBackupStaleDays() returns null unless Drive is connected AND stale (>=7 days) — surface it here.
+  const _bkStaleDays = (typeof _gdriveBackupStaleDays==='function') ? _gdriveBackupStaleDays() : null;
+  if(_bkStaleDays != null){
+    _stuckRows.push({ led:'danger', icon:'mdi:cloud-alert-outline',
+      title:'הגיבוי לא רץ כבר '+_bkStaleDays+' ימים — פתח הגדרות',
+      sub:'', cnt:_bkStaleDays, act:'הגדרות', onclick:'openSettings()' });
+  }
+  // v3.22.51 (T9) — a visit wizard left mid-flow (refresh/close) isn't restored on boot:
+  // _navTargetValid() deliberately does not treat 'wizard' as a restorable view (auto-jumping
+  // back into a multi-step form is unsafe). The draft itself is never lost — v.status stays
+  // 'draft' until wz4Finish() or deleteVisit() — so we only *offer* to resume it here, via the
+  // app's own getUnfinishedVisit()/wz4StartOrResume() path (same one the lead-launcher uses).
+  const _wzDraft = (typeof getUnfinishedVisit==='function') ? getUnfinishedVisit() : null;
+  if(_wzDraft){
+    _stuckRows.push({ led:'gold', icon:'mdi:progress-wrench',
+      title: _wzDraft.clientName ? ('יש ביקור שלא הושלם אצל '+esc(_wzDraft.clientName)+' — המשך מאיפה שעצרת') : 'יש ביקור שלא הושלם — המשך מאיפה שעצרת',
+      sub:'', cnt:1, act:'המשך', onclick:'wz4StartOrResume()' });
+  }
   const _ckStuck = _stuckRows.length ? `
     <div class="ck-block">
       <div class="ck-block-h"><h3>מה תקוע אצלי</h3><span class="ck-more" onclick="_ckMoreSheet()">הכל ›</span></div>
@@ -13133,7 +13214,7 @@ function wz4Step3(v){
   if(levelPhoto){
     html += `<div style="position:relative;border-radius:12px;overflow:hidden;margin-bottom:8px;border:1.5px solid ${slopeAngle?'var(--green)':'var(--line)'}">
       <img src="${levelPhoto}" style="width:100%;max-height:200px;object-fit:contain;display:block;background:var(--ink3)"
-        data-photo-src="${esc(rp.slopePhotoFull||levelPhoto||'')}" onclick="_openPhotoFromAttr(this)">
+        data-photo-src="${esc(rp.slopePhotoFull||levelPhoto||'')}" data-photo-blob-key="${esc(rp.slopeBlobKey||'')}" onclick="_openPhotoFromAttrAsync(this)">
       ${isAnalyzing ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff">⏳ מנתח...</div>' : ''}
     </div>`;
   }
@@ -13251,13 +13332,34 @@ function wz4SetRP(field, value){
   // לא קוראים wz4Render() — כדי לא לאבד פוקוס ולא לגלול לראש
 }
 
+// T13 — roof-profile photos (roofPhoto/slopePhoto/tileBackPhoto) keep their medium ("data",
+// ~800px) copy in state exactly as before — every existing reader (project detail, quote/WA
+// export, finance) already falls back to it via `||` when the *Full string is absent, so this
+// is a zero-risk swap for them. Only the heavier ~1920px *Full duplicate moves to an IDB blob
+// (mirrors SM-1's blobKey model); fire-and-forget since the UI already updated with the medium
+// copy synchronously above.
+async function _saveRoofProfileBlob(v, blobKeyField, keySuffix, fullDataUrl){
+  if(!v || !fullDataUrl || typeof dataUrlToBlob !== 'function' || typeof mediaPut !== 'function') return;
+  try{
+    const blob = dataUrlToBlob(fullDataUrl);
+    if(!blob) return;
+    const key = `roofprofile-${v.id}-${keySuffix}`;
+    const ok = await mediaPut(key, blob, { kind:'roofProfile', visitId:v.id });
+    if(ok && v.roofProfile){
+      v.roofProfile[blobKeyField] = key;
+      if(typeof saveAll === 'function') saveAll(true);
+    }
+  }catch(e){ console.warn('[_saveRoofProfileBlob]', keySuffix, e); }
+}
+
 function wz4PhotoRoof(){
   takePhoto((data, dataFull) => {
     const v = getVisit(); if(!v) return;
     if(!v.roofProfile) v.roofProfile = {};
-    v.roofProfile.roofPhoto = data; v.roofProfile.roofPhotoFull = dataFull||data;
+    v.roofProfile.roofPhoto = data;
     saveAll(true); wz4Render();
     toast('📸 תמונת גג נשמרה');
+    _saveRoofProfileBlob(v, 'roofPhotoBlobKey', 'roof', dataFull||data);
   }, true);
 }
 
@@ -13269,10 +13371,10 @@ function wz4PhotoSlope(){
     const v = getVisit(); if(!v) return;
     if(!v.roofProfile) v.roofProfile = {};
     v.roofProfile.slopePhoto = data;
-    v.roofProfile.slopePhotoFull = dataFull || data;
     v.roofProfile._analyzing = false;
     saveAll(true); wz4Render();
     toast('📸 תמונת פלס נשמרה — הזן את הזווית בשדה למטה');
+    _saveRoofProfileBlob(v, 'slopeBlobKey', 'slope', dataFull||data);
   }, true);
 }
 
@@ -13288,9 +13390,10 @@ function wz4PhotoTileBack(){
   takePhoto((data, dataFull)=>{
     const v = getVisit(); if(!v) return;
     if(!v.roofProfile) v.roofProfile={};
-    v.roofProfile.tileBackPhoto = data; v.roofProfile.tileBackPhotoFull = dataFull||data;
+    v.roofProfile.tileBackPhoto = data;
     saveAll(true); wz4Render();
     toast('📸 תמונת גב רעף נשמרה');
+    _saveRoofProfileBlob(v, 'tileBackBlobKey', 'tileback', dataFull||data);
   }, true);
 }
 
@@ -13717,7 +13820,9 @@ function updateFindingPriceDisplay(){
   var m = f.measurements || {};
   var qty = parseFloat(f.quantity)||0;
   if(!qty){
-    if(m.length && parseFloat(m.length)) qty = parseFloat(m.length);
+    // v3.22.54 — T12 fix: use same qty formula as findingCalcPrice (length×width if both exist)
+    if(m.length && m.width && parseFloat(m.length) && parseFloat(m.width)) qty = parseFloat(m.length)*parseFloat(m.width);
+    else if(m.length && parseFloat(m.length)) qty = parseFloat(m.length);
     else if(m.area && parseFloat(m.area)) qty = parseFloat(m.area);
     else if(m._ridges && parseFloat(m._ridges)) qty = parseFloat((m._ridges/2.5).toFixed(2));
     else qty = 1;
@@ -14287,7 +14392,9 @@ function findingPriceHtml(f){
   const m = f.measurements || {};
   let qty = parseFloat(f.quantity)||0;
   if(!qty){
-    if(m.length && parseFloat(m.length)) qty = parseFloat(m.length);
+    // v3.22.54 — T12 fix: use same qty formula as findingCalcPrice (length×width if both exist)
+    if(m.length && m.width && parseFloat(m.length) && parseFloat(m.width)) qty = parseFloat(m.length)*parseFloat(m.width);
+    else if(m.length && parseFloat(m.length)) qty = parseFloat(m.length);
     else if(m.area && parseFloat(m.area)) qty = parseFloat(m.area);
     else if(m._ridges && parseFloat(m._ridges)) qty = parseFloat((m._ridges/2.5).toFixed(2));
     else qty = 1;
@@ -14964,6 +15071,104 @@ function _migrateEstTotalsPreVat(){
     p._estPreVat = true;   // מסמן בכל מקרה — לא לבדוק שוב
   });
   return changed;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  T13 — one-time, idempotent migration: LEAD photos / ROOF-PROFILE photos / PAYMENT refFile
+//  (the 3 remaining photo families still stored as base64 in S) → IDB blobs, mirroring SM-1
+//  (_migrateVisitPhotos). Style follows _migrateEstTotalsPreVat above (per-item flag, marks
+//  in place, try-continue) — but async, since converting to a blob needs an IDB write. Safe to
+//  call on every boot: per-item presence checks (blobKey / *Full string) make already-migrated
+//  items an instant no-op, and records freshly pulled in from another device (via cloud sync)
+//  still get scanned instead of being skipped by a single stale global flag. A failed single
+//  conversion never deletes the original base64 (try/continue) — it just gets retried next boot.
+// ══════════════════════════════════════════════════════════════
+async function _migrateLegacyMediaFamilies(){
+  if(!db) return 0;   // IDB not ready yet — try again next boot; base64 stays put, no data loss
+  let migrated = 0;
+
+  const putB64 = async (key, dataUrl, meta) => {
+    if(!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) return false;
+    try{
+      const blob = dataUrlToBlob(dataUrl);
+      if(!blob) return false;
+      return await mediaPut(key, blob, meta || null);
+    }catch(e){ console.warn('[_migrateLegacyMediaFamilies] putB64 failed', key, e); return false; }
+  };
+
+  // 1) LEAD photos — camera/gallery captures only. WhatsApp-imported photos (source:'whatsapp')
+  //    are deliberately skipped: they have no full-res dataFull anyway, and _waMergeIntoLead's
+  //    dedup keys off ph.data's first 80 chars — stripping .data would break that and could
+  //    re-import duplicates on the next WhatsApp sync.
+  for(const l of (S.leads||[])){
+    for(const ph of (l.photos||[])){
+      try{
+        if(!ph || ph.blobKey || ph.source === 'whatsapp') continue;
+        const src = ph.dataFull || ph.data;
+        if(!src || typeof src !== 'string' || !src.startsWith('data:')) continue;
+        const key = `lead-${l.id}-${ph.id || uid()}`;
+        const okv = await putB64(key, src, { kind:'lead', leadId:l.id });
+        if(!okv) continue;   // keep base64 if the write failed — never lose the photo
+        ph.blobKey = key;
+        if(!ph.thumbDataUrl){ const th = await makeSmallThumb(ph.data || src); if(th) ph.thumbDataUrl = th; }
+        delete ph.data; delete ph.dataFull;
+        migrated++;
+      }catch(e){ console.warn('[_migrateLegacyMediaFamilies] lead photo', l.id, e); }
+    }
+  }
+
+  // 2) ROOF-PROFILE photos — roofPhoto/slopePhoto/tileBackPhoto (medium ~800px copy) stay in
+  //    state exactly as-is; only the redundant *Full (~1920px) duplicate moves to a blob.
+  //    Applies to both v.roofProfile (per visit) and S.roofProfiles (address-keyed reuse store).
+  const migrateRoofProfile = async (rp, keyBase) => {
+    if(!rp) return;
+    const fields = [
+      ['roofPhotoFull','roofPhotoBlobKey','roof'],
+      ['slopePhotoFull','slopeBlobKey','slope'],
+      ['tileBackPhotoFull','tileBackBlobKey','tileback'],
+    ];
+    for(const [fullField, blobField, suffix] of fields){
+      try{
+        if(rp[blobField]) continue;   // already migrated
+        const full = rp[fullField];
+        if(!full || typeof full !== 'string' || !full.startsWith('data:')) continue;
+        const key = `${keyBase}-${suffix}`;
+        const okv = await putB64(key, full, { kind:'roofProfile' });
+        if(!okv) continue;
+        rp[blobField] = key;
+        delete rp[fullField];
+        migrated++;
+      }catch(e){ console.warn('[_migrateLegacyMediaFamilies] roofProfile', keyBase, suffix, e); }
+    }
+  };
+  for(const v of (S.visits||[])){
+    if(v.roofProfile) await migrateRoofProfile(v.roofProfile, `roofprofile-${v.id}`);
+  }
+  for(const rec of (S.roofProfiles||[])){
+    await migrateRoofProfile(rec, `roofprofile-addr-${rec.key || uid()}`);
+  }
+
+  // 3) PAYMENT reference file (check/receipt photo, or a PDF — mediaPut is MIME-agnostic)
+  for(const p of (S.projects||[])){
+    for(const pay of (p.payments||[])){
+      try{
+        const rf = pay && pay.refFile;
+        if(!rf || rf.blobKey || !rf.data) continue;
+        const key = `payref-${pay.id || uid()}`;
+        const okv = await putB64(key, rf.data, { kind:'payref' });
+        if(!okv) continue;
+        rf.blobKey = key;
+        if((rf.type||'').startsWith('image/') && !rf.thumbDataUrl){
+          try{ const th = await makeSmallThumb(rf.data); if(th) rf.thumbDataUrl = th; }catch(e){}
+        }
+        delete rf.data;
+        migrated++;
+      }catch(e){ console.warn('[_migrateLegacyMediaFamilies] payref', p.id, e); }
+    }
+  }
+
+  if(migrated > 0 && typeof saveAll === 'function') saveAll(true);
+  return migrated;
 }
 
 function _cleanGhostRecords(){
@@ -17740,21 +17945,21 @@ function ldUpdate(field, value){
 }
 
 function ldAddPhoto(fromCamera){
-  takePhoto(data => {
+  takePhoto(async (data, dataFull) => {
     const l = getLead();
     if(!l) return;
     if(!l.photos) l.photos = [];
-    const ph = { id: uid(), data, ts: ts() };
+    // T13 — same IDB-blob pattern as visit/finding photos (SM-1): full-res goes to IDB via
+    // mediaPut, only a small thumb (+blobKey) stays in state/localStorage/cloud-sync. Reuses
+    // _makeVisitPhoto as-is (it's generic on keyPrefix) so the contract is byte-for-byte identical.
+    const ph = (typeof _makeVisitPhoto === 'function')
+      ? await _makeVisitPhoto(data, dataFull, `lead-${l.id}`, {})
+      : { id: uid(), data, dataFull: dataFull || data, ts: ts() };   // IDB unavailable — legacy fallback
     l.photos.push(ph);
     l.updatedAt = ts();
     saveAll();
     renderLeadDetail();
     vib(10);
-    // v3.22.27 (3.12) — תמונת-ליד מקבלת thumb קטן כמו תמונות ביקור/פרויקט, כדי שהרשימה
-    // והפרטים ירנדרו את ה-thumb ולא את ה-base64 המלא. בלי רינדור-מחדש — הרינדור הבא ישתמש בו.
-    if(typeof makeSmallThumb === 'function'){
-      makeSmallThumb(data).then(t => { if(t){ ph.thumbDataUrl = t; saveAll(true); } }).catch(()=>{});
-    }
   }, fromCamera);
 }
 
@@ -17861,7 +18066,9 @@ function _leadFollowUpItemHtml(l){
   const hasPic = (l.contactPhoto && _isSafeImageDataUrl(l.contactPhoto)) || (l.photos && l.photos.length);
   const av = (l.contactPhoto && _isSafeImageDataUrl(l.contactPhoto))
     ? `<img src="${l.contactPhoto}">`
-    : ((l.photos && l.photos.length) ? `<img src="${l.photos[0].data}">` : esc(_avatarInitial(l)));
+    // T13 — a blob-migrated lead photo has no .data anymore (blobKey+thumbDataUrl only);
+    // photoThumbSrc() already knows the fallback chain (thumbDataUrl||data||dataFull||string).
+    : ((l.photos && l.photos.length) ? `<img src="${esc(photoThumbSrc(l.photos[0]))}">` : esc(_avatarInitial(l)));
   const avStyle = hasPic ? '' : `background:${_avatarColor(l.phone || l.clientName || l.id)}`;
   const city = _leadCity(l);
   const name = (l.clientName || l.phone || '(ליד)') + (city ? ` · ${city}` : '');
@@ -18392,12 +18599,17 @@ function deleteLead(){
     msg: 'הליד והתמונות שלו יימחקו. הביקור המקושר (אם קיים) לא יימחק.',
     ok: 'מחק',
     cb: () => {
+      // T13 — lead photos can now be IDB blobs; collect keys BEFORE removal so orphaned ones
+      // get freed (shared blobs, e.g. copied into a visit via convertLeadToVisit, are protected
+      // by _blobKeyReferencedAnywhere and won't be deleted).
+      const _delKeys = (l.photos||[]).filter(p=>p&&p.blobKey).map(p=>p.blobKey);
       S.leads = S.leads.filter(x => x.id !== l.id);
       // v3.22.33 (ביקורת C4#17) — מחיקת-ליד השאירה משימות-יתומות שהצביעו עליו לנצח
       if(Array.isArray(S.tasks)){
         S.tasks = S.tasks.filter(t => !t || !((t.linkedType==='lead' && t.linkedId===l.id) || (t.contextType==='lead' && t.contextId===l.id)));
       }
       saveAll();
+      if(_delKeys.length && typeof _gcOrphanBlobs === 'function') _gcOrphanBlobs(_delKeys);
       closeMo();
       goLeadsList();
       toast('🗑️ ליד נמחק');
@@ -18453,8 +18665,16 @@ function doConvertLeadToVisit(leadId){
   v.source = l.source;
   v.leadId = l.id;
   if(fromWa) v.fromWhatsApp = true; // provenance marker
-  // Copy lead photos to outsidePhotos
-  v.outsidePhotos = (l.photos || []).map(p => ({ id: uid(), data: p.data, ts: ts() }));
+  // Copy lead photos to outsidePhotos — T13: carry blobKey/thumbDataUrl forward too, else a
+  // blob-migrated lead photo (no more .data) would silently become blank in the new visit.
+  v.outsidePhotos = (l.photos || []).map(p => {
+    const o = { id: uid(), ts: ts() };
+    if(p.blobKey) o.blobKey = p.blobKey;
+    if(p.thumbDataUrl) o.thumbDataUrl = p.thumbDataUrl;
+    if(p.data) o.data = p.data;
+    if(p.dataFull) o.dataFull = p.dataFull;
+    return o;
+  });
   // v3.10.2 — build finalNote from description + notes (the WA conversation context)
   const noteParts = [];
   if(l.description) noteParts.push(`מהליד: ${l.description}`);
@@ -24611,7 +24831,11 @@ function _visitBlobKeys(v){
   if(!v) return out;
   grab(v.roofPhotos); grab(v.outsidePhotos); grab(v.interiorMoisturePhotos);
   (v.findings||[]).forEach(f => grab(f.photos));
-  if(v.roofProfile && v.roofProfile.slopeBlobKey) out.push(v.roofProfile.slopeBlobKey);
+  if(v.roofProfile){   // T13 — roof/slope/tile-back full-res blobs
+    if(v.roofProfile.roofPhotoBlobKey) out.push(v.roofProfile.roofPhotoBlobKey);
+    if(v.roofProfile.slopeBlobKey) out.push(v.roofProfile.slopeBlobKey);
+    if(v.roofProfile.tileBackBlobKey) out.push(v.roofProfile.tileBackBlobKey);
+  }
   return out;
 }
 function _projectBlobKeys(p){
@@ -24621,20 +24845,32 @@ function _projectBlobKeys(p){
   const pp = p.progressPhotos;
   if(pp && typeof pp==='object') ['before','during','after'].forEach(ph => grab(pp[ph]));
   (p.tasks||[]).forEach(t => grab(t.photos));
+  if(p.roofProfile){   // T13
+    if(p.roofProfile.roofPhotoBlobKey) out.push(p.roofProfile.roofPhotoBlobKey);
+    if(p.roofProfile.slopeBlobKey) out.push(p.roofProfile.slopeBlobKey);
+    if(p.roofProfile.tileBackBlobKey) out.push(p.roofProfile.tileBackBlobKey);
+  }
+  (p.payments||[]).forEach(pay => { if(pay && pay.refFile && pay.refFile.blobKey) out.push(pay.refFile.blobKey); });   // T13
   return out;
 }
 function _blobKeyReferencedAnywhere(blobKey){
   if(!blobKey) return false;
   const has = arr => Array.isArray(arr) && arr.some(ph => ph && ph.blobKey === blobKey);
+  // T13 — roof-profile photos are bare named fields (not an array), so they need their own check
+  const rpHas = rp => !!(rp && (rp.roofPhotoBlobKey===blobKey || rp.slopeBlobKey===blobKey || rp.tileBackBlobKey===blobKey));
   for(const v of (S.visits||[])){
     if(has(v.outsidePhotos) || has(v.photos)) return true;
     for(const f of (v.findings||[])) if(has(f.photos)) return true;
+    if(rpHas(v.roofProfile)) return true;
   }
   for(const l of (S.leads||[])) if(has(l.photos)) return true;
   for(const p of (S.projects||[])){
     const pp = p.progressPhotos || {};
     if(has(pp.before) || has(pp.during) || has(pp.after)) return true;
+    if(rpHas(p.roofProfile)) return true;
+    if((p.payments||[]).some(pay => pay && pay.refFile && pay.refFile.blobKey === blobKey)) return true;
   }
+  for(const rec of (S.roofProfiles||[])) if(rpHas(rec)) return true;   // address-keyed reuse store
   const wtt = S.workTypeTemplates || {};
   for(const k in wtt){ const g = wtt[k] && wtt[k].gallery; if(g && has(g.pinned)) return true; }
   return false;
@@ -28302,7 +28538,7 @@ function renderPdMoney(p){
         const payMethod = {cash:'💵',check:"📝",transfer:'🏦',bit:'📱',paybox:'📱'}[pay.type||'']||'💰';
         // v3.9.33 — אסמכתא
         const refTxt = pay.ref ? `אסמכתא ${esc(pay.ref)}` : '';
-        const hasRefFile = !!(pay.refFile && pay.refFile.data);
+        const hasRefFile = !!(pay.refFile && (pay.refFile.data || pay.refFile.blobKey));   // T13
         return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--green-l);border-radius:10px;margin-bottom:6px">
           <div style="font-size:18px">${payMethod}</div>
           <div style="flex:1">
@@ -28545,7 +28781,7 @@ function renderPdRoof(p){
   if(rp.slopePhoto){
     html += `<div style="margin-top:10px">
       <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:6px">📸 תמונת פלס</div>
-      <img src="${rp.slopePhoto}" style="width:100%;max-height:160px;object-fit:contain;border-radius:10px;border:1px solid var(--line)" data-photo-src="${esc(rp.slopePhotoFull||rp.slopePhoto||'')}" onclick="_openPhotoFromAttr(this)">
+      <img src="${rp.slopePhoto}" style="width:100%;max-height:160px;object-fit:contain;border-radius:10px;border:1px solid var(--line)" data-photo-src="${esc(rp.slopePhotoFull||rp.slopePhoto||'')}" data-photo-blob-key="${esc(rp.slopeBlobKey||'')}" onclick="_openPhotoFromAttrAsync(this)">
     </div>`;
   }
   html += `</div>`;
@@ -29435,9 +29671,31 @@ function _pdPayHandleRefFile(e){
   const f = e.target.files && e.target.files[0];
   if(!f) return;
   const reader = new FileReader();
-  reader.onload = () => {
-    _pdPayRefFileData = { name: f.name, type: f.type, data: reader.result };
+  reader.onload = async () => {
+    const dataUrl = reader.result;
     const el = document.getElementById('pay-ref-file-name');
+    // T13 — same IDB-blob pattern as visit/lead photos: full-res (check photo or PDF) goes to
+    // IDB via mediaPut, only a small thumb (images only) + blobKey stays in state/cloud-sync.
+    let entry = { name: f.name, type: f.type };
+    let stored = false;
+    if(typeof db !== 'undefined' && db && typeof dataUrlToBlob === 'function' && typeof mediaPut === 'function'){
+      try{
+        const blob = dataUrlToBlob(dataUrl);
+        if(blob){
+          const key = `payref-${uid()}`;
+          const ok = await mediaPut(key, blob, { kind:'payref' });
+          if(ok){
+            entry.blobKey = key;
+            if((f.type||'').startsWith('image/') && typeof makeSmallThumb === 'function'){
+              try{ const t = await makeSmallThumb(dataUrl); if(t) entry.thumbDataUrl = t; }catch(e){}
+            }
+            stored = true;
+          }
+        }
+      }catch(e){ console.warn('[_pdPayHandleRefFile]', e); }
+    }
+    if(!stored) entry.data = dataUrl;   // IDB unavailable or write failed — never lose the receipt
+    _pdPayRefFileData = entry;
     if(el) el.textContent = f.name;
   };
   reader.onerror = () => toast('❌ שגיאה בטעינת הקובץ');
@@ -29480,21 +29738,32 @@ function pdRemovePay(i){
   const p=getProject(); if(!p||!p.payments||!p.payments[i]) return;   // v3.22.17 — אישור לפני מחיקה (רישום כסף!)
   const pay=p.payments[i]; const amt=(pay&&pay.amount)?fmt(pay.amount)+'₪':'';
   confirmAction({ title:'למחוק תשלום?', msg:`התשלום ${amt} יימחק מהפרויקט — אי-אפשר לבטל.`, ok:'מחק', okCls:'btn-red',
-    cb:()=>{ p.payments.splice(i,1); p.updatedAt=ts(); saveAll(); renderPdTab(); renderPdHero(p); toast('תשלום נמחק'); } });
+    cb:()=>{
+      const _refKey = pay && pay.refFile && pay.refFile.blobKey;   // T13 — free the receipt blob after removal
+      p.payments.splice(i,1); p.updatedAt=ts(); saveAll();
+      if(_refKey && typeof _gcOrphanBlobs === 'function') _gcOrphanBlobs([_refKey]);
+      renderPdTab(); renderPdHero(p); toast('תשלום נמחק');
+    } });
 }
 
 /* v3.9.33 — צפייה בקובץ אסמכתא של תשלום */
-function pdViewPayRef(payId){
+async function pdViewPayRef(payId){
   const p = getProject(); if(!p) return;
   const pay = (p.payments||[]).find(x => x.id === payId);
-  if(!pay || !pay.refFile || !pay.refFile.data){ toast('אין אסמכתא לתשלום זה'); return; }
+  if(!pay || !pay.refFile || (!pay.refFile.data && !pay.refFile.blobKey)){ toast('אין אסמכתא לתשלום זה'); return; }
   const isImage = (pay.refFile.type||'').startsWith('image/');
+  // T13 — prefer the full-res IDB blob; fall back to the small thumb, then legacy inline base64
+  let src = pay.refFile.data || pay.refFile.thumbDataUrl || '';
+  if(pay.refFile.blobKey && typeof mediaGetUrl === 'function'){
+    try{ const url = await mediaGetUrl(pay.refFile.blobKey); if(url) src = url; }catch(e){}
+  }
+  if(!src){ toast('אין אסמכתא לתשלום זה'); return; }
   openMo(`
     <div class="mo-title">אסמכתא — ${esc(pay.refFile.name||'')}</div>
     <div style="text-align:center;background:var(--ink3);border-radius:10px;padding:10px;max-height:70vh;overflow:auto">
       ${isImage
-        ? `<img src="${pay.refFile.data}" style="max-width:100%;height:auto;border-radius:8px">`
-        : `<div style="padding:30px;color:var(--text2)"><iconify-icon icon="mdi:file-pdf-box" width="38" style="color:var(--terra)"></iconify-icon><br><a href="${pay.refFile.data}" download="${esc(pay.refFile.name||'אסמכתא.pdf')}" class="btn btn-gold btn-sm" style="margin-top:14px;display:inline-block">הורד</a></div>`
+        ? `<img src="${src}" style="max-width:100%;height:auto;border-radius:8px">`
+        : `<div style="padding:30px;color:var(--text2)"><iconify-icon icon="mdi:file-pdf-box" width="38" style="color:var(--terra)"></iconify-icon><br><a href="${src}" download="${esc(pay.refFile.name||'אסמכתא.pdf')}" class="btn btn-gold btn-sm" style="margin-top:14px;display:inline-block">הורד</a></div>`
       }
     </div>
     <button class="btn btn-ghost" onclick="closeMo()" style="margin-top:10px">סגור</button>
@@ -30634,7 +30903,7 @@ function vdMenu(){
     <div class="mo-title">${esc(v.clientName || '(ללא שם)')}</div>
     ${v.phone ? `<button class="btn btn-ghost btn-sm" onclick="window.location.href='tel:${esc(v.phone)}'" style="margin-bottom:8px">📞 התקשר</button>` : ''}
     ${v.phone ? `<button class="btn btn-ghost btn-sm" onclick="openWhatsApp('${esc(v.phone)}')" style="margin-bottom:8px;border-color:#25d366;color:#1c8a47">💬 וואטסאפ</button>` : ''}
-    ${v.address ? `<button class="btn btn-ghost btn-sm" onclick="openWaze('${esc(String(v.address).replace(/'/g, String.fromCharCode(92)+String.fromCharCode(39)))}')" style="margin-bottom:8px">🗺️ ניווט (Waze)</button>` : ''}
+    ${v.address ? `<button class="btn btn-ghost btn-sm" onclick="wazeNavigateVisit('${v.id}')" style="margin-bottom:8px">🗺️ ניווט (Waze)</button>` : ''}
     <button class="btn btn-ghost btn-sm" onclick="closeMo();continueVisit('${v.id}')" style="margin-bottom:8px">✏️ ערוך ביקור</button>
     ${(v.status === 'finished' || v.status === 'done' || v.finishedAt) && !(v.linkedProjectIds && v.linkedProjectIds.length) ? `
       <button class="btn btn-green btn-sm" onclick="closeMo();convertToProject('${v.id}')" style="margin-bottom:8px">🔨 הפוך לפרויקט</button>
@@ -30703,6 +30972,14 @@ function deleteVisit(visitId){
   });
 }
 
+
+function wazeNavigateVisit(visitId){
+  const v = getVisit(visitId);
+  if(!v || !v.address) return;
+  closeMo();
+  const url = `https://waze.com/ul?q=${encodeURIComponent(v.address)}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
 
 function openWaze(address){
   closeMo();
@@ -33400,6 +33677,10 @@ async function init(){
   // v3.22.33 (C1#8) — תיקון-עבר: thumbs "מזויפים" בגודל-מלא (thumbDataUrl=data מגרסאות ישנות)
   // מוקטנים ל-thumb אמיתי. אידמפוטנטי — thumb קטן מדולג.
   setTimeout(()=>{ if(typeof _shrinkOversizedThumbs === 'function') _shrinkOversizedThumbs().catch(()=>{}); }, 4000);
+  // T13 — one-time (idempotent, per-item) migration of lead/roof-profile/payment-refFile
+  // base64 → IDB blobs, so these 3 families stop bloating localStorage and start riding the
+  // same cloud-sync path as visit/project photos (mirrors SM-1).
+  setTimeout(()=>{ if(typeof _migrateLegacyMediaFamilies === 'function') _migrateLegacyMediaFamilies().catch(e=>console.warn('[_migrateLegacyMediaFamilies]', e)); }, 5500);
 
   // V2.3 migration: visits — new timing fields
   S.visits.forEach(v => {
