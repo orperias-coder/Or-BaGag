@@ -1,5 +1,14 @@
 /**
  * Or BaGag — Service Worker
+ * v3.25.2 — cache bump + RESTORE-03 fix: staleWhileRevalidateHTML() never actually refreshed the
+ *   cache. It handed the cached Response's body to the browser to consume, THEN tried to
+ *   `cached.clone()` it for the old/new diff — cloning after the body is already being read
+ *   throws, and that throw was swallowed by a silent catch, so cache.put()/the update postMessage
+ *   never ran. Every deploy since v3.23.6 that didn't also bump CACHE_NAME silently never reached
+ *   installed users. Fixed: clone BEFORE handing the response off, and write both './' and
+ *   './index.html' cache entries (a PWA opened from its home-screen icon requests the bare scope
+ *   root, not .../index.html — only bumping the latter left the former stuck on the old version
+ *   forever even after the clone-order fix).
  * v3.24.4 — cache bump (מהפך-הניווט N1-N5 הושלם: סרגל-ניווט קבוע, מסך-בית "גגות", גיליון-יצירה,
  *   מסך-חיפוש, רכזת-הגג בפרויקט, שערי-יצירה בכספים — ראה CHANGELOG.md v3.24.0-3.24.4).
  * v3.23.6 — PERF-01: HTML network-first → stale-while-revalidate (instant open from cache,
@@ -23,7 +32,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.24.6';
+const CACHE_NAME = 'or-bagag-cache-v3.25.4';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
@@ -95,22 +104,35 @@ async function staleWhileRevalidateHTML(event) {
     return networkFirst(req);            // first install / cache not populated yet
   }
 
+  // v3.25.2 (RESTORE-03) — clone the cached Response HERE, before it's handed off below to be
+  // consumed by the browser. `cached.clone()` throws ("body is already used") once the original
+  // Response's body has started being read — which is exactly what happens the instant `cached`
+  // is returned from this function and the browser renders it. Cloning too late meant this whole
+  // background-refresh block silently no-op'd (the throw was swallowed by the catch below) on
+  // every real navigation — cache.put() never ran, so a new deploy never actually landed for an
+  // installed user no matter how many times they refreshed.
+  const cachedForDiff = cached.clone();
+
   event.waitUntil((async () => {
     try {
       const net = await fetch(req);
       if (net && net.ok) {
-        const [oldText, newText] = await Promise.all([cached.clone().text(), net.clone().text()]);
+        const [oldText, newText] = await Promise.all([cachedForDiff.text(), net.clone().text()]);
         const verRe = /const APP_VERSION = '([^']*)'/;
         const oldV = (oldText.match(verRe) || [])[1];
         const newV = (newText.match(verRe) || [])[1];
         const changed = (oldV && newV) ? (oldV !== newV) : (oldText !== newText);
-        await cache.put('./index.html', net.clone());
+        // v3.25.2 (RESTORE-03) — write BOTH cache keys. A PWA opened from its home-screen icon
+        // navigates to the bare scope root ('./', per manifest.json start_url), not '.../index.html'
+        // — SHELL precaches them as two separate Cache Storage entries, so bumping only
+        // './index.html' left './' permanently stuck on whatever version was first installed.
+        await Promise.all(['./', './index.html'].map(k => cache.put(k, net.clone())));
         if (changed) {
           const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
           for (const client of clients) client.postMessage({ type: 'app-update-ready' });
         }
       }
-    } catch (e) { /* offline — nothing to revalidate with, keep serving the cached copy */ }
+    } catch (e) { console.warn('[SW] revalidate failed', e); }   // v3.25.2 — was a silent no-op catch that hid the clone-order bug above
   })());
 
   return cached;                          // instant response, no network wait

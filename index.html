@@ -625,6 +625,15 @@ input.err{border-color:var(--red)}
 .rf-add-tile iconify-icon{color:var(--gold2);font-size:28px}
 .rf-add-tile:active{background:var(--ink2)}
 
+/* v3.25.4 (R4/NEWUSER-01) — רמז חד-פעמי עדין לכל משטח חדש (רכזת-הגג+סרגל+[+], מגירה). מוצג
+   פעם אחת בלבד (S.settings.hints), נסגר בהקשה על ✕ ולא חוזר. שורה רגילה בזרימה — לא פופ-אפ. */
+.once-hint{display:flex;align-items:center;gap:10px;background:var(--gold-l);border:1px solid var(--gold);
+  border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--gold2);line-height:1.5}
+.once-hint-txt{flex:1}
+.once-hint-x{flex-shrink:0;background:none;border:none;color:var(--gold2);font-size:16px;line-height:1;
+  cursor:pointer;padding:4px;opacity:.7}
+.once-hint-x:active{opacity:1}
+
 /* v3.24.2 (N3) — badge on relevant #gdrawer-list items (drawer counters). Zero → hidden entirely
    (no bare "0"), per spec. Pushed to the far end of the row via margin-inline-start:auto. */
 .gdrawer-badge{display:none;margin-inline-start:auto;background:var(--gold-l);color:var(--gold2);
@@ -1948,8 +1957,6 @@ body.theme-finance  .view.on::before{
      Base is warm plaster now; the dusk mood is confined to .ds-sky-strip (~190px) below. */
   background:var(--plaster);
   transition:background .5s ease;
-  position:relative;
-  overflow:hidden;
 }
 .ds-sky-strip{
   position:absolute;top:0;left:0;right:0;height:190px;z-index:0;pointer-events:none;
@@ -2742,6 +2749,11 @@ html,body{
   transition:transform .1s;
 }
 .topbar .ico:active{transform:scale(.93)}
+/* v3.25.0 (R1/DEADENDS-05,NEWUSER-02) — "you're in the side menu" anchor for screens that don't
+   belong to one of the 4 root tabs (settings/catalog/people/analytics/...). Deliberately does NOT
+   reuse GNAV_TAB_OF/'roofs' semantics — see the note above GNAV_TAB_OF in the JS: mapping these
+   screens to "roofs" would be a false claim. Same gold treatment as .gnav-tab.on, on the ☰ button. */
+.gnav-menu-active{background:var(--gold-l)!important;border-color:var(--gold)!important;color:var(--gold2)!important}
 
 /* ── v3.21.67 — Sunrise: section topbars → cream + serif stage-accent headline (was
    vivid white-on-gradient). ID-scoped per-screen rules still win where present
@@ -3346,6 +3358,27 @@ body.theme-projects #view-project-detail.pdv2::before { display: none !important
   color: #fff; font-size: 22px; font-weight: 600; padding: 0;
 }
 #view-project-detail.pdv2 .pdv2-ic:active { transform: scale(.9); }
+/* v3.25.0 (R1/ORIENTATION-04) — fades in once the in-photo topbar has scrolled away (mobile only;
+   see _pdv2AttachScrollAway). Sits above both .pdv2-photo and .pdv2-content as a plain sibling —
+   the view itself doesn't scroll (overflow:hidden), so a bare position:absolute;top:0 here just
+   stays put while the photo/content translate underneath it. */
+#view-project-detail.pdv2 .pdv2-sticky-topbar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 15;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--pd-plaster);
+  border-bottom: 1px solid var(--pd-hairline-2);
+  opacity: 0; pointer-events: none; transform: translateY(-6px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+#view-project-detail.pdv2 .pdv2-sticky-topbar.pdv2-sticky-on { opacity: 1; pointer-events: auto; transform: translateY(0); }
+#view-project-detail.pdv2 .pdv2-sticky-topbar .pdv2-ic { background: var(--pd-stone); border-color: var(--pd-hairline-2); color: var(--pd-ink); backdrop-filter: none; width: 36px; height: 36px; font-size: 18px; }
+#view-project-detail.pdv2 .pdv2-sticky-name { flex: 1; min-width: 0; font-size: 15px; font-weight: 800; color: var(--pd-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#view-project-detail.pdv2 .pdv2-sticky-chip { flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--pd-amber); background: var(--pd-amber-l); border-radius: 12px; padding: 5px 10px; }
+@media (min-width: 1024px) {
+  /* Desktop: .pdv2-photo is position:sticky and never scrolls away (see the grid rules above),
+     so the original topbar is always visible there — this stand-in stays off. */
+  #view-project-detail.pdv2 .pdv2-sticky-topbar { display: none; }
+}
 #view-project-detail.pdv2 .pdv2-chip {
   background: rgba(255,255,255,.16);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -6401,6 +6434,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-tasks"/></svg> משימות ותזכורות</h1>
       <button class="ico" onclick="mt_openAdd()" title="משימה חדשה" aria-label="משימה חדשה" style="font-size:22px">+</button>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body">
       <!-- v3.21.93 (QW-7) — כפתור "הגדרות אוטומציה ותזכורות" הוסתר: מנוע-האוטומציה (tasksRunAutomation)
@@ -6418,6 +6452,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-visits"/></svg> ביקורים</h1>
       <button class="add-labeled" onclick="openVisitAddSheet()" title="ביקור חדש"><iconify-icon icon="mdi:plus" width="18"></iconify-icon><span class="al-text">ביקור חדש</span></button>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="visits-list-body"></div>
   </div>
@@ -6431,6 +6466,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <h1 class="small" id="vd-title">—</h1>
       <button class="ico" onclick="_fsOpen()" title="דיבור חופשי" aria-label="דיבור חופשי" style="background:var(--gold-l);color:var(--gold2);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center"><iconify-icon icon="mdi:microphone" width="18" height="18"></iconify-icon></button>
       <button class="ico" onclick="vdMenu()" title="עוד" aria-label="עוד אפשרויות">⋯</button>
+      <!-- v3.25.4 (R4/NEWUSER-02) — לא היה שום ☰ במסך הזה: אפס עוגן "איפה אני" ואפס דרך לתפריט. אותו כפתור בדיוק שכבר קיים בשאר הכותרות. -->
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="vd-body"></div>
   </div>
@@ -6443,6 +6480,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-leads"/></svg> לידים</h1>
       <button class="add-labeled" onclick="openLeadAddSheet()" title="ליד חדש"><iconify-icon icon="mdi:plus" width="18"></iconify-icon><span class="al-text">ליד חדש</span></button>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="leads-list-body"></div>
   </div>
@@ -6455,6 +6493,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="ldBack()">→</button>
       <h1 class="small" id="ld-title">—</h1>
       <button class="ico" onclick="ldMenu()" title="עוד" aria-label="עוד אפשרויות">⋯</button>
+      <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר: אותו כפתור-☰ שכבר קיים בשאר הכותרות. -->
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="ld-body"></div>
   </div>
@@ -6467,6 +6507,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 class="small">ייבוא לידים מ-WhatsApp</h1>
       <button class="ico" onclick="waImportHelp()" title="עזרה" aria-label="עזרה">?</button>
+      <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר: אותו כפתור-☰ שכבר קיים בשאר הכותרות. -->
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="wa-import-body"></div>
   </div>
@@ -6483,6 +6525,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="topbar">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 class="small">חסומים מ-WhatsApp</h1>
+      <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר: אותו כפתור-☰ שכבר קיים בשאר הכותרות. -->
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="wa-blocklist-body"></div>
   </div>
@@ -6529,7 +6573,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <div class="pdv2-grain"></div>
       <div class="pdv2-prog-tag" id="pdv2-prog-tag">—% הושלם</div>
       <div class="pdv2-topbar pdv2-a pdv2-a1">
-        <button class="pdv2-ic" onclick="goProjectsList()" aria-label="חזור">→</button>
+        <button class="pdv2-ic" onclick="goBack()" aria-label="חזור">→</button>
         <div class="pdv2-chip" onclick="pdChangeStatus()">
           <div class="pdv2-live" id="pdv2-chip-dot"></div><span id="pdv2-chip-text">—</span>
         </div>
@@ -6538,6 +6582,16 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <div class="pdv2-ph-count pdv2-a pdv2-a1" id="pdv2-ph-count" onclick="pdv2OpenSheet('gallery')" style="display:none">
         <div class="pdv2-cam"></div><span id="pdv2-ph-num">0</span>
       </div>
+    </div>
+    <!-- v3.25.0 (R1/ORIENTATION-04) — the real topbar lives inside the photo and scrolls away with
+         it (see the comment on .pdv2-topbar above) — once it's gone there's no name and no way out.
+         This sticky header fades in once the photo has scrolled past (see _pdv2AttachScrollAway),
+         mirroring the identity + back button that just left the screen. Desktop hides it: the photo
+         is position:sticky there and never scrolls away, so the original topbar stays visible. -->
+    <div class="pdv2-sticky-topbar" id="pdv2-sticky-topbar">
+      <button class="pdv2-ic" onclick="goBack()" aria-label="חזור">→</button>
+      <div class="pdv2-sticky-name" id="pdv2-sticky-name">—</div>
+      <div class="pdv2-sticky-chip" id="pdv2-sticky-chip-text">—</div>
     </div>
     <div class="pdv2-content">
       <div class="pdv2-identity pdv2-a pdv2-a3">
@@ -6727,6 +6781,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-cycle"/></svg> הוצאות קבועות</h1>
       <button class="ico" onclick="fxMenu()" title="עוד" aria-label="עוד אפשרויות">⋯</button>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="fx-body"></div>
   </div>
@@ -6738,6 +6793,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="topbar">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-shield"/></svg> תוספות סיכון</h1>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="mod-body"></div>
   </div>
@@ -6748,7 +6804,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   <div class="view" id="view-catalog">
     <div class="topbar">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
-      <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-archive"/></svg> ארכיון עבודות</h1>
+      <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-archive"/></svg> קטלוג עבודות</h1>
       <button class="ico" onclick="catalogMenu()" title="עוד" aria-label="עוד אפשרויות">⋯</button>
     </div>
     <div class="body" id="catalog-body"></div>
@@ -6808,6 +6864,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="topbar pearl-clients">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-clients"/></svg> לקוחות</h1>
+      <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר: אותו כפתור-☰ שכבר קיים בשאר הכותרות. -->
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="clients-list-body"></div>
   </div>
@@ -6820,6 +6878,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-clients"/></svg> לקוחות</h1>
       <button class="add-labeled" onclick="openLeadAddSheet()" title="ליד חדש"><iconify-icon icon="mdi:plus" width="18"></iconify-icon><span class="al-text">חדש</span></button>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="people-body"></div>
   </div>
@@ -6832,6 +6891,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 class="small" id="cd-title">—</h1>
       <button class="ico" onclick="cdMenu()" title="עוד" aria-label="עוד אפשרויות">⋯</button>
+      <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר: אותו כפתור-☰ שכבר קיים בשאר הכותרות. -->
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="cd-body"></div>
   </div>
@@ -6843,6 +6904,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="topbar">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 style="display:flex;align-items:center;gap:8px"><svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-settings"/></svg> הגדרות</h1>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body">
       <div class="entry-card" onclick="openCloudSync()">
@@ -6884,7 +6946,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <div class="entry-card" onclick="openCatalog()">
         <div class="ec-ico"><iconify-icon icon="mdi:package-variant" width="26"></iconify-icon></div>
         <div class="ec-body">
-          <div class="ec-title">ארכיון עבודות</div>
+          <div class="ec-title">קטלוג עבודות</div>
           <div class="ec-sub" id="catalog-sub">—</div>
         </div>
         <div class="ec-arrow">→</div>
@@ -7026,6 +7088,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="topbar">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
       <h1 class="small" style="display:flex;align-items:center;gap:8px"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-chart"/></svg> אנליטיקה</h1>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
     <div class="body" id="analytics-body" style="padding:14px 12px"></div>
   </div>
@@ -7041,6 +7104,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
           <div style="font-size:18px;font-weight:800;color:#F7EAD0;letter-spacing:0;display:flex;align-items:center;gap:8px;font-family:var(--serif,'Frank Ruhl Libre',Georgia,serif)"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-gallery"/></svg> תיק עבודות</div>
           <div style="font-size:11px;color:rgba(247,234,208,.6);font-weight:600" id="gallery-header-sub">—</div>
         </div>
+        <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר במסך הזה (כותרת-בהתאמה-אישית, בלי .topbar/.ico רגילים) — אותו כפתור-☰, בסגנון-הכותרת הכהה של המסך הזה. -->
+        <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);color:#fff;width:42px;height:42px;border-radius:11px;flex-shrink:0"><iconify-icon icon="mdi:menu"></iconify-icon></button>
       </div>
 
       <!-- Hero — תמונות מפרויקטים אחרונים -->
@@ -7087,7 +7152,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="topbar" style="position:relative;z-index:5;background:transparent;border:none">
       <button class="back" aria-label="חזרה" onclick="goBack()" id="ds-back-btn" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff">→</button>
       <h1 id="ds-screen-title" style="color:#fff">סיכום יום</h1>
-      <div style="width:38px"></div>
+      <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff"><iconify-icon icon="mdi:menu"></iconify-icon></button>
     </div>
 
     <!-- Mode toggle -->
@@ -7201,7 +7266,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button class="gdrawer-close" onclick="closeGlobalDrawer()" aria-label="סגור"><iconify-icon icon="mdi:close"></iconify-icon></button>
   </div>
   <div class="gdrawer-list">
-    <button onclick="closeGlobalDrawer();openPeople()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות ואנשים</span></button>
+    <button onclick="closeGlobalDrawer();openPeople()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות</span></button>
     <!-- v3.24.1 (N2) — "פרויקטים" (הרשימה עם סינון/מיון/חיפוש) איבדה את מקומה בניווט הראשי: לשונית
          "גגות" מובילה עכשיו ל-view-roofs (רשת כרטיסי-גג), לא ל-projects-list. חוק-הברזל "מסך שמאבד
          את מקומו בניווט הראשי — מקבל מקום במגירה" — הרשימה עצמה (עם הפילטרים) עדיין קיימת ונגישה כאן. -->
@@ -7215,7 +7280,9 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button onclick="closeGlobalDrawer();openFixedExpenses()"><iconify-icon icon="mdi:cash-minus"></iconify-icon><span>הוצאות קבועות</span></button>
     <button onclick="closeGlobalDrawer();openModifiers()"><iconify-icon icon="mdi:alert-octagon-outline"></iconify-icon><span>תוספות סיכון</span></button>
     <button onclick="closeGlobalDrawer();openDailySummary()"><iconify-icon icon="mdi:weather-sunset"></iconify-icon><span>סיכום יום</span></button>
-    <button onclick="closeGlobalDrawer();goDash()"><iconify-icon icon="mdi:view-dashboard-outline"></iconify-icon><span>בקרה (המסך הישן)</span></button>
+    <!-- v3.25.0 (R1/NEWUSER-03) — "בקרה (המסך הישן)" removed from here: it read as a second,
+         near-identical home with no way back in (ORIENTATION-01/NEWUSER-03). view-dash and goDash()
+         are untouched in code — only this menu entry (and the desktop rail's twin below) are gone. -->
     <button onclick="closeGlobalDrawer();openSettings()"><iconify-icon icon="mdi:cog-outline"></iconify-icon><span>הגדרות</span></button>
   </div>
 </nav>
@@ -7252,7 +7319,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   </div>
   <div class="grail-sep"></div>
   <div class="grail-drawer-items">
-    <button class="grail-item" onclick="openPeople()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-clients"/></svg><span class="grail-lbl">לקוחות ואנשים</span></button>
+    <button class="grail-item" onclick="openPeople()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-clients"/></svg><span class="grail-lbl">לקוחות</span></button>
     <button class="grail-item" onclick="openProjectsList()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-projects"/></svg><span class="grail-lbl">פרויקטים (רשימה)</span><span class="grail-badge" id="gr-b-projects"></span></button>
     <button class="grail-item" onclick="goLeadsList()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-leads"/></svg><span class="grail-lbl">לידים</span><span class="grail-badge" id="gr-b-leads"></span></button>
     <button class="grail-item" onclick="goVisitsList()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-visits"/></svg><span class="grail-lbl">ביקורים</span><span class="grail-badge" id="gr-b-visits"></span></button>
@@ -7263,7 +7330,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button class="grail-item" onclick="openFixedExpenses()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-cycle"/></svg><span class="grail-lbl">הוצאות קבועות</span></button>
     <button class="grail-item" onclick="openModifiers()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-shield"/></svg><span class="grail-lbl">תוספות סיכון</span></button>
     <button class="grail-item" onclick="openDailySummary()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-sparkle"/></svg><span class="grail-lbl">סיכום יום</span></button>
-    <button class="grail-item" onclick="goDash()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-dash"/></svg><span class="grail-lbl">בקרה (המסך הישן)</span></button>
+    <!-- v3.25.0 (R1/NEWUSER-03) — "בקרה (המסך הישן)" removed, same as the drawer above. -->
     <button class="grail-item" onclick="openSettings()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-settings"/></svg><span class="grail-lbl">הגדרות</span></button>
   </div>
 </nav>
@@ -7283,7 +7350,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.24.6'; // v3.24.6 — ליטוש-סיום N6: עטיפת שעת-הזהב (קו-אופק+שמש) לפרויקט בלי תמונה בדסקטופ, במקום גרדיאנט ריק. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.25.4'; // v3.25.4 — R4 "משתמש חדש". רמז חד-פעמי + מסך-עזרה מהפוטר, מצבי-ריק שמלמדים, מילון-שמות אחד. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -7365,7 +7432,7 @@ const S = {
     defaultRiskRate: 1000,        // v3.22.42 (#5) — תעריף-יום ברירת-מחדל לשורת "תוספת גישה/סיכון" (אופציונלי, לא מוסיף כלום עד שמלחיצים)
     visitFee: 350,        // V2.6 — fee to charge for the visit itself (₪)
   },
-  settings: { fontSize: 'normal' },
+  settings: { fontSize: 'normal', hints: {} }, // v3.25.4 (R4/NEWUSER-01) — hints: {key: seenAtTs} לרמזים חד-פעמיים; מסונכרן ומגובה כמו כל שאר ההגדרות
   // v3.9.30 — Google Drive backup settings
   gdrive: {
     enabled: false,         // האם המשתמש חיבר את חשבונו
@@ -8942,14 +9009,50 @@ function show(id){
   if(typeof _gnavSync==='function') _gnavSync(id);   // v3.24.0 (N1) — keep the global nav bar's hidden/active state in sync with every view activation
   _persistNav();   // v3.21.95 — remember where we are so a background-discard reload restores it
 }
+// v3.25.2 (RECORD-IDENTITY) — the bug: viewStack only ever held SCREEN ids, never WHICH
+// project/visit/lead/quote/client that frame belonged to — S.activeProjectId etc. are single
+// globals that get overwritten on every navigation. So if e.g. 'project-detail' sat on the
+// stack twice (two different projects), going back to the earlier frame re-rendered it with
+// whatever project happened to be active NOW, not the one that was open when that frame was
+// pushed — "I opened project A, went somewhere else, came back, and it's showing project B".
+// Fix: a parallel context stack (viewStackIds) that snapshots the 5 active-entity ids alongside
+// every viewStack frame; goBack()/_appBackOneLayer() restore that snapshot BEFORE re-rendering.
+// _navSyncIds() reconciles length against viewStack automatically, so the ~29 call sites that
+// still do `viewStack=[...]` directly (tab switches, list "back to X", etc.) don't each need to
+// be touched — the next push()/goBack() call re-aligns the two stacks (padding with a snapshot
+// of "whatever is active now", which is the correct fallback since those callers already set
+// S.activeXId immediately before or after the direct assignment).
+let viewStackIds = [null];
+function _navIdsNow(){
+  return { p:S.activeProjectId, v:S.activeVisitId, l:S.activeLeadId, q:S.activeQuoteId, c:S.activeClientId };
+}
+function _navIdsApply(x){
+  if(!x) return;
+  S.activeProjectId = x.p; S.activeVisitId = x.v; S.activeLeadId = x.l; S.activeQuoteId = x.q; S.activeClientId = x.c;
+}
+function _navSyncIds(){
+  while(viewStackIds.length < viewStack.length) viewStackIds.push(_navIdsNow());
+  while(viewStackIds.length > viewStack.length) viewStackIds.pop();
+}
 function push(id){
+  _navSyncIds();
+  // v3.25.2 (RECORD-IDENTITY / OURWAVES-04) — dedupe: if `id` (e.g. 'project-detail') is already
+  // somewhere on the stack, collapse back to just before that earlier occurrence instead of
+  // stacking a second frame for the same screen. Covers every push('project-detail')/
+  // push('visit-detail')/... call site at once (search results, client-sheet rows, the [+]→quote
+  // picker, etc.) without having to touch each one individually.
+  const i = viewStack.lastIndexOf(id);
+  if(i !== -1){ viewStack.length = i; viewStackIds.length = i; }
   viewStack.push(id);
+  viewStackIds.push(_navIdsNow());
   show(id);
   // v2.2.2 — push history state (no URL change — works on file:// too)
   try { history.pushState({ appNav: true, depth: viewStack.length }, ''); } catch(e){}
 }
 function goBack(){
-  if(viewStack.length > 1) viewStack.pop();
+  _navSyncIds();
+  if(viewStack.length > 1){ viewStack.pop(); viewStackIds.pop(); }
+  _navIdsApply(viewStackIds[viewStackIds.length - 1]);
   show(viewStack[viewStack.length - 1]);
 }
 
@@ -8983,12 +9086,39 @@ function _gnavSync(id){
     _grailRefreshCounts();
     _grailSyncBrand();
   }
+  // v3.25.0 (R1/DEADENDS-05,NEWUSER-02) — screens with no root tab (settings/catalog/people/...)
+  // still need SOME "you are here, here's how you leave" anchor (spec principle: every screen
+  // gets a lit indicator). ORIENTATION-02's verification found that mapping them onto one of the
+  // 4 tabs would be a false claim (e.g. "settings" lighting up "roofs") — the drawer/☰ button on
+  // the active screen gets the highlight instead, which stays accurate. #grail is desktop-only and
+  // always visible, so it's excluded — its own "בקרה"-style item was removed by NEWUSER-03 and it
+  // has no per-screen ☰ of its own to highlight.
+  const activeView = document.querySelector('.view.on');
+  if(activeView){
+    const menuBtn = activeView.querySelector('[onclick*="openGlobalDrawer"]');
+    if(menuBtn) menuBtn.classList.toggle('gnav-menu-active', !activeTab && !GNAV_HIDDEN_VIEWS.has(id));
+  }
 }
-// Tab taps push onto the existing stack (not reset) so context is preserved everywhere —
-// e.g. tapping "כסף" from project-detail pushes 'finance' on top; back returns to project-detail.
+// v3.25.0 (R1) — the 4 bottom-bar tabs are root tabs, not stack-pushing sub-screens: tapping one
+// always REPLACES the stack (viewStack=[id]), same as switching tabs in any other app. Home
+// ('roofs') becomes a true dead end instead of something you can "dig into" by tapping tabs
+// repeatedly. Safe because _gnavGo's only 8 callers (mobile #gnav + desktop #grail) all pass one
+// of the 4 root ids — there is no sub-screen caller that needs the old push-and-preserve behavior.
 function _gnavGo(id){
-  if(viewStack[viewStack.length - 1] === id) return; // already there — no-op, avoids a dup push
-  push(id);
+  if(viewStack[viewStack.length - 1] === id) return; // already there — no-op
+  // v3.25.2 (OURWAVES-03) — viewStack=[id] made every root tab a true dead end (stack length 1)
+  // with nothing to go back to: the in-screen back arrow on finance/calendar/search became a
+  // permanently-dead button, and the Android/gesture back button did nothing at all. Keep 'roofs'
+  // itself as the real dead end (spec intent — home shouldn't be "diggable" via tab taps), but the
+  // other 3 tabs get 'roofs' underneath them so back has somewhere real to land.
+  viewStack = (id === 'roofs') ? ['roofs'] : ['roofs', id];
+  // v3.25.2 (RESTORE-02) — a root tab is never itself tied to one project/visit/lead/quote/
+  // client; leaving project-detail's entity ids sitting in S after switching tabs is what let,
+  // e.g., "הוצאה חדשה" opened from the finance tab silently pre-select a project the user isn't
+  // even looking at anymore. Clear them here, the one place all 4 tab-taps funnel through.
+  S.activeProjectId = null; S.activeVisitId = null; S.activeLeadId = null; S.activeQuoteId = null; S.activeClientId = null;
+  viewStackIds = viewStack.map(()=>null);
+  show(id);
 }
 // v3.24.2 (N3) — the [+] create sheet: 6 explicit rows, each wired to an EXISTING flow (no new
 // flows invented). "הצעת מחיר" is the one action that had zero entry point anywhere in the app
@@ -9180,6 +9310,7 @@ function openGlobalDrawer(){
   _gdrawerReturnFocus = document.activeElement;
   dr.focus({preventScroll:true});
   _gdrawerRefreshCounts();   // v3.24.2 (N3) — recompute every open, counts change constantly
+  _gdrawerMaybeShowHint();   // v3.25.4 (R4/NEWUSER-01) — רמז חד-פעמי, פעם ראשונה בלבד
 }
 function closeGlobalDrawer(){
   const bg = document.getElementById('gdrawer-bg'), dr = document.getElementById('gdrawer');
@@ -9187,6 +9318,38 @@ function closeGlobalDrawer(){
   bg.classList.remove('on'); dr.classList.remove('on');
   if(_gdrawerReturnFocus && document.contains(_gdrawerReturnFocus) && typeof _gdrawerReturnFocus.focus==='function') _gdrawerReturnFocus.focus({preventScroll:true});
   _gdrawerReturnFocus = null;
+}
+
+/* ═══════════════════════════════════════════════════════
+   v3.25.4 (R4/NEWUSER-01) — רמזים חד-פעמיים למשטחים חדשים
+   כל רמז מוצג פעם אחת בלבד (S.settings.hints[key]), נסגר בהקשה, ולא חוזר — לא סיור-מסכים,
+   לא פופ-אפ, שורה עדינה בתוך הזרימה. נשמר ב-S.settings (מסונכרן ומגובה, לא localStorage גולמי).
+   ═══════════════════════════════════════════════════════ */
+function _hintSeen(key){
+  return !!(S.settings && S.settings.hints && S.settings.hints[key]);
+}
+// מחזיר HTML של שורת-רמז (או '' אם כבר נראתה) — מוטמע ישירות בתוך רינדור-מחרוזת של המסך.
+// extraStyle: מתאים את המרווח החיצוני למיכל שבו הוא מושתל (לרוב כבר מרופד; roofs-body אינו).
+function _onceHintHtml(key, text, extraStyle){
+  if(_hintSeen(key)) return '';
+  return `<div class="once-hint" id="hint-${esc(key)}"${extraStyle ? ` style="${extraStyle}"` : ''}><span class="once-hint-txt">${text}</span><button type="button" class="once-hint-x" aria-label="סגור רמז" onclick="_dismissOnceHint('${esc(key)}')">✕</button></div>`;
+}
+function _dismissOnceHint(key){
+  if(!S.settings) S.settings = {};
+  if(!S.settings.hints) S.settings.hints = {};
+  S.settings.hints[key] = Date.now();
+  saveAll(true);
+  const el = document.getElementById('hint-'+key);
+  if(el) el.remove();
+}
+// המגירה בנויה כמארקאפ סטטי (לא מרונדרת-מחרוזת בכל פתיחה) — מוסיפים/מסירים את שורת-הרמז בנפרד.
+function _gdrawerMaybeShowHint(){
+  const list = document.querySelector('#gdrawer .gdrawer-list');
+  if(!list) return;
+  const existing = list.querySelector('.once-hint');
+  if(_hintSeen('drawer')){ if(existing) existing.remove(); return; }
+  if(existing) return;
+  list.insertAdjacentHTML('afterbegin', _onceHintHtml('drawer', 'כאן כל מה שלא נכנס לסרגל למטה — לקוחות, פרויקטים, לידים, ביקורים ועוד.'));
 }
 
 // ── v3.21.95 — navigation persistence (fixes: minimize/background → reload lands on dash,
@@ -9198,7 +9361,14 @@ function _persistNav(){
   if(_navRestoring) return;
   try{
     const v = viewStack[viewStack.length - 1] || 'dash';
-    localStorage.setItem('obv_nav', JSON.stringify({
+    // v3.25.2 (RESTORE-01) — was localStorage, which is shared by every open tab/window on the
+    // same origin (exactly the case for a PWA installed + also opened in a regular browser tab
+    // on the same device). Every navigation in ANY window overwrote this one shared key, so a
+    // window left in the background would restore whatever project/screen a DIFFERENT window
+    // had navigated to since — not its own. sessionStorage is per-tab by definition and still
+    // survives a reload/background-discard within the same tab, which is the actual behavior
+    // this feature (v3.21.95) was meant to provide.
+    sessionStorage.setItem('obv_nav', JSON.stringify({
       stack: viewStack.slice(-8),
       view: v,
       ids: { p:S.activeProjectId, v:S.activeVisitId, l:S.activeLeadId, q:S.activeQuoteId, c:S.activeClientId },
@@ -9226,7 +9396,7 @@ function _applyBootViewParam(){
   // (e.g. re-creating a new visit every reload) — the app has no URL-based routing otherwise.
   try{ history.replaceState(history.state, '', location.pathname + location.hash); }catch(e){}
   if(p === 'finance'){
-    viewStack = ['dash','finance'];
+    viewStack = ['roofs','finance'];
     show('finance');
     return true;
   }
@@ -9236,8 +9406,8 @@ function _applyBootViewParam(){
   }
   if(p === 'stuck'){
     // "מה תקוע אצלי" is a card on the dashboard itself (cockpit), not a separate screen
-    viewStack = ['dash'];
-    show('dash');
+    viewStack = ['roofs'];
+    show('roofs');
     return true;
   }
   return false;
@@ -9254,15 +9424,28 @@ function _applyBootViewParam(){
 function _bootInitialView(){
   if(_applyBootViewParam()) return;
   let nav = null;
-  try{ const raw = localStorage.getItem('obv_nav'); if(raw) nav = JSON.parse(raw); }catch(e){}
+  // v3.25.2 (RESTORE-01) — read side of the localStorage→sessionStorage move (see _persistNav).
+  try{ const raw = sessionStorage.getItem('obv_nav'); if(raw) nav = JSON.parse(raw); }catch(e){}
   const FRESH = 30 * 60 * 1000;  // only auto-restore within 30 minutes (a true fresh open → roofs)
   if(nav && nav.view && nav.view !== 'dash' && nav.view !== 'roofs' && (Date.now() - (nav.at||0)) < FRESH){
     const ids = nav.ids || {};
-    if(ids.p) S.activeProjectId = ids.p;
-    if(ids.v) S.activeVisitId   = ids.v;
-    if(ids.l) S.activeLeadId    = ids.l;
-    if(ids.q) S.activeQuoteId   = ids.q;
-    if(ids.c) S.activeClientId  = ids.c;
+    // v3.25.2 (RESTORE-02) — stage ONLY the id relevant to the screen being restored (needed
+    // tentatively so _navTargetValid() below can confirm it still exists), not all 5 blindly.
+    // The old code set all 5 unconditionally: restoring to a non-detail screen (finance/
+    // calendar/...) left whatever project/visit/lead/quote/client id happened to be in nav.ids
+    // stuck to S even though that screen isn't about any of them (e.g. "הוצאה חדשה" opened from
+    // the finance tab silently pre-selecting a stale project) — and if validation below FAILED
+    // (e.g. the project was deleted since), that id was already stuck in S with nothing to clean
+    // it up, so later code trusting S.activeProjectId believed a deleted project was still open.
+    const RELEVANT_ID_FIELD = { 'project-detail':'p', 'visit-detail':'v', 'lead-detail':'l', 'quote-edit':'q', 'client-detail':'c' };
+    const relField = RELEVANT_ID_FIELD[nav.view];
+    if(relField && ids[relField]){
+      if(relField==='p') S.activeProjectId = ids.p;
+      else if(relField==='v') S.activeVisitId = ids.v;
+      else if(relField==='l') S.activeLeadId = ids.l;
+      else if(relField==='q') S.activeQuoteId = ids.q;
+      else if(relField==='c') S.activeClientId = ids.c;
+    }
     if(nav.pdTab && typeof _pdTab !== 'undefined'){ try{ _pdTab = nav.pdTab; window._pdTab = nav.pdTab; }catch(e){} }
     if(_navTargetValid(nav.view)){
       _navRestoring = true;
@@ -9275,6 +9458,10 @@ function _bootInitialView(){
       }catch(e){ _navRestoring = false; console.warn('[nav restore] failed', e); }
     }
   }
+  // v3.25.2 (RESTORE-02) — explicit cleanup: whether we fell through because there was no valid
+  // nav to restore, or because validation above failed (ghost id — e.g. a deleted project), never
+  // leave a stale id sitting in S. A failed/absent restore must be equivalent to a true cold boot.
+  S.activeProjectId = null; S.activeVisitId = null; S.activeLeadId = null; S.activeQuoteId = null; S.activeClientId = null;
   renderDash();          // keep populating the (now hidden) legacy dash elements some code paths still read
   viewStack = ['roofs'];
   show('roofs');
@@ -9286,6 +9473,20 @@ function _bootInitialView(){
 // the overlay on top — user kept pressing back until the entire history ran out and the PWA
 // exited. Now every back press cleanly closes one layer at a time.
 function _appBackOneLayer(){
+  // 0a. Global hamburger drawer — v3.25.0 (R1/DEADENDS-01): was missing entirely, so a back
+  // press while the drawer was open fell through to the view-stack layer below and silently
+  // changed the screen behind it (the user never saw it happen, since the drawer covers 84vw).
+  const gdrawer = document.getElementById('gdrawer');
+  if(gdrawer && gdrawer.classList.contains('on')){
+    if(typeof closeGlobalDrawer === 'function') closeGlobalDrawer();
+    return true;
+  }
+  // 0b. Photo lightbox (#lb) — same gap as the drawer, same fix.
+  const lb = document.getElementById('lb');
+  if(lb && lb.classList.contains('on')){
+    if(typeof closeLb === 'function') closeLb();
+    return true;
+  }
   // 1. Photo viewer
   const pv = document.getElementById('pv');
   if(pv && pv.classList.contains('on')){
@@ -9327,8 +9528,14 @@ function _appBackOneLayer(){
   if(_topV === 'wizard'  && typeof wzExit === 'function'){ wzExit(); return true; }
   if(_topV === 'lead-detail' && typeof ldBack === 'function'){ ldBack(); return true; }
   // 6. View stack — only pop if there's somewhere to go
+  // v3.25.2 (RECORD-IDENTITY) — this is the hardware/gesture-back handler, a SEPARATE code path
+  // from goBack() (the in-app back-arrow onclick). It had its own bare pop+show with no entity
+  // restore, so the identity fix above didn't cover the Android back button at all. Same 3 lines.
   if(viewStack.length > 1){
+    _navSyncIds();
     viewStack.pop();
+    viewStackIds.pop();
+    _navIdsApply(viewStackIds[viewStackIds.length - 1]);
     show(viewStack[viewStack.length - 1]);
     return true;
   }
@@ -9355,7 +9562,7 @@ function toggleSunMode(){
   try{ localStorage.setItem('sunMode', on?'1':'0'); }catch(e){}
   if(typeof toast==='function') toast(on?'מצב שמש פעיל — ניגודיות גבוהה':'מצב שמש כבוי');
 }
-function goVisitsList(){ if(typeof _checkSyncBackToProject==='function') _checkSyncBackToProject(); viewStack = ['dash','visits-list']; show('visits-list'); renderVisitsList(); }
+function goVisitsList(){ if(typeof _checkSyncBackToProject==='function') _checkSyncBackToProject(); viewStack = ['roofs','visits-list']; show('visits-list'); renderVisitsList(); }
 
 /* ═══════════════════════════════════════════════════════
    TOAST / MODAL / CONFIRM
@@ -10211,7 +10418,7 @@ _calMonth.setDate(1);
 _calMonth.setHours(0,0,0,0);
 
 function openCalendar(){
-  viewStack = ['dash','calendar'];
+  viewStack = ['roofs','calendar'];
   show('calendar');
   renderCalendar();
 }
@@ -10351,7 +10558,7 @@ function renderCalendar(){
     (S.projects||[]).forEach((p, idx) => {
       if(!projsThisMonth.has(p.id)) return;
       const color = palette[idx % palette.length];
-      html += `<div onclick="S.activeProjectId='${esc(p.id)}';viewStack=['dash','calendar','project-detail'];show('project-detail');renderProjectDetail()" style="background:var(--ink2);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--sh)">
+      html += `<div onclick="S.activeProjectId='${esc(p.id)}';viewStack=['roofs','calendar','project-detail'];show('project-detail');renderProjectDetail()" style="background:var(--ink2);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--sh)">
         <div style="width:12px;height:12px;border-radius:50%;background:${color};flex-shrink:0"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:700;color:var(--text)">${esc(p.clientName||'—')}</div>
@@ -10405,12 +10612,32 @@ function _toggleDevTools(){
   if(git) git.style.display = reveal ? '' : 'none';
   toast(reveal ? 'כלי פיתוח גלויים' : 'כלי פיתוח הוסתרו');
 }
+// v3.25.4 (R4/NEWUSER-01) — במקום פריט-מגירה חדש (המגירה כבר עמוסה): שורת-הגרסה הקיימת
+// בפוטר-ההגדרות הופכת לכפתור-לחיץ שפותח מסך-עזרה קצר ("איך זה עובד"). הקשה קצרה = עזרה;
+// הקשה-ארוכה (800ms, כמו קודם) = כלי-פיתוח — ה-flag longPressed מונע מהקליק שאחרי-שחרור
+// לפתוח גם את העזרה מיד אחרי שכלי-הפיתוח נחשפו.
+function openOnboardingHelp(){
+  openMo(`
+    <div class="mo-title">איך זה עובד</div>
+    <div style="font-size:13px;line-height:1.7;color:var(--text2)">
+      <p style="margin-bottom:10px"><strong>הסרגל התחתון</strong> — 4 מקומות קבועים שתמיד שם: גגות (הבית), יומן, כסף וחיפוש.</p>
+      <p style="margin-bottom:10px"><strong>[+] באמצע הסרגל</strong> — ליצור משהו חדש: ביקור, ליד, הצעת מחיר, תשלום או פרויקט.</p>
+      <p style="margin-bottom:10px"><strong>☰ למעלה</strong> — התפריט, עם כל השאר: לקוחות, פרויקטים, לידים, ביקורים, קטלוג, הגדרות ועוד.</p>
+      <p style="margin-bottom:10px"><strong>היסטוריה</strong> — דברים שנגמרו (פרויקט/ביקור/ליד) לא נמחקים, רק עוברים ללשונית "היסטוריה" באותה רשימה, כדי שהמסך הפעיל יישאר נקי מדברים שכבר טופלו.</p>
+      <p><strong>איך מוצאים לקוח</strong> — הקש "חיפוש" בסרגל התחתון, או פתח "לקוחות" מתוך ☰.</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-gold" style="flex:1" onclick="closeMo()">הבנתי</button>
+    </div>
+  `);
+}
 function _wireDevTools(){
   const f = document.getElementById('app-version-footer');
   if(!f || f._devWired) return;
   f._devWired = true;
-  f.style.cursor = 'default'; f.style.userSelect = 'none'; f.style.webkitUserSelect = 'none';
-  const start = ()=>{ _devToolsTimer = setTimeout(_toggleDevTools, 800); };
+  f.style.cursor = 'pointer'; f.style.userSelect = 'none'; f.style.webkitUserSelect = 'none';
+  let longPressed = false;
+  const start = ()=>{ _devToolsTimer = setTimeout(()=>{ _toggleDevTools(); longPressed = true; }, 800); };
   const cancel = ()=>{ if(_devToolsTimer){ clearTimeout(_devToolsTimer); _devToolsTimer = null; } };
   f.addEventListener('touchstart', start, {passive:true});
   f.addEventListener('touchend', cancel);
@@ -10418,6 +10645,10 @@ function _wireDevTools(){
   f.addEventListener('mousedown', start);
   f.addEventListener('mouseup', cancel);
   f.addEventListener('mouseleave', cancel);
+  f.addEventListener('click', ()=>{
+    if(longPressed){ longPressed = false; return; } // הקשה-ארוכה כבר טיפלה בעצמה — לא לפתוח גם עזרה
+    openOnboardingHelp();
+  });
 }
 /* ═══════════════════════════════════════════════════════
    v3.22.30 (ביקורת 2.5) — נעילת-PIN. כבויה כברירת-מחדל.
@@ -13038,7 +13269,7 @@ let _taskCategoryFilter = 'all'; // 'all' | category_key
 
 function goTasksList(){
   if(typeof _checkSyncBackToProject === 'function') _checkSyncBackToProject();
-  viewStack = ['dash', 'tasks-list'];
+  viewStack = ['roofs', 'tasks-list'];
   show('tasks-list');
   renderTasksList();
 }
@@ -13895,6 +14126,22 @@ function _computeStuckRows(){
     : { led:'teal', icon:'mdi:file-document-alert-outline', title:'הצעות שלא נענו',
       sub:'הכי ותיקה — '+_humanTimeAgo(now-_awaitOldest), cnt:_ckAwaitCount, act:'פולו-אפ', onclick:'goLeadsFollowUp()' });
   }
+  // v3.25.3 (R3/FLOW-05) — the block above only sees a sent quote if _markQuoteSent found a
+  // matching lead by phone (_findLeadForQuote). A quote sent straight from a finished visit
+  // with no matching lead never entered S.leads at all, so it never showed up anywhere on the
+  // home screen — reproduced live: 45 days after sending, home stayed empty and this function
+  // returned []. Cover S.quotes directly, skipping anything a matching lead already covers above.
+  const _ckQuoteOnly = (S.quotes||[]).filter(q => {
+    if(q.status !== 'sent' || !q.sentAt) return false;
+    const lead = (typeof _findLeadForQuote === 'function') ? _findLeadForQuote(q) : null;
+    return !lead;
+  }).sort((a,b)=>(a.sentAt||0)-(b.sentAt||0));
+  if(_ckQuoteOnly.length > 0){
+    const _qOldest = _ckQuoteOnly[0];
+    _stuckRows.push({ led:'teal', icon:'mdi:file-document-alert-outline', title:'הצעות שלא נענו',
+      sub:esc(_qOldest.clientName||'לקוח')+' · '+_humanTimeAgo(now-(_qOldest.sentAt||now)),
+      cnt:_ckQuoteOnly.length, act:'פולו-אפ', onclick:`openQuote('${esc(_qOldest.id)}')` });
+  }
   if(_ckToCollect > 0){
     _stuckRows.push({ led:'danger', icon:'mdi:cash-clock', title:'כסף לגבייה',
       sub:fmt(Math.round(_ckToCollect))+'₪ פתוח · '+_ckDueClients+' '+(_ckDueClients===1?'לקוח':'לקוחות'),
@@ -14084,7 +14331,12 @@ function _dashHtml(){
    golden-hour fallback from v3.23.7, photo-count badge, progress %, stage chip, totalDue(p)).
    ═══════════════════════════════════════════════════════ */
 function _roofsActiveProjects(){
-  return (S.projects||[]).filter(p => (p.status||'active') === 'active')
+  // v3.25.3 (R3/FLOW-02) — a freshly-approved project is created with status 'planned' (see
+  // _buildNewProject), not 'active'. This filter only let 'active' through, so a brand-new
+  // project vanished from the home screen the moment it was created ("אין גגות פעילים" right
+  // after "הצעה התקבלה — פתח פרויקט"). _roofStageInfo already renders 'planned' correctly
+  // ("ממתין לתיאום") on the card — it just never got the chance to run.
+  return (S.projects||[]).filter(p => ['active','planned'].includes(p.status||'active'))
     .sort((a,b) => (b.updatedAt||b.createdAt||0) - (a.updatedAt||a.createdAt||0));
 }
 function _roofsActiveProject(){
@@ -14229,7 +14481,7 @@ function _roofsEmptyHtml(){
       <div class="ei"><iconify-icon icon="mdi:home-roof" width="48" style="color:var(--text3)"></iconify-icon></div>
       <h3>אין גגות פעילים</h3>
       <p style="font-size:14px;margin-top:6px">ברגע שיהיה לך פרויקט פעיל, הוא יופיע כאן כרשת כרטיסים.</p>
-      <button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="openManualProjectCreate()">+ פרויקט חדש</button>
+      <button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="openManualProjectCreate()">+ גג חדש</button>
     </div>`;
 }
 function _roofsHtml(){
@@ -14250,7 +14502,7 @@ function _roofsHtml(){
   // active roofs the grid otherwise ends abruptly (empty columns on wide/desktop screens, no
   // next action offered at all — the empty-state CTA only exists when there are ZERO roofs).
   // Reuses openManualProjectCreate() — the exact same function _roofsEmptyHtml()'s own CTA calls.
-  const addTile = `<button type="button" class="rf-add-tile" onclick="openManualProjectCreate()"><iconify-icon icon="mdi:plus-circle-outline"></iconify-icon><span>פרויקט חדש</span></button>`;
+  const addTile = `<button type="button" class="rf-add-tile" onclick="openManualProjectCreate()"><iconify-icon icon="mdi:plus-circle-outline"></iconify-icon><span>גג חדש</span></button>`;
   const grid = projects.length
     ? `<div class="rf-grid">${projects.map(_roofCardHtml).join('')}${addTile}</div>`
     : _roofsEmptyHtml();
@@ -14262,7 +14514,10 @@ function _roofsHtml(){
   // are conditional, 0-height when absent) aligned with the grid under CSS Grid's normal
   // (sparse) auto-placement. No visual change below 1024px — both wrappers are plain blocks
   // there, same stacking order as before (header, then aside content, then main content).
-  return `<div class="rf-page">${header}<div class="rf-aside">${statusRow}${triage}${focus}${t17}${primary}</div><div class="rf-main">${gridTitle}${grid}</div></div>`;
+  // v3.25.4 (R4/NEWUSER-01) — רמז חד-פעמי מעל רשת-הגגות: מסביר בשורה אחת את שלושת המשטחים
+  // שרואים כאן ביחד בפעם הראשונה (☰/[+]/הלשוניות). לא חוזר אחרי סגירה (S.settings.hints.home).
+  const homeHint = _onceHintHtml('home', '☰ למעלה = כל השאר · [+] למטה = ליצור משהו חדש · 4 הלשוניות למטה = המקומות הקבועים שלך', 'margin:14px 14px 0');
+  return `${homeHint}<div class="rf-page">${header}<div class="rf-aside">${statusRow}${triage}${focus}${t17}${primary}</div><div class="rf-main">${gridTitle}${grid}</div></div>`;
 }
 function renderRoofs(){
   const el = document.getElementById('roofs-body');
@@ -16375,6 +16630,11 @@ function wz4Finish(){
   // v3.19.2 — auto-link to client (match by phone, then fuzzy name+address, else create)
   if(typeof _autoLinkClient === 'function') _autoLinkClient(v, 'visit');
   if(typeof _saveAllNow === 'function') _saveAllNow(true); else saveAll();  // v3.21.95 (#11) — flush a finished visit immediately (don't risk a 250ms-debounce loss on background)
+  // v3.25.0 (R1/FLOW-03) — drop the finished 'wizard' frame before pushing the summary on top of
+  // it, so a single back press from visit-summary lands on the visit/lead behind it instead of
+  // replaying the now-finished wizard. Mirrors wz4BackToVisitDetail's existing pop, just applied
+  // at write-time instead of only when the on-screen back arrow is used.
+  if(viewStack[viewStack.length-1] === 'wizard') viewStack.pop();
   push('visit-summary');
   renderVisitSummary();
 }
@@ -16850,7 +17110,7 @@ function wz4DoCreateProject(){
   saveAll();
 
   // נווט לפרויקט
-  viewStack = ['dash','projects-list','project-detail'];
+  viewStack = ['roofs','projects-list','project-detail'];
   show('project-detail');
   renderProjectDetail();
   toast('🔨 פרויקט נפתח עם '+tasks.length+' סעיפים');
@@ -17361,7 +17621,7 @@ function openClientDetail(clientId){
 }
 
 function goClientsList(){
-  viewStack = ['dash', 'clients-list'];
+  viewStack = ['roofs', 'clients-list'];
   show('clients-list');
   if(typeof renderClientsList === 'function') renderClientsList();
 }
@@ -17421,7 +17681,7 @@ function _peopleHistory(){
 
 function openPeople(tab){
   _peopleTab = tab || _peopleTab || 'active';
-  viewStack = ['dash', 'people'];
+  viewStack = ['roofs', 'people'];
   show('people');
   renderPeople();
 }
@@ -17464,7 +17724,7 @@ function _peopleResultsHtml(){
   if(_peopleTab === 'leads'){
     const rows = leads.filter(matchLead).sort((a,b)=>(b.lastTouchedAt||b.updatedAt||b.createdAt||0)-(a.lastTouchedAt||a.updatedAt||a.createdAt||0));
     listHtml = rows.length ? rows.map(l => leadRowHtml(l)).join('')
-      : `<div class="empty"><div class="ei"><iconify-icon icon="mdi:account-multiple-outline" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין לידים פתוחים</h3><p style="font-size:14px;margin-top:6px">פנייה חדשה? לחץ "חדש" למעלה.</p></div>`;
+      : `<div class="empty"><div class="ei"><iconify-icon icon="mdi:account-multiple-outline" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין לידים פתוחים</h3><p style="font-size:14px;margin-top:6px">פנייה חדשה שעוד לא נסגרה תופיע כאן.</p><button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="openLeadAddSheet()">+ ליד חדש</button></div>`;
   } else if(_peopleTab === 'active'){
     const rows = active.filter(matchClient).sort((a,b)=>(getClientTotalDue(b.id)||0)-(getClientTotalDue(a.id)||0));
     listHtml = rows.length ? rows.map(c => clientRowHtml(c)).join('')
@@ -17493,7 +17753,7 @@ function renderPeople(){
   const tabBar = `<div class="lead-tabs pp-tabs">${tabs.map(t =>
     `<div class="lead-tab ${t.key === _peopleTab ? 'on' : ''}" onclick="setPeopleTab('${t.key}')">${esc(t.label)}${t.n ? ` (${t.n})` : ''}</div>`).join('')}</div>`;
 
-  const mast = `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> ניהול קשרים</div><div class="lk-h1">${activeCount} <em>${activeCount===1?'לקוח פעיל':'לקוחות פעילים'}</em>${leadCount?` · ${leadCount} לידים`:''}</div></div>`;
+  const mast = `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> לקוחות</div><div class="lk-h1">${activeCount} <em>${activeCount===1?'לקוח פעיל':'לקוחות פעילים'}</em>${leadCount?` · ${leadCount} לידים`:''}</div></div>`;
   const toolbar = `<div class="list-toolbar"><div class="lt-search"><span class="lt-search-ico"><iconify-icon icon="mdi:magnify" width="18"></iconify-icon></span><input id="people-search" type="search" enterkeyhint="search" placeholder="חיפוש שם, טלפון, כתובת..." value="${esc(_peopleSearch)}" oninput="setPeopleSearch(this.value)" autocomplete="off"><button class="lt-search-clear" id="people-search-clear" style="${res.q?'':'display:none'}" onclick="setPeopleSearch('')" title="נקה"><iconify-icon icon="mdi:close" width="14"></iconify-icon></button></div></div>`;
 
   body.innerHTML = mast + tabBar + toolbar + `<div id="people-results">${res.html}</div>`;
@@ -18842,6 +19102,18 @@ function renderFinance(){
   // v3.21.64 — payments still awaiting an issued invoice (drives the cockpit tile + the section below)
   const pendingInvoices = (typeof _paymentsAwaitingInvoice === 'function') ? _paymentsAwaitingInvoice() : [];
   const pendingInvTotal = pendingInvoices.reduce((s, x) => s + (parseFloat(x.pay.amount)||0), 0);
+  // v3.25.1 (R2/NOISE-03) — מעל 60 יום מתקפל לשורה-אחת (.fin-inv-more הקיים, לא UI חדש). מיון
+  // "חדש→ישן" כאן הוא לצורך-תצוגה בלבד — _paymentsAwaitingInvoice()/_markAllInvoiced() ממשיכות
+  // לעבוד על הסדר המקורי (ישן→חדש) שלהן, שלא משנה לסימון-גורף.
+  const _payAge = x => x.pay.occurredAt || x.pay.date || x.pay.createdAt || 0;
+  const _invCutoff = Date.now() - 60*86400000;
+  const _invRecent = pendingInvoices.filter(x => _payAge(x) >= _invCutoff).sort((a,b)=>_payAge(b)-_payAge(a));
+  const _invOld     = pendingInvoices.filter(x => _payAge(x) < _invCutoff);
+  const _invShown    = _invRecent.slice(0, 12);
+  const _invFolded   = _invRecent.slice(12).concat(_invOld);   // >12 overflow + all >60d fold into the one existing .fin-inv-more row
+  // v3.25.1 (R2/NOISE-04) — "סגור חוב": חובות שסומנו כ"לא ייגבה" (מתפוגגים מ-totalDue/לגבייה,
+  // אבל נשארים נגישים כאן להצגה/ביטול — שום נתון לא נמחק).
+  const writtenOffProjects = (S.projects || []).filter(p => p && p.writtenOff);
 
   // Per-project breakdown — for active/done projects
   const activeProjects = S.projects.filter(p => p.status === 'active' || p.status === 'done');
@@ -18856,6 +19128,12 @@ function renderFinance(){
   // locally-recomputed figure, no P&L mixed in (that stays in the existing "לפי פרויקט" card).
   const dueProjects = (S.projects || []).filter(p => !_isDemoProject(p) && (p.status === 'active' || p.status === 'done')
     && (typeof totalDue === 'function') && totalDue(p) > 0);
+
+  // v3.25.4 (R4/NEWUSER — מצבי-ריק שמלמדים) — אחרי R2 (NOISE-07) כל אחד מששת הכרטיסים
+  // מתחת לסנפשוט נעלם בנפרד כשהוא ריק, כך שבחשבון-ריק/תקופה-שקטה כל מה שנשאר הוא הסנפשוט
+  // (כולו אפסים) בלי שום הסבר מה לעשות. כשכולם ריקים ביחד — מציגים הודעה אחת + כפתור אחד.
+  const financeIsQuiet = !pendingInvoices.length && !openQuotes.length && !dueProjects.length
+    && !activeProjects.length && !periodExpenses.length && !paymentItems.length && !writtenOffProjects.length;
 
   // V2.9 — Calculate fixed expenses for the period
   const burn = _calcMonthlyBurn();
@@ -18928,6 +19206,17 @@ function renderFinance(){
       <button class="fin-snap-breakdown" onclick="openFinanceBreakdown()">פירוט מלא ▾</button>
     </div>
 
+    <!-- v3.25.4 (R4/NEWUSER — מצבי-ריק שמלמדים) — כל ששת הכרטיסים למטה ריקים ביחד: הודעה
+         אחת שמסבירה מה יגרום לכסף להתחיל להופיע, במקום עמוד ריק אחרי הסנפשוט. -->
+    ${financeIsQuiet ? `
+    <div class="empty">
+      <div class="ei"><iconify-icon icon="mdi:cash-multiple" width="48" style="color:var(--text3)"></iconify-icon></div>
+      <h3>עדיין אין תנועות כספיות ${financePeriod === 'all' ? '' : 'בתקופה הזו'}</h3>
+      <p style="font-size:14px;margin-top:6px">הצעות, חובות, הוצאות ותשלומים יופיעו כאן ברגע שיהיה ביקור או פרויקט ראשון.</p>
+      <button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="openVisitAddSheet()">+ ביקור חדש</button>
+    </div>
+    ` : ''}
+
     <!-- v3.21.64 — invoices to issue (deep-link target for the cockpit tile) -->
     ${pendingInvoices.length ? `
       <div class="fin-inv card">
@@ -18938,7 +19227,7 @@ function renderFinance(){
           </div>
           <span class="fin-inv-count">${pendingInvoices.length} · ${fmt(pendingInvTotal)} ₪</span>
         </div>
-        ${pendingInvoices.slice(0, 12).map(({project, pay}) => {
+        ${_invShown.map(({project, pay}) => {
           const who = project.clientName || project.title || 'פרויקט';
           const when = fmtD(pay.occurredAt || pay.date || pay.createdAt || 0);
           const method = pay.name || '';
@@ -18951,19 +19240,22 @@ function renderFinance(){
               <button class="fin-inv-btn" onclick="_markPaymentInvoiced('${project.id}','${pay.id}')">סמן כהופקה</button>
             </div>`;
         }).join('')}
-        ${pendingInvoices.length > 12 ? `<div class="fin-inv-more">+${pendingInvoices.length - 12} נוספים</div>` : ''}
+        <!-- v3.25.1 (R2/NOISE-03) — חשבוניות מעל 60 יום (+ עודף מעל ה-12 המוצגות) מתקפלות
+             לשורה-אחת מכווצת; לחיצה פותחת גיליון עם אותה שורת-כרטיס בדיוק + כפתור-הסימון. -->
+        ${_invFolded.length ? `<div class="fin-inv-more" style="cursor:pointer" onclick="_openOldInvoicesSheet()">+${_invFolded.length} ${_invOld.length ? 'ישנות (מעל 60 יום)' : 'נוספות'} ›</div>` : ''}
         <button class="fin-inv-all" onclick="_markAllInvoiced()">סמן הכל כהופקו</button>
       </div>
     ` : ''}
 
     <!-- v3.24.4 (N5) — "הצעות" gate: open quotes, days-chip reused verbatim (_daysChipHtml,
          v3.23.10/T18), amount reused verbatim (_quoteGrandTotal). "הצעת מחיר חדשה" reaches the
-         exact N3 context-picker flow (_gnavQuotePicker) — not a new quote-creation path. -->
+         exact N3 context-picker flow (_gnavQuotePicker) — not a new quote-creation path.
+         v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל כשאין הצעות פתוחות (ה"+" בכותרת
+         הכספים/openFinanceActionSheet כבר מציע "הצעת מחיר חדשה" — שום פעולה לא אבדה). -->
+    ${openQuotes.length ? `
     <div class="card" id="fin-quotes-card">
       <div class="card-label">הצעות פתוחות (${openQuotes.length})</div>
-      ${openQuotes.length === 0 ? `
-        <div style="font-size:12px;color:var(--text3);padding:8px 0">אין הצעות ממתינות למענה</div>
-      ` : openQuotes.slice(0, 20).map(q => {
+      ${openQuotes.slice(0, 20).map(q => {
         const qChip = (typeof _daysChipHtml === 'function') ? _daysChipHtml(q.sentAt) : '';
         const qTotal = (typeof _quoteGrandTotal === 'function') ? _quoteGrandTotal(q) : 0;
         return `
@@ -18978,18 +19270,19 @@ function renderFinance(){
       ${openQuotes.length > 20 ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">מציג 20 מתוך ${openQuotes.length}</div>` : ''}
       <button class="fin-inv-all" style="margin-top:10px" onclick="_gnavQuotePicker()"><iconify-icon icon="mdi:file-document-plus-outline" width="14" style="vertical-align:-2px"></iconify-icon> הצעת מחיר חדשה</button>
     </div>
+    ` : ''}
 
     <!-- v3.24.4 (N5) — "לגבייה" gate: amount is totalDue(p) only, never a locally-derived figure
          (P&L/profit stays only in "לפי פרויקט" below, unchanged). Button reuses waDueReminderProject
-         (v3.23.10) verbatim — same function the existing per-project row already calls. -->
+         (v3.23.10) verbatim — same function the existing per-project row already calls.
+         v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל כשאין חובות פתוחים. -->
+    ${dueProjects.length ? `
     <div class="card" id="fin-due-card">
       <div class="card-label" style="display:flex;justify-content:space-between;align-items:center">
         <span>לגבייה</span>
         <span style="color:var(--gold2);font-weight:800;font-size:13px">${fmt(Math.round(receivables))} ₪</span>
       </div>
-      ${dueProjects.length === 0 ? `
-        <div style="font-size:12px;color:var(--text3);padding:8px 0">אין חובות פתוחים כרגע</div>
-      ` : dueProjects.map(p => {
+      ${dueProjects.map(p => {
         const due = totalDue(p);
         return `
           <div class="fin-row">
@@ -18997,10 +19290,18 @@ function renderFinance(){
             <div style="display:flex;align-items:center;gap:8px">
               <span class="fr-amt" style="color:var(--red)">${fmt(Math.round(due))} ₪</span>
               ${p.clientPhone ? `<button class="btn-xs btn-ghost" onclick="waDueReminderProject('${esc(p.id)}')" style="background:#e6f9ee;border-color:#25d366;color:#1c8a47;font-size:12px;padding:2px 8px"><iconify-icon icon="mdi:whatsapp" width="12"></iconify-icon> תזכורת בוואטסאפ</button>` : ''}
+              <!-- v3.25.1 (R2/NOISE-04) — "סגור חוב": מסמן p.writtenOff, לא מוחק כלום; totalDue(p)
+                   הוא נקודת-המחנק היחידה שמשערת את זה, אז השורה פשוט תפסיק להופיע כאן ובקוקפיט. -->
+              <button class="btn-xs btn-ghost" onclick="pdWriteOffDebt('${esc(p.id)}')" title="לסמן שהחוב הזה לא ייגבה">לא ייגבה ✕</button>
             </div>
           </div>`;
       }).join('')}
     </div>
+    ` : ''}
+
+    <!-- v3.25.1 (R2/NOISE-04) — עצמאי מ-fin-due-card: חוב שסומן "לא ייגבה" חייב להישאר נגיש
+         (בטול) גם כשה-due-card עצמו נעלם (כי totalDue שלו כבר 0). -->
+    ${writtenOffProjects.length ? `<div class="fin-inv-more" style="cursor:pointer" onclick="_openWrittenOffSheet()">${writtenOffProjects.length} ${writtenOffProjects.length===1?'חוב שסומן':'חובות שסומנו'} "לא ייגבה" · בטול ›</div>` : ''}
 
     <!-- Per-project P&L -->
     ${activeProjects.length ? `
@@ -19034,12 +19335,12 @@ function renderFinance(){
       </div>
     ` : ''}
 
-    <!-- Recent expenses -->
+    <!-- Recent expenses — v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל כשאין הוצאות בתקופה
+         (openFinanceActionSheet כבר מציע "הוסף הוצאת פרויקט"). -->
+    ${periodExpenses.length ? `
     <div class="card" id="fin-expenses-card">
       <div class="card-label">הוצאות אחרונות (${periodExpenses.length})</div>
-      ${periodExpenses.length === 0 ? `
-        <div style="font-size:12px;color:var(--text3);padding:8px 0">אין הוצאות בתקופה זו</div>
-      ` : periodExpenses.sort((a,b) => b.ts - a.ts).slice(0, 20).map(e => {
+      ${periodExpenses.sort((a,b) => b.ts - a.ts).slice(0, 20).map(e => {
         const proj = e.projectId ? S.projects.find(p => p.id === e.projectId) : null;
         return `
           <div class="fin-row">
@@ -19059,13 +19360,14 @@ function renderFinance(){
            project — same call the [+] create-sheet and openFinanceActionSheet already make). -->
       <button class="fin-inv-all" style="margin-top:10px" onclick="addExpense()"><iconify-icon icon="mdi:cash-minus" width="14" style="vertical-align:-2px"></iconify-icon> הוצאה חדשה</button>
     </div>
+    ` : ''}
 
-    <!-- v3.21.90 — נכנס בפועל: תשלומים שהתקבלו בתקופה (מזומן אמיתי, לא צפי) -->
+    <!-- v3.21.90 — נכנס בפועל: תשלומים שהתקבלו בתקופה (מזומן אמיתי, לא צפי).
+         v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל כשלא נרשמו תשלומים בתקופה. -->
+    ${paymentItems.length ? `
     <div class="card" id="fin-cashin-card">
       <div class="card-label">נכנס בפועל (${paymentItems.length})</div>
-      ${paymentItems.length === 0 ? `
-        <div style="font-size:12px;color:var(--text3);padding:8px 0">לא נרשמו תשלומים בתקופה זו. כסף נספר כשמתקבל תשלום בפרויקט.</div>
-      ` : paymentItems.slice(0, 20).map(it => `
+      ${paymentItems.slice(0, 20).map(it => `
         <div class="fin-row">
           <div>
             <div class="fr-name"><iconify-icon icon="mdi:cash-check"></iconify-icon> ${esc(it.label)}</div>
@@ -19076,6 +19378,7 @@ function renderFinance(){
       `).join('')}
       ${paymentItems.length > 20 ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">מציג 20 אחרונים מתוך ${paymentItems.length}</div>` : ''}
     </div>
+    ` : ''}
     </div><!-- /.fin-page -->
   `;
 
@@ -19157,6 +19460,11 @@ const PROJECT_STATUS = {
 };
 
 let leadFilterStatus = 'all';   // UI tab filter
+// v3.25.1 (R2/NOISE-04) — לשונית "פעילים / היסטוריה" (אותו דפוס כמו view-people). לא נוגעים
+// בברירת-המחדל של leadFilterStatus עצמה (נשארת 'all' — יש לה כבר תפריט-סינון עם ערכים אמיתיים);
+// "לידים בפעילים" (NOISE-01) מושג דרך ה-scope הזה: מסתיר סטטוס-סופי (נסגר/ג'וב-בוצע) וגם
+// לידים "פתוחים" שנשארו בלי מגע RETIRE_LEAD_STALE_DAYS יום ("רדום").
+let _leadsScope = 'live';    // live | history
 // v3.11.1 — source filter chips ('all' | 'whatsapp' | 'manual')
 let leadFilterSource = 'all';
 // v3.11.2 — city filter ('all' or a specific city name)
@@ -19278,6 +19586,13 @@ function _markQuoteSent(){
 function _afterSendBackToVisitOrFinish(){
   try{ if(typeof saveAll === 'function') saveAll(true); }
   catch(e){ console.warn('_afterSendBackToVisitOrFinish failed', e); }
+  // v3.25.3 (R3/FLOW-05) — after qCopyOnly/qCopyAndOpenWA mark the quote 'sent' (_markQuoteSent,
+  // above), nothing re-rendered view-quote-edit: the "סטטוס הצעה" badge stayed stuck on "טיוטה"
+  // and the "💬 תזכיר ללקוח" button (already built, qFollowUpReminder) never appeared, because
+  // it's gated on status==='sent' in the markup renderQuoteEdit() produces. Same fix qSetStatus
+  // already applies after every other status change.
+  try{ if(typeof renderQuoteEdit === 'function') renderQuoteEdit(); }
+  catch(e){ console.warn('_afterSendBackToVisitOrFinish renderQuoteEdit failed', e); }
 }
 
 function openLeadsList(){
@@ -19286,7 +19601,7 @@ function openLeadsList(){
 }
 function goLeadsList(){
   // Replace stack to: dash → leads-list
-  viewStack = ['dash', 'leads-list'];
+  viewStack = ['roofs', 'leads-list'];
   show('leads-list');
   renderLeadsList();
 }
@@ -19306,22 +19621,32 @@ function goLeadsFollowUp(){
 
 // v3.22.27 (3.13) — אזור-התוצאות של רשימת-הלידים (צ'יפים + מונה + שורות), מחושב בנפרד
 // כדי שחיפוש יעדכן רק אותו בלי לבנות מחדש את ה-toolbar עם ה-input הממוקד.
-function _leadsResultsHtml(){
-  const STATUS_LABELS = {
-    'all': 'כל הסטטוסים',
-    'new': 'חדש',
-    'contacted': 'בקשר',
-    'scheduled': 'מתואם',
-    'converted': 'הומר',
-    'job-done': "ג'וב",
-    'dropped': 'נסגר',
-    'paused': 'מושהה',
-  };
-  const totalLeads = (S.leads || []).length;
+// v3.25.1 (R2/NOISE-02) — הועבר החוצה מ-_leadsResultsHtml כדי שגם ה-masthead (renderLeadsList)
+// יוכל להשתמש באותו מילון-תוויות — אותו מקור-אמת לשני המקומות, בלי לשכפל.
+const LEAD_STATUS_LABELS = {
+  'all': 'כל הסטטוסים',
+  'new': 'חדש',
+  'contacted': 'בקשר',
+  'scheduled': 'מתואם',
+  'converted': 'הומר',
+  'job-done': "ג'וב",
+  'dropped': 'נסגר',
+  'paused': 'מושהה',
+};
 
-  // Apply all four filters (status / source / city / search)
+function _leadsResultsHtml(){
+  // v3.25.1 (R2) — scope FIRST: "live" (מה שחי) vs "history" (סטטוס-סופי, או "פתוח" בלי מגע
+  // RETIRE_LEAD_STALE_DAYS יום — "רדום"). שום נתון לא נמחק — רק מסונן-תצוגה.
+  const liveAll = (S.leads || []).filter(l => !_leadIsRetired(l));
+  const histAll = (S.leads || []).filter(l => _leadIsRetired(l));
+  const scopedAll = _leadsScope === 'history' ? histAll : liveAll;
+  const scopedTotal = scopedAll.length;
+
+  // Apply the other filters (status / source / city / search) — status sub-filter live-scope only
   const q = (leadFilterSearch || '').trim().toLowerCase();
-  let filtered = leadFilterStatus === 'all' ? S.leads : S.leads.filter(l => l.status === leadFilterStatus);
+  let filtered = (_leadsScope === 'live' && leadFilterStatus !== 'all')
+    ? scopedAll.filter(l => l.status === leadFilterStatus)
+    : scopedAll;
   if(leadFilterSource !== 'all'){
     filtered = filtered.filter(l => _leadSourceClass(l) === leadFilterSource);
   }
@@ -19344,10 +19669,19 @@ function _leadsResultsHtml(){
 
   // Build the active-filters strip (only shows chips for non-default filters)
   const activeChips = [];
-  if(leadFilterStatus !== 'all') activeChips.push({ key:'status', label: STATUS_LABELS[leadFilterStatus] || leadFilterStatus });
+  if(_leadsScope === 'live' && leadFilterStatus !== 'all') activeChips.push({ key:'status', label: LEAD_STATUS_LABELS[leadFilterStatus] || leadFilterStatus });
   if(leadFilterSource !== 'all') activeChips.push({ key:'source', label: leadFilterSource === 'whatsapp' ? 'WhatsApp' : 'ידני' });
   if(leadFilterCity !== 'all')   activeChips.push({ key:'city',   label: leadFilterCity === '__none__' ? 'ללא עיר' : leadFilterCity });
   if(q)                          activeChips.push({ key:'search', label: `"${q}"` });
+
+  const emptyHtml = _leadsScope === 'history'
+    ? `<div class="empty"><div class="ei"><iconify-icon icon="mdi:history" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין היסטוריה עדיין</h3><p style="font-size:14px;margin-top:6px">לידים שנסגרו, הומרו, או נשארו בלי מגע ${RETIRE_LEAD_STALE_DAYS} יום יופיעו כאן.</p></div>`
+    : `<div class="empty">
+        <div class="ei"><iconify-icon icon="mdi:account-multiple-outline" width="48" style="color:var(--text3)"></iconify-icon></div>
+        <h3>אין לידים בקטגוריה זו</h3>
+        <p>לחץ על + למעלה כדי להוסיף ליד חדש, או ייבא מ-WhatsApp מהכפתור למעלה</p>
+        <button class="btn btn-gold" style="margin-top:18px" onclick="openNewLeadModal()">+ הוסף ליד</button>
+      </div>`;
 
   const html = `
     ${activeChips.length ? `
@@ -19361,23 +19695,16 @@ function _leadsResultsHtml(){
       </div>
     ` : ''}
 
-    <div class="leads-count-line">${sorted.length} מתוך ${totalLeads}</div>
+    <div class="leads-count-line">${sorted.length} מתוך ${scopedTotal}</div>
 
     <!-- v3.24.5 (N6) — "lead-rows-grid" wrapper (was: rows appended as bare siblings) so the
          ≥1024px desktop CSS can grid the rows into 2-3 columns without also squeezing the chips
          strip / count-line above into a narrow cell; no visual change below 1024px. -->
     <div class="lead-rows-grid">
-    ${sorted.length === 0 ? `
-      <div class="empty">
-        <div class="ei"><iconify-icon icon="mdi:account-multiple-outline" width="48" style="color:var(--text3)"></iconify-icon></div>
-        <h3>אין לידים בקטגוריה זו</h3>
-        <p>לחץ על + למעלה כדי להוסיף ליד חדש, או ייבא מ-WhatsApp מהכפתור למעלה</p>
-        <button class="btn btn-gold" style="margin-top:18px" onclick="openNewLeadModal()">+ הוסף ליד</button>
-      </div>
-    ` : sorted.map(l => leadRowHtml(l)).join('')}
+    ${sorted.length === 0 ? emptyHtml : sorted.map(l => leadRowHtml(l)).join('')}
     </div>
   `;
-  return { html, chips: activeChips.length, q };
+  return { html, chips: activeChips.length, q, listLen: sorted.length, liveCount: liveAll.length, histCount: histAll.length };
 }
 
 function renderLeadsList(){
@@ -19388,14 +19715,22 @@ function renderLeadsList(){
   // v3.21.63 — follow-up section: leads awaiting a reply after a quote was sent.
   const followUps  = _leadsAwaitingReply();
   const fuDue      = followUps.filter(_leadFollowUpDue).length;
-  const activeCount = (S.leads || []).filter(l => l.status !== 'converted' && l.status !== 'dropped' && l.status !== 'job-done').length;
+
+  // v3.25.1 (R2/NOISE-02) — masthead number = בדיוק אורך מה שמוצג למטה (res.listLen).
+  const _n = res.listLen;
+  const mastHtml = _leadsScope === 'history'
+    ? `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> היסטוריה</div><div class="lk-h1">${_n} לידים <em>בהיסטוריה</em></div></div>`
+    : `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> ניהול פניות</div><div class="lk-h1">${_n} לידים <em>${leadFilterStatus==='all'?'פעילים':(LEAD_STATUS_LABELS[leadFilterStatus]||leadFilterStatus)}</em></div></div>`;
+
+  // v3.25.1 (R2/NOISE-04) — לשונית "פעילים / היסטוריה", אותו דפוס בדיוק כמו view-people.
+  const scopeTabsHtml = `<div class="lead-tabs" style="margin:10px 0 0">
+    <div class="lead-tab ${_leadsScope==='live'?'on':''}" onclick="setLeadScope('live')">פעילים${res.liveCount?` (${res.liveCount})`:''}</div>
+    <div class="lead-tab ${_leadsScope==='history'?'on':''}" onclick="setLeadScope('history')">היסטוריה${res.histCount?` (${res.histCount})`:''}</div>
+  </div>`;
 
   document.getElementById('leads-list-body').innerHTML = `
-    <!-- v3.21.63 — Sunrise masthead: sun eyebrow + serif headline with italic keyword -->
-    <div class="lk-mast">
-      <div class="lk-eyebrow"><span class="lk-dot"></span> ניהול פניות</div>
-      <div class="lk-h1">${activeCount} לידים <em>פעילים</em></div>
-    </div>
+    ${mastHtml}
+    ${scopeTabsHtml}
 
     ${followUps.length ? `
       <!-- v3.21.63 — follow-up: quote-sent leads awaiting a reply (lights the cockpit tile) -->
@@ -19431,6 +19766,11 @@ function renderLeadsList(){
 
 function setLeadFilter(key){
   leadFilterStatus = key;
+  if(typeof _saveListFilters==='function') _saveListFilters();
+  renderLeadsList();
+}
+function setLeadScope(s){
+  _leadsScope = s;
   renderLeadsList();
 }
 
@@ -19479,6 +19819,7 @@ function clearLeadFilter(category){
   else if(category === 'source') leadFilterSource = 'all';
   else if(category === 'city')   leadFilterCity = 'all';
   else if(category === 'search') leadFilterSearch = '';
+  if(category === 'status' && typeof _saveListFilters==='function') _saveListFilters();
   renderLeadsList();
 }
 function resetAllLeadFilters(){
@@ -19486,6 +19827,7 @@ function resetAllLeadFilters(){
   leadFilterSource = 'all';
   leadFilterCity   = 'all';
   leadFilterSearch = '';
+  if(typeof _saveListFilters==='function') _saveListFilters();
   renderLeadsList();
 }
 
@@ -21703,8 +22045,13 @@ let catalogTileMode = (S.preferences && S.preferences.catalogTileMode) || false;
 function openCatalog(){
   closeMo();
   catalogState = { mode:'index', category:null, itemKey:null, search:'', editing:false };
+  // v3.25.0 (R1) — dropped the redundant explicit renderCatalog() call: push('catalog') already
+  // renders it via VIEW_RENDERERS (catalog has always been in that map). The duplicate call used
+  // to just re-do the same work — but since _ucRenderTopbar() rebuilds the topbar's innerHTML from
+  // scratch (fresh DOM nodes), this second pass silently wiped out the ☰-highlight state that
+  // _gnavSync() had just set on the first pass's button, right after setting it. One render is
+  // correct and sufficient; the identical function already runs via push().
   push('catalog');
-  renderCatalog();
 }
 
 // v3.21.55 — Phase 2 router. Dispatches the editorial screen by catalogState.mode.
@@ -21747,16 +22094,17 @@ function _ucRenderTopbar(){
   const cats = (typeof getCatalog === 'function') ? getCatalog() : {};
   const catObj = WORK_CATEGORIES.find(c => c.id === catalogState.category);
   const title =
-    m === 'index'    ? 'ארכיון העבודות' :
+    m === 'index'    ? 'קטלוג עבודות' :
     m === 'category' ? (catObj?.name || 'פרק') :
     m === 'item'     ? (cats[catalogState.itemKey]?.name || 'סעיף') :
-    m === 'search'   ? 'תוצאות חיפוש' : 'ארכיון העבודות';
+    m === 'search'   ? 'תוצאות חיפוש' : 'קטלוג עבודות';
   topbar.innerHTML = `
     <button class="back" aria-label="חזרה" onclick="catalogBack()">→</button>
     <h1 style="font-family:'Frank Ruhl Libre',serif;font-weight:500;font-size:17px;letter-spacing:0;color:#2a1c0e;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
       ${esc(title)}
     </h1>
     <button class="ico" onclick="catalogMenu()" title="עוד" aria-label="עוד אפשרויות">⋯</button>
+    <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט"><iconify-icon icon="mdi:menu"></iconify-icon></button>
   `;
 }
 
@@ -21775,7 +22123,7 @@ function catalogBack(){
     renderCatalog();
     return;
   }
-  goDash();
+  goBack();
 }
 
 // v3.21.55 — share settings (persisted in S.catalogShareOpts). Defaults: everything ON except prices.
@@ -24288,7 +24636,13 @@ function projProgress(p){
   const tasks = p.tasks||[];
   const total = tasks.reduce((s,t)=>s+(t.steps||[]).length, 0);
   const done  = tasks.reduce((s,t)=>s+(t.steps||[]).filter(st=>st.done).length, 0);
-  return total ? Math.round(done/total*100) : 0;
+  if(total) return Math.round(done/total*100);
+  // v3.25.3 (R3/FLOW-04) — projects created via doConvertQuoteToProject build tasks through
+  // _buildTask without any steps (only the visit→project path fills steps from a template), so
+  // total was always 0 and this returned 0% forever — even with every task marked done, even on
+  // a delivered project. Fall back to task-level status when there are no steps to count.
+  const n = tasks.length;
+  return n ? Math.round(tasks.filter(t=>t.status==='done').length/n*100) : 0;
 }
 function projRevenue(p){
   // הכנסה = סך כל הסעיפים + מע"מ
@@ -24309,24 +24663,87 @@ function calcVat(amount, p){ return Math.round(amount*getProjectVat(p)/100); }
 
 // ─── PAYMENTS ───
 function totalReceived(p){ return (p.payments||[]).reduce((s,x)=>s+(parseFloat(x.amount)||0), 0); }
-function totalDue(p){ return totalPrice(p) + calcVat(totalPrice(p), p) - totalReceived(p); }
+// v3.25.1 (R2/NOISE-04) — "סגור חוב": p.writtenOff מסמן חוב-אבוד שהקבלן ויתר על גבייתו.
+// נשער כאן בלבד — נקודת-המחנק היחידה של חישוב-חוב (38 קוראים) — כדי שהוויתור יתפשט אוטומטית
+// לכל תצוגה (קוקפיט/כספים/כרטיס-לקוח) בלי לצוד כל צרכן בנפרד. שום נתון לא נמחק: p.payments/
+// p.tasks נשארים בדיוק כפי שהיו, רק totalDue(p) חוזר 0.
+function totalDue(p){ if(p && p.writtenOff) return 0; return totalPrice(p) + calcVat(totalPrice(p), p) - totalReceived(p); }
+
+// ═══════════════════════════════════════════════════════════════════
+// v3.25.1 (R2 — "רק מה שחי") — מחזור-חיים שנכבה לבד. שדה/סטטוס לא משתנה, שום שורה לא נמחקת —
+// זה תצוגה בלבד: פריט "רדום" יורד מהרשימה הפעילה ועובר ללשונית "היסטוריה" (עדיין נגיש שם).
+// ═══════════════════════════════════════════════════════════════════
+const RETIRE_PROJECT_DAYS = 14;   // פרויקט שהסתיים ושולם — רדום 14 יום אחרי הסגירה
+const RETIRE_VISIT_DAYS   = 30;   // ביקור סגור — רדום 30 יום אחרי הסיום
+const RETIRE_LEAD_STALE_DAYS = 45; // ליד בלי מגע 45 יום (או שסטטוסו סופי) — רדום
+
+// פרויקט "רדום": הושלם *וגם* שולם במלואו (כולל חוב שנסמן כ"לא ייגבה" — totalDue כבר משער את
+// זה), וחלפו RETIRE_PROJECT_DAYS מהסגירה. פרויקט שהושלם אך עדיין חייב כסף נשאר פעיל (הגבייה עוד
+// לא נגמרה) — כך שהמחזור-חיים לא "מבריח" חוב אמיתי מהעין.
+function _projIsRetired(p){
+  if(!p) return false;
+  if((p.status||'active') !== 'done') return false;
+  if((typeof totalDue==='function' ? totalDue(p) : 0) > 0) return false;
+  const closedAt = p.statusChangedAt || p.actualEndDate || p.updatedAt || 0;
+  if(!closedAt) return false;
+  return (Date.now() - closedAt) > RETIRE_PROJECT_DAYS*86400000;
+}
+// ביקור "רדום": נסגר (done/completed) וחלפו RETIRE_VISIT_DAYS מהסיום.
+function _visitIsRetired(v){
+  if(!v) return false;
+  if(!(v.status==='done' || v.status==='completed')) return false;
+  const closedAt = v.finishedAt || v.updatedAt || 0;
+  if(!closedAt) return false;
+  return (Date.now() - closedAt) > RETIRE_VISIT_DAYS*86400000;
+}
+// ליד "רדום": סטטוס-סופי (נסגר/ג'וב בוצע) — תמיד; המרה-שהצליחה (יש כבר לקוח/ביקור אמיתי) —
+// מילאה את תפקידה בצינור-הלידים ונחשבת גם היא סופית; המרה-שננטשה (אין לקוח בפועל) נשארת פעילה
+// כי היא עדיין תקועה (אותה בדיקה בדיוק כמו _personLeadIsOpen ב-view-people, v3.21.78); או ליד
+// שעדיין "פתוח" אך בלי מגע RETIRE_LEAD_STALE_DAYS יום (לא ענו, לא חזרו אליו).
+function _leadIsRetired(l){
+  if(!l) return false;
+  if(l.status === 'dropped' || l.status === 'job-done') return true;
+  if(l.status === 'converted' && typeof _leadHasRealizedClient === 'function' && _leadHasRealizedClient(l)) return true;
+  const lastTouch = l.lastTouchedAt || l.updatedAt || l.createdAt || 0;
+  if(lastTouch && (Date.now() - lastTouch) > RETIRE_LEAD_STALE_DAYS*86400000) return true;
+  return false;
+}
+
+// v3.25.1 (R2/NOISE-01) — זיכרון-הבחירה של אור בשלוש הרשימות: נשמר תחת S.settings (מסונכרן
+// ומגובה כמו כל שאר ההגדרות — ראה saveAll/_saveAllInner/init). לא שומר את לשונית ה"היסטוריה"
+// עצמה (בדיוק כמו view-people, שגם היא תמיד נפתחת ב-'active' ולא זוכרת 'history').
+function _loadListFilters(){
+  const lf = (S.settings && S.settings.listFilters) || {};
+  if(lf.projFilter) _projFilter = lf.projFilter;
+  if(lf.visitFilter) _visitFilter = lf.visitFilter;
+  if(lf.leadFilterStatus) leadFilterStatus = lf.leadFilterStatus;
+}
+function _saveListFilters(){
+  if(!S.settings) S.settings = {};
+  S.settings.listFilters = { projFilter: _projFilter, visitFilter: _visitFilter, leadFilterStatus: leadFilterStatus };
+  saveAll();
+}
 
 // ─── AUTOCOMPLETE / TASK LEARNING ───
 // ─── PROJECTS LIST ───
 function openProjectsList(){
-  viewStack=['dash','projects-list'];
+  viewStack=['roofs','projects-list'];
   show('projects-list');
   renderProjectsList();
 }
 function goProjectsList(){
-  viewStack=['dash','projects-list'];
+  viewStack=['roofs','projects-list'];
   show('projects-list');
   renderProjectsList();
 }
 
 // ─── PROJECT LIST SORT/FILTER STATE ───
 let _projSort   = 'date';   // date | pct | rev
-let _projFilter = 'all';    // all | active | done | planned
+// v3.25.1 (R2/NOISE-01) — ברירת-מחדל "רק מה שחי": בעבודה, לא "הכל" (שהציג 58% עבודות-שנגמרו).
+let _projFilter = 'active';    // all | active | done | planned
+// v3.25.1 (R2/NOISE-04) — לשונית "פעילים / היסטוריה", בדיוק כמו הדפוס הקיים ב-view-people.
+// לא נשמר בין טעינות (view-people גם לא זוכר את זה) — רק _projFilter/_visitFilter/leadFilterStatus.
+let _projScope = 'live';    // live | history
 
 function setProjSort(s){
   _projSort = s;
@@ -24342,6 +24759,11 @@ function setProjFilter(f){
     const el=document.getElementById('ps-filter-'+x);
     if(el) el.classList.toggle('on', x===f);
   });
+  if(typeof _saveListFilters==='function') _saveListFilters();
+  renderProjectsList();
+}
+function setProjScope(s){
+  _projScope = s;
   renderProjectsList();
 }
 
@@ -24378,12 +24800,14 @@ function clearProjFilter(category){
   if(category === 'status') _projFilter = 'all';
   else if(category === 'sort') _projSort = 'date';
   else if(category === 'search') projFilterSearch = '';
+  if(category === 'status' && typeof _saveListFilters==='function') _saveListFilters();
   renderProjectsList();
 }
 function resetAllProjFilters(){
   _projFilter = 'all';
   _projSort = 'date';
   projFilterSearch = '';
+  if(typeof _saveListFilters==='function') _saveListFilters();
   renderProjectsList();
 }
 function openProjFilterSheet(){
@@ -24470,14 +24894,25 @@ function _projCardThumb(p){
 
 // v3.22.27 (3.13) — אזור-התוצאות של רשימת-הפרויקטים (צ'יפים + מונה + לשוניות + כרטיסים),
 // מחושב בנפרד כדי שחיפוש יעדכן רק אותו בלי לבנות מחדש את ה-toolbar עם ה-input הממוקד.
+// v3.25.1 (R2/NOISE-04) — closedAt proxy, shared between the retirement predicate and history sort.
+function _projClosedAt(p){ return (p && (p.statusChangedAt || p.actualEndDate || p.updatedAt)) || 0; }
+
 function _projResultsHtml(){
-  const totalProj = (S.projects || []).length;
   const q = (projFilterSearch || '').trim().toLowerCase();
 
-  // Filter
-  let list = [...(S.projects || [])];
-  if(_projFilter === 'due') list = list.filter(p => (typeof totalDue==='function') && totalDue(p) > 0);  // v3.21.92 — "לגבייה" tab
-  else if(_projFilter !== 'all') list = list.filter(p=>(p.status||'active')===_projFilter);
+  // v3.25.1 (R2) — scope FIRST: "live" (מה שחי) vs "history" (מה שנכבה לבד). שום נתון לא נמחק —
+  // רק מסונן-תצוגה. sub-filter הסטטוס (r2-tabs) פועל רק בתוך live; היסטוריה היא רשימה שטוחה.
+  const liveAll = (S.projects || []).filter(p => !_projIsRetired(p));
+  const histAll = (S.projects || []).filter(p => _projIsRetired(p));
+  const scopedAll = _projScope === 'history' ? histAll : liveAll;
+  const scopedTotal = scopedAll.length;
+
+  // Filter (status sub-tab) — live scope only
+  let list = [...scopedAll];
+  if(_projScope === 'live'){
+    if(_projFilter === 'due') list = list.filter(p => (typeof totalDue==='function') && totalDue(p) > 0);  // v3.21.92 — "לגבייה" tab
+    else if(_projFilter !== 'all') list = list.filter(p=>(p.status||'active')===_projFilter);
+  }
   if(q){
     list = list.filter(p => {
       const hay = [p.clientName, p.clientAddress, p.notes, p.summary, p.description].filter(Boolean).join(' ').toLowerCase();
@@ -24486,14 +24921,17 @@ function _projResultsHtml(){
   }
 
   // Sort
-  if(_projSort==='date') list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
+  if(_projScope === 'history') list.sort((a,b)=>_projClosedAt(b)-_projClosedAt(a));
+  else if(_projSort==='date') list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
   else if(_projSort==='pct') list.sort((a,b)=>projProgress(b)-projProgress(a));
   else if(_projSort==='rev') list.sort((a,b)=>projRevenue(b)-projRevenue(a));
 
-  // Active filter chips
+  // Active filter chips (status/sort sub-filters only apply in live scope)
   const activeChips = [];
-  if(_projFilter !== 'all') activeChips.push({ key:'status', label: ({active:'פעיל',done:'הושלם',planned:'מתוכנן',due:'לגבייה'}[_projFilter] || _projFilter) });
-  if(_projSort !== 'date')  activeChips.push({ key:'sort',   label: ({pct:'לפי התקדמות',rev:'לפי סכום'}[_projSort] || _projSort) });
+  if(_projScope === 'live'){
+    if(_projFilter !== 'all') activeChips.push({ key:'status', label: ({active:'פעיל',done:'הושלם',planned:'מתוכנן',due:'לגבייה'}[_projFilter] || _projFilter) });
+    if(_projSort !== 'date')  activeChips.push({ key:'sort',   label: ({pct:'לפי התקדמות',rev:'לפי סכום'}[_projSort] || _projSort) });
+  }
   if(q)                     activeChips.push({ key:'search', label: `"${q}"` });
 
   const stripAndCount = `
@@ -24507,29 +24945,35 @@ function _projResultsHtml(){
         <button class="active-chip ac-reset" onclick="resetAllProjFilters()">אפס הכל</button>
       </div>
     ` : ''}
-    <div class="list-count-line">${list.length} מתוך ${totalProj}</div>
+    <div class="list-count-line">${list.length} מתוך ${scopedTotal}</div>
   `;
 
   if(!list.length){
-    return { html: stripAndCount + `<div class="empty"><div class="ei"><iconify-icon icon="mdi:magnify" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין פרויקטים בסינון זה</h3></div>`, chips: activeChips.length, q };
+    const emptyMsg = _projScope === 'history'
+      ? `<h3>אין היסטוריה עדיין</h3><p style="font-size:14px;margin-top:6px">פרויקטים שהסתיימו ושולמו יופיעו כאן ${RETIRE_PROJECT_DAYS} יום אחרי הסגירה.</p>`
+      : `<h3>אין פרויקטים בסינון זה</h3>`;
+    const emptyIcon = _projScope === 'history' ? 'mdi:history' : 'mdi:magnify';
+    return { html: stripAndCount + `<div class="empty"><div class="ei"><iconify-icon icon="${emptyIcon}" width="48" style="color:var(--text3)"></iconify-icon></div>${emptyMsg}</div>`, chips: activeChips.length, q, liveCount: liveAll.length, histCount: histAll.length };
   }
 
-  // v3.21.92 — refresh-v2 status tabs (counts) + cream cards
-  const _allP = (S.projects||[]);
+  // v3.21.92 — refresh-v2 status tabs (counts) + cream cards — scoped to LIVE only (v3.25.1 R2:
+  // a retired 'done' project no longer inflates the "הושלם" tab count once it's in history).
   const _pc = {
-    active: _allP.filter(p=>(p.status||'active')==='active').length,
-    planned: _allP.filter(p=>(p.status||'active')==='planned').length,
-    done: _allP.filter(p=>(p.status||'active')==='done').length,
-    due: _allP.filter(p=>(typeof totalDue==='function') && totalDue(p)>0).length,
+    active: liveAll.filter(p=>(p.status||'active')==='active').length,
+    planned: liveAll.filter(p=>(p.status||'active')==='planned').length,
+    done: liveAll.filter(p=>(p.status||'active')==='done').length,
+    due: liveAll.filter(p=>(typeof totalDue==='function') && totalDue(p)>0).length,
   };
   const _ptabs = [
-    {k:'all', l:'הכל', c:_allP.length},
+    {k:'all', l:'הכל', c:liveAll.length},
     {k:'active', l:'בעבודה', c:_pc.active},
     {k:'planned', l:'ממתין', c:_pc.planned},
     {k:'done', l:'הושלם', c:_pc.done},
     {k:'due', l:'לגבייה', c:_pc.due},
   ];
-  const tabsHtml = `<div class="r2-tabs">${_ptabs.map(t=>`<div class="r2-tab ${_projFilter===t.k?'on':''}" onclick="setProjFilter('${t.k}')">${t.l}${t.c?` <span class="r2-tb">${t.c}</span>`:''}</div>`).join('')}</div>`;
+  const tabsHtml = _projScope === 'live'
+    ? `<div class="r2-tabs">${_ptabs.map(t=>`<div class="r2-tab ${_projFilter===t.k?'on':''}" onclick="setProjFilter('${t.k}')">${t.l}${t.c?` <span class="r2-tb">${t.c}</span>`:''}</div>`).join('')}</div>`
+    : '';
 
   const cardsHtml = list.map(p=>{
     const pct=projProgress(p);
@@ -24580,7 +25024,8 @@ function _projResultsHtml(){
     </div>`;
   }).join('');
 
-  return { html: stripAndCount + tabsHtml + cardsHtml, chips: activeChips.length, q };
+  const liveCount = liveAll.length, histCount = histAll.length;
+  return { html: stripAndCount + tabsHtml + cardsHtml, chips: activeChips.length, q, listLen: list.length, liveCount, histCount };
 }
 
 function renderProjectsList(){
@@ -24604,16 +25049,35 @@ function renderProjectsList(){
     </div>
   `;
 
-  // v3.21.66 — Sunrise masthead (serif headline + sun eyebrow), reuses the leads .lk-mast.
-  const _activeCount = (S.projects||[]).filter(p=>(p.status||'active')==='active').length;
-  const mastHtml = `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> ניהול עבודה</div><div class="lk-h1">${_activeCount} ${_activeCount===1?'פרויקט':'פרויקטים'} <em>${_activeCount===1?'פעיל':'פעילים'}</em></div></div>`;
+  // v3.25.1 (R2/NOISE-02) — masthead number = בדיוק אורך מה שמוצג למטה (res.listLen), לא חישוב
+  // נפרד. אין ענף "all"/"history" שטוען מילת-סטטוס שהרשימה לא מבטיחה.
+  const _n = res.listLen;
+  const _plural = _n===1?'פרויקט':'פרויקטים';
+  let mastHtml;
+  if(_projScope === 'history'){
+    mastHtml = `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> היסטוריה</div><div class="lk-h1">${_n} ${_plural} <em>בהיסטוריה</em></div></div>`;
+  } else {
+    const label = _projFilter==='active' ? (_n===1?'פעיל':'פעילים')
+      : _projFilter==='planned' ? (_n===1?'ממתין':'ממתינים')
+      : _projFilter==='done' ? 'הושלמו'
+      : _projFilter==='due' ? 'לגבייה'
+      : '';   // 'all' — נוסח ניטרלי, לא טוען מילת-סטטוס שהרשימה לא מבטיחה
+    const headline = label ? `${_n} ${_plural} <em>${label}</em>` : `${_n} ${_plural}`;
+    mastHtml = `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> ניהול עבודה</div><div class="lk-h1">${headline}</div></div>`;
+  }
+
+  // v3.25.1 (R2/NOISE-04) — לשונית "פעילים / היסטוריה", אותו דפוס בדיוק כמו view-people.
+  const scopeTabsHtml = `<div class="lead-tabs" style="margin:10px 0 0">
+    <div class="lead-tab ${_projScope==='live'?'on':''}" onclick="setProjScope('live')">פעילים${res.liveCount?` (${res.liveCount})`:''}</div>
+    <div class="lead-tab ${_projScope==='history'?'on':''}" onclick="setProjScope('history')">היסטוריה${res.histCount?` (${res.histCount})`:''}</div>
+  </div>`;
 
   if(!totalProj){
     el.innerHTML = toolbarHtml + `<div class="list-count-line">0 מתוך 0</div>` + `<div class="empty"><div class="ei"><iconify-icon icon="mdi:hammer-wrench" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין פרויקטים עדיין</h3><p style="font-size:14px;margin-top:6px">פרויקטים נוצרים מביקורים שהפכו לפרויקט.</p><button class="btn btn-gold btn-sm" style="margin-top:16px" onclick="openManualProjectCreate()">+ הוסף פרויקט ידני</button></div>`;
     return;
   }
 
-  el.innerHTML = mastHtml + toolbarHtml + `<div id="projects-results">${res.html}</div>`;
+  el.innerHTML = mastHtml + scopeTabsHtml + toolbarHtml + `<div id="projects-results">${res.html}</div>`;
   if(typeof _resolveBlobBackgroundsIn==='function') _resolveBlobBackgroundsIn(el);   // v3.24.2 (N3 bugfix) — upgrade blob-only avatar photos
 }
 
@@ -24625,9 +25089,16 @@ function openProjectDetail(id){
   _pdPhotoPhase='during';
   _pdExpandedTasks = new Set(); // reset expanded state on project change
   _roofOpenTask = null; // reset roof task dropdown
-  viewStack=['dash','projects-list','project-detail'];
-  show('project-detail');
-  renderProjectDetail();
+  // v3.25.0 (R1) — push onto the existing stack instead of overwriting it, so back returns to
+  // wherever the user actually came from (home/finance/search/...), not a hardcoded 'dash' path.
+  // Matches the pattern already used by openClientDetail/openLeadDetail/openVisitDetail.
+  // v3.25.2 (STALE-03) — dropped the extra renderProjectDetail() call that used to follow push():
+  // push()→show() already runs VIEW_RENDERERS['project-detail']() (=renderProjectDetail), so this
+  // was rendering the project TWICE on every open, which raced two concurrent orphan-photo
+  // recovery scans and doubled every recovered photo permanently into saved state. The in-flight
+  // guard added to _recoverOrphanedProjectPhotos() below is what actually closes that bug (this
+  // is a redundant-render cleanup on top of it, not required for correctness by itself).
+  push('project-detail');
   const fab=document.getElementById('pd-fab');
   if(fab) fab.style.display='flex';
 }
@@ -24950,6 +25421,11 @@ function pdv2Render(p){
   // v3.9.82 — migrate photos to IndexedDB Blobs (idempotent, async fire-and-forget)
   if(typeof _pdMigratePhotos === 'function'){
     _pdMigratePhotos(p).then(() => {
+      // v3.25.2 (STALE-02) — `p` was captured when THIS project was opened; the migration scan
+      // is async (cursor over the whole media store), so by the time it resolves the user may
+      // already be looking at a different project. Don't paint that project's gallery with this
+      // one's data.
+      if(!p || p.id !== S.activeProjectId) return;
       // re-render gallery if currently open, so blobKey-backed thumbs become visible
       if(_pdv2OpenSheet === 'gallery' && typeof pdv2RenderSheetGallery === 'function'){
         pdv2RenderSheetGallery(p);
@@ -24970,6 +25446,12 @@ function pdv2Render(p){
           if(typeof _saveAllNow === 'function') await _saveAllNow(true);
           else if(typeof saveAll === 'function') saveAll(true);
           if(typeof toast === 'function') toast(`♻️ שוחזרו ${n} תמונות שנעלמו`);
+          // v3.25.2 (STALE-02) — the recovery scan is a cursor over the whole IDB media store;
+          // by the time it resolves the user may have already navigated to a different project.
+          // The recovered photos were correctly saved onto THIS project's data above (that write
+          // is unconditional and correct regardless of navigation) — only repainting the
+          // now-different visible screen with them would be wrong.
+          if(!p || p.id !== S.activeProjectId) return;
           if(typeof _pdv2RenderHeroCarousel === 'function') _pdv2RenderHeroCarousel(p);
           if(typeof pdv2InjectQuickRow === 'function') pdv2InjectQuickRow(p);
           if(_pdv2OpenSheet === 'gallery' && typeof pdv2RenderSheetGallery === 'function'){
@@ -25144,17 +25626,39 @@ function _pdv2AttachScrollAway(){
   // Reset transforms (in case we came back to scrollTop=0)
   photo.style.transform = '';
   content.style.transform = '';
+  // v3.25.0 (R1/ORIENTATION-04) — the in-photo topbar (back button + name) scrolls away with the
+  // photo; this fades in a stand-in once it's gone. Threshold ~55px: the real back button (inside
+  // .pdv2-topbar, top:14px) is only ~56px tall including its own offset, so it's already off-screen
+  // by then — no gap where neither header is visible.
+  const stickyBar = root.querySelector('#pdv2-sticky-topbar');
+  let stickyOn = false;
   // measure on attach; the layout settles by the time pdv2Render runs
   const onScroll = () => {
     const photoH = photo.offsetHeight || 1;
     const y = Math.max(0, Math.min(content.scrollTop, photoH));
     photo.style.transform   = 'translateY(' + (-y) + 'px)';
     content.style.transform = 'translateY(' + (-y) + 'px)';
+    if(stickyBar){
+      const shouldShow = content.scrollTop > 55;
+      if(shouldShow !== stickyOn){
+        stickyOn = shouldShow;
+        stickyBar.classList.toggle('pdv2-sticky-on', stickyOn);
+        if(stickyOn){
+          const nameEl = document.getElementById('pdv2-name');
+          const chipEl = document.getElementById('pdv2-chip-text');
+          const stickyName = document.getElementById('pdv2-sticky-name');
+          const stickyChip = document.getElementById('pdv2-sticky-chip-text');
+          if(stickyName) stickyName.textContent = (nameEl && nameEl.textContent) || '—';
+          if(stickyChip) stickyChip.textContent = (chipEl && chipEl.textContent) || '—';
+        }
+      }
+    }
   };
   content.addEventListener('scroll', onScroll, {passive: true});
   _pdv2ScrollHandlerCtx = { target: content, fn: onScroll };
   // Reset content scroll to 0 on attach so the photo starts fully visible
   content.scrollTop = 0;
+  if(stickyBar) stickyBar.classList.remove('pdv2-sticky-on');
 }
 
 function pdv2HeroPhoto(p){
@@ -26370,11 +26874,20 @@ async function _deleteProjectMedia(projectId){
 
 // v3.21.26 — bumped so PWAs upgraded from .25 re-scan once (in case PWA install severed refs).
 const ORPHAN_SCAN_VERSION = 2;
+// v3.25.2 (STALE-03) — in-flight guard, same pattern as _pullInFlight above: opening a project
+// runs renderProjectDetail (which calls this) via push()→show(); if anything else also renders
+// the project detail screen while the first scan is still awaiting the IDB cursor, a SECOND
+// concurrent call passed the version gate too (the version flag is only written at the very end)
+// and re-discovered + re-pushed the SAME orphaned blobs a second time — every recovered photo
+// got permanently duplicated in saved state. Session-only guard, keyed by project id.
+const _orphanScanInFlight = new Set();
 async function _recoverOrphanedProjectPhotos(p){
   if(!db || !p || !p.id) return 0;
   // v3.21.26: gate by version, not boolean. Old _orphanScanV1Done=true counts as v1; we want v2.
   const ver = p._orphanScanVer || (p._orphanScanV1Done ? 1 : 0);
   if(ver >= ORPHAN_SCAN_VERSION) return 0;
+  if(_orphanScanInFlight.has(p.id)) return 0;
+  _orphanScanInFlight.add(p.id);
   if(!p.progressPhotos || typeof p.progressPhotos !== 'object' || Array.isArray(p.progressPhotos)){
     p.progressPhotos = { before: [], during: [], after: [] };
   }
@@ -26415,6 +26928,7 @@ async function _recoverOrphanedProjectPhotos(p){
   if(orphans.length === 0){
     p._orphanScanV1Done = true;
     p._orphanScanVer = ORPHAN_SCAN_VERSION;
+    _orphanScanInFlight.delete(p.id);   // v3.25.2 (STALE-03) — release in-flight guard
     return 0;
   }
   for(const o of orphans){
@@ -26456,6 +26970,7 @@ async function _recoverOrphanedProjectPhotos(p){
   }
   p._orphanScanV1Done = true;
   p._orphanScanVer = ORPHAN_SCAN_VERSION;
+  _orphanScanInFlight.delete(p.id);   // v3.25.2 (STALE-03) — release in-flight guard
   return orphans.length;
 }
 
@@ -27195,6 +27710,12 @@ async function pdv2HandleMultiFiles(input){
       ? `✅ נשמרו ${okCount}, נכשלו ${failCount}`
       : `✅ נשמרו ${okCount} תמונות בשלב "${phase==='before'?'לפני':phase==='after'?'אחרי':'תוך כדי'}"`);
   }
+  // v3.25.2 (STALE-01) — the upload is async (compress+IDB write, up to several seconds per
+  // batch). If the user navigates to a DIFFERENT project while it's running, `p` here is still
+  // the OLD project — but S.activeProjectId has already moved on. The photos were legitimately
+  // uploaded to the old project (that write already happened above, correctly) — only painting
+  // the now-different visible screen with the old project's data was wrong.
+  if(!p || p.id !== S.activeProjectId) return;
   if(_pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
   if(_pdv2OpenSheet === 'legacy' && _pdTab === 'portfolio' && typeof pdv2RenderLegacyBody === 'function') pdv2RenderLegacyBody();
   if(typeof _pdTab !== 'undefined' && _pdTab === 'portfolio' && typeof renderPdTab === 'function') renderPdTab();
@@ -27866,7 +28387,7 @@ function openProjectClosure(projectId){
 
 function closeProjectClosure(){
   if(typeof goBack === 'function') goBack();
-  else { viewStack = ['dash']; show('dash'); }
+  else { viewStack = ['roofs']; show('roofs'); }
 }
 
 function _closureUpdateBullet(kind, idx, text){
@@ -27932,7 +28453,7 @@ function _closureOpenOrganizer(phaseId){
   closeProjectClosure();
   // Navigate back to the project detail view (the gallery sheet lives there)
   if(typeof S !== 'undefined') S.activeProjectId = p.id;
-  if(typeof viewStack !== 'undefined') viewStack = ['dash','projects-list','project-detail'];
+  if(typeof viewStack !== 'undefined') viewStack = ['roofs','projects-list','project-detail'];
   if(typeof show === 'function') show('project-detail');
   if(typeof renderProjectDetail === 'function') renderProjectDetail();
   // Defer the sheet/edit-mode toggles a tick so the view-transition completes first
@@ -29590,20 +30111,10 @@ function _pfsIssuesHtml(p){
 
 function _pfsTeamHtml(p){
   const workers = p.workers || [];
-  if(workers.length === 0){
-    return `
-      <div class="pfs-card t-team">
-        <div class="pfs-head">
-          <div class="pfs-icon"><iconify-icon icon="mdi:account-hard-hat"></iconify-icon></div>
-          <div class="pfs-title">צוות</div>
-        </div>
-        <div class="pfs-empty">לא הוגדרו עובדים</div>
-        <div class="pfs-footer">
-          <button class="pfs-btn primary" onclick="pdv2OpenWorkers()"><iconify-icon icon="mdi:account-plus-outline"></iconify-icon> הוסף עובד</button>
-        </div>
-      </div>
-    `;
-  }
+  // v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל (היה בונה "כרטיס-ריק" תמיד, גם בפרויקט בלי
+  // עובדים בכלל). "הוסף עובד" נשאר בהקשה-אחת דרך תפריט הפרויקט (⋯ → "עובדים בפרויקט", pdMenu
+  // שורה ~32105 → pdOpenWorkersModal) — שום פונקציונליות לא אבדה, רק כרטיס-הריק נעלם.
+  if(workers.length === 0) return '';
   const totalDays = workers.reduce((s, w) => s + (parseFloat(w.daysWorked) || 0), 0);
   const preview = '<div class="pfs-preview">' +
     workers.slice(0, 5).map(w => {
@@ -29634,20 +30145,10 @@ function _pfsTeamHtml(p){
 
 function _pfsShoppingHtml(p){
   const items = p.shopping || p.shoppingItems || [];   // v3.22.33 (4.7) — הרשימה נכתבת ל-p.shopping; הקורא הצביע על מפתח ריק
-  if(items.length === 0){
-    return `
-      <div class="pfs-card t-shopping">
-        <div class="pfs-head">
-          <div class="pfs-icon"><iconify-icon icon="mdi:cart-outline"></iconify-icon></div>
-          <div class="pfs-title">קניות וחומרים</div>
-        </div>
-        <div class="pfs-empty">אין רשימת קניות</div>
-        <div class="pfs-footer">
-          <button class="pfs-btn primary" onclick="pdv2OpenLegacy('shopping')"><iconify-icon icon="mdi:cart-plus"></iconify-icon> הוסף פריט</button>
-        </div>
-      </div>
-    `;
-  }
+  // v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל. "הוסף פריט" נשאר נגיש דרך תפריט הפרויקט
+  // (⋯ → "סיכומים ונתונים" → קניות, שורה ~26041 → pdv2GoLegacy('shopping')) — אותה פעולה,
+  // בלי כרטיס-ריק תמידי בגלילה הראשית.
+  if(items.length === 0) return '';
   const open = items.filter(it => !it.done);
   const preview = '<div class="pfs-preview">' +
     items.slice(0, 4).map(it => '<div class="pfs-row">' +
@@ -29772,7 +30273,13 @@ function _rhStageInfo(p){
   const due = (typeof totalDue === 'function') ? totalDue(p) : 0;
   if(status === 'planned') return { key:'approved',  label:'אושר',   next:'בביצוע', action:'advance' };
   if(status === 'active')  return { key:'active',    label:'בביצוע',  next:'נמסר',   action:'close' };
-  if(status === 'done' && due > 0) return { key:'delivered', label:'נמסר', next:'שולם', action:'pay' };
+  // v3.25.3 (R3/FLOW-08) — this stage's tap opens the money sheet, not a status change (see the
+  // comment above — "שולם" isn't a real status). The two earlier stages' buttons promise "קדם
+  // ל: X" and deliver exactly X on tap; this one promised "קדם ל: שולם" and instead opened a
+  // sheet — same button, broken promise. `cta` overrides the generic "קדם ל: " label with the
+  // honest action (_rhBannerHtml below); the tap behavior itself (_rhPromote's 'pay' branch)
+  // was already correct.
+  if(status === 'done' && due > 0) return { key:'delivered', label:'נמסר', next:'שולם', action:'pay', cta:'רשום תשלום' };
   return { key:'paid', label:'שולם', next:null, action:null };
 }
 function _rhBannerHtml(p){
@@ -29780,9 +30287,14 @@ function _rhBannerHtml(p){
   const pct = (typeof projProgress === 'function') ? projProgress(p) : 0;
   const rem = (typeof projRemainingSteps === 'function') ? projRemainingSteps(p) : 0;
   const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt || Date.now();
-  const day = Math.max(1, Math.floor((Date.now() - start) / 86400000) + 1);
-  const totalDays = Math.max(day, p.estimatedDays || 1);   // real field (set at project creation from the visit/quote) — not fabricated
-  const bits = [`יום ${day} מתוך ${totalDays}`, `${pct}% הושלם`];
+  // v3.25.3 (R3/FLOW-09) — "day N of N" always showed N/N (day counted against itself when no
+  // real estimatedDays exists — the fallback was `day` itself, not an estimate), so it always
+  // read as "today is the last day", and kept counting up on delivered projects because it
+  // measured against Date.now() forever. Now: only claim a total when p.estimatedDays is real,
+  // and stop the clock at actualEndDate once the project is delivered (pdMarkDone sets it).
+  const dayEnd = p.actualEndDate || Date.now();
+  const day = Math.max(1, Math.floor((dayEnd - start) / 86400000) + 1);
+  const bits = [p.estimatedDays ? `יום ${day} מתוך ${p.estimatedDays}` : `יום ${day}`, `${pct}% הושלם`];
   if(rem > 0) bits.push(`${rem} שלבים נותרו`);
   const sub = esc(bits.join(' · '));
   if(!info.next){
@@ -29800,7 +30312,7 @@ function _rhBannerHtml(p){
         <div class="rh-banner-stage">${esc(info.label)}</div>
         <div class="rh-banner-sub">${sub}</div>
       </div>
-      <div class="rh-banner-cta">קדם ל: ${esc(info.next)} <iconify-icon icon="mdi:chevron-left"></iconify-icon></div>
+      <div class="rh-banner-cta">${info.cta ? esc(info.cta) : `קדם ל: ${esc(info.next)}`} <iconify-icon icon="mdi:chevron-left"></iconify-icon></div>
     </button>`;
 }
 function _rhPromote(){
@@ -30125,11 +30637,16 @@ function _pdv2DoCameraCapture(){
           photo.meta = Object.assign({}, photo.meta || {}, manualMeta);
           p.updatedAt = ts(); if(typeof _saveAllNow === 'function') _saveAllNow(true); else saveAll();   // v3.22.33 (C6#11) — flush מיידי כמו pdQuickPhoto
           if(typeof toast==='function') toast('📸 תמונה + כיוון (' + manualMeta.direction.label + ')');
+          // v3.25.2 (STALE-01) — `p` was captured before the camera round-trip + manual-compass
+          // dialog; if the user switched to another project meanwhile, don't repaint this screen
+          // with the old project's data (the photo itself was already correctly saved above).
+          if(!p || p.id !== S.activeProjectId) return;
           if(typeof _pdv2OpenSheet!=='undefined' && _pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
           pdv2Render(p);
         },
         ()=>{
           if(typeof toast==='function') toast('📸 תמונה נשמרה — '+{before:'לפני',during:'במהלך',after:'אחרי'}[phase]);
+          if(!p || p.id !== S.activeProjectId) return;   // v3.25.2 (STALE-01) — same stale-`p` guard
           if(typeof _pdv2OpenSheet!=='undefined' && _pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
           pdv2Render(p);
         }
@@ -30137,6 +30654,7 @@ function _pdv2DoCameraCapture(){
     } else {
       const dirTxt = ' (' + meta.direction.label + ')';
       if(typeof toast==='function') toast('📸 תמונה נשמרה — '+{before:'לפני',during:'במהלך',after:'אחרי'}[phase] + dirTxt);
+      if(!p || p.id !== S.activeProjectId) return;   // v3.25.2 (STALE-01) — same stale-`p` guard
       if(typeof _pdv2OpenSheet!=='undefined' && _pdv2OpenSheet === 'gallery') pdv2RenderSheetGallery(p);
       pdv2Render(p);
     }
@@ -31807,11 +32325,116 @@ function _refreshInvoiceSurfaces(){
   else if(top === 'dash' && typeof renderDash === 'function') renderDash();
 }
 
+// v3.25.1 (R2/NOISE-03) — גיליון "חשבוניות ישנות": ה-12+ המוצגות במלואן בכרטיס, פלוס כל מה
+// שמעל 60 יום, מתקפלות ל-.fin-inv-more אחד; הגיליון הזה הוא ה"הקשה אחת" שחושפת אותן שוב —
+// אותה שורת-כרטיס (.fin-inv-item) וכפתור-הסימון בדיוק כמו בכרטיס הראשי.
+function _openOldInvoicesSheet(){
+  const all = (typeof _paymentsAwaitingInvoice === 'function') ? _paymentsAwaitingInvoice() : [];
+  const _payAge = x => x.pay.occurredAt || x.pay.date || x.pay.createdAt || 0;
+  const cutoff = Date.now() - 60*86400000;
+  const recent = all.filter(x => _payAge(x) >= cutoff).sort((a,b)=>_payAge(b)-_payAge(a));
+  const old    = all.filter(x => _payAge(x) < cutoff);
+  const folded = recent.slice(12).concat(old);
+  if(!folded.length){
+    openMo(`<div class="mo-title">חשבוניות ישנות</div><div style="text-align:center;color:var(--text3);padding:14px 0">כל החשבוניות הופקו ✓</div><button class="btn btn-gold" style="width:100%" onclick="closeMo()">סגור</button>`);
+    return;
+  }
+  const total = folded.reduce((s,x)=>s+(parseFloat(x.pay.amount)||0),0);
+  openMo(`
+    <div class="mo-title">חשבוניות ישנות (${folded.length})</div>
+    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:14px">סה"כ ${fmt(total)} ₪</div>
+    ${folded.map(({project, pay}) => {
+      const who = project.clientName || project.title || 'פרויקט';
+      const when = fmtD(pay.occurredAt || pay.date || pay.createdAt || 0);
+      const method = pay.name || '';
+      return `
+        <div class="fin-inv-item">
+          <div class="fin-inv-body">
+            <div class="fin-inv-name">${esc(who)}</div>
+            <div class="fin-inv-meta">${fmt(pay.amount)} ₪${method ? ` · ${esc(method)}` : ''} · ${when}</div>
+          </div>
+          <button class="fin-inv-btn" onclick="_markPaymentInvoiced('${project.id}','${pay.id}');_openOldInvoicesSheet()">סמן כהופקה</button>
+        </div>`;
+    }).join('')}
+    <button class="btn" style="width:100%;margin-top:10px;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>
+  `);
+}
+
+// v3.25.1 (R2/NOISE-04) — "סגור חוב": מסמן p.writtenOff (חוב שהקבלן ויתר על גבייתו). totalDue(p)
+// כבר משער את זה בנקודת-מחנק אחת, אז השורה נעלמת אוטומטית מהקוקפיט/הכספים/כרטיס-הלקוח — בלי
+// למחוק p.payments/p.tasks. אפשר תמיד לבטל (pdUndoWriteOff) — שום דבר לא הרסני.
+function pdWriteOffDebt(projectId){
+  const p = (S.projects || []).find(x => x.id === projectId);
+  if(!p) return;
+  const amt = (typeof totalDue === 'function') ? totalDue(p) : 0;
+  confirmAction({
+    title: 'לסמן חוב כלא-ייגבה?',
+    msg: `${esc(p.clientName || p.title || 'הפרויקט')} · ${fmt(Math.round(amt))}₪ יפסיק להופיע כחוב-פתוח. אפשר לבטל בכל עת — שום נתון לא נמחק.`,
+    ok: 'סמן', okCls: 'btn-gold',
+    cb: function(){
+      p.writtenOff = true;
+      p.writtenOffAt = ts();
+      p.updatedAt = ts();
+      saveAll();
+      toast('סומן כלא-ייגבה — ניתן לבטל בכל עת');
+      _refreshInvoiceSurfaces();
+    }
+  });
+}
+function pdUndoWriteOff(projectId){
+  const p = (S.projects || []).find(x => x.id === projectId);
+  if(!p) return;
+  p.writtenOff = false;
+  p.writtenOffAt = null;
+  p.updatedAt = ts();
+  saveAll();
+  toast('הסימון בוטל — החוב חזר לרשימת הגבייה');
+  _refreshInvoiceSurfaces();
+  if(typeof _openWrittenOffSheet === 'function') _openWrittenOffSheet();   // re-render the sheet if it's open
+}
+// גיליון "חובות שסומנו כלא-ייגבה" — ה"הקשה אחת" לביטול, נגיש גם כש-fin-due-card עצמו נעלם.
+function _openWrittenOffSheet(){
+  const list = (S.projects || []).filter(p => p && p.writtenOff);
+  if(!list.length){ closeMo(); return; }
+  openMo(`
+    <div class="mo-title">חובות שסומנו "לא ייגבה" (${list.length})</div>
+    ${list.map(p => `
+      <div class="fin-row">
+        <div class="fr-name">${esc(p.clientName || p.title || 'פרויקט')}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn-xs btn-ghost" onclick="pdUndoWriteOff('${esc(p.id)}')">בטל סימון</button>
+        </div>
+      </div>
+    `).join('')}
+    <button class="btn" style="width:100%;margin-top:10px;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>
+  `);
+}
+
 // v3.21.64 — the "stubborn" prompt: fired right after every recorded payment.
 // Lets the contractor mark the invoice issued now, or defer (the cockpit tile
 // + finance section stay lit until it's marked).
 function _promptIssueInvoice(projectId, payId, amount){
   const amt = (typeof fmt === 'function') ? fmt(amount) : amount;
+  // v3.25.3 (R3 — "צעד-הבא אחרי פעולה גדולה") — this sheet is the one screen every payment
+  // (from project-detail's pdSavePay AND finance's financeSavePay) already funnels through, but
+  // it only ever asked about the invoice — after closing it the contractor was back on a plain
+  // screen with no hint what to do about the money itself. One extra button, chosen from the
+  // project's real state (totalDue(p) — never a locally-derived figure): debt remains → the
+  // existing one-tap WhatsApp reminder (waDueReminderProject, UX-03); fully paid & not yet
+  // delivered → mark delivered (same confirm+pdMarkDone _rhPromote already uses, just made safe
+  // to call from a context — like finance — where this project isn't S.activeProjectId yet);
+  // fully paid & already delivered → the existing closure-deck CTA (openProjectClosure), same
+  // label pdv2InjectClosureCTA already uses elsewhere ("שם אחד לכל דבר").
+  const _piProj = (S.projects||[]).find(x => x.id === projectId);
+  const _piDue = (_piProj && typeof totalDue === 'function') ? totalDue(_piProj) : 0;
+  let nextStepBtn = '';
+  if(_piProj && _piDue > 0 && _piProj.clientPhone){
+    nextStepBtn = `<button class="btn btn-ghost" style="width:100%;margin-top:10px" onclick="closeMo();waDueReminderProject('${projectId}')"><iconify-icon icon="mdi:whatsapp" style="vertical-align:-2px"></iconify-icon> שלח תזכורת</button>`;
+  } else if(_piProj && _piDue <= 0 && _piProj.status === 'done'){
+    nextStepBtn = `<button class="btn btn-gold" style="width:100%;margin-top:10px" onclick="closeMo();(typeof openProjectClosure==='function')&&openProjectClosure('${projectId}')"><iconify-icon icon="mdi:auto-awesome" style="vertical-align:-2px"></iconify-icon> צור מצגת סיום ללקוח</button>`;
+  } else if(_piProj && _piDue <= 0){
+    nextStepBtn = `<button class="btn btn-gold" style="width:100%;margin-top:10px" onclick="closeMo();S.activeProjectId='${projectId}';if(typeof pdMarkDone==='function')pdMarkDone();"><iconify-icon icon="mdi:check-circle-outline" style="vertical-align:-2px"></iconify-icon> סמן כנמסר</button>`;
+  }
   openMo(`
     <div style="text-align:center">
       <div style="width:54px;height:54px;border-radius:16px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;background:var(--gold-l);color:var(--gold2);font-size:28px"><iconify-icon icon="mdi:receipt-text-check-outline"></iconify-icon></div>
@@ -31822,6 +32445,7 @@ function _promptIssueInvoice(projectId, payId, amount){
       <button class="btn btn-green" style="flex:1" onclick="_markPaymentInvoiced('${projectId}','${payId}');closeMo();toast('חשבונית סומנה כהופקה')">סמן כהופקה</button>
       <button class="btn btn-ghost" style="flex:1" onclick="closeMo()">אזכיר לי</button>
     </div>
+    ${nextStepBtn}
   `);
 }
 
@@ -32096,7 +32720,10 @@ function getWorkTypeTemplate(taskName){
 
 
 let _visitSort   = 'date';
-let _visitFilter = 'all';
+// v3.25.1 (R2/NOISE-01) — ברירת-מחדל "רק מה שחי": פתוחים, לא "הכל" (שהציג 100% ביקורים-סגורים).
+let _visitFilter = 'open';
+// v3.25.1 (R2/NOISE-04) — לשונית "פעילים / היסטוריה", אותו דפוס כמו view-people.
+let _visitScope = 'live';    // live | history
 
 function setVisitSort(s){
   _visitSort = s;
@@ -32112,6 +32739,11 @@ function setVisitFilter(f){
     const el=document.getElementById('vs-filter-'+x);
     if(el) el.classList.toggle('on', x===f);
   });
+  if(typeof _saveListFilters==='function') _saveListFilters();
+  renderVisitsList();
+}
+function setVisitScope(s){
+  _visitScope = s;
   renderVisitsList();
 }
 
@@ -32147,12 +32779,14 @@ function clearVisitFilter(category){
   if(category === 'status') _visitFilter = 'all';
   else if(category === 'sort') _visitSort = 'date';
   else if(category === 'search') visitFilterSearch = '';
+  if(category === 'status' && typeof _saveListFilters==='function') _saveListFilters();
   renderVisitsList();
 }
 function resetAllVisitFilters(){
   _visitFilter = 'all';
   _visitSort = 'date';
   visitFilterSearch = '';
+  if(typeof _saveListFilters==='function') _saveListFilters();
   renderVisitsList();
 }
 
@@ -32226,8 +32860,14 @@ function openVisitFilterSheet(){
 // v3.22.27 (3.13) — אזור-התוצאות של רשימת-הביקורים (צ'יפים + מונה + קבוצות-ימים),
 // מחושב בנפרד כדי שחיפוש יעדכן רק אותו בלי לבנות מחדש את ה-toolbar עם ה-input הממוקד.
 function _visitsResultsHtml(){
-  const totalVisits = (S.visits || []).length;
-  let visits = [...(S.visits || [])];
+  // v3.25.1 (R2) — scope FIRST: "live" (מה שחי) vs "history" (ביקורים סגורים מעל
+  // RETIRE_VISIT_DAYS יום). שום נתון לא נמחק — רק מסונן-תצוגה.
+  const liveAll = (S.visits || []).filter(v => !_visitIsRetired(v));
+  const histAll = (S.visits || []).filter(v => _visitIsRetired(v));
+  const scopedAll = _visitScope === 'history' ? histAll : liveAll;
+  const scopedTotal = scopedAll.length;
+
+  let visits = [...scopedAll];
   const q = (visitFilterSearch || '').trim().toLowerCase();
 
   // Search filter
@@ -32240,24 +32880,31 @@ function _visitsResultsHtml(){
       return hay.includes(q);
     });
   }
-  // Status filter
-  if(_visitFilter === 'open') visits = visits.filter(v=>!v.status||v.status==='open'||v.status==='draft');
-  else if(_visitFilter === 'done') visits = visits.filter(v=>v.status==='done'||v.status==='completed');
+  // Status filter — live scope only (history is already all-closed by definition)
+  if(_visitScope === 'live'){
+    if(_visitFilter === 'open') visits = visits.filter(v=>!v.status||v.status==='open'||v.status==='draft');
+    else if(_visitFilter === 'done') visits = visits.filter(v=>v.status==='done'||v.status==='completed');
+  }
 
   // Sort
-  if(_visitSort==='name') visits.sort((a,b)=>(a.clientName||'').localeCompare(b.clientName||'','he'));
+  if(_visitScope === 'history') visits.sort((a,b)=>((b.finishedAt||b.updatedAt||0)-(a.finishedAt||a.updatedAt||0)));
+  else if(_visitSort==='name') visits.sort((a,b)=>(a.clientName||'').localeCompare(b.clientName||'','he'));
   else visits.sort((a, b) => (b.updatedAt||b.createdAt||0) - (a.updatedAt||a.createdAt||0));
 
   // Active filter chips
   const activeChips = [];
-  if(_visitFilter !== 'all') activeChips.push({ key:'status', label: _visitFilter === 'open' ? 'פתוח / טיוטה' : 'הושלם' });
-  if(_visitSort !== 'date')  activeChips.push({ key:'sort', label: 'א-ב' });
+  if(_visitScope === 'live'){
+    if(_visitFilter !== 'all') activeChips.push({ key:'status', label: _visitFilter === 'open' ? 'פתוח / טיוטה' : 'הושלם' });
+    if(_visitSort !== 'date')  activeChips.push({ key:'sort', label: 'א-ב' });
+  }
   if(q)                      activeChips.push({ key:'search', label: `"${q}"` });
 
   const listHtml = !visits.length
     ? (q
         ? `<div class="empty"><div class="ei"><iconify-icon icon="mdi:magnify" width="48" style="color:var(--text3)"></iconify-icon></div><h3>לא נמצא</h3><p>נסה לחפש משהו אחר</p></div>`
-        : `<div class="empty"><div class="ei"><iconify-icon icon="mdi:clipboard-text-outline" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין ביקורים עדיין</h3><p>כאן יופיעו הביקורים שלך</p><button class="btn btn-gold" style="margin-top:18px" onclick="openVisitAddSheet()">+ ביקור חדש</button></div>`)
+        : _visitScope === 'history'
+          ? `<div class="empty"><div class="ei"><iconify-icon icon="mdi:history" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין היסטוריה עדיין</h3><p style="font-size:14px;margin-top:6px">ביקורים סגורים יופיעו כאן ${RETIRE_VISIT_DAYS} יום אחרי הסיום.</p></div>`
+          : `<div class="empty"><div class="ei"><iconify-icon icon="mdi:clipboard-text-outline" width="48" style="color:var(--text3)"></iconify-icon></div><h3>אין ביקורים עדיין</h3><p>כאן יופיעו הביקורים שלך</p><button class="btn btn-gold" style="margin-top:18px" onclick="openVisitAddSheet()">+ ביקור חדש</button></div>`)
     : groupVisitsByDate(visits).map(g => `
         <div class="day-group">
           <div class="day-label">${esc(g.label)}</div>
@@ -32276,10 +32923,10 @@ function _visitsResultsHtml(){
         <button class="active-chip ac-reset" onclick="resetAllVisitFilters()">אפס הכל</button>
       </div>
     ` : ''}
-    <div class="list-count-line">${visits.length} מתוך ${totalVisits}</div>
+    <div class="list-count-line">${visits.length} מתוך ${scopedTotal}</div>
     ${listHtml}
   `;
-  return { html, chips: activeChips.length, q };
+  return { html, chips: activeChips.length, q, listLen: visits.length, liveCount: liveAll.length, histCount: histAll.length };
 }
 
 function renderVisitsList(){
@@ -32287,10 +32934,22 @@ function renderVisitsList(){
   if(!body) return;
   const res = _visitsResultsHtml();
 
-  const _openVisits = (S.visits||[]).filter(v=>!v.status||v.status==='open'||v.status==='draft').length;
-  const mastHtml = `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> ניהול שטח</div><div class="lk-h1">${_openVisits} ${_openVisits===1?'ביקור':'ביקורים'} <em>${_openVisits===1?'פתוח':'פתוחים'}</em></div></div>`;
+  // v3.25.1 (R2/NOISE-02) — masthead number = בדיוק אורך מה שמוצג למטה (res.listLen).
+  const _n = res.listLen;
+  const _plural = _n===1?'ביקור':'ביקורים';
+  const mastHtml = _visitScope === 'history'
+    ? `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> היסטוריה</div><div class="lk-h1">${_n} ${_plural} <em>בהיסטוריה</em></div></div>`
+    : `<div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> ניהול שטח</div><div class="lk-h1">${_n} ${_plural} <em>${_visitFilter==='open'?(_n===1?'פתוח':'פתוחים'):_visitFilter==='done'?'הושלמו':''}</em></div></div>`;
+
+  // v3.25.1 (R2/NOISE-04) — לשונית "פעילים / היסטוריה", אותו דפוס כמו view-people.
+  const scopeTabsHtml = `<div class="lead-tabs" style="margin:10px 0 0">
+    <div class="lead-tab ${_visitScope==='live'?'on':''}" onclick="setVisitScope('live')">פעילים${res.liveCount?` (${res.liveCount})`:''}</div>
+    <div class="lead-tab ${_visitScope==='history'?'on':''}" onclick="setVisitScope('history')">היסטוריה${res.histCount?` (${res.histCount})`:''}</div>
+  </div>`;
+
   body.innerHTML = `
     ${mastHtml}
+    ${scopeTabsHtml}
     <div class="list-toolbar">
       <div class="lt-search">
         <span class="lt-search-ico"><iconify-icon icon="mdi:magnify" width="18"></iconify-icon></span>
@@ -34066,6 +34725,18 @@ function renderQuoteEdit(){
 function renderVisitDetail(){
   const v = getVisit();
   if(!v) return;
+  // v3.25.2 (ENTITIES-01) — moved here from openVisitDetail(). #vd-title used to be written ONLY
+  // in openVisitDetail(), so any of the ~9 other call sites that reach this screen by setting
+  // S.activeVisitId + push('visit-detail') directly (search results, "הומר לביקור" from a lead,
+  // "📋 פרטים" from the day summary, goBack()/hardware-back re-rendering an existing frame, ...)
+  // left the header showing whichever visit's name/number was written last, while the body below
+  // it (which DOES come from this renderer) was already correct — a title that lied about which
+  // record was actually on screen. renderVisitDetail() runs on every path that shows this screen
+  // (push()/goBack() both call show()→VIEW_RENDERERS['visit-detail']===this function), so this is
+  // the one place that's guaranteed to run every time, not just on the one call site that used to
+  // set it.
+  const vdTitleEl = document.getElementById('vd-title');   // v3.23.13 (CODE-11) — guard: אלמנט-כותרת דינמי
+  if(vdTitleEl) vdTitleEl.textContent = `${v.clientName || '(ללא שם)'}${v.visitNumber ? ' · #'+v.visitNumber : ''}`;
   // v3.21.74 — BUGFIX: opening a partial/older visit threw "Cannot read properties of undefined
   // (reading 'length')" because the render reads v.findings/outsidePhotos/roofPhotos/measurements
   // directly. Default any missing array field so the detail screen never crashes on open.
@@ -34496,7 +35167,7 @@ function doConvertToProject(visitId, isQuickJob=false){
   // synchronously, with the final state.
   if(typeof _saveAllNow === 'function') _saveAllNow(true);
   else saveAll();
-  viewStack = ['dash','projects-list','project-detail'];
+  viewStack = ['roofs','projects-list','project-detail'];
   show('project-detail'); renderProjectDetail();
   vib(30);
   // הצג מסך שאיבה אחרי רינדור
@@ -34519,8 +35190,9 @@ function openVisitDetail(visitId){
   S.activeVisitId = visitId;
   const v = getVisit();
   if(!v) return;
-  const vdTitleEl = document.getElementById('vd-title');   // v3.23.13 (CODE-11) — guard: אלמנט-כותרת דינמי
-  if(vdTitleEl) vdTitleEl.textContent = `${v.clientName || '(ללא שם)'}${v.visitNumber ? ' · #'+v.visitNumber : ''}`;
+  // v3.25.2 (ENTITIES-01) — #vd-title write moved into renderVisitDetail() itself (see there);
+  // removed from here. Left the explicit renderVisitDetail() call below as-is (out of scope for
+  // this fix — it's idempotent and multiple call sites already rely on that).
   push('visit-detail');
   renderVisitDetail();
 }
@@ -34899,7 +35571,7 @@ function _calNavToEntry(entryId){
   if(id.startsWith('lead-')){ if(typeof openLeadDetail==='function') openLeadDetail(id.slice(5)); return; }
   if(id.startsWith('visit-')){ if(typeof openVisitDetail==='function') openVisitDetail(id.slice(6)); return; }
   S.activeProjectId = id;
-  viewStack = ['dash','calendar','project-detail'];
+  viewStack = ['roofs','calendar','project-detail'];
   if(typeof show==='function') show('project-detail');
   if(typeof renderProjectDetail==='function') renderProjectDetail();
 }
@@ -36076,6 +36748,11 @@ async function init(){
     } catch(lsErr){ console.warn('LS restore failed:', lsErr); }
   }
 
+  // v3.25.1 (R2/NOISE-01) — טען את זיכרון-בחירת-הרשימות (S.settings.listFilters) עכשיו, אחרי
+  // ש-S.settings התאזן משני נתיבי-השחזור האפשריים למעלה (IDB רגיל / גיבוי-localStorage), ולפני
+  // שכל רשימה נפתחת בפעם הראשונה.
+  if(typeof _loadListFilters === 'function') _loadListFilters();
+
   // v3.23.1 (REL-10) — establish the singleton LWW baseline (__singleSeen/__singleTs, see
   // _touchSingletonLocalTs) right here, now that state has fully loaded/recovered from storage —
   // BEFORE the user can have edited anything. Previously the baseline was only ever established
@@ -36976,7 +37653,7 @@ function saveManualProject(){
   saveAll();
   closeMo();
   _pdTab='now'; _pdPhotoPhase='during';
-  viewStack=['dash','projects-list','project-detail'];
+  viewStack=['roofs','projects-list','project-detail'];
   show('project-detail'); renderProjectDetail();
   toast('✅ פרויקט נוצר — ' + name);
 }
@@ -37588,7 +38265,7 @@ async function seedPerlsteinProject(){
   if(typeof saveAll === 'function') saveAll(true);
 
   S.activeProjectId = project.id;
-  viewStack = ['dash','projects-list','project-detail'];
+  viewStack = ['roofs','projects-list','project-detail'];
   show('project-detail');
   renderProjectDetail();
   if(typeof toast === 'function') toast('פרלשטיין נטען מחדש — 8 סעיפים, 7 בלת״מים, 3 תובנות, נתוני כספים מלאים');
@@ -39480,7 +40157,7 @@ function _renderGalleryFull(){
       heroEl.innerHTML = `
         <div style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
           ${heroPhotos.map(h=>`
-            <div onclick="S.activeProjectId='${h.projectId}';viewStack=['dash','gallery','project-detail'];show('project-detail');renderProjectDetail()"
+            <div onclick="S.activeProjectId='${h.projectId}';viewStack=['roofs','gallery','project-detail'];show('project-detail');renderProjectDetail()"
               style="flex-shrink:0;width:200px;height:130px;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;border:1.5px solid rgba(232,154,60,.3)">
               <img src="${esc(h.src)}" data-blob-key="${esc(h.blobKey || '')}" style="width:100%;height:100%;object-fit:cover" alt="">
               <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:14px 10px 8px;color:#fff;font-size:11px;font-weight:700">
@@ -39569,7 +40246,7 @@ function _renderGalleryFull(){
 
     contentEl.innerHTML = projects.map(([pid, data])=>{
       const firstPhoto = data.photos[0];
-      return `<div onclick="S.activeProjectId='${pid}';viewStack=['dash','gallery','project-detail'];show('project-detail');renderProjectDetail()" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--ink2);border-radius:12px;border:1.5px solid var(--line);margin-bottom:8px;cursor:pointer">
+      return `<div onclick="S.activeProjectId='${pid}';viewStack=['roofs','gallery','project-detail'];show('project-detail');renderProjectDetail()" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--ink2);border-radius:12px;border:1.5px solid var(--line);margin-bottom:8px;cursor:pointer">
         <div style="width:64px;height:64px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--ink3)">
           <img src="${firstPhoto.data}" style="width:100%;height:100%;object-fit:cover" alt="">
         </div>
@@ -39724,7 +40401,7 @@ function _doGlobalSearch(q){
   if(results.projects.length){
     html += `<div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin:12px 4px 6px">🔨 פרויקטים (${results.projects.length})</div>`;
     results.projects.slice(0,8).forEach(p=>{
-      html += `<div onclick="closeMo();S.activeProjectId='${p.id}';viewStack=['dash','projects-list','project-detail'];show('project-detail');renderProjectDetail()" style="padding:10px 12px;background:var(--ink2);border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer">
+      html += `<div onclick="closeMo();openProjectDetail('${p.id}')" style="padding:10px 12px;background:var(--ink2);border:1.5px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer">
         <div style="font-size:14px;font-weight:800">${esc(p.clientName||'ללא שם')}</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(p.clientAddress||'')} ${p.status==='done'?'· ✅ הושלם':p.status==='active'?'· 🔨 פעיל':''}</div>
       </div>`;
@@ -39830,7 +40507,7 @@ function _vsRenderEmptyState(){
       <button type="button" class="vs-shortcut-row" onclick="openProjectsList()"><iconify-icon icon="mdi:home-city-outline"></iconify-icon><span>פרויקטים פעילים</span></button>
       <button type="button" class="vs-shortcut-row" onclick="goLeadsList()"><iconify-icon icon="mdi:account-star-outline"></iconify-icon><span>לידים פעילים</span></button>
       <button type="button" class="vs-shortcut-row" onclick="goVisitsList()"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon><span>ביקורים פתוחים</span></button>
-      <button type="button" class="vs-shortcut-row" onclick="openPeople()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות ואנשים</span></button>
+      <button type="button" class="vs-shortcut-row" onclick="openPeople()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות</span></button>
     </div>
   `;
 }
@@ -39979,7 +40656,7 @@ function _computeSmartInsights(){
         icon: '🔨',
         title: 'פרויקט תקוע',
         text: `${p.clientName||'פרויקט'} - ${Math.floor(stale/DAY)} ימים ללא עדכון`,
-        action: () => { S.activeProjectId=p.id; viewStack=['dash','project-detail']; show('project-detail'); renderProjectDetail(); },
+        action: () => { S.activeProjectId=p.id; viewStack=['roofs','project-detail']; show('project-detail'); renderProjectDetail(); },
         actionLabel: 'פתח פרויקט'
       });
     }
@@ -40030,7 +40707,7 @@ function _computeSmartInsights(){
         icon: '💰',
         title: 'יתרת גבייה',
         text: `${p.clientName||'פרויקט'} - חוב פתוח: ${fmt(due)}₪`,
-        action: () => { S.activeProjectId=p.id; _pdTab='money'; window._pdTab='money'; viewStack=['dash','project-detail']; show('project-detail'); renderProjectDetail(); }, // v3.21.53 — assign the bare let (consumers read it, not window) so the money tab actually opens
+        action: () => { S.activeProjectId=p.id; _pdTab='money'; window._pdTab='money'; viewStack=['roofs','project-detail']; show('project-detail'); renderProjectDetail(); }, // v3.21.53 — assign the bare let (consumers read it, not window) so the money tab actually opens
         actionLabel: 'פתח לתשלום'
       });
     }
