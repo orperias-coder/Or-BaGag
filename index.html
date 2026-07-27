@@ -579,26 +579,60 @@ input.err{border-color:var(--red)}
 .wk-search input:focus{outline:none}
 .wk-search iconify-icon{color:var(--text3);flex-shrink:0}
 
-/* כרטיס עבודה */
+/* ── כרטיס עבודה ─────────────────────────────────────────────────────────
+   v3.27.1 (ALIVE-01) — הכרטיס נבנה סביב תצלום הגג, בדיוק כמו .rf-card שקדם לו.
+   אור מזהה עבודה לפי איך שהגג נראה. גרסה בלי תמונה הפכה את המסך לרשימת-טקסט. */
 .wk-card{display:block;width:100%;text-align:right;background:var(--ink2);border:1px solid var(--line);
-  border-radius:16px;padding:13px 15px 11px;margin-bottom:10px;cursor:pointer;
-  transition:transform .1s,box-shadow .1s;font-family:inherit}
-.wk-card:active{transform:scale(.99)}
+  border-radius:16px;overflow:hidden;margin-bottom:12px;cursor:pointer;padding:0;
+  box-shadow:0 1px 2px rgba(58,44,24,.05),0 8px 22px -14px rgba(58,44,24,.28);
+  transition:transform .12s,box-shadow .12s;font-family:inherit}
+.wk-card:active{transform:scale(.985)}
 .wk-card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.wk-card-top{display:flex;align-items:flex-start;gap:11px}
-.wk-card-main{flex:1;min-width:0}
-.wk-name{font-size:16px;font-weight:800;color:var(--text);line-height:1.25;
+/* דחיפות נראית מיד — פס-צבע בקצה, לא עוד כרטיס לבן זהה */
+.wk-card.has-alert{border-inline-start:4px solid var(--line)}
+.wk-card.a-due{border-inline-start-color:var(--red)}
+.wk-card.a-stuck{border-inline-start-color:var(--sun)}
+.wk-card.a-soon{border-inline-start-color:var(--gold)}
+.wk-card.a-draft{border-inline-start-color:var(--gold-mid)}
+.wk-card.is-done{opacity:.82}
+.wk-card.is-done .wk-hero{filter:grayscale(.35)}
+
+.wk-hero-wrap{position:relative;height:132px}
+.wk-hero{position:absolute;inset:0;background-size:cover;background-position:center}
+.wk-hero-fallback{background:linear-gradient(180deg,var(--ink) 0%,var(--sun-deep) 55%,var(--sun) 80%,#f5d97a 100%)}
+.wk-hero-line{position:absolute;left:0;right:0;bottom:36%;height:1px;background:rgba(255,255,255,.35)}
+.wk-hero-arc{position:absolute;left:50%;bottom:36%;width:96px;height:48px;transform:translateX(-50%);
+  border-radius:96px 96px 0 0;background:radial-gradient(60px 40px at 50% 100%,rgba(255,240,200,.9),rgba(255,220,150,.25) 70%,transparent 72%)}
+/* צעיף כהה בתחתית כדי שהשם יהיה קריא על כל תמונה */
+.wk-hero-veil{position:absolute;inset:auto 0 0 0;height:72%;
+  background:linear-gradient(180deg,rgba(24,18,10,0) 0%,rgba(24,18,10,.62) 62%,rgba(24,18,10,.86) 100%)}
+.wk-hero-txt{position:absolute;inset:auto 12px 10px 12px}
+.wk-hero-badge{position:absolute;top:9px;inset-inline-start:9px;background:rgba(26,18,10,.72);color:#fff;
+  font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+.wk-hero-done{position:absolute;top:9px;inset-inline-end:9px;background:rgba(40,110,66,.92);color:#fff;
+  font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 9px;display:inline-flex;align-items:center;gap:3px}
+
+.wk-name{font-size:17px;font-weight:800;color:#fff;line-height:1.2;
+  text-shadow:0 1px 3px rgba(0,0,0,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-addr{font-size:12px;color:rgba(255,255,255,.88);margin-top:2px;display:flex;align-items:center;gap:4px;
+  text-shadow:0 1px 3px rgba(0,0,0,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wk-body{padding:11px 14px 12px}
+.wk-what{font-size:14px;font-weight:700;color:var(--text);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wk-what{font-size:13px;color:var(--text2);margin-top:2px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wk-when{font-size:11.5px;color:var(--text3);margin-top:3px}
-.wk-amt{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;text-align:left;flex-shrink:0;padding-top:1px}
+.wk-alert{font-size:12.5px;font-weight:800;margin-top:6px;padding:5px 10px;border-radius:8px;display:inline-block}
+.wk-alert.t-due{background:#F7E3DE;color:var(--red)}
+.wk-alert.t-stuck{background:var(--gold-l);color:var(--gold2)}
+.wk-alert.t-soon{background:var(--gold-l);color:var(--gold2)}
+.wk-alert.t-draft{background:var(--ink3);color:var(--text2)}
+.wk-foot{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:9px}
+.wk-when{font-size:11.5px;color:var(--text3)}
+.wk-amt{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;text-align:left;flex-shrink:0;color:var(--text)}
 .wk-amt.due{color:var(--red)}
-.wk-amt.quiet{color:var(--text3);font-weight:700}
+.wk-amt.quiet{color:var(--text3);font-weight:700;font-size:13.5px}
 .wk-amt-lbl{display:block;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.03em}
 
 /* פס-שלבים */
-.wk-stages{display:flex;gap:3px;margin-top:11px}
+.wk-stages{display:flex;gap:3px;margin-top:10px}
 .wk-stg{flex:1;text-align:center;font-size:9.5px;font-weight:700;color:var(--text3);
   padding-top:6px;border-top:3px solid var(--line);letter-spacing:.01em}
 .wk-stg.done{color:var(--green);border-top-color:var(--green)}
@@ -664,7 +698,7 @@ input.err{border-color:var(--red)}
 /* ── מחשב: פריסה אמיתית, לא עמודת-טלפון מתוחה ──────────────────────────── */
 @media (min-width:1024px){
   #view-works .wk-wrap, #view-folk .wk-wrap{max-width:1180px;margin:0 auto;padding:0 28px 40px}
-  #view-works .wk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+  #view-works .wk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
   #view-works .wk-card{margin-bottom:0}
   #view-folk .wk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:0 26px}
   #view-works .wk-mast, #view-folk .wk-mast{padding:26px 4px 12px}
@@ -7572,7 +7606,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.27.0'; // v3.27.0 — מבנה חדש: ליד/ביקור/הצעה/פרויקט/ג'וב הם חמישה שלבים של עבודה אחת. ארבעה מסכים (עבודות · עבודה · אנשים · אדם) מעל מנוע-עבודות נגזר; תיקון גלילת-מחשב במסך הגג; כמות/יחידה/מחיר-ליחידה ניתנים לעריכה; "סיימתי" נצבר ליומן במקום לדרוס; יומן ימי-עבודה נגיש בלי עובדים. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.27.1'; // v3.27.1 — תיקון קריטי: הגיבוי האוטומטי לגוגל דרייב נכנס ללולאה והפריע לעבודה (חלון-הרשאה שנפתח באמצע הקלדה). ההמתנה נמדדת מניסיון ולא מהצלחה; גיבוי-רקע לא מבקש הרשאה; חלון-שקט של 90 שניות. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -7664,6 +7698,10 @@ const S = {
     pendingChanges: false,  // האם יש שינויים שעוד לא נשמרו
     autoBackup: true,       // האם להפעיל גיבוי אוטומטי (בכפוף ל-cooldown)
     lastError: null,        // v3.23.0 (REL-03) — הודעת הכשל האחרון בגיבוי שקט (מוצג בכרטיס ההגדרות)
+    lastAttemptAt: null,    // v3.27.1 (GDRIVE-LOOP) — נכתב בכל ניסיון, גם כושל. ההמתנה נמדדת מכאן
+                            // ולא מ-lastBackupAt, אחרת כישלון גורר ניסיון-חוזר בכל שמירה (לולאה).
+    needsReconnect: false,  // v3.27.1 — הטוקן פג; גיבוי-רקע מדלג בשקט ומחכה לחיבור ידני,
+                            // במקום לפתוח את חלון-ההרשאה של גוגל באמצע עבודה.
   },
   // v3.9.31 — GitHub publish + dev files sync
   gitDev: {
@@ -12063,14 +12101,49 @@ function gdriveDisconnect(){
 }
 
 // ─── גיבוי ידני / ראשוני ─────────────────────────────────────────
+/* v3.27.1 (GDRIVE-LOOP) — הגיבוי-האוטומטי הפריע לעבודה: המסך "נעלם וחוזר" כל כמה שניות.
+   שרשרת-הכשל שאותרה:
+   1. `_saveAllInner` קורא ל-`gdriveMarkChange()` בכל שמירה (כלומר בכל הקלדה, דרך ה-debounce).
+   2. `gdriveMarkChange` חישב את ההמתנה מ-`lastBackupAt`, שנכתב **רק בהצלחה**. גיבוי שנכשל
+      השאיר חותמת ישנה → `waitTime=0` → `setTimeout(...,0)` → גיבוי מיידי.
+   3. `gdriveBackupNow` קורא ל-`saveAll(true)` גם בענף-הכישלון → שמירה → חזרה לשלב 1.
+      זו לולאה מיידית ואינסופית כל עוד הגיבוי נכשל.
+   4. `_gdriveRequestToken('')` אינו באמת שקט: כשאין session פעיל גוגל מציג חלון/הפניה —
+      וזה בדיוק ה"מסך נעלם ומיד חוזר" שדווח.
+   5. `toast('✅ גובה לדרייב')` רץ גם בגיבוי שקט.
+   התיקון: חותמת-ניסיון שנכתבת תמיד · גיבוי-אוטומטי לעולם לא מבקש טוקן אינטראקטיבי ·
+   דגל שמונע מהשמירה-הפנימית להצית סבב חדש · טוסט רק כשהמשתמש ביקש · השהיה מינימלית. */
+let _gdriveBackingUp = false;      // מונע כניסה-כפולה ומונע הצתה-עצמית דרך saveAll
+const GDRIVE_RETRY_MS = 30 * 60 * 1000;   // אחרי כישלון — חצי שעה שקט, לא ניסיון-בכל-הקלדה
+const GDRIVE_QUIET_MS = 90 * 1000;        // לא לגבות באמצע עבודה: 90 שניות אחרי המגע האחרון
+
 async function gdriveBackupNow(silent){
   if(!S.gdrive.enabled){
-    toast('קודם התחבר לגוגל דרייב');
+    if(!silent) toast('קודם התחבר לגוגל דרייב');
     return;
   }
+  if(_gdriveBackingUp) return;              // כבר רץ
+  _gdriveBackingUp = true;
+  // חותמת-ניסיון נכתבת לפני הניסיון עצמו — כך גם קריסה או ניתוק לא מחזירים אותנו ללולאה
+  S.gdrive.lastAttemptAt = new Date().toISOString();
   try {
     if(!silent) toast('🔄 מגבה לדרייב...');
-    await _gdriveEnsureToken();
+    // גיבוי אוטומטי משתמש רק בטוקן שכבר בזיכרון. אין טוקן — מדלגים בשקט עד שאור יגבה ידנית.
+    // זה מה שמונע את חלון-ההרשאה של גוגל מלקפוץ באמצע הקלדה.
+    if(silent){
+      if(!(_gdriveAccessToken && Date.now() < _gdriveTokenExpiry)){
+        S.gdrive.needsReconnect = true;
+        // REL-03 נשמר: דילוג שקט הוא עדיין כשל שצריך להיות נראה למשתמש — נרשם ומוצג
+        // בכרטיס ההגדרות, בדיוק כמו כל כשל-גיבוי אחר.
+        S.gdrive.lastError = 'ההרשאה לדרייב פגה — הגיבוי האוטומטי מושהה';
+        saveAll(true);      // בטוח: gdriveMarkChange חוסם את עצמו כל עוד _gdriveBackingUp דלוק
+        gdriveRenderSettingsCard();
+        return;
+      }
+    } else {
+      await _gdriveEnsureToken();
+      S.gdrive.needsReconnect = false;
+    }
     const folderId = await _gdriveEnsureFolder();
 
     const backup = _buildCompleteBackup();
@@ -12086,19 +12159,25 @@ async function gdriveBackupNow(silent){
     S.gdrive.lastBackupId = uploaded.id;
     S.gdrive.pendingChanges = false;
     S.gdrive.lastError = null;   // v3.23.0 (REL-03) — נקה כשל קודם אחרי הצלחה
+    S.gdrive.needsReconnect = false;
     saveAll(true);
 
     // ניקוי ברקע
     _gdriveCleanupOldBackups(folderId);
 
-    toast('✅ גובה לדרייב');
+    if(!silent) toast('✅ גובה לדרייב');   // v3.27.1 — גיבוי-רקע לא מפריע עם טוסט
     gdriveRenderSettingsCard();
   } catch(e){
     console.error('gdriveBackupNow:', e);
     if(!silent) toast('❌ הגיבוי נכשל: ' + (e.message || 'שגיאה'));
     // v3.23.0 (REL-03) — גיבוי שקט שנכשל היה נבלע לגמרי (toast רק כשלא silent). עכשיו נרשם
     // ל-lastError ומוצג בכרטיס ההגדרות (gdriveRenderSettingsCard), כדי שכישלון חוזר לא יישאר בלתי-נראה.
+    // v3.27.1 — ה-saveAll חזר, וזה בטוח: gdriveMarkChange חוסם את עצמו כל עוד _gdriveBackingUp
+    // דלוק (והוא נכבה רק ב-finally, אחרי השמירה). כך REL-03 נשמר — כשל שקט עדיין נרשם ומוצג —
+    // בלי הלולאה שהייתה כאן קודם.
     else { S.gdrive.lastError = (e && e.message) || 'שגיאה'; saveAll(true); gdriveRenderSettingsCard(); }
+  } finally {
+    _gdriveBackingUp = false;
   }
 }
 
@@ -12106,22 +12185,40 @@ async function gdriveBackupNow(silent){
 // נקרא מנקודות שמירה משמעותיות באפליקציה
 function gdriveMarkChange(){
   if(!S.gdrive.enabled || !S.gdrive.autoBackup) return;
+  // v3.27.1 (GDRIVE-LOOP) — הגיבוי עצמו קורא saveAll בסיומו; בלי המשמר הזה כל גיבוי היה
+  // מתזמן מיד את הבא אחריו.
+  if(_gdriveBackingUp) return;
   S.gdrive.pendingChanges = true;
 
   // בטל טיימר קודם אם קיים
   if(_gdriveAutoBackupTimer) clearTimeout(_gdriveAutoBackupTimer);
 
-  // האם עברה שעה מאז הגיבוי האחרון?
-  const lastBackup = S.gdrive.lastBackupAt ? new Date(S.gdrive.lastBackupAt).getTime() : 0;
-  const sinceLastBackup = Date.now() - lastBackup;
-  const waitTime = Math.max(0, GDRIVE_COOLDOWN_MS - sinceLastBackup);
+  // v3.27.1 — ההמתנה נמדדת מהניסיון האחרון ולא מההצלחה האחרונה. קודם, גיבוי שנכשל השאיר את
+  // lastBackupAt ישן, ולכן כל שמירה הבאה חישבה waitTime=0 וניסתה מיד שוב — בלולאה.
+  const lastOk      = S.gdrive.lastBackupAt  ? new Date(S.gdrive.lastBackupAt).getTime()  : 0;
+  const lastTry     = S.gdrive.lastAttemptAt ? new Date(S.gdrive.lastAttemptAt).getTime() : 0;
+  const now         = Date.now();
+  const sinceOk     = now - lastOk;
+  const sinceTry    = now - lastTry;
+  const waitForOk   = Math.max(0, GDRIVE_COOLDOWN_MS - sinceOk);
+  const waitForTry  = Math.max(0, GDRIVE_RETRY_MS   - sinceTry);
+  // ובנוסף: אף פעם לא לגבות מיד אחרי הקלדה — רק כשהמשתמש שקט GDRIVE_QUIET_MS
+  const waitTime = Math.max(waitForOk, waitForTry, GDRIVE_QUIET_MS);
 
   _gdriveAutoBackupTimer = setTimeout(() => {
-    if(S.gdrive.pendingChanges){
-      gdriveBackupNow(true);  // שקט (בלי toast חוץ מהסיום)
+    // אם המשתמש עדיין באמצע עבודה — לדחות שוב במקום להפריע
+    if(document.hidden === false && (Date.now() - (window.__lastUserTouch || 0)) < GDRIVE_QUIET_MS){
+      _gdriveAutoBackupTimer = setTimeout(() => { if(S.gdrive.pendingChanges) gdriveBackupNow(true); }, GDRIVE_QUIET_MS);
+      return;
     }
+    if(S.gdrive.pendingChanges) gdriveBackupNow(true);
   }, waitTime);
 }
+// v3.27.1 — חותמת-מגע אחרונה, כדי שגיבוי-רקע לא ייכנס לאמצע הקלדה
+try{
+  ['pointerdown','keydown','input'].forEach(ev =>
+    window.addEventListener(ev, () => { window.__lastUserTouch = Date.now(); }, {passive:true, capture:true}));
+}catch(e){}
 
 // ─── הצגת היסטוריית גיבויים ──────────────────────────────────────
 async function gdriveShowHistory(){
@@ -12255,7 +12352,17 @@ function gdriveRenderSettingsCard(){
     : 'עוד לא גובה';
   // v3.22.38 (ביקורת 7.3) — הגיבוי נרדם בשקט: אם עברו 7+ ימים, אזהרת-ענבר במקום הירוק.
   const _staleDays = (typeof _gdriveBackupStaleDays==='function') ? _gdriveBackupStaleDays() : null;
-  const _statusBox = (_staleDays != null)
+  // v3.27.1 (GDRIVE-LOOP) — כשההרשאה פגה, גיבוי-הרקע מדלג בשקט במקום לפתוח את חלון גוגל
+  // באמצע עבודה. המחיר: צריך לומר לאור שהגיבוי מושהה — כאן, ולא בהפרעה.
+  const _statusBox = (S.gdrive.needsReconnect)
+    ? `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fdf2d0;border:1px solid var(--yellow);border-radius:10px;margin-bottom:12px">
+         <span style="font-size:18px">⏸</span>
+         <div style="flex:1">
+           <div style="font-size:13px;font-weight:700;color:#8a6524">הגיבוי האוטומטי מושהה</div>
+           <div style="font-size:11px;color:#8a6524;margin-top:2px">ההרשאה לדרייב פגה. הגיבוי לא יפריע לך תוך כדי עבודה — לחץ "גבה עכשיו" כדי לחדש.</div>
+         </div>
+       </div>`
+    : (_staleDays != null)
     ? `<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fdf2d0;border:1px solid var(--yellow);border-radius:10px;margin-bottom:12px">
          <span style="font-size:18px">⚠️</span>
          <div style="flex:1">
@@ -18435,7 +18542,11 @@ function _workPhone(w){
 }
 function _workAddress(w){
   const p = w.projects[0], v = w.visits[0], q = w.quotes[0], l = w.lead;
-  return (p && p.address) || (v && v.address) || (q && q.clientAddress) || (l && l.address) || '';
+  // v3.27.1 — פרויקט שומר את הכתובת ב-clientAddress (לא address), ולכן הכתובת לא הופיעה
+  // על כרטיסי-עבודה שמקורם בפרויקט. הלקוח עצמו הוא המקור הכי מהימן כשהוא קיים.
+  const c = (w.clientId && typeof getClient === 'function') ? getClient(w.clientId) : null;
+  return (c && c.address) || (p && (p.clientAddress || p.address)) || (v && v.address)
+      || (q && q.clientAddress) || (l && l.address) || '';
 }
 
 /* מתי נגעו בעבודה — המקסימום על פני כל הרשומות שבה. זה מה שמניע את המיון בכל המסכים. */
@@ -18581,20 +18692,101 @@ function _workAmountHtml(w){
   return '';
 }
 
+/* v3.27.1 (ALIVE-01) — התמונה של העבודה.
+   אור מזהה עבודה לפי איך שהגג נראה, לא לפי שם — זה היה כל הרעיון של מסך-הגגות.
+   מחפש בכל הישויות שבעבודה, בסדר של "מה הכי מייצג": הפרויקט (שכבר יודע לבחור
+   לפני/אחרי לפי סטטוס), ואז הביקור, ואז הליד. משתמש בעוזרים הקיימים בלבד. */
+function _workPhoto(w){
+  const _ok = ph => ph && (ph.thumbDataUrl || ph.data || ph.dataFull || ph.blobKey);
+  for(const p of w.projects){
+    if(typeof _projCardThumb === 'function'){
+      const t = _projCardThumb(p);
+      if(t) return { url:t, blobKey:'' };
+    }
+    if(typeof _projCardPhoto === 'function'){
+      const ph = _projCardPhoto(p);
+      if(ph && ph.blobKey) return { url:'', blobKey:ph.blobKey };
+    }
+  }
+  for(const v of w.visits){
+    for(const arr of [v.roofPhotos||[], v.outsidePhotos||[], ...(v.findings||[]).map(f=>f.photos||[])]){
+      for(const ph of arr){
+        if(_ok(ph)) return { url: ph.thumbDataUrl || ph.data || ph.dataFull || '', blobKey: ph.blobKey || '' };
+      }
+    }
+  }
+  if(w.lead){
+    for(const ph of (w.lead.photos || [])){
+      if(_ok(ph)) return { url: ph.thumbDataUrl || ph.data || ph.dataFull || '', blobKey: ph.blobKey || '' };
+    }
+  }
+  return null;
+}
+function _workPhotoCount(w){
+  let n = 0;
+  w.projects.forEach(p => { n += (typeof pdv2CountPhotos === 'function') ? (pdv2CountPhotos(p)||0) : 0; });
+  w.visits.forEach(v => { n += (v.roofPhotos||[]).length + (v.outsidePhotos||[]).length
+                             + (v.findings||[]).reduce((s,f)=>s+((f.photos||[]).length),0); });
+  return n;
+}
+
+/* מה דורש ממני משהו עכשיו — וכמה זה דחוף. זה מה שקובע אם הכרטיס בולט או שקט,
+   וזה מה שהיה חסר: עבודה דחופה נראתה בדיוק כמו עבודה שנגמרה לפני שנה. */
+function _workAlert(w){
+  const DAY = 86400000, now = Date.now();
+  if(w.due > 0)  return { cls:'due',  label:`לגבייה ${fmt(Math.round(w.due))} ₪`, tone:'due' };
+  // ביקור מתוכנן לימים הקרובים
+  for(const v of w.visits){
+    const at = v.scheduledAt || 0;
+    if(at && at > now && at - now < 2*DAY) return { cls:'soon', label:'ביקור מתוכנן', tone:'soon' };
+  }
+  // הצעה שנשלחה ואין תשובה
+  const sent = w.quotes.find(q => q.status === 'sent' && q.sentAt);
+  if(sent){
+    const days = Math.floor((now - sent.sentAt)/DAY);
+    if(days >= 7) return { cls:'stuck', label:`ההצעה ממתינה ${days} ימים`, tone:'stuck' };
+  }
+  if(w.quotes.some(q => (q.status||'draft') === 'draft')) return { cls:'draft', label:'הצעה בטיוטה', tone:'draft' };
+  if(w.stage === 'lead') return { cls:'soon', label:'פנייה חדשה — לחזור אליו', tone:'soon' };
+  return null;
+}
+
 function _workCardHtml(w){
-  const when = w.updatedAt ? _humanTimeAgo(Date.now() - w.updatedAt) : '';
-  const draft = w.quotes.some(q => (q.status||'draft') === 'draft');
+  const when  = w.updatedAt ? _humanTimeAgo(Date.now() - w.updatedAt) : '';
+  const photo = _workPhoto(w);
+  const nPh   = _workPhotoCount(w);
+  const alert = _workAlert(w);
+  const addr  = _workAddress(w);
+  const done  = w.stage === 'done';
+
+  const heroHtml = (photo && photo.url)
+    ? `<div class="wk-hero" style="background-image:url('${photo.url}')"></div>`
+    : `<div class="wk-hero wk-hero-fallback"${photo && photo.blobKey ? ` data-bg-blob-key="${esc(photo.blobKey)}"` : ''}>
+         <span class="wk-hero-line"></span><span class="wk-hero-arc"></span></div>`;
+
   return `
-    <button class="wk-card" onclick="openWork('${_jsAttr(w.id)}')">
-      <div class="wk-card-top">
-        <div class="wk-card-main">
+    <button class="wk-card${alert ? ' has-alert a-'+alert.cls : ''}${done ? ' is-done' : ''}" onclick="openWork('${_jsAttr(w.id)}')">
+      <div class="wk-hero-wrap">
+        ${heroHtml}
+        <div class="wk-hero-veil"></div>
+        <div class="wk-hero-txt">
           <div class="wk-name">${esc(_workClientName(w))}</div>
-          <div class="wk-what">${esc(w.title)}${draft ? '<span class="wk-tag draft">טיוטה</span>' : ''}</div>
-          ${when ? `<div class="wk-when">${esc(when)}</div>` : ''}
+          ${addr ? `<div class="wk-addr"><iconify-icon icon="mdi:map-marker-outline" width="12"></iconify-icon> ${esc(addr)}</div>` : ''}
         </div>
-        ${_workAmountHtml(w)}
+        ${nPh > 0 ? `<span class="wk-hero-badge">${nPh} ${nPh===1?'תמונה':'תמונות'}</span>` : ''}
+        ${done ? `<span class="wk-hero-done"><iconify-icon icon="mdi:check-bold" width="13"></iconify-icon> נגמר</span>` : ''}
       </div>
-      ${_workStagesHtml(w)}
+      <div class="wk-body">
+        ${/* v3.27.1 — כש-_workTitle נופל בחזרה לשם-הלקוח (אין כותרת-עבודה משלה), השם הופיע
+             פעמיים: על התמונה ומתחתיה. במקרה כזה מציגים את השלב במילים במקום לחזור על השם. */''}
+        <div class="wk-what">${esc(w.title === _workClientName(w) ? _workStageLabel(w) + ' — ' + (_workPhone(w) || 'ללא טלפון') : w.title)}</div>
+        ${alert ? `<div class="wk-alert t-${alert.tone}">${esc(alert.label)}</div>` : ''}
+        ${_workStagesHtml(w)}
+        <div class="wk-foot">
+          <span class="wk-when">${esc(when)}</span>
+          ${alert && alert.tone === 'due' ? '' : _workAmountHtml(w)}
+        </div>
+      </div>
     </button>`;
 }
 
@@ -18692,6 +18884,10 @@ function renderWorks(){
       ${q ? `<div class="wk-count">${list.length} מתוך ${total} — החיפוש כולל גם עבודות שהסתיימו</div>` : ''}
       ${listHtml}
     </div>`;
+  // v3.27.1 (ALIVE-01) — תמונות ששמורות רק כ-blob ב-IndexedDB (בלי thumbDataUrl) מרונדרות
+  // קודם עם הגרדיאנט ומקבלות את התמונה האמיתית כאן, אחרי ההזרקה. אותו דפוס בדיוק
+  // כמו ב-renderRoofs (v3.24.2) — בלי פותר-תמונות חדש.
+  if(typeof _resolveBlobBackgroundsIn === 'function') _resolveBlobBackgroundsIn(body);
 }
 function setWorksQuery(v){
   _worksQuery = v || '';
