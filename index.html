@@ -740,6 +740,13 @@ input.err{border-color:var(--red)}
 .wk-act{display:flex;flex-wrap:wrap;gap:8px;margin:12px 2px 0}
 .wk-act .btn{flex:1;min-width:44%;min-height:48px;font-size:14.5px;margin:0}
 .wk-sec{margin:20px 2px 0}
+.wk-subhead{display:flex;align-items:baseline;justify-content:space-between;padding:14px 4px 4px;
+  font-size:12.5px;font-weight:700;color:var(--text2)}
+.wk-subhead span{font-size:12px;font-weight:400;color:var(--text3);font-variant-numeric:tabular-nums}
+.wk-more{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;
+  background:transparent;border:0;padding:11px 4px;font-family:inherit;font-size:13px;font-weight:600;
+  color:var(--gold);cursor:pointer;border-bottom:1px solid var(--line);min-height:44px}
+.wk-more:active{background:var(--ink3)}
 .wk-sec-h{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
   color:var(--text3);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--line)}
 .wk-row{display:flex;align-items:center;gap:11px;padding:11px 4px;border-bottom:1px solid var(--line);
@@ -7715,7 +7722,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.28.3'; // v3.28.3 — תיקון עיוות במסך-העבודה (התנגשות שם-מחלקה .wk-sec שהציבה כותרת באמצע השורה), סכומים מקבלים תווית שמסבירה מאיפה הם, וזנב-ריק/כפתורים גולשים במסך-העבודה. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.28.4'; // v3.28.4 — מסך-העבודה: רשומות מקובצות ומקופלות (עבודה ותיקה הציגה 21 שורות זהות ברצף). כל קבוצה מציגה 2 והשאר נפתח בלחיצה. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -19084,6 +19091,20 @@ function openWork(workId){
 function getActiveWork(){ return _activeWorkId ? getWork(_activeWorkId) : null; }
 
 /* הפעולה המומלצת בכל שלב — כפתור ראשי אחד, ולידו לכל היותר אחד משני. */
+/* v3.28.4 — פותח/סוגר את יתרת הרשומות בקבוצה בתוך מסך-העבודה. */
+function _wkToggleMore(id, btn){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : '';
+  if(btn){
+    const n = el.children.length;
+    btn.innerHTML = open
+      ? `עוד ${n} <iconify-icon icon="mdi:chevron-down" width="15"></iconify-icon>`
+      : `הסתר <iconify-icon icon="mdi:chevron-up" width="15"></iconify-icon>`;
+  }
+}
+
 function _workNextStepHtml(w){
   const st = w.stage;
   const v = w.visits[0], q = w.quotes[0], p = w.projects[0], l = w.lead;
@@ -19128,21 +19149,36 @@ function renderWork(){
       ${end?`<div class="wk-row-end">${end}</div>`:''}
     </button>`;
 
+  // v3.28.4 — עבודה ותיקה צוברת עשרות רשומות (נמדד אצל אור: 14 הצעות + 6 ביקורים = 21 שורות
+  // זהות), והרשימה השטוחה הפכה לקיר שצריך לגלול. עכשיו כל סוג מקובץ ומקופל: שתי הרשומות
+  // האחרונות גלויות, והשאר נפתחות בלחיצה. סדר-הקבוצות = סדר-השלבים של העבודה.
   const parts = [];
   if(w.lead) parts.push(recRow('mdi:account-plus-outline', 'הפנייה',
     esc((LEAD_STATUS && LEAD_STATUS[w.lead.status] || {}).label || ''), '',
     `openLeadDetail('${_jsAttr(w.lead.id)}')`));
-  w.visits.forEach(v => parts.push(recRow('mdi:clipboard-text-outline', 'ביקור',
+  const _group = (items, label, render) => {
+    if(!items.length) return;
+    const SHOW = 2;
+    if(items.length > SHOW) parts.push(`<div class="wk-subhead">${esc(label)} <span>${items.length}</span></div>`);
+    items.slice(0, SHOW).forEach(x => parts.push(render(x)));
+    if(items.length > SHOW){
+      const restId = 'more-' + label.replace(/\s/g,'') + '-' + w.id;
+      parts.push(`<div id="${esc(restId)}" style="display:none">${items.slice(SHOW).map(render).join('')}</div>`);
+      parts.push(`<button class="wk-more" onclick="_wkToggleMore('${_jsAttr(restId)}',this)">
+        עוד ${items.length - SHOW} <iconify-icon icon="mdi:chevron-down" width="15"></iconify-icon></button>`);
+    }
+  };
+  _group(w.visits, 'ביקורים', v => recRow('mdi:clipboard-text-outline', 'ביקור',
     esc(v.createdAt ? fmtD(v.createdAt) : '') + ((v.findings||[]).length ? ` · ${(v.findings||[]).length} ממצאים` : ''), '',
-    `openVisitDetail('${_jsAttr(v.id)}')`)));
-  w.quotes.forEach(q => {
+    `openVisitDetail('${_jsAttr(v.id)}')`));
+  _group(w.quotes, 'הצעות מחיר', q => {
     const isDraft = (q.status||'draft') === 'draft';
     const total = (typeof _quoteGrandTotal === 'function') ? _quoteGrandTotal(q) : 0;
-    parts.push(recRow('mdi:file-document-outline',
+    return recRow('mdi:file-document-outline',
       'הצעת מחיר' + (q.quoteCode ? ` ${esc(q.quoteCode)}` : '') + (isDraft ? '<span class="wk-tag draft">טיוטה</span>' : ''),
       esc(q.updatedAt ? _humanTimeAgo(Date.now()-q.updatedAt) : ''),
       total ? `<span class="wk-row-lbl">סכום ההצעה</span>${fmt(Math.round(total))} ₪` : '',
-      `openQuote('${_jsAttr(q.id)}')`));
+      `openQuote('${_jsAttr(q.id)}')`);
   });
   w.projects.forEach(pr => {
     // v3.28.3 — הסכום הופיע ערום ליד "הגג" ואור שאל בצדק מאיפה הוא הגיע. עכשיו כתוב
