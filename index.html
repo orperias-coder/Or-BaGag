@@ -585,10 +585,13 @@ input.err{border-color:var(--red)}
 .gnav-tab.on svg.obi{color:var(--gold2)}
 .gnav-tab:active{transform:scale(.94)}
 .gnav-tab:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
-.gnav-mid{display:flex;align-items:flex-start;justify-content:center}
-.gnav-fab{width:52px;height:52px;border-radius:50%;margin-top:-22px;border:3px solid var(--ink2);
-  background:linear-gradient(160deg,var(--clay),#A8501E);color:var(--ink2);font-size:24px;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(168,80,30,.4);cursor:pointer}
+.gnav-mid{display:flex;align-items:center;justify-content:center;flex:1}
+/* v3.28.1 — אור: "לא אוהב שיש כפתור על המסך, אהבתי את הפלוס בתוך שורת המשימות למטה".
+   הכפתור ירד מלרחף (margin-top שלילי + צל + מסגרת שחתכה את הסרגל) והפך לפריט
+   שיושב בתוך השורה כמו האחרים — ריבוע מעוגל, בגובה הסרגל, בלי לכסות תוכן. */
+.gnav-fab{width:40px;height:40px;border-radius:11px;margin-top:0;border:0;
+  background:var(--gold);color:#1A1508;font-size:22px;
+  display:flex;align-items:center;justify-content:center;box-shadow:none;cursor:pointer}
 .gnav-fab svg.obi{width:24px;height:24px}
 .gnav-fab:active{transform:scale(.94)}
 .gnav-fab:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
@@ -773,18 +776,29 @@ input.err{border-color:var(--red)}
 .wk-tag.due{background:var(--red-l);color:var(--red)}
 .wk-tag.ok{background:var(--green-l);color:var(--green)}
 
+/* v3.28.1 (MODEL-02) — מודל-האדם: אווטאר אחד בשלושה גדלים, וצ'יפ/כותרת שנגזרים ממנו.
+   קודם היו ארבעה עיצובים שונים לאותו אדם (.client-row, .lead-row, .wk-person, וצ'יפ). */
+.pm-av{border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:var(--ink3);color:var(--text2);font-weight:500;letter-spacing:.01em}
+.pm-av.sm{width:30px;height:30px;font-size:12px}
+.pm-av.lg{width:52px;height:52px;font-size:19px;font-weight:600}
+.pm-chip{display:flex;align-items:center;gap:10px;width:100%;text-align:right;font-family:inherit;
+  background:var(--ink3);border:1px solid var(--line);border-radius:12px;padding:10px 13px;
+  margin:0 0 12px;cursor:pointer;color:var(--text3)}
+.pm-chip:active{background:var(--ink2)}
+.pm-chip-bd{flex:1;min-width:0;display:flex;flex-direction:column}
+.pm-chip-lbl{font-size:10.5px;font-weight:600;color:var(--text3);letter-spacing:.04em}
+.pm-chip-name{font-size:14.5px;font-weight:600;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-head{display:flex;align-items:center;gap:13px;padding:18px 2px 14px}
+.pm-head-bd{flex:1;min-width:0}
+.pm-head-name{font-size:21px;font-weight:700;color:var(--text);letter-spacing:-.02em;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-head-sub{font-size:13.5px;font-weight:300;color:var(--text2);margin-top:2px}
+.pm-due{font-size:19px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums;flex-shrink:0}
+.pm-due span{font-size:12px;font-weight:300;color:var(--text3);margin-inline-start:2px}
+
 /* אנשים */
-.wk-person{display:flex;align-items:center;gap:11px;padding:11px 6px;border-bottom:1px solid var(--line);
-  width:100%;text-align:right;background:transparent;cursor:pointer;font-family:inherit}
-.wk-person:last-child{border-bottom:0}
-.wk-av{width:40px;height:40px;border-radius:50%;background:var(--gold-l);color:var(--gold2);
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
-.wk-p-main{flex:1;min-width:0}
-.wk-p-name{font-size:15.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wk-p-sub{font-size:12.5px;color:var(--text2);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wk-p-end{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;flex-shrink:0}
-.wk-p-end.due{color:var(--red)}
-.wk-p-end.ok{color:var(--green)}
 .wk-contact{display:flex;gap:7px;margin:0 2px 14px}
 .wk-contact .btn{flex:1;min-height:44px;font-size:13px;margin:0}
 
@@ -7715,7 +7729,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.28.0'; // v3.28.0 — עיצוב חדש: "לילה וזהב" על כל האפליקציה (151 טוקנים + 407 צבעים קשיחים), ורשימה של שורות במקום כרטיסים לפי מחקר 19 אפליקציות בפליי-סטור. מסמכים ללקוח נשארו לבנים. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.28.1'; // v3.28.1 — מודל-אדם אחד (_personModel/_personHtml) שמשמש כשורה, כצ'יפ וככותרת במקום ארבעה רינדורים שונים; והפלוס ירד מלרחף אל תוך שורת-הניווט. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -19229,18 +19243,19 @@ function renderFolk(){
   const q = (_folkQuery || '').trim().toLowerCase();
   const rows = q ? all.filter(r => (r.name + ' ' + r.phone).toLowerCase().includes(q)) : all;
 
+  // v3.28.1 (MODEL-02) — שורת-אדם עוברת דרך אותו רכיב כמו הצ'יפ וכמו ראש-הכרטיס.
+  // אדם בלי כרטיס-לקוח (עבודה מרחפת) נבנה כמודל-מינימלי ומוצג באותה צורה בדיוק.
   const rowHtml = r => {
-    const sub = r.openCount
-      ? `${r.openCount} ${r.openCount===1?'עבודה פתוחה':'עבודות פתוחות'} · ${_workStageLabel(r.works.find(w=>w.stage!=='done')||r.works[0])}`
-      : (r.works.length ? `${r.works.length} ${r.works.length===1?'עבודה':'עבודות'} · הכל נגמר` : '');
-    const end = r.due > 0 ? `<div class="wk-p-end due">${fmt(Math.round(r.due))} ₪</div>`
-              : (!r.openCount && r.works.length ? `<div class="wk-p-end ok">שולם</div>` : '');
-    const onclick = r.kind === 'client' ? `openFolkOne('${_jsAttr(r.id)}')` : `openWork('${_jsAttr(r.id)}')`;
-    return `<button class="wk-person" onclick="${onclick}">
-      <div class="wk-av">${esc(_initialsOf(r.name))}</div>
-      <div class="wk-p-main"><div class="wk-p-name">${esc(r.name)}</div><div class="wk-p-sub">${esc(sub)}</div></div>
-      ${end}
-    </button>`;
+    if(r.kind === 'client'){
+      const m = _personModel(r.id);
+      if(m) return _personHtml(m, 'row');
+    }
+    const w = r.works[0];
+    const m = { id:r.id, name:r.name, phone:r.phone||'', address:'', city:'',
+                initials:_initialsOf(r.name), works:r.works, openCount:r.openCount,
+                worksCount:r.works.length, due:Math.round(r.due||0), lastTouch:r.last,
+                stage: w ? _workStageLabel(w) : '' };
+    return _personHtml(m, 'row', { onclick:`openWork('${_jsAttr(r.id)}')` });
   };
 
   body.innerHTML = `
@@ -19333,10 +19348,12 @@ function renderFolkOne(){
     <div class="wk-two">
       <div class="wk-col-main">
         <div class="wk-wrap">
-          <div class="wk-mast" style="padding-top:14px">
-            <div class="wk-h1" style="font-size:22px">${works.length} ${works.length === 1 ? 'עבודה' : 'עבודות'}</div>
-            ${due > 0 ? `<div class="wk-sub" style="color:var(--red);font-weight:700">לגבייה ${fmt(Math.round(due))} ₪</div>` : ''}
-          </div>
+          ${/* v3.28.1 (MODEL-02) — ראש-הכרטיס הוא אותו רכיב-אדם, בצורת 'header'. */''}
+          ${cid ? _personHtml(_personModel(cid), 'header') : `
+            <div class="wk-mast" style="padding-top:14px">
+              <div class="wk-h1" style="font-size:22px">${works.length} ${works.length === 1 ? 'עבודה' : 'עבודות'}</div>
+              ${due > 0 ? `<div class="wk-sub" style="color:var(--red);font-weight:700">לגבייה ${fmt(Math.round(due))} ₪</div>` : ''}
+            </div>`}
           ${works.length ? `<div class="wk-list">${works.map(_workCardHtml).join('')}</div>`
             : `<div class="wk-empty"><h3>עוד אין עבודות</h3><p>כשתתחיל עבודה אצל ${esc(name)} היא תופיע כאן.</p></div>`}
         </div>
@@ -20989,7 +21006,103 @@ function _fillEmptyClientFields(clientId, incoming, interactive){
 }
 
 // Subtle chip HTML to show at the top of lead/visit/project detail screens when linked
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.28.1 (MODEL-02) — מודל האדם. רכיב אחד, שלוש צורות.
+   ───────────────────────────────────────────────────────────────────────────────
+   אור: "לא יצרנו מודל של לקוח... ואז בכל שלב זה בשפות עיצוביות ופונקציונליות
+   שונות. צריך שיהיה דבר אחד שהוא לקוח — פשוט כרטיס לקוח, ויש מודל, ולוקחים
+   אותו ושמים בכל מקום רלוונטי."
+
+   נמדד לפני התיקון: שלוש פונקציות-רינדור שונות לאותו אדם —
+   clientRowHtml (.client-row/.cr-avatar), leadRowHtml (.lead-row/.lr-*),
+   ו-.wk-person — ועוד צ'יפ-לקוח רביעי עם עיצוב משלו.
+
+   `_personModel(id)` הוא מקור-האמת: הוא לא יודע אם מדובר ב"ליד" או ב"לקוח",
+   כי במבנה החדש זו אותה ישות בשלבים שונים. `_personHtml(model, variant)`
+   מצייר אותו — שורה, צ'יפ או כותרת — מאותם נתונים ובאותה שפה.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _personModel(idOrObj){
+  const c = (typeof idOrObj === 'string') ? getClient(idOrObj) : idOrObj;
+  if(!c) return null;
+  const works = (typeof getClientWorks === 'function') ? getClientWorks(c.id) : [];
+  const open  = works.filter(w => w.stage !== 'done');
+  const due   = (typeof getClientTotalDue === 'function') ? getClientTotalDue(c.id) : 0;
+  const last  = works.reduce((m,w) => Math.max(m, w.updatedAt || 0), 0);
+  return {
+    id: c.id,
+    name: c.clientName || 'ללא שם',
+    phone: c.phone || '',
+    address: c.address || '',
+    city: (typeof _clientCity === 'function') ? _clientCity(c) : '',
+    initials: (typeof _initialsOf === 'function') ? _initialsOf(c.clientName) : '',
+    works, openCount: open.length, worksCount: works.length,
+    due: Math.round(due || 0),
+    lastTouch: last,
+    // השלב של העבודה הפתוחה שנגעו בה אחרון — זה מה שאור רוצה לדעת על אדם
+    stage: open.length ? (typeof _workStageLabel === 'function' ? _workStageLabel(open[0]) : '') : '',
+  };
+}
+
+/* variant: 'row' (רשימת אנשים) · 'chip' (בתוך הצעה/ליד/פרויקט) · 'header' (ראש כרטיס-אדם) */
+function _personHtml(model, variant, opts){
+  if(!model) return '';
+  const o = opts || {};
+  const onclick = o.onclick || `openFolkOne('${_jsAttr(model.id)}')`;
+
+  const sub = model.openCount
+    ? `${model.openCount} ${model.openCount === 1 ? 'עבודה פתוחה' : 'עבודות פתוחות'}${model.stage ? ' · ' + model.stage : ''}`
+    : (model.worksCount ? `${model.worksCount} ${model.worksCount === 1 ? 'עבודה' : 'עבודות'} · הכל נגמר`
+                        : (model.phone || 'אין עבודות עדיין'));
+
+  if(variant === 'chip'){
+    return `
+      <button class="pm-chip" onclick="${onclick}">
+        <span class="pm-av sm">${esc(model.initials)}</span>
+        <span class="pm-chip-bd">
+          <span class="pm-chip-lbl">לכרטיס הלקוח</span>
+          <span class="pm-chip-name">${esc(model.name)}</span>
+        </span>
+        <iconify-icon icon="mdi:chevron-left" width="18"></iconify-icon>
+      </button>`;
+  }
+
+  if(variant === 'header'){
+    return `
+      <div class="pm-head">
+        <span class="pm-av lg">${esc(model.initials)}</span>
+        <div class="pm-head-bd">
+          <div class="pm-head-name">${esc(model.name)}</div>
+          <div class="pm-head-sub">${esc(sub)}</div>
+        </div>
+        ${model.due > 0 ? `<div class="pm-due">${fmt(model.due)}<span>₪</span></div>` : ''}
+      </div>`;
+  }
+
+  // 'row' — אותה אנטומיה בדיוק כמו שורת-עבודה, כדי ששתי הרשימות יקראו זהה
+  const end = model.due > 0
+    ? `<span class="wr-amt bad">${fmt(model.due)}</span><span class="wr-cur">₪</span>`
+    : (model.worksCount && !model.openCount ? `<span class="wr-cur">שולם</span>` : '');
+  return `
+    <button class="wk-row-item" onclick="${onclick}">
+      <span class="wr-av">${esc(model.initials)}</span>
+      <span class="wr-bd">
+        <span class="wr-l1">${esc(model.name)}</span>
+        <span class="wr-l2">${esc(sub)}</span>
+        ${model.city || model.phone ? `<span class="wr-l3">${esc(model.city || model.phone)}</span>` : ''}
+      </span>
+      <span class="wr-end">${end}</span>
+    </button>`;
+}
+
 function _clientChipHtml(clientId){
+  // v3.28.1 (MODEL-02) — עובר דרך המודל המשותף. הגרסה הקודמת נשארת מתחת כ-Legacy.
+  if(!clientId) return '';
+  const m = _personModel(clientId);
+  if(!m) return '';
+  return _personHtml(m, 'chip');
+}
+
+function _clientChipHtmlLegacy(clientId){
   if(!clientId) return '';
   const c = getClient(clientId);
   if(!c) return '';
