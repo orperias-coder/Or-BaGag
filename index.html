@@ -704,9 +704,12 @@ input.err{border-color:var(--red)}
 .wr-amt.bad{color:var(--red)}
 .wr-cur{font-size:12px;font-weight:300;color:var(--text3)}
 /* כותרת-מקטע — 16/19 מהאפליקציות מקבצות ככה */
-.wk-sec{display:flex;align-items:baseline;justify-content:space-between;padding:22px 16px 8px}
-.wk-sec-t{font-size:13px;font-weight:600;color:var(--text2)}
-.wk-sec-n{font-size:13px;font-weight:300;color:var(--text3);font-variant-numeric:tabular-nums}
+/* v3.28.3 — שם ייחודי. הקודם (.wk-sec) התנגש עם כותרת-הסקציה של מסך-העבודה שנושאת
+   את אותו שם מאז v3.27.0, וה-display:flex כאן גרם ל"כל מה שיש בעבודה הזאת" לשבת
+   בשורה אחת עם התוכן במקום מעליו. */
+.wk-grp{display:flex;align-items:baseline;justify-content:space-between;padding:22px 16px 8px}
+.wk-grp-t{font-size:13px;font-weight:600;color:var(--text2)}
+.wk-grp-n{font-size:13px;font-weight:300;color:var(--text3);font-variant-numeric:tabular-nums}
 @media (min-width:1024px){
   #view-works .wk-list, #view-folk .wk-list{display:block}
   .wk-row-item{max-width:100%}
@@ -747,7 +750,9 @@ input.err{border-color:var(--red)}
 .wk-row-main{flex:1;min-width:0}
 .wk-row-t{font-size:14.5px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wk-row-s{font-size:12px;color:var(--text3);margin-top:1px}
-.wk-row-end{font-size:12.5px;font-weight:800;color:var(--text2);font-variant-numeric:tabular-nums;flex-shrink:0}
+.wk-row-end{font-size:12.5px;font-weight:800;color:var(--text2);font-variant-numeric:tabular-nums;
+  flex-shrink:0;text-align:end;line-height:1.3}
+.wk-row-lbl{display:block;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.02em}
 .wk-tag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:100px;
   background:var(--ink3);color:var(--text2);margin-right:6px;vertical-align:1px}
 .wk-tag.draft{background:var(--gold-l);color:var(--gold2)}
@@ -794,6 +799,8 @@ input.err{border-color:var(--red)}
     display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:0 32px;align-items:start;
     max-width:1180px;margin:0 auto;padding:0 28px 40px;
   }
+  /* v3.28.3 — בדסקטופ בלבד. בנייד .wk-two נשאר בלוק רגיל (ראה מתחת), אחרת נוצר
+     זנב-ריק ארוך מתחת לכפתורי-הקשר. */
   #view-work .wk-two > .wk-col-side, #view-folk-one .wk-two > .wk-col-side{position:sticky;top:14px}
   #view-work .wk-one-hero{border-radius:16px;border:1px solid var(--line);margin:18px 0 0}
 }
@@ -7708,7 +7715,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.28.2'; // v3.28.2 — הפלטה חזרה לקרם-וזהב לבקשת אור (העיצוב הכהה לא עבד). המבנה נשאר: שורות, מודל-סעיף ומודל-אדם. + תיקון תיאורים חתוכים במסך תוספות-סיכון. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.28.3'; // v3.28.3 — תיקון עיוות במסך-העבודה (התנגשות שם-מחלקה .wk-sec שהציבה כותרת באמצע השורה), סכומים מקבלים תווית שמסבירה מאיפה הם, וזנב-ריק/כפתורים גולשים במסך-העבודה. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -18999,7 +19006,7 @@ function renderWorks(){
     const by = {};
     list.forEach(w => { const g = _group(w); (by[g] || (by[g] = [])).push(w); });
     return GROUPS.filter(g => (by[g.key] || []).length).map(g => `
-      <div class="wk-sec"><span class="wk-sec-t">${esc(g.label)}</span><span class="wk-sec-n">${by[g.key].length}</span></div>
+      <div class="wk-grp"><span class="wk-grp-t">${esc(g.label)}</span><span class="wk-grp-n">${by[g.key].length}</span></div>
       ${by[g.key].map(_workRowHtml).join('')}`).join('');
   };
 
@@ -19026,7 +19033,7 @@ function renderWorks(){
   // שנוחת על הבית החדש לא קיבל שום הכוונה — דווקא כשהמבנה הוא מה שהשתנה. אותו רכיב ואותו
   // מנגנון-כיבוי (S.settings.hints), עם טקסט שמתאר את המבנה החדש.
   const homeHint = (typeof _onceHintHtml === 'function')
-    ? _onceHintHtml('home-works', 'כל שורה כאן היא עבודה אחת אצל לקוח — מהפנייה ועד הגבייה. הפס מראה באיזה שלב היא · ☰ למעלה = כל השאר', 'margin:0 2px 12px')
+    ? _onceHintHtml('home-works', 'כל שורה = עבודה אחת אצל לקוח, מהפנייה ועד הגבייה', 'margin:0 2px 12px')
     : '';
   body.innerHTML = `
     <div class="wk-wrap">
@@ -19134,12 +19141,18 @@ function renderWork(){
     parts.push(recRow('mdi:file-document-outline',
       'הצעת מחיר' + (q.quoteCode ? ` ${esc(q.quoteCode)}` : '') + (isDraft ? '<span class="wk-tag draft">טיוטה</span>' : ''),
       esc(q.updatedAt ? _humanTimeAgo(Date.now()-q.updatedAt) : ''),
-      total ? fmt(Math.round(total)) + ' ₪' : '', `openQuote('${_jsAttr(q.id)}')`));
+      total ? `<span class="wk-row-lbl">סכום ההצעה</span>${fmt(Math.round(total))} ₪` : '',
+      `openQuote('${_jsAttr(q.id)}')`));
   });
   w.projects.forEach(pr => {
-    const due = (typeof totalDue === 'function') ? totalDue(pr) : 0;
-    parts.push(recRow('mdi:home-roof', 'הגג',
-      esc(pr.title || pr.workType || ''), due > 0 ? fmt(Math.round(due)) + ' ₪' : '',
+    // v3.28.3 — הסכום הופיע ערום ליד "הגג" ואור שאל בצדק מאיפה הוא הגיע. עכשיו כתוב
+    // מה הוא: חוב פתוח (totalDue) או הסכום שסוכם, ומה כבר שולם ממנו.
+    const due  = (typeof totalDue === 'function') ? Math.round(totalDue(pr)) : 0;
+    const paid = (typeof totalReceived === 'function') ? Math.round(totalReceived(pr)) : 0;
+    const sub  = [pr.title || pr.workType || '', paid > 0 ? `שולם ${fmt(paid)} ₪` : '']
+                   .filter(Boolean).join(' · ');
+    parts.push(recRow('mdi:home-roof', 'הגג', esc(sub),
+      due > 0 ? `<span class="wk-row-lbl">נשאר לגבייה</span>${fmt(due)} ₪` : '',
       `openProjectDetail('${_jsAttr(pr.id)}')`));
   });
 
@@ -19171,12 +19184,14 @@ function renderWork(){
       </div>
       <div class="wk-col-side">
         <div class="wk-wrap" style="padding-top:18px">
-          ${phone || addr ? `<div class="wk-contact">
-            ${phone ? `<button class="btn btn-ghost" onclick="window.location.href='tel:${_jsAttr(phone)}'">חיוג</button>` : ''}
-            ${phone ? `<button class="btn btn-ghost" onclick="openWhatsApp('${_jsAttr(phone)}')">וואטסאפ</button>` : ''}
-            ${addr  ? `<button class="btn btn-ghost" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : ''}
-          </div>` : ''}
-          ${w.clientId ? `<button class="btn btn-ghost" onclick="openFolkOne('${_jsAttr(w.clientId)}')" style="margin:0 2px">כל העבודות של ${esc(cName)}</button>` : ''}
+          ${/* v3.28.3 — כשאין טלפון נשאר כפתור "ניווט" בודד באמצע מסך ריק. עכשיו השורה
+               מוצגת רק כשיש בה יותר מפעולה אחת, ואחרת הפעולה היחידה מוצגת ברוחב מלא. */''}
+          ${phone ? `<div class="wk-contact">
+            <button class="btn btn-ghost" onclick="window.location.href='tel:${_jsAttr(phone)}'">חיוג</button>
+            <button class="btn btn-ghost" onclick="openWhatsApp('${_jsAttr(phone)}')">וואטסאפ</button>
+            ${addr ? `<button class="btn btn-ghost" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : ''}
+          </div>` : (addr ? `<button class="btn btn-ghost" style="margin:0 2px 10px" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : '')}
+          ${w.clientId ? `<button class="btn btn-ghost" onclick="openFolkOne('${_jsAttr(w.clientId)}')" style="margin:0 2px">כל העבודות של הלקוח</button>` : ''}
         </div>
       </div>
     </div>`;
