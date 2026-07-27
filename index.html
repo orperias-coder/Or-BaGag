@@ -34,38 +34,38 @@
 :root {
   /* ── Surfaces ── */
   /* v3.21.61 — "Sunrise Alive" palette (values only; token names unchanged). Source: design/deck_sunrise_alive.html */
-  --ink:    #0E0D0B;   /* Sunrise cream page bg */
-  --ink2:   #171613;   /* warm paper white */
-  --ink3:   #201E1A;   /* raised cream surface (bg2) */
-  --line:   #2E2B26;   /* Sunrise hairline */
+  --ink:    #FCF7EE;   /* Sunrise cream page bg */
+  --ink2:   #FFFDF8;   /* warm paper white */
+  --ink3:   #F3E9D5;   /* raised cream surface (bg2) */
+  --line:   #ECDCBF;   /* Sunrise hairline */
   --bg:     var(--ink);    /* v3.22.20 — היה לא-מוגדר → רכיבים ללא רקע (CTA וואטסאפ, שדות-עריכה). alias לרקע-העמוד. */
   --border: var(--line);   /* v3.22.20 — היה לא-מוגדר → שדות ללא מסגרת. alias ל-hairline. */
 
   /* ── Text ── */
-  --text:   #F4F0E8;   /* Sunrise warm ink */
-  --text2:  #B3AB9C;   /* ink-2 */
-  --text3:  #837C70;   /* ink-3 (muted) — v3.21.82: כהה יותר לקריאות בשמש (היה #94815F ≈3:1 → ≈5:1) */
+  --text:   #3A2C18;   /* Sunrise warm ink */
+  --text2:  #6B5638;   /* ink-2 */
+  --text3:  #7C6840;   /* ink-3 (muted) — v3.21.82: כהה יותר לקריאות בשמש (היה #94815F ≈3:1 → ≈5:1) */
 
   /* ── Gold / Primary ── */
-  --gold:   #E7B44E;   /* Sunrise gold-deep (readable accent) */
-  --gold2:  #F0C766;   /* deeper gold for active/hover */
-  --gold-l: #2A2418;   /* gold tint */
-  --gold-mid:#C89A3F;  /* bright mid-gold — large decorative use only */
+  --gold:   #A87B2E;   /* Sunrise gold-deep (readable accent) */
+  --gold2:  #8A6524;   /* deeper gold for active/hover */
+  --gold-l: #F7EAD0;   /* gold tint */
+  --gold-mid:#C99A45;  /* bright mid-gold — large decorative use only */
 
   /* ── Green ── */
-  --green:  #5FCB84;
-  --green-l:#16241B;
+  --green:  #286e42;
+  --green-l:#dff0e8;
 
   /* ── Red ── */
-  --red:    #F0705C;
-  --red-l:  #2B1815;
+  --red:    #bd3720;
+  --red-l:  #fce0d8;
 
   /* ── Yellow ── */
-  --yellow: #E7B44E;   /* v3.23.12 (A11Y-02) — היה #c49208 (2.77:1 על --ink2, נכשל AA); 4.98:1/4.53:1 */
-  --yellow-l:#2A2418;
+  --yellow: #8a6a06;   /* v3.23.12 (A11Y-02) — היה #c49208 (2.77:1 על --ink2, נכשל AA); 4.98:1/4.53:1 */
+  --yellow-l:#fdf2d0;
 
   /* ── Blue ── */
-  --blue:   #6BA8F0;
+  --blue:   #1e68b8;
 
   /* ── Radius ── */
   --r:  14px;
@@ -77,18 +77,18 @@
   --sh3: 0 14px 44px rgba(24,18,10,.18);
 
   /* ── Stage colors — v3.21.61 Sunrise (leads→teal, visits→gold, projects→clay, finance→sage) ── */
-  --st-leads:      #4FC3CE;
-  --st-leads-l:    #15282A;
-  --st-leads-d:    #7ADAE3;
-  --st-visits:     #E7B44E;
-  --st-visits-l:   #2A2418;
-  --st-visits-d:   #F0C766;
-  --st-projects:   #E38A63;
-  --st-projects-l: #2B1D16;
-  --st-projects-d: #EFA37F;
-  --st-finance:    #8FBF7F;
-  --st-finance-l:  #1A2418;
-  --st-finance-d:  #A8D398;
+  --st-leads:      #16808A;
+  --st-leads-l:    #DBEEEF;
+  --st-leads-d:    #0E5E66;
+  --st-visits:     #A87B2E;
+  --st-visits-l:   #F7EAD0;
+  --st-visits-d:   #8A6524;
+  --st-projects:   #BE6A4A;
+  --st-projects-l: #F3E1D6;
+  --st-projects-d: #A8501E;
+  --st-finance:    #5C7A52;
+  --st-finance-l:  #E7EEDF;
+  --st-finance-d:  #46603E;
 
   /* ════════════════════════════════════════════════════════════
      v3.11.0 — Design-system tokens (per design/or_bagag_design_system.md §3, §7.5)
@@ -97,43 +97,43 @@
      ════════════════════════════════════════════════════════════ */
 
   /* Surfaces — warm Sunrise stone */
-  --stone:     #242119;
-  --stone-d:   #2E2A20;
-  --plaster:   #1B1915;
+  --stone:     #EFE0C6;
+  --stone-d:   #DCC9A6;
+  --plaster:   #FBF4E6;
 
   /* Clay accent (terracotta) — v3.21.61 Sunrise */
-  --terra:     #E38A63;
-  --terra-d:   #C56F4B;
-  --clay:      #E38A63;
-  --clay-deep: #AE5433;   /* v3.28.0 — לבן עליו 5.1:1 (היה 3.65, נכשל AA) */
-  --clay-l:    #2B1D16;
+  --terra:     #A8501E;
+  --terra-d:   #7C3A12;
+  --clay:      #BE6A4A;
+  --clay-deep: #A8501E;
+  --clay-l:    #F3E1D6;
 
   /* Sun — primary bright accent (eyebrow-disc, glows) */
-  --sun:       #E7B44E;
-  --sun-deep:  #C89A3F;
+  --sun:       #E5A93A;
+  --sun-deep:  #A87B2E;
   --sun-glow:  rgba(231,180,98,.42);
 
   /* Teal — Sunrise contrast accent (v3.21.61) */
-  --c:         #4FC3CE;
-  --c-deep:    #7ADAE3;
-  --c-l:       #15282A;
-  --teal:      #4FC3CE;
-  --teal-deep: #7ADAE3;
-  --teal-l:    #15282A;
+  --c:         #16808A;
+  --c-deep:    #0E5E66;
+  --c-l:       #DBEEEF;
+  --teal:      #16808A;
+  --teal-deep: #0E5E66;
+  --teal-l:    #DBEEEF;
 
   /* Aged gold — secondary accent (motifs, gold-line, icons) */
-  --amber:     #E7B44E;
-  --amber-l:   #2A2418;
+  --amber:     #A87B2E;
+  --amber-l:   #F7EAD0;
 
   /* Sage — success / projects / money */
-  --sage:      #8FBF7F;
-  --sage-l:    #1A2418;
+  --sage:      #5C7A52;
+  --sage-l:    #E7EEDF;
 
   /* Danger — warm red */
-  --danger:    #F0705C;
+  --danger:    #a64030;
 
   /* Dusk — limited use; only for tiny accents */
-  --dusk:      #0B0A09;
+  --dusk:      #1a1f3a;
 
   /* Shadow tiers — layered, not flat */
   --sh-1:      0 1px 2px rgba(42,31,18,.04), 0 2px 6px rgba(42,31,18,.05);
@@ -163,11 +163,11 @@
       אין צללים כהים על רקע כהה — ההפרדה היא בבהירות ובקו.
    ════════════════════════════════════════════════════════════ */
 /* המשטחים שמצוירים ישירות על הדפדפן */
-html,body{background:#0E0D0B}
+
 body{color:var(--text)}
 ::selection{background:rgba(231,180,78,.28);color:var(--ink2)}
-:root{color-scheme:dark}
-input,textarea,select{color-scheme:dark}
+
+
 
 /* ════════════════════════════════════════════════════════════
    v3.21.82 — מצב שמש: ניגודיות-מקסימום לעבודה על הגג (יעד ≥7:1).
@@ -175,8 +175,6 @@ input,textarea,select{color-scheme:dark}
    נשאר כמו שהוא: זו עדיין הדרך לקרוא את המסך בשמש ישירה על הגג.
    ════════════════════════════════════════════════════════════ */
 body.sun{
-  /* v3.28.0 — מאז שהערכה הראשית כהה, מצב-שמש הוא ההיפוך המלא שלה ולא כיוונון שלה:
-     ערכים ליטרליים בהירים, בלי var() (הפניה עצמית כאן הייתה מבטלת את המצב לגמרי). */
   --ink:#FBFAF5;        /* רקע-עמוד כמעט-לבן (לא #FFF טהור — מפחית בוהק) */
   --ink2:#FFFFFF;       /* כרטיסים לבנים */
   --ink3:#F2ECDC;
@@ -189,39 +187,19 @@ body.sun{
   --gold:#7E560C;       /* זהב עמוק יותר לטקסט/הדגשה */
   --green:#1d5a33;
   --red:#9e2a16;
-  /* v3.22.29 (ביקורת 5.5) — השלמת-כיסוי: הטוקנים המשפחתיים/ענבריים שנשארו בהירים
-     גם בשמש (כותרות-topbar, צ'יפי-סטטוס, אזהרות-צהוב). כולם ≥7:1 על הרקעים שלהם. */
-  --gold2:#573E0D;      /* זהב-עמוק לטקסט (צ'יפ "בעבודה", תוויות) */
-  --gold-mid:#8A6524;   /* הזהב-הדקורטיבי הבהיר → קריא */
-  --sun:#8A5A00;        /* ענבר ראשי — CTA/דיסקיות */
+  --gold2:#573E0D;
+  --gold-mid:#8A6524;
+  --sun:#8A5A00;
   --sun-deep:#6E4700;
-  --yellow:#5F4703;     /* אזהרות-צהוב: היה ~2.5:1 על הגוון שלו */
+  --yellow:#5F4703;
   --clay-deep:#7C3A12;
-  --st-leads-d:#0A464C;    /* כותרות-topbar משפחתיות (איחוד v3.22.24) */
+  --st-leads-d:#0A464C;
   --st-visits-d:#573E0D;
   --st-projects-d:#7C3A12;
   --st-finance-d:#33472E;
-  --c-deep:#0A464C;        /* טורקיז-עמוק (צ'יפי-לידים, WhatsApp) */
+  --c-deep:#0A464C;
   --teal-deep:#0A464C;
-  /* v3.28.0 — מאז שהערכה הראשית כהה, טוקני-הגוון (‎-l) הם רקעים כהים. במצב-שמש הם חייבים
-     לחזור להיות גוונים בהירים, אחרת צ'יפ = טקסט-כהה על רקע-כהה (נמדד 1.5:1, בלתי-קריא
-     בדיוק במצב שנועד לשמש ישירה). כל הזוגות למטה ≥7:1. */
-  --ink:#FBFAF5; --ink2:#FFFFFF; --ink3:#F2ECDC;
-  --gold-l:#F7EAD0; --yellow-l:#FDF2D0; --green-l:#DFF0E8; --red-l:#FCE0D8;
-  --st-leads:#0E5E66;    --st-leads-l:#DBEEEF;
-  --st-visits:#7E560C;   --st-visits-l:#F7EAD0;
-  --st-projects:#A8501E; --st-projects-l:#F3E1D6;
-  --st-finance:#33472E;  --st-finance-l:#E7EEDF;
-  --clay:#A8501E; --clay-l:#F3E1D6; --terra:#A8501E; --terra-d:#7C3A12;
-  --c:#0E5E66; --c-l:#DBEEEF; --teal:#0E5E66; --teal-l:#DBEEEF;
-  --amber:#7E560C; --amber-l:#F7EAD0; --sage:#33472E; --sage-l:#E7EEDF;
-  --stone:#EFE0C6; --stone-d:#DCC9A6; --plaster:#FBF4E6;
-  --blue:#1e68b8; --danger:#a64030; --sun-glow:rgba(231,180,98,.42);
-  --hairline:rgba(20,12,2,.16); --hairline-2:rgba(20,12,2,.24);
-  --sh:0 2px 14px rgba(24,18,10,.09); --sh2:0 6px 28px rgba(24,18,10,.14); --sh3:0 14px 44px rgba(24,18,10,.18);
-  --sh-1:0 1px 2px rgba(42,31,18,.06); --sh-2:0 2px 6px rgba(42,31,18,.08); --sh-3:0 6px 18px rgba(42,31,18,.10);
 }
-body.sun html, html:has(body.sun), body.sun{background:#FBFAF5}
 /* v3.22.29 (5.5) — נקודות עם צבעים קשיחים שטוקנים לא מכסים: משתני --tb-deep הליטרליים
    של איחוד-ה-topbar (v3.22.24), פלטת-הקטלוג העצמאית (--uc-*), הדגשת-המצב במסך-הפרויקט
    (מרווה-בהיר על קרם ~3.2), כפתור-הדיבור הענברי (טקסט לבן על var(--ink3) ~1.9 —
@@ -1135,22 +1113,19 @@ input.err{border-color:var(--red)}
   --th-bg:        var(--ink);
   --th-topbar:    var(--ink);
   --th-topbar-bd: var(--line);
-  /* Stage color tokens — used by tabs and badges everywhere.
-     v3.28.0 — הבלוק הזה יושב אחרי :root הראשי ולכן גבר עליו: אחרי החלפת-הפלטה הוא החזיר
-     את גווני-"Sunrise" הישנים לצ'יפים ולכותרות (נמדד: --st-visits-d חזר ל-#8A6524).
-     עכשיו הוא מפנה לטוקנים עצמם במקום לשכפל ערכים — מקור-אמת אחד. */
-  --st-leads:      #4FC3CE;
-  --st-leads-l:    #15282A;
-  --st-leads-d:    #7ADAE3;
-  --st-visits:     #E7B44E;
-  --st-visits-l:   #2A2418;
-  --st-visits-d:   #F0C766;
-  --st-projects:   #E38A63;
-  --st-projects-l: #2B1D16;
-  --st-projects-d: #EFA37F;
-  --st-finance:    #8FBF7F;
-  --st-finance-l:  #1A2418;
-  --st-finance-d:  #A8D398;
+  /* Stage color tokens — used by tabs and badges everywhere */
+  --st-leads:      #16808A;    /* Sunrise teal (was cold blue) */
+  --st-leads-l:    #DBEEEF;
+  --st-leads-d:    #0E5E66;
+  --st-visits:     #A87B2E;    /* Sunrise gold */
+  --st-visits-l:   var(--gold-l);
+  --st-visits-d:   #8A6524;
+  --st-projects:   #BE6A4A;    /* Sunrise clay */
+  --st-projects-l: #F3E1D6;
+  --st-projects-d: #A8501E;
+  --st-finance:    #5C7A52;    /* Sunrise sage */
+  --st-finance-l:  #E7EEDF;
+  --st-finance-d:  #46603E;
 }
 
 /* 💙 LEADS theme */
@@ -1793,7 +1768,11 @@ body.theme-finance  .view.on::before{
 .cat-row:active{border-color:var(--gold)}
 .cat-row .cr-body{flex:1;min-width:0}
 .cat-row .cr-name{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cat-row .cr-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-row .cr-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.35;
+  /* v3.28.2 — היה white-space:nowrap עם ellipsis: תיאורי תוספות-הסיכון נחתכו באמצע משפט
+     ("תוספת מחיר לעבודה שדורשת שימוש ב…") בלי שום דרך לקרוא אותם. שתי שורות מספיקות לכל
+     התיאורים בקובץ, והחיתוך נשאר רק אם באמת יוגדר תיאור ארוך במיוחד. */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cat-row .cr-price{color:var(--gold2);font-weight:800;font-size:13px;flex-shrink:0;text-align:left;white-space:nowrap}
 .cat-row .cr-price small{display:block;font-size:10px;color:var(--text3);font-weight:600;margin-top:1px}
 
@@ -3405,12 +3384,12 @@ body.theme-finance  .view.on{background:var(--st-finance-l)}
 #view-project-detail.pdv2 {
   --pd-stone: var(--ink3);
   --pd-stone-d: var(--ink3);
-  --pd-plaster: #201E1A;   /* v3.28.0 — ערך ליטרלי: בדיקת-הניגודיות קוראת hex, לא var() */
+  --pd-plaster: #FBF4E6;
   --pd-sun: #e8a82c;
   --pd-sun-deep: #cf8f18;
   --pd-sun-glow: rgba(232,168,44,.4);
-  --pd-amber: #E7B44E;   /* v3.23.12 (A11Y-02) — היה #c4941a (2.45:1 על plaster), נכשל AA; עכשיו 5.73:1/5.21:1 */
-  --pd-amber-l: #2A2418;
+  --pd-amber: #7a5900;   /* v3.23.12 (A11Y-02) — היה #c4941a (2.45:1 על plaster), נכשל AA; עכשיו 5.73:1/5.21:1 */
+  --pd-amber-l: #FDF2D0;
 }
 /* v3.28.0 — דריסת מצב-שמש הועברה לכאן, אחרי ההגדרה הראשית: קודם היא ישבה ~3,000 שורות
    לפניה, כך שקורא-ראשון (כמו בדיקת-הניגודיות) קיבל את ערך-השמש כערך-ברירת-המחדל. */
@@ -7729,7 +7708,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.28.1'; // v3.28.1 — מודל-אדם אחד (_personModel/_personHtml) שמשמש כשורה, כצ'יפ וככותרת במקום ארבעה רינדורים שונים; והפלוס ירד מלרחף אל תוך שורת-הניווט. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.28.2'; // v3.28.2 — הפלטה חזרה לקרם-וזהב לבקשת אור (העיצוב הכהה לא עבד). המבנה נשאר: שורות, מודל-סעיף ומודל-אדם. + תיקון תיאורים חתוכים במסך תוספות-סיכון. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
