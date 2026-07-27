@@ -740,6 +740,13 @@ input.err{border-color:var(--red)}
 .wk-act{display:flex;flex-wrap:wrap;gap:8px;margin:12px 2px 0}
 .wk-act .btn{flex:1;min-width:44%;min-height:48px;font-size:14.5px;margin:0}
 .wk-sec{margin:20px 2px 0}
+/* v3.29.0 — שורת "מאיפה המחיר" מתחת לגג */
+.wk-src{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 4px 10px;border-bottom:1px solid var(--line)}
+.wk-src-t{font-size:12px;color:var(--text3);line-height:1.4}
+.wk-src-btn{background:transparent;border:0;font-family:inherit;font-size:12.5px;font-weight:700;
+  color:var(--gold);cursor:pointer;padding:6px 8px;border-radius:8px;flex-shrink:0;min-height:36px}
+.wk-src-btn:active{background:var(--ink3)}
 .wk-subhead{display:flex;align-items:baseline;justify-content:space-between;padding:14px 4px 4px;
   font-size:12.5px;font-weight:700;color:var(--text2)}
 .wk-subhead span{font-size:12px;font-weight:400;color:var(--text3);font-variant-numeric:tabular-nums}
@@ -7722,7 +7729,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.28.4'; // v3.28.4 — מסך-העבודה: רשומות מקובצות ומקופלות (עבודה ותיקה הציגה 21 שורות זהות ברצף). כל קבוצה מציגה 2 והשאר נפתח בלחיצה. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.29.0'; // v3.29.0 — אתה בוחר איזו הצעת-מחיר הפכה לעבודה: מקור-המחיר מוצג במפורש, בורר הצעה-מנצחת שמייבא את סעיפיה, והשאר מסומנות "לא התקבלה" בלי להימחק. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -19080,6 +19087,108 @@ function setWorksQuery(v){
 }
 function openWorks(){ _worksQuery = ''; push('works'); renderWorks(); }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.29.0 (QUOTE-WIN) — איזו הצעה הפכה לפרויקט.
+   ───────────────────────────────────────────────────────────────────────────────
+   אור: "איך יש סכום לגבייה בפרויקט נחשון כשאני לא הגדרתי איזו הצעה הפכה להיות
+   עבודה? לפעמים לקוחות מבקשים כמה הצעות ועושים שינויים, ואני מפיק חדשה כל פעם.
+   ההצעות שלא התקבלו — לארכיון של הלקוח או למחיקה. זה צריך להיות משהו שאני מגדיר."
+
+   השורש: יש שני מסלולים ליצירת פרויקט. `doConvertQuoteToProject` בונה סעיפים
+   **מההצעה** ומסמן `sourceQuoteId` + `q.status='accepted'`. אבל `wz4DoCreateProject`
+   (המסלול מהאשף) בונה סעיפים **מממצאי-הביקור** — בלי הצעה בכלל. פרויקט שנוצר
+   כך מקבל מחיר וחוב, ואף הצעה לא מסומנת. אור ראה סכום ולא ידע מאיפה.
+
+   התיקון: מקור-המחיר נאמר במפורש, ואפשר לבחור הצעה-מנצחת גם בדיעבד — ואז
+   הסעיפים מגיעים ממנה. שום הצעה לא נמחקת: היא מסומנת "לא התקבלה" ונשארת.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _projPriceSource(p){
+  if(!p) return null;
+  const n = (p.tasks || []).length;
+  if(p.sourceQuoteId){
+    const q = (S.quotes || []).find(x => x.id === p.sourceQuoteId);
+    if(q) return { kind:'quote', quote:q, n,
+                   label:`המחיר מהצעה ${q.quoteCode || ''}`.trim(), quoteId:q.id };
+  }
+  if(p.sourceVisitId) return { kind:'visit', n, label:`המחיר מ-${n} סעיפים שהגיעו מהביקור` };
+  return { kind:'manual', n, label: n ? `המחיר מ-${n} סעיפים שהוזנו ידנית` : 'עוד לא הוגדר מחיר' };
+}
+
+/* בוחר הצעה כ"זו שאושרה": מקשר אותה לפרויקט, מייבא ממנה את הסעיפים,
+   ומסמן את שאר ההצעות של אותה עבודה כ"לא התקבלה". הכל הפיך, שום דבר לא נמחק. */
+function wkPickWinningQuote(workId){
+  const w = getWork(workId);
+  if(!w){ toast('העבודה לא נמצאה'); return; }
+  const p = w.projects[0];
+  if(!p){ toast('אין עדיין פרויקט לעבודה הזאת'); return; }
+  if(!w.quotes.length){ toast('אין הצעות מחיר בעבודה הזאת'); return; }
+
+  const rows = w.quotes.map(q => {
+    const total = (typeof _quoteGrandTotal === 'function') ? Math.round(_quoteGrandTotal(q) || 0) : 0;
+    const isWin = p.sourceQuoteId === q.id;
+    const isOut = q.status === 'rejected';
+    return `
+      <button class="wk-row" onclick="_wkSetWinningQuote('${_jsAttr(workId)}','${_jsAttr(q.id)}')">
+        <div class="wk-row-ico"><iconify-icon icon="${isWin ? 'mdi:check-circle' : 'mdi:file-document-outline'}" width="18"></iconify-icon></div>
+        <div class="wk-row-main">
+          <div class="wk-row-t">הצעה ${esc(q.quoteCode || '')}${isWin ? '<span class="wk-tag ok">זו שאושרה</span>' : ''}${isOut ? '<span class="wk-tag">לא התקבלה</span>' : ''}</div>
+          <div class="wk-row-s">${esc((q.items||[]).filter(i=>i.visible!==false).length)} סעיפים · ${esc(q.updatedAt ? _humanTimeAgo(Date.now()-q.updatedAt) : '')}</div>
+        </div>
+        <div class="wk-row-end">${total ? fmt(total) + ' ₪' : ''}</div>
+      </button>`;
+  }).join('');
+
+  openMo(`
+    <div class="mo-title">איזו הצעה הפכה לעבודה?</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:12px">
+      הסעיפים והמחיר של הפרויקט יילקחו מההצעה שתבחר. שאר ההצעות יסומנו "לא התקבלה"
+      ויישארו בכרטיס הלקוח — לא נמחק כלום.
+    </div>
+    ${rows}
+    <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="closeMo()">סגור</button>
+  `);
+}
+
+function _wkSetWinningQuote(workId, quoteId){
+  const w = getWork(workId); if(!w) return;
+  const p = w.projects[0]; const q = (S.quotes||[]).find(x => x.id === quoteId);
+  if(!p || !q) return;
+  const oldTotal = (typeof totalPrice === 'function') ? Math.round(totalPrice(p)) : 0;
+  const newTotal = (q.items||[]).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine)
+                    .reduce((s,i) => s + (parseFloat(i.total)||0), 0);
+  confirmAction({
+    title: `הצעה ${q.quoteCode || ''} היא זו שאושרה?`,
+    msg: `הסעיפים של הפרויקט יוחלפו בסעיפי ההצעה.\nמחיר נוכחי: ${fmt(oldTotal)} ₪ ← מחיר לפי ההצעה: ${fmt(Math.round(newTotal))} ₪.\nשאר ההצעות יסומנו "לא התקבלה" ויישארו בכרטיס הלקוח.`,
+    ok: 'כן, זו ההצעה',
+    okCls: 'btn-gold',
+    cb: () => {
+      const p2 = (S.projects||[]).find(x => x.id === p.id);
+      const q2 = (S.quotes||[]).find(x => x.id === quoteId);
+      if(!p2 || !q2) return;
+      // שומרים את הסעיפים הקודמים כדי שאפשר יהיה לחזור
+      if(!p2._tasksBeforeQuote) p2._tasksBeforeQuote = JSON.parse(JSON.stringify(p2.tasks || []));
+      p2.tasks = (q2.items||[]).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine)
+        .map(i => _buildTask({ name:i.title, price:parseFloat(i.total)||0, quantity:i.quantity, unit:i.unit,
+                               pricePerUnit:i.pricePerUnit, sourceProductId:i.productId||null,
+                               sourceItemId:i.id, notes:i.description||'' }));
+      p2.sourceQuoteId = q2.id;
+      if(typeof _quoteAmounts === 'function') p2.estimatedTotal = _quoteAmounts(q2).net;
+      p2.updatedAt = ts();
+      q2.status = 'accepted'; q2.acceptedAt = ts(); q2.linkedProjectId = p2.id; q2.updatedAt = ts();
+      // שאר ההצעות של אותה עבודה — מסומנות, לא נמחקות
+      w.quotes.forEach(other => {
+        if(other.id === q2.id) return;
+        const o = (S.quotes||[]).find(x => x.id === other.id);
+        if(o && o.status !== 'rejected'){ o.status = 'rejected'; o.rejectedAt = ts(); o.updatedAt = ts(); }
+      });
+      saveAll();
+      closeMo();
+      toast(`הפרויקט מבוסס עכשיו על הצעה ${q2.quoteCode || ''}`);
+      if(typeof renderWork === 'function') renderWork();
+    }
+  });
+}
+
 /* ─── מסך 2: עבודה אחת, בשלבים ─────────────────────────────────────────── */
 function openWork(workId){
   const w = getWork(workId);
@@ -19173,16 +19282,20 @@ function renderWork(){
     `openVisitDetail('${_jsAttr(v.id)}')`));
   _group(w.quotes, 'הצעות מחיר', q => {
     const isDraft = (q.status||'draft') === 'draft';
+    const isWon   = w.projects.some(pr => pr.sourceQuoteId === q.id);
+    const isOut   = q.status === 'rejected';
     const total = (typeof _quoteGrandTotal === 'function') ? _quoteGrandTotal(q) : 0;
     return recRow('mdi:file-document-outline',
-      'הצעת מחיר' + (q.quoteCode ? ` ${esc(q.quoteCode)}` : '') + (isDraft ? '<span class="wk-tag draft">טיוטה</span>' : ''),
+      'הצעת מחיר' + (q.quoteCode ? ` ${esc(q.quoteCode)}` : '')
+        + (isWon ? '<span class="wk-tag ok">זו שאושרה</span>' : '')
+        + (isOut ? '<span class="wk-tag">לא התקבלה</span>' : '')
+        + (isDraft && !isWon && !isOut ? '<span class="wk-tag draft">טיוטה</span>' : ''),
       esc(q.updatedAt ? _humanTimeAgo(Date.now()-q.updatedAt) : ''),
       total ? `<span class="wk-row-lbl">סכום ההצעה</span>${fmt(Math.round(total))} ₪` : '',
       `openQuote('${_jsAttr(q.id)}')`);
   });
   w.projects.forEach(pr => {
-    // v3.28.3 — הסכום הופיע ערום ליד "הגג" ואור שאל בצדק מאיפה הוא הגיע. עכשיו כתוב
-    // מה הוא: חוב פתוח (totalDue) או הסכום שסוכם, ומה כבר שולם ממנו.
+    // v3.28.3 — הסכום הופיע ערום ליד "הגג" ואור שאל בצדק מאיפה הוא הגיע.
     const due  = (typeof totalDue === 'function') ? Math.round(totalDue(pr)) : 0;
     const paid = (typeof totalReceived === 'function') ? Math.round(totalReceived(pr)) : 0;
     const sub  = [pr.title || pr.workType || '', paid > 0 ? `שולם ${fmt(paid)} ₪` : '']
@@ -19190,6 +19303,16 @@ function renderWork(){
     parts.push(recRow('mdi:home-roof', 'הגג', esc(sub),
       due > 0 ? `<span class="wk-row-lbl">נשאר לגבייה</span>${fmt(due)} ₪` : '',
       `openProjectDetail('${_jsAttr(pr.id)}')`));
+    // v3.29.0 (QUOTE-WIN) — ומיד מתחתיו: מאיפה המחיר הזה בא, ואפשרות לשנות.
+    const src = _projPriceSource(pr);
+    if(src){
+      const canPick = w.quotes.length > 0;
+      parts.push(`
+        <div class="wk-src">
+          <span class="wk-src-t">${esc(src.label)}</span>
+          ${canPick ? `<button class="wk-src-btn" onclick="wkPickWinningQuote('${_jsAttr(w.id)}')">${src.kind==='quote' ? 'שנה' : 'בחר הצעה'}</button>` : ''}
+        </div>`);
+    }
   });
 
   body.innerHTML = `
