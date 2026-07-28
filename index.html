@@ -7624,7 +7624,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-projects"/></svg><span>עבודות</span>
   </button>
   <button class="gnav-tab" data-gtab="folk" onclick="_gnavGo('folk')">
-    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-clients"/></svg><span>אנשים</span>
+    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-clients"/></svg><span>לקוחות</span>
   </button>
   <div class="gnav-mid">
     <button class="gnav-fab" onclick="_gnavCreate()" aria-label="יצירה חדשה" title="יצירה חדשה">
@@ -7647,7 +7647,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button class="gdrawer-close" onclick="closeGlobalDrawer()" aria-label="סגור"><iconify-icon icon="mdi:close"></iconify-icon></button>
   </div>
   <div class="gdrawer-list">
-    <button onclick="closeGlobalDrawer();openFolk()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>אנשים</span></button>
+    <button onclick="closeGlobalDrawer();openFolk()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות</span></button>
     <!-- v3.24.1 (N2) — "פרויקטים" (הרשימה עם סינון/מיון/חיפוש) איבדה את מקומה בניווט הראשי: לשונית
          "גגות" מובילה עכשיו ל-view-roofs (רשת כרטיסי-גג), לא ל-projects-list. חוק-הברזל "מסך שמאבד
          את מקומו בניווט הראשי — מקבל מקום במגירה" — הרשימה עצמה (עם הפילטרים) עדיין קיימת ונגישה כאן. -->
@@ -7688,7 +7688,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     </button>
     <button class="grail-item" data-gtab="folk" onclick="_gnavGo('folk')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-clients"/></svg>
-      <span class="grail-lbl">אנשים</span><span class="grail-badge" id="gr-b-folk"></span>
+      <span class="grail-lbl">לקוחות</span><span class="grail-badge" id="gr-b-folk"></span>
     </button>
     <button class="grail-item" data-gtab="money" onclick="_gnavGo('finance')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-finance"/></svg>
@@ -7729,7 +7729,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.29.0'; // v3.29.0 — אתה בוחר איזו הצעת-מחיר הפכה לעבודה: מקור-המחיר מוצג במפורש, בורר הצעה-מנצחת שמייבא את סעיפיה, והשאר מסומנות "לא התקבלה" בלי להימחק. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.29.1'; // v3.29.1 — "העבודה נגמרה" נגיש ממסך-העבודה (היה קבור בתפריט של המסך הישן), "סיימתי היום"→"עדכן את הלקוח", ו"אנשים"→"לקוחות" בכל התוויות. היסטוריה: CHANGELOG.md
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -19241,8 +19241,12 @@ function renderWork(){
   const p = w.projects[0];
   const acts = [];
   if(p && (w.stage === 'active')){
-    acts.push(`<button class="btn btn-gold" onclick="wkFinishedToday('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:check-bold"></iconify-icon> סיימתי היום</button>`);
+    // v3.29.1 — "העבודה נגמרה" היה נגיש רק מתפריט במסך-הגג הישן, ולכן אור לא מצא איך לסגור
+    // עבודה. הוא הכפתור הראשי כאן. "סיימתי היום" שונה ל"עדכן את הלקוח" — הוא שולח וואטסאפ
+    // יומי ולא סוגר כלום, והשם הקודם קרא כאילו הוא מסיים את העבודה.
+    acts.push(`<button class="btn btn-gold" onclick="wkFinishWork('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:flag-checkered"></iconify-icon> העבודה נגמרה</button>`);
     acts.push(`<button class="btn btn-ghost" onclick="wkGotPaid('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:cash-plus"></iconify-icon> התקבל תשלום</button>`);
+    acts.push(`<button class="btn btn-ghost" onclick="wkFinishedToday('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:whatsapp"></iconify-icon> עדכן את הלקוח</button>`);
   }
   if(p && w.stage === 'done'){
     acts.push(`<button class="btn btn-ghost" onclick="wkArchiveNow('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:archive-outline"></iconify-icon> העבר לארכיון עכשיו</button>`);
@@ -19416,7 +19420,7 @@ function renderFolk(){
       <div class="wk-mast">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
           <div style="min-width:0">
-            <div class="wk-eyebrow">אנשים</div>
+            <div class="wk-eyebrow">לקוחות</div>
             <div class="wk-h1">${all.length} ${all.length === 1 ? 'לקוח' : 'לקוחות'}</div>
             <div class="wk-sub">כל מי שעבדת איתו — פניות ולקוחות ביחד</div>
           </div>
@@ -19430,7 +19434,7 @@ function renderFolk(){
       </div>
       ${rows.length ? `<div class="wk-list">${rows.map(rowHtml).join('')}</div>`
         : `<div class="wk-empty"><div class="wk-empty-i"><iconify-icon icon="mdi:account-group-outline" width="46"></iconify-icon></div>
-             <h3>${q ? 'לא נמצא' : 'עוד אין אנשים'}</h3><p>${q ? 'נסה שם או טלפון אחר.' : 'כל לקוח ופנייה יופיעו כאן אוטומטית.'}</p></div>`}
+             <h3>${q ? 'לא נמצא' : 'עוד אין לקוחות'}</h3><p>${q ? 'נסה שם או טלפון אחר.' : 'כל לקוח ופנייה יופיעו כאן אוטומטית.'}</p></div>`}
     </div>`;
 }
 function setFolkQuery(v){
@@ -36014,6 +36018,29 @@ function wkJobPaid(leadId){
 }
 /* ארכוב מיידי — הכלל הקיים משאיר פרויקט ברשימה 14 יום אחרי הסגירה (_projIsRetired).
    כאן אור מקדים את זה ידנית. שום נתון לא נמחק: נכתבת רק חותמת שמזקינה את הרשומה. */
+/* v3.29.1 — סגירת עבודה ממסך-העבודה. עוטף את pdMarkDone הקיים (סטטוס done + actualEndDate
+   + חלון-אחריות + מסך יתרת-גבייה) כדי שלא ייווצר מסלול-סגירה שני עם לוגיקה משלו. */
+function wkFinishWork(projectId){
+  const p = (S.projects||[]).find(x => x.id === projectId);
+  if(!p){ toast('הפרויקט לא נמצא'); return; }
+  const due = (typeof totalDue === 'function') ? Math.round(totalDue(p)) : 0;
+  confirmAction({
+    title: 'העבודה נגמרה?',
+    msg: due > 0
+      ? `הגג יסומן כהושלם ותיפתח תקופת אחריות.\nשים לב: נשאר לגבייה ${fmt(due)} ₪ — העבודה תישאר ברשימה עד שייגבה.`
+      : 'הגג יסומן כהושלם ותיפתח תקופת אחריות.',
+    ok: 'כן, נגמרה',
+    okCls: 'btn-gold',
+    cb: () => {
+      S.activeProjectId = projectId;
+      if(typeof pdMarkDone === 'function') pdMarkDone();
+      else { const p2=(S.projects||[]).find(x=>x.id===projectId);
+             if(p2){ p2.status='done'; p2.statusChangedAt=ts(); p2.actualEndDate=Date.now(); p2.updatedAt=ts(); saveAll(); } }
+      if(typeof renderWork === 'function') renderWork();
+    }
+  });
+}
+
 function wkArchiveNow(projectId){
   const p = (S.projects||[]).find(x => x.id === projectId);
   if(!p){ toast('הפרויקט לא נמצא'); return; }
