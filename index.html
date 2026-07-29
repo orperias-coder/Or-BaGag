@@ -747,6 +747,14 @@ input.err{border-color:var(--red)}
 .wk-src-btn{background:transparent;border:0;font-family:inherit;font-size:12.5px;font-weight:700;
   color:var(--gold);cursor:pointer;padding:6px 8px;border-radius:8px;flex-shrink:0;min-height:36px}
 .wk-src-btn:active{background:var(--ink3)}
+/* v3.29.2 — כשעוד לא נבחרה הצעה זו החלטה שממתינה לאור, לא קישור-עזר. הכרטיס
+   מודגש והכפתור נראה ככפתור, אחרת הוא נבלע בתחתית המסך ולא נמצא. */
+.wk-src.needs-pick{background:var(--gold-l);border:1px solid var(--gold);border-radius:12px;
+  padding:12px 14px;margin:10px 0;border-bottom:1px solid var(--gold)}
+.wk-src.needs-pick .wk-src-t{color:var(--gold2);font-weight:600;font-size:12.5px}
+.wk-src-btn.strong{background:var(--gold);color:var(--ink2);padding:9px 14px;font-size:13px;
+  box-shadow:0 2px 6px rgba(168,123,46,.28)}
+.wk-src-btn.strong:active{background:var(--gold2)}
 .wk-subhead{display:flex;align-items:baseline;justify-content:space-between;padding:14px 4px 4px;
   font-size:12.5px;font-weight:700;color:var(--text2)}
 .wk-subhead span{font-size:12px;font-weight:400;color:var(--text3);font-variant-numeric:tabular-nums}
@@ -1072,12 +1080,23 @@ input.err{border-color:var(--red)}
      side — RTL); #app then fills the rest of the width (up to 1600px, centered in THAT
      remaining space via its own margin:0 auto — see APP SHELL above), no longer capped at 900. */
   body{padding-right:var(--grail-w, 232px)}
-  #app{max-width:1600px}
+  /* v3.29.2 — אור: "בגרסה שבמחשב שזה לא יהיה פרוס על כל המסך, שיהיה בפרופורציות נורמליות
+     במרכז המסך". 1600px נמתח לרוחב מלא על מסך רגיל ומשאיר שורות-טקסט ארוכות מדי לקריאה.
+     נמדד: רשת-הגגות נשברת מ-3 טורים ל-2 מתחת ל-1120px, ולכן 1160px הוא הערך הנמוך ביותר
+     ששומר על פריסת-המחשב האמיתית (רשת רב-טורית + מסך-פרויקט בשתי עמודות) ועדיין מותיר
+     שוליים ממשיים משני הצדדים במסכים גדולים. */
+  #app{max-width:1160px}
   /* v3.24.5 (N6) — see the long comment on APP SHELL above: most `.view`s are (pre-existing bug,
      unrelated to this wave) direct children of <body>, not of #app, so body's padding-right
      doesn't reach them (padding never insets position:absolute descendants). This gives those
      stray views the exact same right boundary #app itself already has, directly. */
+  /* אותו רוחב גם ל-views שהם ילדים של body (ראה ההערה מעל): מרכוז ע"י שוליים שווים
+     בשטח שבין הרצועה לקצה השמאלי, במקום להימתח על כולו. */
   body > .view{right:var(--grail-w, 232px)}
+  @media (min-width:1400px){
+    body > .view{ right:calc(var(--grail-w, 232px) + (100vw - var(--grail-w, 232px) - 1160px) / 2);
+                  left:calc((100vw - var(--grail-w, 232px) - 1160px) / 2); }
+  }
   .body{padding:24px}
 
   /* Dashboard: 2 entry cards in a row */
@@ -6355,7 +6374,11 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
      view really is active (found via screenshot: view-roofs was the true .on view underneath,
      but project-detail rendered on top anyway because this rule ignored .on entirely). */
   #view-project-detail.pdv2.on{
-    display:grid; grid-template-columns:1fr 420px; align-items:start; gap:0 28px;
+    /* v3.29.2 — `1fr` is `minmax(auto,1fr)`: the track refuses to shrink below its content's
+       min-content width, so once the shell narrowed (1600px→1160px) the text column blew past
+       its share and overlapped the sticky photo by ~35px. `minmax(0,1fr)` lets it shrink to the
+       share it was always meant to get. No effect at the old wider sizes. */
+    display:grid; grid-template-columns:minmax(0,1fr) 420px; align-items:start; gap:0 28px;
     padding:24px 24px 40px;
     /* v3.27.0 (DESK-01) — the comment above assumed this element inherits .view's overflow-y:auto
        and becomes "the single real scroll container for the whole grid". It never did:
@@ -7729,7 +7752,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.29.1'; // v3.29.1 — "העבודה נגמרה" נגיש ממסך-העבודה (היה קבור בתפריט של המסך הישן), "סיימתי היום"→"עדכן את הלקוח", ו"אנשים"→"לקוחות" בכל התוויות. היסטוריה: CHANGELOG.md
+const APP_VERSION = '3.29.2'; // מחשב בפרופורציות ממורכזות; "בחר הצעה" כהחלטה גלויה; גבייה אחרי סגירת עבודה
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -19224,6 +19247,13 @@ function _workNextStepHtml(w){
   if(st === 'quote')  return { msg:(q && (q.status||'draft')==='draft') ? 'ההצעה בטיוטה — סיים ושלח ללקוח' : 'ההצעה נשלחה — ממתין לתשובת הלקוח',
     main: q ? `<button class="btn btn-gold" onclick="openQuote('${_jsAttr(q.id)}')">פתח את ההצעה</button>` : '' };
   if(st === 'active') return { msg:'העבודה בביצוע', main:'' };
+  // v3.29.2 — "העבודה נגמרה" לבד לא אומר לאור מה נשאר לעשות. אם יש חוב — זה מה שנשאר.
+  if(st === 'done'){
+    const pr = w.projects[0];
+    const d = (pr && typeof totalDue === 'function') ? Math.round(totalDue(pr)) : 0;
+    if(d > 0) return { msg:`העבודה נגמרה — נשאר לגבות ${fmt(d)} ₪`, main:'' };
+    return { msg:'העבודה נגמרה ושולמה במלואה', main:'' };
+  }
   return { msg:'העבודה נגמרה', main:'' };
 }
 
@@ -19249,7 +19279,15 @@ function renderWork(){
     acts.push(`<button class="btn btn-ghost" onclick="wkFinishedToday('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:whatsapp"></iconify-icon> עדכן את הלקוח</button>`);
   }
   if(p && w.stage === 'done'){
-    acts.push(`<button class="btn btn-ghost" onclick="wkArchiveNow('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:archive-outline"></iconify-icon> העבר לארכיון עכשיו</button>`);
+    // v3.29.2 — עבודה שנגמרה אך עדיין חייבים עליה כסף: "התקבל תשלום" היה מוצג רק בשלב
+    // "ביצוע" ולכן נעלם בדיוק ברגע שאור צריך אותו — הגג נמסר והוא מחכה לכסף.
+    const dueNow = (typeof totalDue === 'function') ? Math.round(totalDue(p)) : 0;
+    if(dueNow > 0){
+      acts.push(`<button class="btn btn-gold" onclick="wkGotPaid('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:cash-plus"></iconify-icon> התקבל תשלום</button>`);
+      acts.push(`<button class="btn btn-ghost" onclick="waDueReminderProject && waDueReminderProject('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:whatsapp"></iconify-icon> תזכורת לתשלום</button>`);
+    } else {
+      acts.push(`<button class="btn btn-ghost" onclick="wkArchiveNow('${_jsAttr(p.id)}')"><iconify-icon icon="mdi:archive-outline"></iconify-icon> העבר לארכיון עכשיו</button>`);
+    }
   }
   if(w.lead && w.lead.status === 'job-done' && w.lead.jobData && !w.lead.jobData.paid){
     acts.push(`<button class="btn btn-gold" onclick="wkJobPaid('${_jsAttr(w.lead.id)}')"><iconify-icon icon="mdi:cash-check"></iconify-icon> התקבל תשלום</button>`);
@@ -19312,9 +19350,9 @@ function renderWork(){
     if(src){
       const canPick = w.quotes.length > 0;
       parts.push(`
-        <div class="wk-src">
+        <div class="wk-src${src.kind !== 'quote' && canPick ? ' needs-pick' : ''}">
           <span class="wk-src-t">${esc(src.label)}</span>
-          ${canPick ? `<button class="wk-src-btn" onclick="wkPickWinningQuote('${_jsAttr(w.id)}')">${src.kind==='quote' ? 'שנה' : 'בחר הצעה'}</button>` : ''}
+          ${canPick ? `<button class="wk-src-btn${src.kind !== 'quote' ? ' strong' : ''}" onclick="wkPickWinningQuote('${_jsAttr(w.id)}')">${src.kind==='quote' ? 'שנה הצעה' : 'בחר איזו הצעה אושרה'}</button>` : ''}
         </div>`);
     }
   });
@@ -34153,6 +34191,12 @@ function renderPdMoney(p){
         ${pdSrow('סך סעיפים', fmt(sub)+'₪')}
         ${pdSrow(`מע"מ ${vatRate}%`, fmt(vat)+'₪')}
         ${pdSrow('סה"כ לגבייה', `<b style="color:var(--gold2);font-size:15px">${fmt(totalRev)}₪</b>`)}
+        ${(() => {
+          // v3.29.2 — אור: "הסכום כסף שם לא ברור לי מה הוא ומאיפה הוא הגיע". אותה שורת-מקור
+          // שכבר קיימת במסך-העבודה, גם כאן — כדי שאותו סכום לא יסביר את עצמו רק במקום אחד.
+          const src = (typeof _projPriceSource === 'function') ? _projPriceSource(p) : null;
+          return src ? pdSrow('מקור המחיר', `<span class="muted" style="font-size:12px">${esc(src.label)}</span>`) : '';
+        })()}
         ${pdSrow('הוצאות', `<span style="color:var(--red)">−${fmt(totalExp)}₪</span>`)}
       </div>
     </div>
