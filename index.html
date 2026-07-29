@@ -7682,6 +7682,9 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button onclick="closeGlobalDrawer();openCatalog()"><iconify-icon icon="mdi:package-variant"></iconify-icon><span>קטלוג עבודות</span><span class="gdrawer-badge" id="gdb-catalog"></span></button>
     <button onclick="closeGlobalDrawer();openMainGallery()"><iconify-icon icon="mdi:image-multiple-outline"></iconify-icon><span>תיק עבודות</span><span class="gdrawer-badge" id="gdb-gallery"></span></button>
     <button onclick="closeGlobalDrawer();openAnalyticsView()"><iconify-icon icon="mdi:chart-bar"></iconify-icon><span>אנליטיקה ודוחות</span></button>
+    <!-- v3.31.0 (REPORT-LINK) — פתיחת האפליקציה עצמה, בלי ליצור דוח חדש: כאן אור מגיע
+         לדוחות שכבר כתב. ה-[+] יוצר חדש, המגירה נותנת גישה. -->
+    <button onclick="closeGlobalDrawer();openReportApp()"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon><span>בונה דוח ייעוץ</span></button>
     <button onclick="closeGlobalDrawer();openFixedExpenses()"><iconify-icon icon="mdi:cash-minus"></iconify-icon><span>הוצאות קבועות</span></button>
     <button onclick="closeGlobalDrawer();openModifiers()"><iconify-icon icon="mdi:alert-octagon-outline"></iconify-icon><span>תוספות סיכון</span></button>
     <button onclick="closeGlobalDrawer();openDailySummary()"><iconify-icon icon="mdi:weather-sunset"></iconify-icon><span>סיכום יום</span></button>
@@ -7752,7 +7755,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.30.0'; // תמונה לכל סעיף בהצעת מחיר — מוצגת ללקוח ב-PDF; שלושה באגי-איבוד-תמונות תוקנו
+const APP_VERSION = '3.31.0'; // בונה דוח הייעוץ מחובר: [+] פותח דוח חדש עם פרטי הלקוח, והתפריט נותן גישה
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -9563,6 +9566,38 @@ function _gnavGo(id){
 // wizard/finding/visit-summary/project-closure/quote-edit, so those never need a bucket here.
 // Any screen NOT explicitly mapped (search/people/clients-list/settings/dash/...) falls back to
 // the same general "home" sheet as before — never crashes, never shows an empty sheet.
+// v3.31.0 (REPORT-LINK) — אור: "תוסיף לי קישור לאפליקציית הדוחות... תחבר אותה עם
+// האפליקציה של הביקורים שיהיה לי אפשרות ב-[+] להוסיף דוח חדש ולגשת לאפליקציה משם."
+// בונה-דוח-הייעוץ הוא אפליקציה נפרדת (ריפו orperias-coder/or-bagag-report, מסד-נתונים
+// משלה) — לכן זה קישור ולא מסך מוטמע. הכתובת יושבת כאן פעם אחת, לא מפוזרת בין קריאות.
+const REPORT_APP_URL = 'https://orperias-coder.github.io/or-bagag-report/';
+// ?new=1 חיוני: בלעדיו boot() של אפליקציית-הדוחות נוחת על **הדוח האחרון שנערך**, כלומר
+// "דוח חדש" היה פותח דוח קיים. client/phone/address ממלאים מראש את פרטי הלקוח כשידועים.
+function openReportApp(opts){
+  opts = opts || {};
+  const qs = [];
+  if(opts.fresh) qs.push('new=1');
+  if(opts.client)  qs.push('client='  + encodeURIComponent(opts.client));
+  if(opts.phone)   qs.push('phone='   + encodeURIComponent(opts.phone));
+  if(opts.address) qs.push('address=' + encodeURIComponent(opts.address));
+  const url = REPORT_APP_URL + (qs.length ? '?' + qs.join('&') : '');
+  // noopener: האפליקציה נפתחת בלשונית משלה ולא מקבלת גישה לחלון של אפליקציית-הביקורים
+  const w = window.open(url, '_blank', 'noopener');
+  if(!w) toast('הדפדפן חסם את הפתיחה — אפשר לפתוח ידנית מהתפריט');
+}
+// מסך-לקוח / פרויקט פתוח → הפרטים נכנסים לדוח מעצמם, בלי להקליד שוב
+function _reportCtxFromView(){
+  const view = viewStack[viewStack.length - 1];
+  let c = null;
+  if(view === 'client-detail' && S.activeClientId && typeof getClient === 'function') c = getClient(S.activeClientId);
+  if(!c && (view === 'project-detail' || view === 'work') && S.activeProjectId){
+    const p = (S.projects||[]).find(x => x.id === S.activeProjectId);
+    if(p) c = (typeof getClient === 'function' && p.clientId && getClient(p.clientId)) || { clientName:p.clientName, address:p.address };
+  }
+  if(!c) return {};
+  return { client:c.clientName || '', phone:c.phone || '', address:c.address || '' };
+}
+
 function _gnavCreate(){
   const view = viewStack[viewStack.length - 1];
   if(view === 'client-detail' && S.activeClientId && typeof getClient === 'function' && getClient(S.activeClientId)){
@@ -9646,6 +9681,14 @@ function _gnavCreateHome(){
            requires an already-open lead. _gnavCreateJob() below creates a real, minimal lead in the
            background (same shape as openNewLeadModal) and opens the job modal on top of it immediately,
            so from the user's side this reads as "a job created on its own." -->
+      <button class="lead-launcher" onclick="closeMo();openReportApp(Object.assign({fresh:true}, _reportCtxFromView()))" style="opacity:.95">
+        <div class="ll-ico" style="background:linear-gradient(135deg,var(--clay),var(--clay-deep));color:#fff;border-color:var(--clay)"><iconify-icon icon="mdi:clipboard-text-outline" width="18"></iconify-icon></div>
+        <div class="ll-body">
+          <div class="ll-title" style="font-size:13px">דוח ייעוץ ובדיקה</div>
+          <div class="ll-sub">נפתח בונה-הדוחות עם דוח חדש — לשונית נפרדת</div>
+        </div>
+        <div class="ll-arrow">←</div>
+      </button>
       <button class="lead-launcher" onclick="_gnavCreateJob()" style="opacity:.95">
         <div class="ll-ico" style="background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:var(--teal)"><iconify-icon icon="mdi:hand-coin-outline" width="18"></iconify-icon></div>
         <div class="ll-body">
@@ -9682,6 +9725,9 @@ function _gnavCreateClient(clientId){
   openMo(`
     <div class="mo-title"><iconify-icon icon="mdi:plus-circle-outline" style="vertical-align:-2px"></iconify-icon> מה יוצרים ל${esc(c.clientName)}?</div>
     <div style="display:flex;flex-direction:column;gap:10px">
+      ${/* v3.31.0 (REPORT-LINK) — דוח ייעוץ הוא תמיד על אתר ולקוח מסוימים, ולכן כאן הוא
+           נפתח כשפרטי הלקוח כבר בפנים ואור לא מקליד אותם שוב. זהו הפריט האחרון בגיליון
+           (ראה למטה) — הפעולות היומיומיות נשארות ראשונות. */''}
       <button class="lead-launcher" onclick="_gnavStartVisitForClient('${esc(c.id)}')">
         <div class="ll-ico" style="background:linear-gradient(135deg,var(--st-visits),var(--st-visits-d));color:#fff;border-color:var(--st-visits)"><iconify-icon icon="mdi:car-side" width="20"></iconify-icon></div>
         <div class="ll-body">
@@ -9711,6 +9757,14 @@ function _gnavCreateClient(clientId){
         <div class="ll-body">
           <div class="ll-title">תשלום מ${esc(c.clientName)}</div>
           <div class="ll-sub">${esc(dueSub)}</div>
+        </div>
+        <div class="ll-arrow">←</div>
+      </button>
+      <button class="lead-launcher" onclick="closeMo();openReportApp({fresh:true,client:'${_jsAttr(c.clientName||'')}',phone:'${_jsAttr(c.phone||'')}',address:'${_jsAttr(c.address||'')}'})" style="opacity:.95">
+        <div class="ll-ico" style="background:linear-gradient(135deg,var(--clay),var(--clay-deep));color:#fff;border-color:var(--clay)"><iconify-icon icon="mdi:clipboard-text-outline" width="18"></iconify-icon></div>
+        <div class="ll-body">
+          <div class="ll-title" style="font-size:13px">דוח ייעוץ ל${esc(c.clientName)}</div>
+          <div class="ll-sub">בונה-הדוחות נפתח עם פרטי הלקוח — לשונית נפרדת</div>
         </div>
         <div class="ll-arrow">←</div>
       </button>
