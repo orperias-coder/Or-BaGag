@@ -7752,7 +7752,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.29.2'; // מחשב בפרופורציות ממורכזות; "בחר הצעה" כהחלטה גלויה; גבייה אחרי סגירת עבודה
+const APP_VERSION = '3.30.0'; // תמונה לכל סעיף בהצעת מחיר — מוצגת ללקוח ב-PDF; שלושה באגי-איבוד-תמונות תוקנו
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -8362,6 +8362,13 @@ function _compactPhotosForStorage(){
     for(const ph of (v.roofPhotos || [])) _maybeStrip(ph);
     for(const f of (v.findings || [])){
       for(const ph of (f.photos || [])) _maybeStrip(ph);
+    }
+  }
+  // v3.30.0 (QPHOTO-05) — תמונות שאור צירף לסעיפי-הצעה. בלי זה, תמונה שנפלה למסלול-הגיבוי
+  // של base64 (כשכתיבת ה-Blob נכשלה) הייתה נשארת בגודל מלא בתוך S.quotes בכל שמירה.
+  for(const q of (S.quotes || [])){
+    for(const it of (q.items || [])){
+      for(const ph of (it.attachedPhotos || [])) _maybeStrip(ph);
     }
   }
   // v3.23.13 (CODE-09): הוסר console.log דיאגנוסטי שהיה יורה כאן בכל שמירה שמנקה שדות —
@@ -19193,7 +19200,12 @@ function _wkSetWinningQuote(workId, quoteId){
       p2.tasks = (q2.items||[]).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine)
         .map(i => _buildTask({ name:i.title, price:parseFloat(i.total)||0, quantity:i.quantity, unit:i.unit,
                                pricePerUnit:i.pricePerUnit, sourceProductId:i.productId||null,
-                               sourceItemId:i.id, notes:i.description||'' }));
+                               sourceItemId:i.id, notes:i.description||'',
+                               // v3.30.0 (QPHOTO-06) — התמונה שאור צירף לסעיף ממשיכה איתו לעבודה.
+                               // אותו blobKey חי עכשיו גם בהצעה וגם במשימה, וזו ההתנהגות הנכונה:
+                               // _blobKeyReferencedAnywhere בודק את שניהם, אז מחיקה של אחד לא
+                               // מושכת את השטיח מתחת לשני.
+                               photos:(i.attachedPhotos||[]).map(ph=>({...ph})) }));
       p2.sourceQuoteId = q2.id;
       if(typeof _quoteAmounts === 'function') p2.estimatedTotal = _quoteAmounts(q2).net;
       p2.updatedAt = ts();
@@ -23203,6 +23215,7 @@ async function _shrinkOversizedThumbs(){
   (S.visits||[]).forEach(v => { collections.push(v.roofPhotos||[], v.outsidePhotos||[], v.interiorMoisturePhotos||[]); (v.findings||[]).forEach(f => collections.push(f.photos||[])); });
   (S.projects||[]).forEach(p => { const pp=p.progressPhotos; if(pp && typeof pp==='object') ['before','during','after'].forEach(ph => collections.push(pp[ph]||[])); (p.tasks||[]).forEach(t => collections.push(t.photos||[])); });
   (S.leads||[]).forEach(l => collections.push(l.photos||[]));
+  (S.quotes||[]).forEach(q => (q.items||[]).forEach(it => { if(it && it.attachedPhotos) collections.push(it.attachedPhotos); }));   // v3.30.0 (QPHOTO-05)
   for(const arr of collections){
     for(const ph of arr){
       if(!ph || typeof ph.thumbDataUrl !== 'string' || ph.thumbDataUrl.length <= LIMIT) continue;
@@ -30052,6 +30065,21 @@ async function _findingPhotoExportSrc(ph){
   return ph.thumbDataUrl || '';
 }
 
+// v3.30.0 (QPHOTO-04) — נקודת-הכרעה אחת לשאלה "איזו תמונה מוצגת ליד הסעיף בהצעה
+// שהלקוח מקבל". היו שתי העתקות עצמאיות של אותו חיפוש (qGeneratePDF ו-qBuildPhotoReport),
+// ותמונה שאור מצרף בעצמו חייבת לגבור על תמונת-הממצא בשתיהן — אחרת אותה הצעה נראית שונה
+// בשני המסמכים. ההחזרה עוברת דרך שער data:image/ כי שני האתרים מזריקים אותה ל-`<img src>`
+// בלי escaping (36742, 36997), ומייבא זדוני יכול לשתול שם מחרוזת אחרת.
+async function _qItemPhotoSrc(it, findingsMap){
+  const _gate = src => (typeof src === 'string' && /^data:image\//.test(src)) ? src : '';
+  const own = (it && it.attachedPhotos || [])[0];
+  if(own){ const r = _gate(await _findingPhotoExportSrc(own)); if(r) return r; }
+  const f = (it && it.sourceFindingId && findingsMap) ? findingsMap[it.sourceFindingId] : null;
+  const legacy = (f && f.photos || [])[0];
+  if(legacy) return _gate(await _findingPhotoExportSrc(legacy));
+  return '';
+}
+
 // ═══════════════════════════════════════════════
 // v3.9.78 — Confirm bubble with undo (after free-talk applies)
 // ═══════════════════════════════════════════════
@@ -30270,6 +30298,19 @@ function _projectBlobKeys(p){
   (p.payments||[]).forEach(pay => { if(pay && pay.refFile && pay.refFile.blobKey) out.push(pay.refFile.blobKey); });   // T13
   return out;
 }
+// v3.30.0 (QPHOTO-01, באג שדווח לאור לפני התיקון) — הצעות-מחיר לא היו מוכרות לאוסף-הזבל.
+// _blobKeyReferencedAnywhere סרק ביקורים, לידים, פרויקטים, גגות וקטלוג — אבל לא S.quotes,
+// ולכן ברגע שסעיף בהצעה מחזיק תמונה משלו, _gcOrphanBlobs היה רואה אותה כיתומה ומוחק אותה.
+// מכוון: נסרק **רק** `attachedPhotos` (תמונות שאור צירף בעצמו) ולא `photos` הישן — ה-`photos`
+// נכתב אוטומטית מאז ומעולם לא הוצג, ולהגן עליו היה הופך כל blob של ממצא לבן-אלמוות: מחיקת
+// ביקור לא הייתה משחררת דבר, כי ההצעה שנוצרה ממנו עדיין "מחזיקה" את אותו מפתח.
+function _quoteBlobKeys(q){
+  const out = [];
+  if(!q) return out;
+  (q.items||[]).forEach(it => (it && it.attachedPhotos || []).forEach(ph => { if(ph && ph.blobKey) out.push(ph.blobKey); }));
+  if(q.signature && q.signature.blobKey) out.push(q.signature.blobKey);
+  return out;
+}
 function _blobKeyReferencedAnywhere(blobKey){
   if(!blobKey) return false;
   const has = arr => Array.isArray(arr) && arr.some(ph => ph && ph.blobKey === blobKey);
@@ -30289,6 +30330,7 @@ function _blobKeyReferencedAnywhere(blobKey){
   // v3.23.0 (REL-01 audit) — catalog "pinned" pairs store beforeBlobKey/afterBlobKey, not .blobKey
   // (see _ucPersistPair / _ucPinPairImpl); has() never matched them. _ucPinPairImpl can pin an
   // *existing* project photo, so the same blob can legitimately live in both places.
+  for(const q of (S.quotes||[])) if(_quoteBlobKeys(q).includes(blobKey)) return true;   // v3.30.0 (QPHOTO-01)
   const wtt = S.workTypeTemplates || {};
   for(const k in wtt){
     const g = wtt[k] && wtt[k].gallery;
@@ -36524,18 +36566,21 @@ async function qGeneratePDF(autoPrint=true, lang='he', qOverride=null){
   const extended = !!q.extendedPDF;
   const sourceVisit = extended ? S.visits.find(x => x.id === q.sourceVisitId) : null;
   // Pre-resolve all finding photos asynchronously (IDB blobs → base64) before building HTML
+  // v3.30.0 (QPHOTO-04) — נמפתח לפי מזהה-הסעיף ולא לפי sourceFindingId: סעיף ידני, שאין לו
+  // ממצא מקור, יכול עכשיו לשאת תמונה משלו. גם התנאי `&& sourceVisit` ירד — הוא חסם תמונה
+  // בכל הצעה שלא נולדה מביקור.
   const _extPhotoMap = {};
-  if(extended && sourceVisit){
+  if(extended){
+    const findingsMap = {};
+    (sourceVisit && sourceVisit.findings || []).forEach(f => { findingsMap[f.id] = f; });
     await Promise.all(sortedItems.map(async (it) => {
-      if(!it.sourceFindingId) return;
-      const f = (sourceVisit.findings||[]).find(x => x.id === it.sourceFindingId);
-      if(!f || !f.photos || !f.photos.length) return;
-      _extPhotoMap[it.sourceFindingId] = await _findingPhotoExportSrc(f.photos[0]);
+      const src = await _qItemPhotoSrc(it, findingsMap);
+      if(src) _extPhotoMap[it.id] = src;
     }));
   }
   const itemPhoto = (it) => {
-    if(!extended || !sourceVisit || !it.sourceFindingId) return null;
-    return _extPhotoMap[it.sourceFindingId] || null;
+    if(!extended || !it) return null;
+    return _extPhotoMap[it.id] || null;
   };
 
   // Format estimated start
@@ -36975,12 +37020,9 @@ async function qBuildPhotoReport(lang='he'){
   const findingsMap = {};
   if(sourceVisit){ (sourceVisit.findings||[]).forEach(f => { findingsMap[f.id] = f; }); }
 
-  const photoSrcs = await Promise.all(visibleItems.map(async it => {
-    if(!it.sourceFindingId) return '';
-    const f = findingsMap[it.sourceFindingId];
-    if(!f || !(f.photos||[]).length) return '';
-    return await _findingPhotoExportSrc(f.photos[0]);
-  }));
+  // v3.30.0 (QPHOTO-04) — אותה נקודת-הכרעה כמו ב-qGeneratePDF, כדי ששני המסמכים שהלקוח
+  // מקבל יציגו את אותה תמונה. קודם התמונה שאור צירף לסעיף, ורק אחריה תמונת-הממצא.
+  const photoSrcs = await Promise.all(visibleItems.map(it => _qItemPhotoSrc(it, findingsMap)));
 
   const urgColor = u => u==='high'?'#e53e3e':u==='medium'?'#d97706':'#3d7a3d';
   const urgLabel = u => u==='high'?PL.urgHigh:u==='medium'?PL.urgMed:u==='low'?PL.urgLow:'';
@@ -37366,7 +37408,12 @@ function doDeleteVisit(visitId, alsoDeleteQuotes){
       }
     });
   }
-  const _delKeys = _visitBlobKeys(v);   // v3.22.38 (6.11) — לפני ההסרה
+  // v3.30.0 (QPHOTO-02, באג שדווח לאור לפני התיקון) — המחיקה המדורגת הסירה גם את ההצעות
+  // של הביקור (removedQuotes לעיל) אבל אספה רק את ה-blobs של הביקור עצמו, כך שכל תמונה
+  // שצורפה לסעיף בהצעה נשארה תקועה ב-IDB לנצח. _gcOrphanBlobs בודק שוב הפניות לפני מחיקה,
+  // אז הוספת המפתחות כאן בטוחה גם אם ההצעה שוחזרה ב-undo.
+  const _delKeys = _visitBlobKeys(v)
+    .concat(removedQuotes.reduce((acc,q) => acc.concat(_quoteBlobKeys(q)), []));   // v3.22.38 (6.11) — לפני ההסרה
   S.visits = S.visits.filter(x => x.id !== visitId);
   saveAll();
   goVisitsList();
@@ -37876,6 +37923,11 @@ function renderQuoteEdit(){
 
   // v3.9.21 — רנדר סקשן משימות
   if(typeof renderTasksSection === 'function') renderTasksSection('quote', q.id, 'qe-tasks-section');
+  // v3.30.0 (QPHOTO-04) — התמונות בסעיפים נשמרות כ-Blob ב-IDB, וה-thumb ב-S עלול להיות ריק
+  // אחרי שחזור-מגיבוי (מסנן-הגיבוי-המקומי מוריד כל data: מעל 4KB). אותו פותר שכבר משמש
+  // מסכים אחרים ממלא את ה-<img data-blob-key> אחרי הרינדור, אחרת התמונה מוצגת כריבוע ריק.
+  const _qeBody = document.getElementById('quote-edit-body') || document.getElementById('view-quote-edit');
+  if(_qeBody && typeof _resolveBlobImagesIn === 'function') _resolveBlobImagesIn(_qeBody);
 }
 
 
@@ -38591,7 +38643,11 @@ function qDelete(){
     ok: 'מחק',
     cb: () => {
       // v3.21.95 — free the signature blob on whole-quote delete (else it leaks in IDB)
-      if(q.signature && q.signature.blobKey && typeof mediaDelete==='function') mediaDelete(q.signature.blobKey).catch(()=>{});
+      // v3.30.0 (QPHOTO-03, באג שדווח לאור לפני התיקון) — mediaDelete נקרא ישירות, בלי לבדוק
+      // אם מישהו אחר מחזיק את אותו מפתח. עוברים דרך _gcOrphanBlobs, שבודק הפניות לפני שהוא
+      // מוחק — ובאותה הזדמנות משחררים גם את התמונות שצורפו לסעיפים. הסדר חשוב: המפתחות
+      // נאספים לפני ההסרה מ-S, והמחיקה קורית אחריה, כשההצעה כבר לא מחזירה "עדיין בשימוש".
+      const _qKeys = _quoteBlobKeys(q);
       // Unlink from visit
       const v = S.visits.find(x => x.id === q.sourceVisitId);
       if(v && v.linkedQuoteIds){
@@ -38601,6 +38657,7 @@ function qDelete(){
       S.quotes = S.quotes.filter(x => x.id !== q.id);
       S.activeQuoteId = null;
       saveAll();
+      if(_qKeys.length && typeof _gcOrphanBlobs === 'function') _gcOrphanBlobs(_qKeys).catch(()=>{});
       toast('🗑 הצעה נמחקה');
       goBack();
     }
@@ -38707,6 +38764,7 @@ function doConvertQuoteToProject(quoteId){
     unit: i.unit,
     sourceProductId: i.productId || null,
     productDescription: i.productDescription || '',
+    photos: (i.attachedPhotos||[]).map(ph=>({...ph})),   // v3.30.0 (QPHOTO-06) — ראה ההערה ב-_wkSetWinningQuote
     sourceItemId: i.id,
     notes: i.description || '',
   }));
@@ -38965,6 +39023,23 @@ function qItemHtml(it, idx){
           style="width:100%;font-size:12px;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--ink);color:var(--text);font-family:'Heebo',sans-serif;resize:none;direction:rtl;line-height:1.5"
         >${esc(it.description||'')}</textarea>
       </div>
+      ${/* v3.30.0 (QPHOTO-04) — אור: "אני רוצה שיהיה לי אפשרות להוסיף בכל סעיף בהצעת המחיר
+           לצרף תמונה". אותה שורת-תמונות בדיוק כמו במודל-הממצא (39329-39336) — .thumbs-row /
+           .thumb / .photo-tile קיימים, אפס CSS חדש. השדה הוא `attachedPhotos` ולא `photos`:
+           `photos` כבר נכתב אוטומטית מכל ממצא מאז ומעולם לא הוצג, ולהציג אותו עכשיו היה משנה
+           למפרע הצעות שאור כבר שלח (הוא בחר במפורש: רק מהיום והלאה). */''}
+      <div style="border-top:1px solid var(--ink3);padding-top:7px;margin-top:2px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">📷 תמונה לסעיף ${(it.attachedPhotos||[]).length ? '<span style="color:var(--gold2)">— הראשונה תוצג ללקוח</span>' : '<span style="font-weight:600;text-transform:none;letter-spacing:0">(תוצג ללקוח ליד הסעיף)</span>'}</div>
+        <div class="thumbs-row" style="margin-bottom:2px">
+          ${(it.attachedPhotos||[]).map((ph, pi) => `
+            <div class="thumb" style="width:56px;height:56px" data-photo-src="${esc(photoThumbSrc(ph))}" data-photo-blob-key="${esc(ph.blobKey||'')}" onclick="_openPhotoFromAttrAsync(this)">
+              <img src="${esc(photoThumbSrc(ph))}" data-blob-key="${esc(ph.blobKey||'')}" alt="">
+              <button type="button" class="x" aria-label="הסר תמונה" onclick="event.stopPropagation();qItemRemovePhoto(${idx},${pi})">✕</button>
+            </div>
+          `).join('')}
+          <div class="photo-tile" onclick="qItemAddPhoto(${idx})" aria-label="צרף תמונה לסעיף ${idx+1}" title="צרף תמונה לסעיף">📷</div>
+        </div>
+      </div>
       ${(it.workSummary||_getWorkSummary(it.title)) ? `
       <div style="border-top:1px solid var(--ink3);padding-top:7px;margin-top:2px">
         <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">💡 הסבר שיטת עבודה (מה-archive)</div>
@@ -39054,6 +39129,49 @@ function markArrivedManually(){
 
 // V2.3 — render the "⏱ זמני ביקור" card on visit-detail.
 // Shows up to 4 timestamps + 2 summaries. "—" for missing values, deltas skip nulls.
+
+// v3.30.0 (QPHOTO-04) — צירוף/הסרת תמונה לסעיף בהצעה. אותו pipeline של הממצאים בדיוק
+// (_makeVisitPhoto → דחיסה ל-1920px q0.85 + Blob ב-IDB + thumb 220px inline), רק עם קידומת
+// מפתח משלו. הקידומת מכוונת לא להיקלט ע"י סורק-השחזור של תמונות-פרויקט, שמפרש מפתחות
+// בתבנית `proj-<id>-<phase>-<photoId>` (29758) — `quote-...` לא מתאים לה.
+function qItemAddPhoto(idx){
+  takePhoto(async (data, dataFull) => {
+    const q = getQuote();
+    if(!q) return;
+    const it = q.items && q.items[idx];
+    if(!it || it.isDiscountLine) return;                 // קו-הנחה אינו סעיף — אין לו תמונה
+    const itemId = it.id;                                // v3.30.0 — לוכדים id, לא idx:
+    if(!Array.isArray(it.attachedPhotos)) it.attachedPhotos = [];   // הסדר יכול להשתנות תוך כדי
+    const ph = await _makeVisitPhoto(data, dataFull, `quote-${q.id}-item-${itemId}`, {});
+    // מוצאים מחדש לפי id — qItemMove/qInsertItemAt יכולים היו להזיז את השורה בזמן ההמתנה
+    const live = (q.items||[]).find(x => x && x.id === itemId);
+    if(!live) return;
+    if(!Array.isArray(live.attachedPhotos)) live.attachedPhotos = [];
+    live.attachedPhotos.push(ph);
+    // v3.30.0 — אם ה-Blob לא נכתב, _makeVisitPhoto נפל ל-base64 שהסנכרון מסיר: התמונה
+    // תישאר על הטלפון הזה בלבד ולא תגיע ל-PDF ממכשיר אחר. אור צריך לדעת, לא לגלות בשטח.
+    if(!ph.blobKey) toast('התמונה נשמרה על המכשיר הזה בלבד — אין מקום פנוי');
+    // v3.30.0 — עמודת-התמונות ב-PDF כבויה כברירת-מחדל (extendedPDF=false). ברגע שאור צירף
+    // תמונה בעצמו, ההסתרה שלה היא איבוד-מידע שקט; מדליקים פעם אחת, והוא עדיין יכול לכבות.
+    if(!q.extendedPDF){ q.extendedPDF = true; toast('התמונה תוצג ללקוח ליד הסעיף'); }
+    q.updatedAt = ts();                                   // חובה: _itemSig של הסנכרון תלוי בו
+    saveAll();
+    renderQuoteEdit();
+    vib(10);
+  }, true);
+}
+function qItemRemovePhoto(idx, pi){
+  const q = getQuote();
+  if(!q) return;
+  const it = q.items && q.items[idx];
+  if(!it || !Array.isArray(it.attachedPhotos)) return;
+  const [gone] = it.attachedPhotos.splice(pi, 1);
+  q.updatedAt = ts();
+  saveAll();
+  // _gcOrphanBlobs בודק הפניות לפני מחיקה, כך שתמונה שמשותפת עם ממצא/פרויקט לא תיפגע
+  if(gone && gone.blobKey && typeof _gcOrphanBlobs === 'function') _gcOrphanBlobs([gone.blobKey]).catch(()=>{});
+  renderQuoteEdit();
+}
 
 function qDeleteItemPermanent(idx){
   const q = getQuote();
