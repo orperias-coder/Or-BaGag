@@ -7443,6 +7443,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
         <button class="btn btn-ghost btn-sm" onclick="exportData()" style="margin-bottom:8px">💾 ייצוא JSON</button>
         <button class="btn btn-ghost btn-sm" onclick="document.getElementById('imp').click()">📂 טעינת גיבוי</button>
         <input type="file" id="imp" accept=".json" style="display:none" onchange="importData(event)">
+        <!-- v3.33.0 — כיווץ חד-פעמי של תמונות שהגיעו מבונה-הדוחות בגודל המקורי -->
+        <button class="btn btn-ghost btn-sm" id="btn-shrink-media" onclick="shrinkAllMedia()" style="margin-top:8px">🗜️ כווץ תמונות</button>
         <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">הלוגו לא נכלל בייצוא — יש להעלות מחדש לאחר טעינה</div>
       </div>
 
@@ -7766,7 +7768,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.32.0'; // דוחות הייעוץ מגובים ומסונכרנים כמו כל השאר, ויש להם מסך משלהם
+const APP_VERSION = '3.33.0'; // כיווץ תמונות במאגר-המדיה (1920/0.82) — הגיבוי והסנכרון ירדו מ-~200MB
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -8043,6 +8045,99 @@ async function mediaStats(){
       };
       r.onerror = () => res({ count: 0, bytes: 0 });
     } catch(e){ res({ count: 0, bytes: 0 }); }
+  });
+}
+/* ── כיווץ blobs במאגר-המדיה (v3.33.0) ─────────────────────────────────────────
+   התמונות שמגיעות מבונה-הדוחות נשמרו שם בגודל המקורי מהמצלמה, ו-rptRestoreIn מעתיק
+   אותן לכאן כמו שהן. משם הן נכנסות לגיבוי ב-base64 (עוד כשליש) ולסנכרון — וזה מה
+   שהעמיס ~200MB והפיל את ההעלאה. התמונות של האפליקציה עצמה כבר עוברות compressImgDual
+   (1920/0.85) ולכן לא מושפעות. פונקציה נפרדת ולא שינוי ב-compressImg, שיש לה עשרות קוראים.
+   1920/0.82 — אותם מספרים כמו בבונה-הדוחות, כדי ששתי האפליקציות יתנהגו זהה. */
+const MEDIA_MAX_PX = 1920, MEDIA_QUALITY = 0.82;
+function mediaShrinkBlob(blob, maxPx, quality){
+  maxPx = maxPx || MEDIA_MAX_PX; quality = quality || MEDIA_QUALITY;
+  return new Promise(res => {
+    if(!blob || !blob.type || blob.type.indexOf('image/') !== 0 || blob.type === 'image/gif'){ res(blob); return; }
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      try{
+        const scale = Math.min(1, maxPx / Math.max(img.naturalWidth, img.naturalHeight));
+        // כבר בתקציב וכבר JPEG — לא מקודדים מחדש, אחרת כל הרצה שוחקת את האיכות
+        if(scale === 1 && blob.type === 'image/jpeg'){ URL.revokeObjectURL(url); res(blob); return; }
+        const w = Math.max(1, Math.round(img.naturalWidth * scale));
+        const h = Math.max(1, Math.round(img.naturalHeight * scale));
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);   // PNG שקוף היה יוצא שחור ב-JPEG
+        ctx.drawImage(img, 0, 0, w, h);
+        c.toBlob(b => { URL.revokeObjectURL(url); res(b && b.size > 0 && b.size < blob.size ? b : blob); },
+                 'image/jpeg', quality);
+      }catch(e){ URL.revokeObjectURL(url); res(blob); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(blob); };   // קובץ פגום — לא מאבדים אותו
+    img.src = url;
+  });
+}
+/* מעבר חד-פעמי על כל מאגר-המדיה. בלתי-הפיך — נקרא רק מכפתור עם אישור. */
+async function mediaCompressAll(onProgress){
+  if(!db) return { total:0, changed:0, before:0, after:0 };
+  const keys = await new Promise(res=>{ try{ const out=[];
+    const r = db.transaction('media','readonly').objectStore('media').openCursor();
+    r.onsuccess = ev => { const c = ev.target.result; if(!c){ res(out); return; } out.push(c.key); c.continue(); };
+    r.onerror = () => res(out); }catch(e){ res([]); } });
+  // קוראים את הרשומה המלאה ולא דרך mediaGet — הוא מחזיר רק את ה-blob, וכתיבה חוזרת
+  // בלי ה-meta הייתה מוחקת את השיוך (kind:'report', projectId, visitId) של כל תמונה.
+  const getRec = k => new Promise(res=>{ try{
+    const r = db.transaction('media','readonly').objectStore('media').get(k);
+    r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); }catch(e){ res(null); } });
+  let before=0, after=0, changed=0, i=0;
+  for(const k of keys){
+    i++;
+    const rec = await getRec(k);
+    const blob = rec && rec.blob;
+    if(!blob || !blob.size){ continue; }
+    before += blob.size;
+    let out; try{ out = await mediaShrinkBlob(blob); }catch(e){ out = blob; }
+    after += out.size;
+    if(out !== blob && out.size < blob.size){
+      if(await mediaPut(k, out, rec.meta || null)) changed++;
+    }
+    if(onProgress) onProgress(i, keys.length);
+  }
+  return { total: keys.length, changed, before, after };
+}
+/* הכפתור בהגדרות. בלתי-הפיך ולכן מאחורי confirmAction, ומציע קודם גיבוי. */
+async function shrinkAllMedia(){
+  const btn = document.getElementById('btn-shrink-media');
+  confirmAction({
+    title: 'לכווץ את כל התמונות?',
+    msg: 'כל התמונות יומרו ל-1920 פיקסל לכל היותר.\n\nזו פעולה בלתי-הפיכה — האיכות המקורית לא חוזרת. ' +
+         'התמונות של האפליקציה כבר מכווצות ולא ישתנו; מה שיקטן הוא בעיקר תמונות שהגיעו מבונה-הדוחות.\n\n' +
+         'מומלץ לוודא שיש גיבוי עדכני בדרייב לפני.',
+    ok: 'כווץ',
+    cb: async () => {
+      const old = btn ? btn.textContent : '';
+      if(btn){ btn.disabled = true; }
+      try{
+        const r = await mediaCompressAll((i,n)=>{ if(btn) btn.textContent = 'מכווץ ' + i + '/' + n; });
+        const mb = n => (n/1048576).toFixed(1);
+        confirmAction({
+          title: 'הכיווץ הסתיים',
+          msg: 'תמונות שנסרקו: ' + r.total + '\nכווצו בפועל: ' + r.changed +
+               '\n\nלפני: ' + mb(r.before) + 'MB\nאחרי: ' + mb(r.after) + 'MB',
+          ok: 'סגור', cb: ()=>{}
+        });
+        // הגיבוי והסנכרון צריכים להעלות מחדש את מה שהשתנה
+        if(typeof gdriveMarkChange === 'function') gdriveMarkChange();
+        saveAll(true);
+      }catch(e){
+        console.error('[shrinkAllMedia]', e);
+        toast('הכיווץ נכשל — ' + ((e && e.message) || e));
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = old; }
+      }
+    }
   });
 }
 // Convert a base64 data URL into a Blob (for migration)
