@@ -583,6 +583,13 @@ input.err{border-color:var(--red)}
    ═══════════════════════════════════════════════════════════════════════════ */
 .wk-wrap{padding:0 14px 24px}
 .wk-mast{padding:18px 4px 10px}
+/* v3.32.0 (REPORTS-SAFE) */
+.rpt-ok,.rpt-warn{display:flex;align-items:center;gap:7px;margin-top:10px;padding:8px 11px;
+  border-radius:10px;font-size:12.5px;font-weight:600}
+.rpt-ok{background:var(--sage-l,#eaf0e8);color:var(--sage,#4d7a4d);border:1px solid var(--sage,#4d7a4d)}
+.rpt-warn{background:var(--gold-l);color:var(--gold2);border:1px solid var(--gold)}
+.rpt-tag{display:inline-block;background:var(--ink3);color:var(--text2);font-size:10px;font-weight:800;
+  border-radius:999px;padding:1px 7px;vertical-align:1px}
 .wk-eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;display:flex;align-items:center;gap:7px}
 .wk-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
 .wk-h1{font-size:26px;font-weight:800;color:var(--text);margin-top:5px;line-height:1.2}
@@ -6492,6 +6499,10 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   <div class="view" id="view-folk">
     <div id="folk-body" class="body" style="padding:0"></div>
   </div>
+  <!-- v3.32.0 (REPORTS-SAFE) — "כל הקבצים ביחד": דוחות הייעוץ מוצגים כאן, עם מצב-הגיבוי שלהם -->
+  <div class="view" id="view-reports">
+    <div id="reports-body" class="body" style="padding:0"></div>
+  </div>
   <div class="view" id="view-folk-one">
     <div id="folk-one-body" class="body" style="padding:0"></div>
   </div>
@@ -7684,7 +7695,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button onclick="closeGlobalDrawer();openAnalyticsView()"><iconify-icon icon="mdi:chart-bar"></iconify-icon><span>אנליטיקה ודוחות</span></button>
     <!-- v3.31.0 (REPORT-LINK) — פתיחת האפליקציה עצמה, בלי ליצור דוח חדש: כאן אור מגיע
          לדוחות שכבר כתב. ה-[+] יוצר חדש, המגירה נותנת גישה. -->
-    <button onclick="closeGlobalDrawer();openReportApp()"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon><span>בונה דוח ייעוץ</span></button>
+    <button onclick="closeGlobalDrawer();openReportsList()"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon><span>דוחות ייעוץ</span></button>
     <button onclick="closeGlobalDrawer();openFixedExpenses()"><iconify-icon icon="mdi:cash-minus"></iconify-icon><span>הוצאות קבועות</span></button>
     <button onclick="closeGlobalDrawer();openModifiers()"><iconify-icon icon="mdi:alert-octagon-outline"></iconify-icon><span>תוספות סיכון</span></button>
     <button onclick="closeGlobalDrawer();openDailySummary()"><iconify-icon icon="mdi:weather-sunset"></iconify-icon><span>סיכום יום</span></button>
@@ -7755,7 +7766,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.31.0'; // בונה דוח הייעוץ מחובר: [+] פותח דוח חדש עם פרטי הלקוח, והתפריט נותן גישה
+const APP_VERSION = '3.32.0'; // דוחות הייעוץ מגובים ומסונכרנים כמו כל השאר, ויש להם מסך משלהם
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -7770,6 +7781,7 @@ const S = {
   visits: [],
   projects: [],
   quotes: [],
+  reports: [],          // v3.32.0 (REPORTS-SAFE) — עותקי דוחות-הייעוץ, לגיבוי ולסנכרון
   leads: [],            // V2.5 — opportunities pipeline
   clients: [],          // v3.19.0 — unified customer records (anyone with a visit/project). Computed via migration on first run.
   clientMigrationCompletedAt: null, // v3.19.0 — timestamp of last successful clients migration; null = needs to run
@@ -8061,6 +8073,173 @@ function blobToDataUrl(blob){
 // full-resolution originals, not just blobKey refs. Without this, restoring to a reinstalled /
 // cleared / new device leaves only the ~220px thumb and the originals are permanently lost.
 // Defensive: any failure returns {} so the backup still contains the S.* data (no regression).
+/* ══════════════════════════════════════════════════════════════════════════
+   v3.32.0 (REPORTS-SAFE) — גשר לבונה-דוח-הייעוץ.
+
+   אור: "תדאג שהכל יהיה מגובה תמיד ונגיש מכל מקום."
+
+   הרקע: בונה-הדוחות הוא אפליקציה נפרדת ששמרה **רק** ב-localStorage של הדפדפן.
+   הסנכרון שלה רץ אחרי התחברות בלבד, ומסד-הנתונים שלה כבר לא קיים כלל (אין רשומת
+   DNS ל-azojpbraehirtgooxanp.supabase.co) — כלומר לדוחות לא היה שום גיבוי, בשום מצב.
+   דוח שנכתב היה חי בדפדפן אחד ונעלם איתו.
+
+   מה שמאפשר את הגשר: שתי האפליקציות מוגשות מ-GitHub Pages תחת **אותו origin**
+   (orperias-coder.github.io), ולכן ה-localStorage וה-IndexedDB משותפים להן — אפשר
+   לקרוא את הדוחות בלי לגעת באפליקציית-הדוחות עצמה.
+
+   הכיוון הראשון (mirror): קוראים את הדוחות ומעתיקים אותם אל S.reports ואל מאגר-המדיה
+   כאן. משם הם נכנסים **אוטומטית** ל-_buildCompleteBackup (גיבוי-דרייב) ול-SYNC_ENTITIES
+   (סנכרון-ענן) — בלי קוד-גיבוי נוסף.
+   הכיוון השני (restore): כותבים בחזרה למקום שבונה-הדוחות קורא ממנו, כך שבמכשיר חדש
+   שסונכרן — הדוחות פשוט שם.
+
+   חוק-הברזל: הגשר **לעולם לא מוחק** דוח ולא דורס חדש בישן. ההשוואה היא לפי updatedAt,
+   ובתיקו — המקומי מנצח.
+   ══════════════════════════════════════════════════════════════════════════ */
+const RPT_LIB_KEY = 'obLib';               // אינדקס-הדוחות של בונה-הדוחות
+const RPT_DOC_PREFIX = 'obDoc_';           // מסמך בודד
+const RPT_IDB = 'obReportPhotos';          // מסד-התמונות שלו
+const RPT_STORE = 'ph';                    // ה-store היחיד בו
+const RPT_MEDIA_PREFIX = 'rpt-';           // מפתח אצלנו: rpt-<reportId>::<photoKey>
+
+function _rptLib(){
+  try { const l = JSON.parse(localStorage.getItem(RPT_LIB_KEY) || 'null');
+        return (l && Array.isArray(l.reports)) ? l : null; } catch(e){ return null; }
+}
+function _rptDoc(id){
+  try { return JSON.parse(localStorage.getItem(RPT_DOC_PREFIX + id) || 'null'); } catch(e){ return null; }
+}
+function _rptIdb(){
+  return new Promise(res => {
+    try { const rq = indexedDB.open(RPT_IDB);
+          rq.onsuccess = () => res(rq.result);
+          rq.onerror = () => res(null);
+          // אם המסד לא קיים עדיין — לא יוצרים אותו כאן; בונה-הדוחות ייצור אותו בעצמו
+          rq.onupgradeneeded = () => { try { rq.transaction.abort(); } catch(e){} };
+    } catch(e){ res(null); }
+  });
+}
+async function _rptPhotoKeys(rdb, reportId){
+  if(!rdb) return [];
+  return new Promise(res => {
+    try { const os = rdb.transaction(RPT_STORE,'readonly').objectStore(RPT_STORE);
+          const q = os.getAllKeys();
+          q.onsuccess = () => res((q.result||[]).filter(k => typeof k === 'string' && k.indexOf(reportId + '::') === 0));
+          q.onerror = () => res([]);
+    } catch(e){ res([]); }
+  });
+}
+function _rptGet(rdb, key){
+  return new Promise(res => {
+    try { const r = rdb.transaction(RPT_STORE,'readonly').objectStore(RPT_STORE).get(key);
+          r.onsuccess = () => res(r.result || null); r.onerror = () => res(null);
+    } catch(e){ res(null); }
+  });
+}
+function _rptPut(rdb, key, blob){
+  return new Promise(res => {
+    try { const tx = rdb.transaction(RPT_STORE,'readwrite');
+          tx.objectStore(RPT_STORE).put(blob, key);
+          tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false);
+    } catch(e){ res(false); }
+  });
+}
+// כותרת קריאה לדוח, לרשימה ולגיבוי
+function _rptTitle(doc, fallback){
+  const m = (doc && doc.meta) || {};
+  return (m.siteAddress || m.title || fallback || 'דוח ללא שם').toString().trim() || 'דוח ללא שם';
+}
+
+/* כיוון 1 — קריאה מבונה-הדוחות אל כאן. מחזיר כמה דוחות נקלטו/עודכנו. */
+async function rptMirrorIn(){
+  const lib = _rptLib();
+  if(!lib) return { found:0, updated:0, photos:0 };
+  if(!Array.isArray(S.reports)) S.reports = [];
+  const rdb = await _rptIdb();
+  let updated = 0, photos = 0;
+  for(const entry of lib.reports){
+    if(!entry || !entry.id) continue;
+    const doc = _rptDoc(entry.id);
+    if(!doc || !doc.meta) continue;                       // מסמך חסר — לא ממציאים אחד
+    const stamp = entry.updatedAt || 0;
+    const mine = S.reports.find(r => r.id === entry.id);
+    // חוק-הברזל: לא דורסים עותק חדש יותר בישן
+    if(mine && (mine.srcUpdatedAt || 0) >= stamp) continue;
+    const rec = {
+      id: entry.id,
+      title: _rptTitle(doc, entry.title),
+      refNo: (doc.meta.refNo || ''),
+      clientName: (doc.meta.clientName || ''),
+      address: (doc.meta.siteAddress || ''),
+      isFollowUp: !!(doc.followUp && doc.followUp.of),
+      followUpOf: (doc.followUp && doc.followUp.of) || null,
+      findings: (doc.roofs || []).reduce((a, r) => a + ((r.findings || []).length), 0),
+      doc,                                                 // המסמך המלא — זה מה שמגובה
+      srcUpdatedAt: stamp,
+      updatedAt: ts(),
+    };
+    if(mine) Object.assign(mine, rec); else S.reports.push(rec);
+    updated++;
+    // התמונות עוברות למאגר-המדיה שלנו, ומשם הן נכנסות לגיבוי-הדרייב דרך _collectMediaForBackup
+    for(const k of await _rptPhotoKeys(rdb, entry.id)){
+      const mk = RPT_MEDIA_PREFIX + k;
+      if(await mediaGet(mk)) continue;                     // כבר אצלנו
+      const blob = await _rptGet(rdb, k);
+      if(blob && await mediaPut(mk, blob, { kind:'report' })) photos++;
+    }
+  }
+  if(updated || photos) saveAll(true);
+  return { found: lib.reports.length, updated, photos };
+}
+
+/* כיוון 2 — כתיבה בחזרה, כדי שבמכשיר חדש הדוחות פשוט יהיו שם. */
+async function rptRestoreOut(){
+  const mineAll = Array.isArray(S.reports) ? S.reports : [];
+  if(!mineAll.length) return { written:0, photos:0 };
+  const lib = _rptLib() || { activeId:null, reports:[] };
+  const rdb = await _rptIdb();
+  let written = 0, photos = 0;
+  for(const rec of mineAll){
+    if(!rec || !rec.id || !rec.doc) continue;
+    const existing = lib.reports.find(x => x.id === rec.id);
+    // שוב: לא דורסים מסמך מקומי חדש יותר
+    if(existing && (existing.updatedAt || 0) >= (rec.srcUpdatedAt || 0) && _rptDoc(rec.id)) continue;
+    try { localStorage.setItem(RPT_DOC_PREFIX + rec.id, JSON.stringify(rec.doc)); } catch(e){ continue; }
+    const meta = { id: rec.id, title: rec.title, refNo: rec.refNo, address: rec.address,
+                   client: rec.clientName, roofs: (rec.doc.roofs||[]).length, findings: rec.findings,
+                   isFollowUp: rec.isFollowUp, createdAt: (existing && existing.createdAt) || Date.now(),
+                   updatedAt: rec.srcUpdatedAt || Date.now() };
+    if(existing) Object.assign(existing, meta); else lib.reports.unshift(meta);
+    written++;
+    // והתמונות בחזרה למסד של בונה-הדוחות
+    if(rdb){
+      const prefix = RPT_MEDIA_PREFIX + rec.id + '::';
+      for(const ph of _rptDocPhotoKeys(rec.doc)){
+        const dst = rec.id + '::' + ph;
+        if(await _rptGet(rdb, dst)) continue;
+        const blob = await mediaGet(prefix + ph);
+        if(blob && await _rptPut(rdb, dst, blob)) photos++;
+      }
+    }
+  }
+  if(written){ try { localStorage.setItem(RPT_LIB_KEY, JSON.stringify(lib)); } catch(e){} }
+  return { written, photos };
+}
+// כל מפתחות-התמונה שמסמך מפנה אליהם (שער, גג, ממצא, ותמונות "אחרי ביצוע" של דוח-המשך)
+function _rptDocPhotoKeys(doc){
+  const out = [];
+  if(!doc) return out;
+  if(doc.meta && doc.meta.coverPhoto) out.push(doc.meta.coverPhoto);
+  (doc.roofs || []).forEach(r => {
+    (r.roofPhotos || []).forEach(p => { if(p && p.key) out.push(p.key); if(p && p.srcKey) out.push(p.srcKey); });
+    (r.findings || []).forEach(f => {
+      (f.photos || []).forEach(p => { if(p && p.key) out.push(p.key); if(p && p.srcKey) out.push(p.srcKey); });
+      ((f.fu && f.fu.photos) || []).forEach(p => { if(p && p.key) out.push(p.key); if(p && p.srcKey) out.push(p.srcKey); });
+    });
+  });
+  return out;
+}
+
 async function _collectMediaForBackup(){
   if(!db) return {};
   const blobs = {};
@@ -9399,6 +9578,7 @@ const VIEW_RENDERERS = {
   'works':         () => typeof renderWorks === 'function' && renderWorks(),
   'work':          () => typeof renderWork === 'function' && renderWork(),
   'folk':          () => typeof renderFolk === 'function' && renderFolk(),
+  'reports':       () => typeof renderReportsList === 'function' && renderReportsList(),   // v3.32.0
   'folk-one':      () => typeof renderFolkOne === 'function' && renderFolkOne(),
   'roofs':         () => typeof renderRoofs === 'function' && renderRoofs(),
   'dash':          () => typeof renderDash === 'function' && renderDash(),
@@ -9586,6 +9766,12 @@ function openReportApp(opts){
   if(!w) toast('הדפדפן חסם את הפתיחה — אפשר לפתוח ידנית מהתפריט');
 }
 // מסך-לקוח / פרויקט פתוח → הפרטים נכנסים לדוח מעצמם, בלי להקליד שוב
+// v3.32.0 (REPORTS-SAFE) — הדוחות מקבלים מסך משלהם כאן. הכניסה עוברת דרך המסך ולא ישר
+// לאפליקציה החיצונית, כי המסך הוא מה שמראה לאור שהם מגובים — וזו כל הנקודה.
+function openReportsList(){
+  push('reports');
+  if(typeof rptScheduleMirror === 'function') rptScheduleMirror(150);
+}
 function _reportCtxFromView(){
   const view = viewStack[viewStack.length - 1];
   let c = null;
@@ -10773,7 +10959,11 @@ window.addEventListener('storage', e => {
 try{ _tabAnnounce(); }catch(e){}
 // ═══════════════════════════════════════════════════════════════════════
 
-const SYNC_ENTITIES = ['visits','projects','quotes','leads','clients','expenses','products','fixedExpenses','modifiers','learnedTasks','roofProfiles','tasks','waBlocklist'];
+// v3.32.0 (REPORTS-SAFE) — 'reports' נוסף. אור: "תדאג שהכל יהיה מגובה תמיד ונגיש מכל מקום."
+// דוחות-הייעוץ נשמרו רק ב-localStorage של הדפדפן, ומסד-הנתונים של אפליקציית-הדוחות כבר
+// לא קיים (אין רשומת DNS ל-azojpbraehirtgooxanp.supabase.co) — כלומר לא היה להם שום גיבוי.
+// הרישום כאן מכניס אותם לסנכרון-הענן, ו-_buildCompleteBackup מכניס אותם לגיבוי-הדרייב.
+const SYNC_ENTITIES = ['visits','projects','quotes','leads','clients','expenses','products','fixedExpenses','modifiers','learnedTasks','roofProfiles','tasks','waBlocklist','reports'];
 const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags'];
 let _syncing = false, _syncAgain = false, _syncSig = {}, _lastSyncAt = 0, _syncPollTimer = null;
 function _loadSyncMeta(){
@@ -11235,7 +11425,32 @@ async function _cloudDownloadMedia(key){
 _loadUploaded();
 _loadSyncMeta();
 
-window.addEventListener('load', ()=>{ try{ _sbClient(); _updateCloudSub();
+// v3.32.0 (REPORTS-SAFE) — הדוחות נקלטים בעלייה, ושוב בכל חזרה לאפליקציה. אור עורך דוח
+// בלשונית השנייה וחוזר לכאן; בלי הריצה השנייה, מה שכתב שם לא היה נכנס לגיבוי עד הרענון הבא.
+// שקט לגמרי: בלי טוסטים, ובלי לגעת בכלום כשאין דוחות.
+let _rptSyncT = null;
+function rptScheduleMirror(delay){
+  clearTimeout(_rptSyncT);
+  _rptSyncT = setTimeout(() => {
+    if(typeof rptMirrorIn !== 'function') return;
+    rptMirrorIn().then(r => {
+      if(r.updated || r.photos){
+        console.log('[reports] mirrored', r);
+        if(typeof gdriveMarkChange === 'function') gdriveMarkChange();   // דוח חדש = שינוי שצריך גיבוי
+        if(_viewIsReports()) renderReportsList();
+      }
+    }).catch(e => console.warn('[reports] mirror failed', e));
+  }, delay || 1200);
+}
+function _viewIsReports(){ return viewStack[viewStack.length-1] === 'reports'; }
+try {
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') rptScheduleMirror(600);
+  });
+  window.addEventListener('focus', () => rptScheduleMirror(600));
+} catch(e){}
+
+window.addEventListener('load', ()=>{ rptScheduleMirror(2500); try{ _sbClient(); _updateCloudSub();
   setTimeout(async ()=>{ try{ const sb=_sbClient(); if(sb && await _cloudUid(sb)){
     await cloudSyncNow();
     // v3.22.12 — one-time SAFE recovery on upgrade: re-upload anything the cloud is MISSING, to un-stick
@@ -12014,6 +12229,7 @@ function _buildCompleteBackup(options){
     visits: S.visits || [],
     projects: S.projects || [],
     quotes: S.quotes || [],
+    reports: S.reports || [],   // v3.32.0 (REPORTS-SAFE) — דוחות הייעוץ נכנסים לגיבוי המלא
     leads: S.leads || [],
     expenses: S.expenses || [],
     products: S.products || [],
@@ -13507,6 +13723,7 @@ async function _applyImportedData(d){
   if(_validRecords(d.visits))           S.visits = _validRecords(d.visits);
   if(_validRecords(d.projects))         S.projects = _validRecords(d.projects);
   if(_validRecords(d.quotes))           S.quotes = _validRecords(d.quotes);
+  if(_validRecords(d.reports))          S.reports = _validRecords(d.reports);   // v3.32.0 (REPORTS-SAFE)
   if(_validRecords(d.leads))            S.leads = _validRecords(d.leads);
   if(_validRecords(d.expenses))         S.expenses = _validRecords(d.expenses);
   if(_validRecords(d.products))         S.products = _validRecords(d.products);
@@ -13563,6 +13780,13 @@ async function _applyImportedData(d){
   let _mediaRestored = 0;
   if(typeof _reconcileSyncSigAfterImport === 'function') _reconcileSyncSigAfterImport();   // v3.22.39 (C1#3) — לפני save/sync
   if(d.media){ try { _mediaRestored = await _restoreMediaFromBackup(d.media); } catch(e){ console.warn('media restore failed', e); } }
+  // v3.32.0 (REPORTS-SAFE) — וזה מה שהופך "מגובה" ל"נגיש מכל מקום": אחרי שחזור, הדוחות
+  // נכתבים בחזרה למקום שבונה-הדוחות קורא ממנו, כך שבמכשיר חדש הם פשוט שם. הכתיבה
+  // אינה דורסת מסמך מקומי חדש יותר (השוואת updatedAt בתוך rptRestoreOut).
+  if(typeof rptRestoreOut === 'function'){
+    try { const r = await rptRestoreOut(); if(r.written) console.log('[reports] restored out', r); }
+    catch(e){ console.warn('[reports] restore-out failed', e); }
+  }
 
   // v3.23.1 (REL-05) — before saving: if cloud sync is active, ask whether this restore should
   // win the next sync everywhere (see _offerRestoreAuthoritative/_bumpRestoredForSync above).
@@ -19497,6 +19721,69 @@ function _initialsOf(name){
   if(!parts.length) return '?';
   return (parts[0][0] || '') + (parts.length > 1 ? (parts[parts.length-1][0] || '') : '');
 }
+// v3.32.0 (REPORTS-SAFE) — רשימת דוחות-הייעוץ בתוך אור-בגג. אור: "שאני אוכל לראות את כל
+// הקבצים ביחד". העריכה עצמה נשארת בבונה-הדוחות (אפליקציה נפרדת) — כאן הם נראים, נספרים,
+// ומעל הכל: מוצג להם מצב-הגיבוי, שקודם לא היה קיים בכלל.
+function renderReportsList(){
+  const body = document.getElementById('reports-body');
+  if(!body) return;
+  const all = (S.reports || []).slice().sort((a,b) => (b.srcUpdatedAt||0) - (a.srcUpdatedAt||0));
+  const g = S.gdrive || {};
+  const backedUp = !!g.lastBackupAt;
+  // אותו פורמט שכרטיס-הגיבוי בהגדרות משתמש בו, כדי שאור יראה את אותו תאריך בשני המקומות
+  const _fmtWhen = t => new Date(t).toLocaleString('he-IL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const when = backedUp ? _fmtWhen(g.lastBackupAt) : '';
+  const statusHtml = !all.length ? '' : (backedUp
+    ? `<div class="rpt-ok"><iconify-icon icon="mdi:cloud-check-outline"></iconify-icon>
+         <span>מגובה לדרייב · ${esc(when)}</span></div>`
+    : `<div class="rpt-warn"><iconify-icon icon="mdi:cloud-alert-outline"></iconify-icon>
+         <span>הדוחות עדיין לא גובו — חבר את גוגל דרייב בהגדרות</span></div>`);
+
+  const rows = all.map(r => {
+    const bits = [];
+    if(r.refNo) bits.push(esc(r.refNo));
+    if(r.findings) bits.push(r.findings + ' ממצאים');
+    if(r.srcUpdatedAt) bits.push(_fmtWhen(r.srcUpdatedAt));
+    return `
+      <button class="wk-row-item" onclick="openReportApp()">
+        <span class="wr-av"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon></span>
+        <span class="wr-bd">
+          <span class="wr-l1">${r.isFollowUp ? '<span class="rpt-tag">המשך</span> ' : ''}${esc(r.title)}</span>
+          ${r.clientName ? `<span class="wr-l2">${esc(r.clientName)}</span>` : ''}
+          <span class="wr-l3">${bits.join('<i class="wr-sep">·</i>')}</span>
+        </span>
+        <span class="wr-end">←</span>
+      </button>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="wk-wrap">
+      <div class="wk-mast">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="min-width:0">
+            <div class="wk-eyebrow">דוחות ייעוץ</div>
+            <div class="wk-h1">${all.length} ${all.length === 1 ? 'דוח' : 'דוחות'}</div>
+            <div class="wk-sub">נכתבים בבונה-הדוחות, ומגובים מכאן</div>
+          </div>
+          <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="flex-shrink:0;margin-top:4px"><iconify-icon icon="mdi:menu"></iconify-icon></button>
+        </div>
+        ${statusHtml}
+      </div>
+      ${all.length ? rows : `
+        <div style="padding:26px 18px;text-align:center;color:var(--text3);font-size:13.5px;line-height:1.7">
+          עדיין אין דוחות.<br>דוח נכתב בבונה-הדוחות, ומופיע כאן אוטומטית — ומגובה יחד עם כל השאר.
+        </div>`}
+      <div class="wk-sec" style="padding:0 2px">
+        <button class="btn btn-gold" style="width:100%" onclick="openReportApp({fresh:true})">
+          <iconify-icon icon="mdi:plus"></iconify-icon> דוח ייעוץ חדש
+        </button>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="openReportApp()">
+          <iconify-icon icon="mdi:open-in-new"></iconify-icon> פתח את בונה-הדוחות
+        </button>
+      </div>
+    </div>`;
+}
+
 function renderFolk(){
   const body = document.getElementById('folk-body');
   if(!body) return;
