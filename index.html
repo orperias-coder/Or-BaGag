@@ -582,6 +582,16 @@ input.err{border-color:var(--red)}
    העיקרון: כרטיס אחד לעבודה, פס-שלבים אחד, מספר אחד. שום דבר שלא נדרש.
    ═══════════════════════════════════════════════════════════════════════════ */
 .wk-wrap{padding:0 14px 24px}
+/* v3.35.0 — רצועת "אין גיבוי". יושבת בראש מסך-הבית כי שלושת מצבי-הכשל היו קודם
+   גלויים רק בתוך ההגדרות, ואפשר היה להיות שבועות בלי גיבוי בלי לדעת. */
+.bk-warn{margin:10px 0 12px;padding:12px 14px;border-radius:12px;cursor:pointer;
+  background:var(--gold-l);border:1.5px solid var(--gold)}
+.bk-warn:active{transform:scale(.995)}
+.bk-warn-t{font-size:14px;font-weight:900;color:var(--amber);margin-bottom:2px}
+.bk-warn-s{font-size:12.5px;color:var(--text2);line-height:1.45}
+.bk-warn-a{font-size:11.5px;font-weight:700;color:var(--text3);margin-top:6px}
+.bk-warn-red{background:#fbe3df;border-color:var(--red)}
+.bk-warn-red .bk-warn-t{color:var(--red)}
 .wk-mast{padding:18px 4px 10px}
 /* v3.32.0 (REPORTS-SAFE) */
 .rpt-ok,.rpt-warn{display:flex;align-items:center;gap:7px;margin-top:10px;padding:8px 11px;
@@ -7445,7 +7455,6 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
         <input type="file" id="imp" accept=".json" style="display:none" onchange="importData(event)">
         <!-- v3.33.0 — כיווץ חד-פעמי של תמונות שהגיעו מבונה-הדוחות בגודל המקורי -->
         <button class="btn btn-ghost btn-sm" id="btn-shrink-media" onclick="shrinkAllMedia()" style="margin-top:8px">🗜️ כווץ תמונות</button>
-        <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">הלוגו לא נכלל בייצוא — יש להעלות מחדש לאחר טעינה</div>
       </div>
 
       <!-- v3.9.30 — Google Drive Backup (תוכן נכתב דינמית ע"י gdriveRenderSettingsCard) -->
@@ -7456,27 +7465,10 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
           <button class="btn btn-primary btn-sm" onclick="gdriveConnect()" style="width:100%">🔗 התחבר לגוגל דרייב</button>
         </div>
       </div>
-      <!-- v3.9.31 — GitHub Publish + Dev Files Sync -->
-      <div class="card" id="gitdev-card" style="display:none">
-        <div class="card-label">🛠️ פיתוח — פרסום לגיטהאב</div>
-        <div id="gitdev-card-body">
-          <p style="font-size:13px;color:var(--text2);margin:0 0 12px;line-height:1.5">טוען...</p>
-        </div>
-      </div>
       <div class="card">
         <button class="btn btn-red btn-sm" onclick="confirmAction({title:'מחק הכל?',msg:'כל נתוני העבודה יימחקו — ביקורים, פרויקטים, הצעות, לידים, לקוחות, משימות, הוצאות ותמונות.\\nפרטי העסק, התבנית והקטלוג יישמרו.',ok:'מחק',cb:clearAll})"><iconify-icon icon="mdi:trash-can-outline" style="vertical-align:-2px"></iconify-icon> מחק הכל</button>
       </div>
       <div style="text-align:center;padding:20px;font-size:12px;color:var(--text3)" id="app-version-footer">אור בגג · v<span id="app-ver-display">—</span></div>
-      <!-- DEBUG TOOL — v3.21.57: hidden by default; long-press the version line below to reveal -->
-      <div id="debug-block" style="margin-top:20px;padding:0 0 16px;display:none">
-        <div style="font-size:11px;font-weight:700;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🔧 אבחון</div>
-        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowVisitData()">🔍 נתוני ביקור אחרון</button>
-        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowProjectData()">🔍 נתוני פרויקט אחרון</button>
-        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="debugShowStorageStats()">💾 שימוש באחסון (IDB)</button>
-        <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="openWaBlocklist()">✕ ניהול חסומים מ-WhatsApp</button>
-        <button class="btn btn-gold btn-sm" style="width:100%;margin-bottom:8px" onclick="seedPerlsteinProject()">🌅 טען פרויקט פרלשטיין (דמו)</button>
-        <div id="debug-output-area" style="display:none;background:var(--ink3);border-radius:10px;padding:12px;font-size:11px;font-family:monospace;word-break:break-all;white-space:pre-wrap;max-height:300px;overflow-y:auto;margin-top:8px;direction:ltr;text-align:left"></div>
-      </div>
     </div>
   </div>
 
@@ -7768,7 +7760,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.33.0'; // כיווץ תמונות במאגר-המדיה (1920/0.82) — הגיבוי והסנכרון ירדו מ-~200MB
+const APP_VERSION = '3.35.0'; // שומר-הריק בגיבוי + רצועת-אזהרה במסך הבית כשאין גיבוי עובד
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -11753,17 +11745,10 @@ function calOpenDay(y, m, d){
 /* ═══════════════════════════════════════════════════════
    SETTINGS
    ═══════════════════════════════════════════════════════ */
-// v3.21.57 — dev/diagnostic tools (debug block + GitHub-dev card) are hidden from the
-// contractor by default and revealed by a long-press (~800ms) on the version line.
-let _devToolsTimer = null;
-function _toggleDevTools(){
-  const dbg = document.getElementById('debug-block');
-  const git = document.getElementById('gitdev-card');
-  const reveal = dbg && getComputedStyle(dbg).display === 'none';
-  if(dbg) dbg.style.display = reveal ? '' : 'none';
-  if(git) git.style.display = reveal ? '' : 'none';
-  toast(reveal ? 'כלי פיתוח גלויים' : 'כלי פיתוח הוסתרו');
-}
+// v3.34.0 — כלי-הפיתוח ובלוק-האבחון הוסרו מההגדרות לבקשת אור. הם היו מוסתרים מאחורי
+// לחיצה-ארוכה על שורת-הגרסה, וביניהם ישב "טען פרויקט פרלשטיין (דמו)" שמזריק פרויקט
+// מזויף לתוך הנתונים האמיתיים — לחיצה בטעות והיה נכנס לקוח שלא קיים בעסק.
+// שורת-הגרסה נשארת לחיצה ופותחת את מסך-העזרה, כפי שהייתה.
 // v3.25.4 (R4/NEWUSER-01) — במקום פריט-מגירה חדש (המגירה כבר עמוסה): שורת-הגרסה הקיימת
 // בפוטר-ההגדרות הופכת לכפתור-לחיץ שפותח מסך-עזרה קצר ("איך זה עובד"). הקשה קצרה = עזרה;
 // הקשה-ארוכה (800ms, כמו קודם) = כלי-פיתוח — ה-flag longPressed מונע מהקליק שאחרי-שחרור
@@ -11788,19 +11773,7 @@ function _wireDevTools(){
   if(!f || f._devWired) return;
   f._devWired = true;
   f.style.cursor = 'pointer'; f.style.userSelect = 'none'; f.style.webkitUserSelect = 'none';
-  let longPressed = false;
-  const start = ()=>{ _devToolsTimer = setTimeout(()=>{ _toggleDevTools(); longPressed = true; }, 800); };
-  const cancel = ()=>{ if(_devToolsTimer){ clearTimeout(_devToolsTimer); _devToolsTimer = null; } };
-  f.addEventListener('touchstart', start, {passive:true});
-  f.addEventListener('touchend', cancel);
-  f.addEventListener('touchmove', cancel, {passive:true});
-  f.addEventListener('mousedown', start);
-  f.addEventListener('mouseup', cancel);
-  f.addEventListener('mouseleave', cancel);
-  f.addEventListener('click', ()=>{
-    if(longPressed){ longPressed = false; return; } // הקשה-ארוכה כבר טיפלה בעצמה — לא לפתוח גם עזרה
-    openOnboardingHelp();
-  });
+  f.addEventListener('click', openOnboardingHelp);
 }
 /* ═══════════════════════════════════════════════════════
    v3.22.30 (ביקורת 2.5) — נעילת-PIN. כבויה כברירת-מחדל.
@@ -12314,6 +12287,43 @@ function applyFontSize(){
    EXPORT / IMPORT
    ═══════════════════════════════════════════════════════ */
 // v3.9.16 — איסוף כל הנתונים לגיבוי מלא (משמש גם את exportData וגם את exportBackupNow)
+/* v3.35.0 — רצועת-אזהרה במסך הבית כשאין גיבוי עובד.
+   עד כאן שלושת מצבי-הכשל היו גלויים רק בתוך כרטיס-ההגדרות: גיבוי שלא חובר מעולם
+   (או שכובה בניקוי-דפדפן, כי הדגל יושב ב-S שנמחק איתו), הרשאה שפגה, וגיבוי ישן.
+   אור יכול היה להיות שבועות בלי גיבוי בלי לדעת. עכשיו זה יושב איפה שהוא מסתכל. */
+function _backupState(){
+  const g = S.gdrive || {};
+  if(g.emptyGuardAt) return { level:'red', text:'הגיבוי נעצר — אין נתונים במכשיר. אל תמשיך לעבוד לפני בדיקה.' };
+  if(!g.enabled)     return { level:'red', text:'אין גיבוי אוטומטי. הנתונים קיימים רק במכשיר הזה.' };
+  if(g.needsReconnect) return { level:'amber', text:'ההרשאה לדרייב פגה — לא נשמר גיבוי חדש.' };
+  const stale = _gdriveBackupStaleDays();
+  if(stale != null) return { level:'amber', text:'הגיבוי האחרון לפני ' + stale + ' ימים.' };
+  return null;
+}
+function _backupWarnStrip(){
+  const st = _backupState();
+  if(!st) return '';
+  const red = st.level === 'red';
+  return `<div class="bk-warn${red?' bk-warn-red':''}" onclick="show('settings')" role="button" tabindex="0">
+    <div class="bk-warn-t">${red?'הנתונים שלך לא מגובים':'הגיבוי לא מעודכן'}</div>
+    <div class="bk-warn-s">${esc(st.text)}</div>
+    <div class="bk-warn-a">לפתיחת ההגדרות</div>
+  </div>`;
+}
+/* v3.35.0 — התנאי של שומר-הריק, בפונקציה נפרדת כדי שאפשר יהיה לבדוק אותו ישירות
+   (הנתיב שסביבו ב-gdriveBackupNow תלוי בטוקן-דרייב חי, שאי-אפשר לזייף בבדיקה). */
+function _emptyGuardBlocks(cnt){
+  return cnt === 0 && ((S.gdrive && S.gdrive.lastBackupCount) || 0) > 0;
+}
+/* v3.35.0 — כמה רשומות-עבודה יש בגיבוי. משמש את שומר-הריק ב-gdriveBackupNow.
+   נספרות רק ישויות-עבודה: פרטי-העסק והקטלוג שורדים "מחק הכל" ולכן לא מעידים על כלום. */
+function _backupRecordCount(b){
+  if(!b) return 0;
+  let n = 0;
+  ['visits','projects','quotes','reports','leads','expenses','clients','tasks']
+    .forEach(k => { if(Array.isArray(b[k])) n += b[k].length; });
+  return n;
+}
 function _buildCompleteBackup(options){
   options = options || {};
   return {
@@ -12665,6 +12675,21 @@ async function gdriveBackupNow(silent){
     const folderId = await _gdriveEnsureFolder();
 
     const backup = _buildCompleteBackup();
+    /* v3.35.0 — שומר-הריק. ב-30.7 ניקוי-דפדפן רוקן את הנתונים, וב-11:48 הגיבוי האוטומטי
+       כתב את הריק הזה לדרייב: 108KB מול 17.8MB בגיבוי שלפניו. הרוטציה שומרת 30 בלבד
+       ומוחקת לפי תאריך בלבד, כך שיממה של גיבויים ריקים הייתה דוחפת החוצה כל גיבוי טוב.
+       מכאן: לא כותבים גיבוי ריק על גבי היסטוריה לא-ריקה. עוצרים, מסמנים, ומחכים שאור יראה. */
+    const _cnt = _backupRecordCount(backup);
+    if(_emptyGuardBlocks(_cnt)){
+      S.gdrive.lastError = 'הגיבוי נעצר: אין נתונים במכשיר, והגיבוי האחרון הכיל ' +
+                           S.gdrive.lastBackupCount + ' רשומות. אם מחקת בכוונה — גבה ידנית. ' +
+                           'אחרת שחזר מהיסטוריית הגיבויים לפני שתמשיך.';
+      S.gdrive.emptyGuardAt = new Date().toISOString();
+      saveAll(true);
+      gdriveRenderSettingsCard();
+      if(!silent) toast('הגיבוי נעצר — אין נתונים במכשיר');
+      return;
+    }
     backup.media = await _collectMediaForBackup(); // v3.21.53 — embed full-res photo blobs so Drive backup isn't hollow
     const content = JSON.stringify(backup);   // v3.23.13 (REL-09) — הוסרה הזחה: הקובץ לא נועד לקריאה ידנית, וההזחה מנפחת גיבוי-מלא-עם-תמונות בעשרות אחוזים
     const now = new Date();
@@ -12675,9 +12700,11 @@ async function gdriveBackupNow(silent){
 
     S.gdrive.lastBackupAt = now.toISOString();
     S.gdrive.lastBackupId = uploaded.id;
+    S.gdrive.lastBackupCount = _cnt;   // v3.35.0 — נקודת-ההשוואה של שומר-הריק
     S.gdrive.pendingChanges = false;
     S.gdrive.lastError = null;   // v3.23.0 (REL-03) — נקה כשל קודם אחרי הצלחה
     S.gdrive.needsReconnect = false;
+    S.gdrive.emptyGuardAt = null;
     saveAll(true);
 
     // ניקוי ברקע
@@ -19454,6 +19481,7 @@ function renderWorks(){
     : '';
   body.innerHTML = `
     <div class="wk-wrap">
+      ${_backupWarnStrip()}
       ${homeHint}
       <div class="wk-mast">
         <!-- v3.27.0 (WORKS-06) — כפתור התפריט חייב לשבת כאן: הסרגל התחתון מכיל רק 4 לשוניות
