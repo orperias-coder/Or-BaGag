@@ -7741,6 +7741,12 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button class="grail-item" onclick="openCatalog()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-archive"/></svg><span class="grail-lbl">קטלוג עבודות</span><span class="grail-badge" id="gr-b-catalog"></span></button>
     <button class="grail-item" onclick="openMainGallery()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-gallery"/></svg><span class="grail-lbl">תיק עבודות</span><span class="grail-badge" id="gr-b-gallery"></span></button>
     <button class="grail-item" onclick="openAnalyticsView()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-chart"/></svg><span class="grail-lbl">אנליטיקה ודוחות</span></button>
+    <!-- v3.39.0 (NAV-PARITY) — הוחזר בעקבות COLLAB #45.ב. הוספתי כאן "דוחות ייעוץ" כי הוא קיים
+         במגירת המובייל ולא ב-rail, אבל מפת 0ב.1 (שורה 5) קובעת ל-view-reports "להסיר כיעד גלובלי
+         לאחר איחוד" ויעד "עבודה → מסמכים ודוחות". הוספת יעד גלובלי שלישי דווקא אחרי עדות אור על
+         עודף מסכים, ולפני הכרעת 0ג, סותרת את המפה. ובעיקר: הנתונים אינם נגישים יותר בגלל כפתור
+         למסך שבו הם מוצגים ריקים — הפגם האמיתי הוא ש-onclick של כל שורה הוא openReportApp() בלי
+         מזהה, ובונה-הדוחות אינו תומך בפרמטר כזה כלל. שם צריך התיקון, לא כאן. -->
     <button class="grail-item" onclick="openFixedExpenses()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-cycle"/></svg><span class="grail-lbl">הוצאות קבועות</span></button>
     <button class="grail-item" onclick="openModifiers()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-shield"/></svg><span class="grail-lbl">תוספות סיכון</span></button>
     <button class="grail-item" onclick="openDailySummary()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-sparkle"/></svg><span class="grail-lbl">סיכום יום</span></button>
@@ -7764,7 +7770,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.38.0'; // איחוד-אוטומטי חד-פעמי של לקוחות כפולים לפי מספר טלפון (בקשה מפורשת של אור: "בלגן" — סדר, לא פיצ'ר)
+const APP_VERSION = '3.39.0'; // עמידות דוחות: reports נשמר ונטען מ-IDB הראשי + סגירת חלון-עיוורון של ~3 שניות בעלייה (0ב.5)
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -8380,26 +8386,57 @@ function _rptDocPhotoKeys(doc){
   return out;
 }
 
+// v3.39.0 (BACKUP-HONEST) — סטטיסטיקת האיסוף האחרון. הפונקציה שמתחתיה נכשלת בשקט בשלושה
+// מצבים: אין db → {} · חריגה בסריקה → {} · שגיאת-סמן באמצע → סט חלקי. בכל שלושתם הייצוא
+// הודיע "גיבוי מלא הורד" ולא נותרה שום דרך לדעת שהתמונות חסרות — וגם בשחזור, בדיקת הספירות
+// עוברת בשלמות. זה בדיוק "כשל שמירה שקט" ששער שלב 1 אוסר. מעכשיו סופרים ומשווים.
+let _lastMediaBackupStats = null;
 async function _collectMediaForBackup(){
-  if(!db) return {};
+  _lastMediaBackupStats = { expected: 0, embedded: 0, ok: false, reason: null };
+  if(!db){ _lastMediaBackupStats.reason = 'no-idb'; return {}; }
   const blobs = {};
+  let cursorError = false;
+  let expected = 0;
   try {
-    await new Promise(resolve => {
-      const req = db.transaction('media','readonly').objectStore('media').openCursor();
+    // v3.39.0 (BACKUP-HONEST, תיקון COLLAB #45.ג.4) — הסריקה והספירה חייבות לרוץ ב**אותה**
+    // טרנזקציית readonly. בגרסה הראשונה שלי הן רצו בשתיים, ו-Codex הדגים 20/20 אזהרות-שווא
+    // כשהוזרקה mediaPut() במקביל: expected=N+1 מול embedded=N. אזהרת-שווא גרועה מהשתיקה
+    // שבאנו לתקן — היא מאמנת את אור להתעלם מהאזהרה.
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction('media','readonly');
+      const store = tx.objectStore('media');
+      const cReq = store.count();
+      cReq.onsuccess = () => { expected = cReq.result; };
+      const req = store.openCursor();
       req.onsuccess = ev => {
         const cur = ev.target.result;
-        if(!cur){ resolve(); return; }
+        if(!cur) return;                      // סיום הסמן — ממתינים ל-tx.oncomplete
         if(cur.value && cur.value.blob) blobs[cur.key] = cur.value.blob;
         cur.continue();
       };
-      req.onerror = () => resolve();
+      req.onerror = () => { cursorError = true; };   // סט חלקי — נרשם, לא נבלע
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('tx failed'));
+      tx.onabort = () => reject(tx.error || new Error('tx aborted'));
     });
-  } catch(e){ console.warn('[backup] media scan failed', e); return {}; }
+  } catch(e){
+    console.warn('[backup] media scan failed', e);
+    _lastMediaBackupStats.reason = 'scan-failed: ' + (e && e.message || e);
+    return {};
+  }
+  if(!expected) expected = Object.keys(blobs).length;
   const out = {};
+  let failed = 0;
   for(const k of Object.keys(blobs)){
     const dataUrl = await blobToDataUrl(blobs[k]);
-    if(dataUrl) out[k] = dataUrl;
+    if(dataUrl) out[k] = dataUrl; else failed++;
   }
+  _lastMediaBackupStats = {
+    expected, embedded: Object.keys(out).length, encodeFailed: failed,
+    cursorError, ok: Object.keys(out).length === expected && !cursorError,
+    reason: cursorError ? 'cursor-error' : (failed ? 'encode-failed' : null)
+  };
+  if(!_lastMediaBackupStats.ok) console.warn('[backup] media incomplete', _lastMediaBackupStats);
   return out;
 }
 // v3.21.53 — write backup media blobs back into IDB on restore. Old backups have no `media`
@@ -8576,6 +8613,13 @@ async function _saveAllInner(quiet){
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
     if(typeof S.workTypeTemplates !== 'undefined') _pairs.push(['workTypeTemplates', S.workTypeTemplates]);
+    // v3.39.0 (0ב.5 — עמידות דוחות) — reports נכתב לענן (SYNC_ENTITIES) ולגיבוי המלא, אך לא
+    // ל-IDB הראשי ולא נטען ב-init. הדוחות אינם אובדים: הם חוזרים מגשר בונה-הדוחות
+    // (obDoc_*/obLib) דרך rptScheduleMirror(2500)→rptMirrorIn, גם offline. אבל עד שהמראה רצה
+    // יש חלון של ~3 שניות שבו S.reports ריק ומסך הדוחות מציג 0 (נמדד: 0 בשנייה 1–2, 4 משנייה 3).
+    // בנוסף rptRestoreOut בולע כשל setItem ב-catch{continue}, ולכן בלחץ מכסת-localStorage
+    // הגשר עלול לא להיכתב בשקט. עותק ב-IDB סוגר את שניהם ומיישר את reports עם שאר האוספים.
+    if(Array.isArray(S.reports)) _pairs.push(['reports', S.reports]);
     const _idbOk = await dbSetMany(_pairs);
     // V4.5 dual-save to localStorage
     try {
@@ -8591,7 +8635,8 @@ async function _saveAllInner(quiet){
         nextVisitNumber:S.nextVisitNumber, nextQuoteNumber:S.nextQuoteNumber,
         lastQuoteYear:S.lastQuoteYear,
         clients:S.clients, clientMigrationCompletedAt:S.clientMigrationCompletedAt,
-        workTypeTemplates:S.workTypeTemplates   // v3.22.15 — כלול גם ברשת-הביטחון של localStorage
+        workTypeTemplates:S.workTypeTemplates,   // v3.22.15 — כלול גם ברשת-הביטחון של localStorage
+        reports:S.reports   // v3.39.0 — טקסט בלבד; ה-replacer מפשיט base64 וגם אם יגלוש מ-4.5MB הכתיבה מדולגת בבטחה
       };
       // v3.21.65 — keep the localStorage safety-net backup LIGHTWEIGHT. Before this, the
       // backup embedded the WHOLE dataset including inline base64 (payment refFiles, logo,
@@ -8737,7 +8782,8 @@ async function saveAll(quiet=false){
           quoteTemplate:S.quoteTemplate, settings:S.settings,
           nextVisitNumber:S.nextVisitNumber, nextQuoteNumber:S.nextQuoteNumber, lastQuoteYear:S.lastQuoteYear,
           clients:S.clients, clientMigrationCompletedAt:S.clientMigrationCompletedAt,
-          workTypeTemplates:S.workTypeTemplates   // v3.23.0 (REL-11) — היה חסר כאן בעוד שקיים בעותק המקביל ב-_saveAllInner (שורה ~7100)
+          workTypeTemplates:S.workTypeTemplates,   // v3.23.0 (REL-11) — היה חסר כאן בעוד שקיים בעותק המקביל ב-_saveAllInner (שורה ~7100)
+          reports:S.reports   // v3.39.0 — שני העותקים מתוקנים יחד; חוסר-סימטריה בין השניים כבר יצר באג פעם (REL-11)
         };
         const json = JSON.stringify(backup, _lsBackupReplacer);
         if(json.length <= 4500000) localStorage.setItem('orBagag_backup', json);
@@ -12767,6 +12813,10 @@ async function gdriveBackupNow(silent){
       return;
     }
     backup.media = await _collectMediaForBackup(); // v3.21.53 — embed full-res photo blobs so Drive backup isn't hollow
+    // v3.39.0 (BACKUP-HONEST) — זהו נתיב הגיבוי האוטומטי הראשי, וכאן השתיקה מסוכנת יותר
+    // מאשר בייצוא הידני: אין אדם שמסתכל. הסטטיסטיקה נכנסת לקובץ, וגיבוי לא-שלם לא מסומן כהצלחה.
+    backup.mediaStats = _lastMediaBackupStats;
+    const _mediaOk = !!(_lastMediaBackupStats && _lastMediaBackupStats.ok);
     const content = JSON.stringify(backup);   // v3.23.13 (REL-09) — הוסרה הזחה: הקובץ לא נועד לקריאה ידנית, וההזחה מנפחת גיבוי-מלא-עם-תמונות בעשרות אחוזים
     const now = new Date();
     const ts = now.toISOString().replace(/[:.]/g, '-').split('.')[0];
@@ -12774,19 +12824,30 @@ async function gdriveBackupNow(silent){
 
     const uploaded = await _gdriveUploadBackup(folderId, content, fileName);
 
-    S.gdrive.lastBackupAt = now.toISOString();
     S.gdrive.lastBackupId = uploaded.id;
     S.gdrive.lastBackupCount = _cnt;   // v3.35.0 — נקודת-ההשוואה של שומר-הריק
     S.gdrive.pendingChanges = false;
-    S.gdrive.lastError = null;   // v3.23.0 (REL-03) — נקה כשל קודם אחרי הצלחה
     S.gdrive.needsReconnect = false;
     S.gdrive.emptyGuardAt = null;
+    // v3.39.0 (BACKUP-HONEST) — הקובץ הועלה בכל מקרה (גיבוי חלקי עדיף על אפס גיבוי), אבל
+    // הוא **אינו** נחשב לגיבוי מלא: lastBackupAt לא מתעדכן, כדי שאזהרת "הגיבוי מתיישן" תמשיך
+    // לפעול ותצביע על הגיבוי הטוב האחרון; ו-lastError לא מנוקה אלא נכתב עם המספרים.
+    if(_mediaOk){
+      S.gdrive.lastBackupAt = now.toISOString();
+      S.gdrive.lastError = null;   // v3.23.0 (REL-03) — נקה כשל קודם אחרי הצלחה
+    } else {
+      const _st = _lastMediaBackupStats || {};
+      S.gdrive.lastError = (_st.reason === 'no-idb' || String(_st.reason||'').startsWith('scan-failed'))
+        ? 'הגיבוי האחרון עלה בלי התמונות — אחסון המדיה לא נקרא'
+        : `הגיבוי האחרון חלקי — ${_st.embedded||0} מתוך ${_st.expected||0} קובצי מדיה`;
+      S.gdrive.lastPartialAt = now.toISOString();
+    }
     saveAll(true);
 
     // ניקוי ברקע
     _gdriveCleanupOldBackups(folderId);
 
-    if(!silent) toast('✅ גובה לדרייב');   // v3.27.1 — גיבוי-רקע לא מפריע עם טוסט
+    if(!silent) toast(_mediaOk ? '✅ גובה לדרייב' : '⚠️ ' + S.gdrive.lastError, _mediaOk ? undefined : { duration: 9000 });
     gdriveRenderSettingsCard();
   } catch(e){
     console.error('gdriveBackupNow:', e);
@@ -13794,6 +13855,8 @@ async function exportData(){
   // v3.9.16 — מאוחד עם הגיבוי המלא (כולל הלוגו)
   const d = _buildCompleteBackup();
   d.media = await _collectMediaForBackup(); // v3.21.53 — embed full-res photo blobs
+  // v3.39.0 (BACKUP-HONEST) — הספירה נכנסת לקובץ עצמו, כך שכל שחזור עתידי יכול לאמת את עצמו
+  d.mediaStats = _lastMediaBackupStats;
   const b = new Blob([JSON.stringify(d)], {type:'application/json'});   // v3.23.13 (REL-09) — הוסרה הזחה (ראה gdriveBackupNow)
   const url = URL.createObjectURL(b);
   const a = document.createElement('a');
@@ -13801,7 +13864,15 @@ async function exportData(){
   a.download = `orBagag_backup_${localDateStr()}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  toast('💾 גיבוי מלא הורד');
+  // v3.39.0 (BACKUP-HONEST) — לא מכריזים "מלא" בלי לבדוק. גיבוי חלקי אומר זאת במפורש.
+  const st = _lastMediaBackupStats;
+  if(st && st.ok) toast(`💾 גיבוי מלא הורד — ${st.embedded} קבצי מדיה`);
+  // "לא הצלחתי לקרוא את האחסון" שונה מהותית מ-"חלקי": במקרה הראשון הספירה עצמה לא ידועה,
+  // ו-"0 מתוך 0" היה נקרא כאילו פשוט אין תמונות. שתי הודעות נפרדות.
+  else if(st && (st.reason === 'no-idb' || String(st.reason || '').startsWith('scan-failed')))
+    toast('⚠️ הגיבוי ירד בלי התמונות — אחסון המדיה לא נקרא. אל תסתמך עליו, נסה שוב', { duration: 9000 });
+  else if(st) toast(`⚠️ גיבוי חלקי! רק ${st.embedded} מתוך ${st.expected} קובצי מדיה נכנסו — אל תסתמך עליו`, { duration: 9000 });
+  else toast('💾 גיבוי הורד');
 }
 function importData(e){
   const f = e.target.files[0];
@@ -14004,7 +14075,23 @@ async function _applyImportedData(d){
   if(openTasks) stats.push(openTasks + ' משימות');
   if(_importImgStats.dropped) stats.push(_importImgStats.dropped + ' תמונות לא-תקינות דולגו');
   if(_mediaRestored) stats.push(_mediaRestored + ' תמונות');
-  toast('✅ נטען: ' + stats.join(', '));
+  // v3.39.0 (BACKUP-HONEST, תיקון COLLAB #45.ג.3) — עד כה השחזור הודיע "נטען" גם על קובץ
+  // שסומן בזמן הייצוא כחלקי. קובץ ישן ללא mediaStats נטען כרגיל וללא אזהרה (תאימות לאחור);
+  // קובץ חדש שמצהיר על עצמו כלא-שלם, או שמספר המפתחות בו אינו תואם להצהרה, אומר זאת.
+  const _ms = d && d.mediaStats;
+  const _mediaKeys = (d && d.media) ? Object.keys(d.media).length : 0;
+  let _warn = null;
+  if(_ms && typeof _ms === 'object'){
+    if(_ms.ok !== true){
+      _warn = (_ms.reason === 'no-idb' || String(_ms.reason||'').startsWith('scan-failed'))
+        ? 'הגיבוי הזה נוצר בלי התמונות — אחסון המדיה לא נקרא בזמן הייצוא'
+        : `הגיבוי הזה סומן חלקי בזמן היצירה — ${_ms.embedded||0} מתוך ${_ms.expected||0} קובצי מדיה`;
+    } else if(typeof _ms.embedded === 'number' && _ms.embedded !== _mediaKeys){
+      _warn = `אי-התאמה: הקובץ מצהיר על ${_ms.embedded} קובצי מדיה ובפועל יש בו ${_mediaKeys}`;
+    }
+  }
+  if(_warn) toast('⚠️ נטען, אבל: ' + _warn, { duration: 10000 });
+  else toast('✅ נטען: ' + stats.join(', '));
   goDash();
 }
 async function clearAll(){
@@ -14012,6 +14099,18 @@ async function clearAll(){
   try {
     const _bk = _buildCompleteBackup();
     _bk.media = await _collectMediaForBackup();
+    _bk.mediaStats = _lastMediaBackupStats;
+    // v3.39.0 (BACKUP-HONEST, תיקון COLLAB #45.ג.2) — האוסף מחזיר {} במקום לזרוק, ולכן ה-catch
+    // שמתחת לא רץ: עד כה ירד קובץ חלקי והמחיקה הבלתי-הפיכה המשיכה כרגיל. רשת-ביטחון שאינה
+    // שלמה אינה רשת-ביטחון. אין מחיקה בלי גיבוי מאומת.
+    if(!_lastMediaBackupStats || _lastMediaBackupStats.ok !== true){
+      const _st = _lastMediaBackupStats || {};
+      const _why = (_st.reason === 'no-idb' || String(_st.reason||'').startsWith('scan-failed'))
+        ? 'אחסון המדיה לא נקרא'
+        : `רק ${_st.embedded||0} מתוך ${_st.expected||0} קובצי מדיה נכנסו`;
+      if(typeof toast==='function') toast(`המחיקה בוטלה — גיבוי-הבטיחות אינו שלם (${_why})`, { duration: 9000 });
+      return;
+    }
     const _blob = new Blob([JSON.stringify(_bk)], { type:'application/json' });
     const _url = URL.createObjectURL(_blob);
     const _a = document.createElement('a');
@@ -40982,6 +41081,7 @@ async function init(){
   // completed-flag was also never loaded). Load both so the migration runs once and edits persist.
   const clients = await dbGet('clients');       if(Array.isArray(clients)) S.clients = clients;
   const cmig = await dbGet('clientMigrationCompletedAt'); if(typeof cmig === 'number') S.clientMigrationCompletedAt = cmig;
+  const reports = await dbGet('reports');       if(Array.isArray(reports)) S.reports = reports;   // v3.39.0 (0ב.5) — טעינה מיידית; בלי זה הדוחות מופיעים רק אחרי מראת-הגשר (~3 שניות)
   // v3.22.15 (CRITICAL) — workTypeTemplates נשמר אך מעולם לא נטען → כל רענון מחק התאמות-קטלוג + תמונות-נעוצות
   const wtt = await dbGet('workTypeTemplates'); if(wtt && typeof wtt === 'object' && !Array.isArray(wtt)) S.workTypeTemplates = wtt;
 
@@ -41025,6 +41125,7 @@ async function init(){
           if(data.learnedTags) S.learnedTags = data.learnedTags;
           if(Array.isArray(data.learnedTasks)) S.learnedTasks = data.learnedTasks;
           if(Array.isArray(data.roofProfiles)) S.roofProfiles = data.roofProfiles;
+          if(Array.isArray(data.reports)) S.reports = data.reports;   // v3.39.0 (0ב.5)
           if(Array.isArray(data.tasks)) S.tasks = data.tasks; // v3.9.21
           if(data.taskSettings) S.taskSettings = {...S.taskSettings, ...data.taskSettings}; // v3.9.21
           if(data.business) S.business = {...S.business, ...data.business};
