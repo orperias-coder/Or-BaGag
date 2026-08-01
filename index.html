@@ -1454,6 +1454,10 @@ body.theme-finance  .view.on::before{
 .wai-chip.r-dup     {background:var(--red-l);color:var(--red);border:1px solid var(--red);font-weight:900}
 .wai-chip.r-time    {background:transparent;color:var(--text3);border:1px dashed var(--line)}
 .wai-chip.r-image   {background:var(--gold-l);color:var(--gold2);border:1px solid var(--gold)}
+/* v3.36.0 — סיווגי כלי "וואטסאפ-לידים" (AI): ליד חדש/לקוח קיים/מחכה לתשובה */
+.wai-chip.r-ai-new    {background:var(--green-l);color:var(--green);border:1px solid var(--green)}
+.wai-chip.r-ai-client {background:var(--gold-l);color:var(--gold2);border:1px solid var(--gold)}
+.wai-chip.r-ai-wait   {background:var(--yellow-l);color:#a8810f;border:1px solid var(--yellow)}
 
 .wai-thumb-row{margin-top:8px;display:flex;justify-content:flex-start}
 .wai-thumb{max-width:180px;max-height:140px;border-radius:10px;border:1px solid var(--line);object-fit:cover;display:block;box-shadow:0 2px 6px rgba(0,0,0,.08)}
@@ -7760,7 +7764,56 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.35.0'; // שומר-הריק בגיבוי + רצועת-אזהרה במסך הבית כשאין גיבוי עובד
+const APP_VERSION = '3.38.0'; // איחוד-אוטומטי חד-פעמי של לקוחות כפולים לפי מספר טלפון (בקשה מפורשת של אור: "בלגן" — סדר, לא פיצ'ר)
+// v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
+// לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
+// חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
+// מקבצת את כל הלקוחות הלא-מוזגים (S.clients.filter(!mergedIntoId) — לא _peopleActiveClients(),
+// ראו הסבר ב-_runPhoneMergeMigrationV1) לפי טלפון מנורמל (_normPhoneClient, סף ≥9 ספרות כמו בכל
+// מקום אחר באפליקציה); לכל קבוצה של 2+ בוחרת ראשי דטרמיניסטי (הכי הרבה עבודה מקושרת
+// ביקורים+פרויקטים+הצעות+לידים → הכי הרבה שדות לא-ריקים → createdAt הכי ישן → id) וממזגת את
+// השאר לתוכו עם mergeClients() הקיימת — בלי לוגיקת-מיזוג מקבילה. רץ פעם אחת (דגל
+// S.settings._phoneMergeDoneV1, אותו דפוס כמו S.taskSettings._v39_23_migrated), ואידמפוטנטי גם
+// בלי הדגל (לקוח שכבר מוזג יוצא מ-candidates בכל קריאה חוזרת). הפיכה לגמרי — unmergeClient()
+// וה-UI הקיים בכרטיס-הלקוח ("מוזגו לתוך לקוח זה" / "בטל מיזוג") בלי שינוי. דיווח: אם מוזג משהו —
+// טוסט לא-חוסם קיים ("אוחדו N לקוחות כפולים לפי מספר טלפון · הצג", tap פותח את כרטיס-הלקוח
+// הבודד שנפגע או את רשימת-הלקוחות אם כמה); אם לא מוזג כלום — שקט לגמרי, בלי טוסט. אין מסך חדש,
+// אין כפתור חדש בניווט; הסורק הידני (findDuplicateClientPairs/openClientDuplicates) נשאר בדיוק
+// כמו שהיה — עכשיו רלוונטי בעיקר לכפילויות לפי שם-דומה (לא טלפון, שכבר טופל אוטומטית).
+// בדיקות (TDD): סוויטה חדשה test-phone-merge-migration.mjs (47 טענות) — RED על v3.37.0 (הפונקציות
+// לא קיימות) → GREEN מלא כאן. מכסה: 3 לקוחות עם אותו טלפון → שורד אחד + קישורים עוברים; איחוד-
+// שדות (union) עם mergedFrom ל-2 ארכיונים; לקוחות בלי טלפון/טלפון-קצר לא נגעים; טלפונים שונים
+// לעולם לא מוזגים; אידמפוטנטיות (קריאה כפולה + reboot אמיתי פעמיים); unmergeClient() משחזר כרטיס
+// בודד נכון אחרי מיזוג-אוטומטי בלי לפגוע באחרים; טוסט מופיע/שקט נכון. רגרסיה מלאה: run-qa 18/18,
+// test-visit-photos 32/32, test-client-merge 53/53, test-client-registry 35/35, test-backup-
+// clients 4/4, ועוד 126 סוויטות test-*.mjs (רצו ב-4 קבוצות מקבילות ברקע). test-presentation-wave
+// נשאר 8/9 — כשל קדם-קיים (5.7, PDF logical-CSS) מאומת זהה גם על v3.37.0, לא קשור לשינוי הזה.
+// דיפלוי לא בוצע במכוון — הוראת-משימה מפורשת: DO NOT DEPLOY, ממתין לאישור אור.
+// v3.37.0 — ממצא מנתוני-אמת: מתוך 53 פריטים שהכלי "וואטסאפ-לידים" סיווג, 38 היו לקוחות קיימים
+// (reason='ai_client') — דחיפתם דרך #waimport יצרה 38 כרטיסי-ליד כפולים. תיקון: ב-_waImportCommit,
+// פריט עם reason==='ai_client' מדלג לגמרי על בניית/מיזוג ליד — נוצרות רק המשימות שלו
+// (item.raw.tasks, דרך _waCreateTasksFor הקיימת מ-v3.36.0). קישור: אם _waFindDup(item.phone)
+// מוצא ליד קיים (dup.kind==='lead') — המשימות מקושרות אליו; אחרת נוצרות בלי קישור (linkedType:
+// null) — לעולם לא נוצר ליד רק כדי שיהיה למה לקשר. פריט עם 0 משימות הוא no-op אמיתי: לא נוצר
+// כלום, נספר בנפרד ("X דולגו (אין משימות)" בטוסט, לא "נוספו"), ומתחיל לא-מסומן במסך-הסקירה
+// (checked:false) כברירת-מחדל — אין מה לעשות איתו. שורת-הסקירה של כל פריט ai_client מציגה הערה
+// קטנה עוד לפני ה-commit ("משימות בלבד — לא ייווצר ליד חדש" / "אין משימות — לא ייווצר כלום").
+// עוזר משותף חדש _waRawTasks(raw) מסנן משימות בלי title ומשמש בשלושת המקומות (ברירת-checked,
+// הערת-השורה, ובדיקת-ה-skip ב-commit) כדי שלא יסטו זה מזה. reason ai_new/ai_wait ללא שינוי.
+// בדיקות: סוויטה חדשה test-waimport-dedup.mjs (21 טענות; RED 14✗/21 על v3.36.0 — כולל יצירת
+// 5 לידים כפולים בתרחיש הבדיקה במקום 1 — → GREEN 21/21 כאן). רגרסיה מלאה (131 סוויטות): run-qa
+// 18/18, test-visit-photos 32/32, test-waimport (הישן) 27/27 ללא רגרסיה, ועוד 127 סוויטות
+// test-*.mjs — כולן ירוקות מלבד test-presentation-wave (8/9, PDF logical-CSS) שהיא כשל
+// קדם-קיים ומאומת שוב כזהה גם על v3.36.0 (לא קשור לשינוי הזה).
+// דיפלוי לא בוצע במכוון — ממתין לאישור אור.
+// v3.36.0 — Task 12 מתוכנית "וואטסאפ-לידים": hook קטן ב-boot (waImportFromUrlBoot) קולט
+// #waimport=http://localhost:<port>/export/latest.json, מוריד ומזין את צינור-הייבוא הקיים
+// (_waImportProcessJsonText) בלי לשכתב אותו. שלושה צ'יפי-סיווג חדשים של הכלי (ai_new/ai_client/
+// ai_wait) ב-_waReasonChip + reasonLabels (מתחילים ב-"WhatsApp ·" כדי לעבור את בדיקת
+// startsWith('WhatsApp') הקיימת). item.raw.problem משורשר לתיאור-הליד (preview+'\n'+problem,
+// עד 400 תו) — notes נשארת ריקה בכוונה, בהתאם להחלטת v3.11.1. item.raw.tasks נוצרות דרך
+// mt_create הקיים (source:'whatsapp', linkedType:'lead', linkedId=מזהה-הליד שנוצר/מוזג),
+// עם ספירתן בטוסט-ההצלחה. סוויטת-בדיקה חדשה test-waimport.mjs (RED על v3.35.0 → GREEN כאן).
 // v3.24.1 (מהפך-הניווט N2 — הבית החדש "גגות") — view-roofs חדש הופך למסך-הבית: האפליקציה נוחתת עליו בעלייה (viewStack הראשוני='roofs', לא 'dash'), ולשונית "גגות" בסרגל מובילה אליו (במקום projects-list). מלמעלה למטה: כותרת (המבורגר·ברכה-לפי-שעה·חיפוש·מצלמה) → שורת-מצב חיה לגג הפעיל ("שם · יום N · כתובת", לחיצה→הגג) → שורת-טריאז' "דורש טיפול (N)" שמשתמשת ב-_computeStuckRows() (בדיוק אותה מערכת מ-_dashHtml) ופותחת רשימה אמיתית (openMo, לא _ckMoreSheet) — מתקן את באג ה-IA המתועד → כרטיס "העצירה הבאה" (_ckFocusHtml, עם תוספת כפתור-חיוג ל-tel: וכרטיס T17 "עדכון הלקוח" מ-_t17ButtonsAndStampsHtml) → "ביקור עכשיו" (_ckPrimaryHtml) → רשת כרטיסי-גג (hero מ-_projCardThumb הקיים, עטיפת שעת-זהב מ-v3.23.7 כשאין תמונה, תג-מונה-תמונות, שם/כתובת, פס-התקדמות+אחוז, צ'יפ-שלב, וסכום דרך totalDue(p) בלבד) → מצב-ריק ("+ פרויקט חדש") כשאין גגות פעילים. שימוש-חוזר אמיתי: _ckGreetText/_ckDayPart/_ckComputeStops/_ckFocusHtml/_ckPrimaryHtml/_computeStuckRows/_stuckRowsHtml חולצו מתוך _dashHtml() לפונקציות משותפות; _dashHtml() עודכן לקרוא להן (פלט זהה, מאומת) — לא שוכפלה שום לוגיקת-כסף/תקיעות. view-dash (הקוקפיט הישן) נשאר שלם ונגיש מהמגירה ("בקרה — המסך הישן"); projects-list (שאיבדה את מקומה בלשונית הראשית) קיבלה מקום חדש במגירה ("פרויקטים — רשימה וסינון", 13 פריטים כעת). שני תיקוני-ליטוש מ-N1: (א) לשונית פעילה בסרגל מסומנת חזק יותר (משקל-900 + רקע-גלולה gold-l, לא רק צבע). (ב) רקע-הסרגל התברר כתקין תמיד (var(--ink2) קבוע) — הבאג היה בפס-מעבר של ~16px בין תחתית-התוכן הגלילי לראש-הסרגל, שם רקע-הנושא (--th-bg, למשל מנטה בכספים) דלף דרך padding-bottom השמור; תוקן בגרדיאנט-חיתוך בכללי body.theme-*/.view.on. בדיקה חדשה test-roofs-home.mjs (26 טענות; RED 21✗/26 על v3.24.0 → GREEN 26/26) + run-qa 18/18, test-nav-shell 33/33 (עודכן ל-13 פריטי-מגירה — שינוי מכוון), test-nav-restore 7/7 (עודכן: נחיתה-ברירת-מחדל בעליה קרה/פגה משתנה מ-dash ל-roofs — שינוי מכוון), test-field-flow 29/29, test-money-truth 15/15, test-visual-wow 12/12 (סלקטורים הוגבלו ל-#dash-body — .ck-focus/.ck-shell משותפים כעת בין שני מסכים), qa-cockpit-visual 6/6, test-multi-tab 7/7 — כולן ללא רגרסיה בלתי-מתועדת. sw.js/CACHE_NAME לא נגע (יעודכן בסוף כל 5 הגלים, לפי המפרט).
 // v3.23.13 — גל 14 (אחרון): ניקיון ועמידות — הוסרה הגדרה כפולה-מתה של openVisitDetail; הוסר console.log דיאגנוסטי מנתיב-השמירה; null-guard ל-9 שרשראות getElementById במודאלים דינמיים; catch ריקים בשרשרת אתחול-הסנכרון מדפיסים אזהרה ומעדכנים סטטוס-סנכרון; הוסרה הזחה מ-JSON.stringify של הגיבוי-המלא. היסטוריה: CHANGELOG.md — גדלי-מגע ל-44px+ ב-8 פעולות-שטח קריטיות (מחיקת-תמונה, ניקוי-חיפוש, וואטסאפ/ניווט בליד, סימון-משימה, סידור/מחיקת-סעיף, הצמדה בקטלוג); תיקון ניגודיות --yellow ו---pd-amber (היו ~2.5:1, עכשיו ≥4.5:1) + מצב-שמש כיסה גם את --pd-amber; 139 טקסטים אינפורמטיביים במסכי קוקפיט/כספים/פרויקט/לקוח/הצעה/אשף הועלו מ-9-11.5px ל-12px; role=dialog/aria-modal/פוקוס-נכנס-וחוזר/Escape למודאל/קונפירם/צפיין-תמונות/לייטבוקס; dir=ltr הושלם ב-8 תצוגות-טלפון; aria-label ל-16 כפתורי-אייקון ו-alt ל-49 תמונות + role=checkbox לשני צ'קבוקסי-div; כרטיס-KPI כחול-קר באנליטיקה הוחלף ל---teal. היסטוריה: CHANGELOG.md
 
@@ -10526,6 +10579,29 @@ function _applyBootViewParam(){
     return true;
   }
   return false;
+}
+// v3.36.0 — Task 12 מתוכנית "וואטסאפ-לידים": הכלי המקומי (localhost:8737) פותח את האפליקציה
+// עם #waimport=<כתובת-localhost מקודדת> אחרי שאור לחץ "דחוף לאור-בגג". מוריד את קובץ-הייצוא
+// משם ומזין את צינור-הייבוא הקיים (_waImportProcessJsonText) — בלי לשכתב אותו. כתובת חייבת
+// להיות localhost/127.0.0.1 (הגנה מפני fetch לכתובת שרירותית שהגיעה מ-hash חיצוני). נקרא
+// מ-init() אחרי שה-state נטען מ-IDB (כדי ש-_waFindDup/waBlocklist יעבדו נכון על נתונים טעונים).
+async function waImportFromUrlBoot(){
+  const m = (location.hash || '').match(/#waimport=(.+)$/);
+  if(!m) return;
+  history.replaceState(null, '', location.pathname + location.search);  // לא לייבא שוב ברענון
+  let url = '';
+  try{ url = decodeURIComponent(m[1]); }catch(e){ return; }
+  if(!/^http:\/\/(localhost|127\.0\.0\.1):\d+\//.test(url)){
+    toast('קליטה מוואטסאפ: כתובת לא מורשית'); return;
+  }
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    _waImportProcessJsonText(await r.text(), 'וואטסאפ-לידים');
+  }catch(e){
+    console.error('[waimport]', e);
+    toast('קליטה מוואטסאפ נכשלה — ודא שהמחשב דלוק ושרת הלידים רץ');
+  }
 }
 // Called at boot instead of an unconditional renderDash(): restore the last screen if recent + valid.
 // v3.24.1 (N2) — the app's root changed from 'dash' to 'roofs' (the new home). Both are now
@@ -20873,6 +20949,118 @@ function unmergeClient(secondaryId){
   return true;
 }
 
+/* ═══════════════════════════════════════════════════════
+   v3.38.0 — ONE-TIME AUTOMATIC PHONE-BASED CLIENT CONSOLIDATION
+   Owner's explicit, autonomous request (verbatim): "תמזג כל מקום שמכיל את אותו מספר טלפון
+   לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות." — no pair-picking UI,
+   no new screen, nothing to learn. This is the ONE deliberate exception to the "nothing merges
+   on its own" iron rule stated above mergeClients() — scoped as tightly as possible:
+     • phone match only (never name-similarity — that stays manual, see the scanner below)
+     • runs once ever (S.settings._phoneMergeDoneV1), then never touches clients again
+     • fully reversible via the existing unmergeClient() / client-card "בטל מיזוג" — no new undo path
+     • calls the existing mergeClients() verbatim — no parallel merge logic
+
+   SCOPE — deliberately NOT _peopleActiveClients(): that helper additionally filters to clients
+   who are currently "active" (open balance / active project / activity <6mo — see
+   _clientIsActive). A dormant client sharing a phone with an active one is still exactly the
+   duplicate the owner is complaining about, and findDuplicateClientPairs()'s own phone-rule
+   (rule 1, below) already scans ALL non-merged clients regardless of activity. Restricting this
+   migration to only "active" clients would leave historical phone-duplicates both (a) unmerged
+   and (b) still flagged by the manual duplicate screen — contradicting the intent that phone
+   dupes are now fully handled automatically and the manual screen is left for name-similar ones.
+   So the scope here matches findDuplicateClientPairs()'s phone-rule scope exactly:
+   (S.clients || []).filter(c => !c.mergedIntoId).
+
+   PRIMARY-SELECTION RULE (deterministic, defensible, documented per spec — applied in order,
+   first non-tie wins):
+     1. Most linked work: count(visits)+count(projects)+count(quotes)+count(leads) pointing at
+        the client. Highest wins — keeps the record real business history is already anchored to.
+     2. Tie → most non-empty fields among clientName/phone/address/email/notes/tags (richest
+        record — fewer fields need to be filled-from-secondary, so less ends up in mergedFrom).
+     3. Tie → oldest createdAt (the record that has existed longest is treated as canonical).
+     4. Tie → stable id comparison (last-resort determinism; not expected to matter in practice).
+   ═══════════════════════════════════════════════════════ */
+function _clientLinkCount(c){
+  return getClientVisits(c.id).length + getClientProjects(c.id).length +
+         getClientQuotes(c.id).length + getClientLeads(c.id).length;
+}
+function _clientNonEmptyFieldCount(c){
+  let n = 0;
+  ['clientName', 'phone', 'address', 'email', 'notes'].forEach(f => { if(!_clientFieldIsEmpty(c, f)) n++; });
+  if(Array.isArray(c.tags) && c.tags.length) n++;
+  return n;
+}
+function _phoneMergePickPrimary(group){
+  return group.slice().sort((a, b) => {
+    const linkDiff = _clientLinkCount(b) - _clientLinkCount(a);
+    if(linkDiff) return linkDiff;
+    const fieldDiff = _clientNonEmptyFieldCount(b) - _clientNonEmptyFieldCount(a);
+    if(fieldDiff) return fieldDiff;
+    const createdDiff = (a.createdAt || 0) - (b.createdAt || 0);
+    if(createdDiff) return createdDiff;
+    return String(a.id).localeCompare(String(b.id));
+  })[0];
+}
+
+// Runs the one-time merge. Idempotent by construction even without the flag: once a client is
+// merged its mergedIntoId excludes it from `candidates` on any later call, so re-running after a
+// partial completion (or a stale flag) never re-merges or double-merges anything. The flag exists
+// purely so a clean install with zero duplicates doesn't re-scan every single boot.
+function _runPhoneMergeMigrationV1(){
+  if(S.settings._phoneMergeDoneV1) return { merged: 0 };
+  let mergedCount = 0;
+  const mergedPrimaries = new Set();
+  try{
+    const candidates = (S.clients || []).filter(c => !c.mergedIntoId);
+    const byPhone = new Map();
+    candidates.forEach(c => {
+      const p = _normPhoneClient(c.phone);
+      if(!p || p.length < 9) return; // never merge on empty/too-short phone — same floor as findClientByPhone/findDuplicateClientPairs
+      if(!byPhone.has(p)) byPhone.set(p, []);
+      byPhone.get(p).push(c);
+    });
+    byPhone.forEach(group => {
+      if(group.length < 2) return;
+      const primary = _phoneMergePickPrimary(group);
+      group.forEach(c => {
+        if(c.id === primary.id) return;
+        // Re-fetch live refs — a prior merge earlier in this same pass may have changed things.
+        const livePrimary = getClient(primary.id);
+        const liveSecondary = getClient(c.id);
+        if(!livePrimary || !liveSecondary) return;
+        if(livePrimary.mergedIntoId || liveSecondary.mergedIntoId) return; // never chain a merge into an already-merged record
+        if(mergeClients(livePrimary.id, liveSecondary.id)){
+          mergedCount++;
+          mergedPrimaries.add(livePrimary.id);
+        }
+      });
+    });
+  } catch(err){
+    console.warn('[_runPhoneMergeMigrationV1] failed:', err);
+    return { merged: mergedCount, primaryIds: [...mergedPrimaries], error: err }; // flag NOT set — retried next boot
+  }
+  S.settings._phoneMergeDoneV1 = true;
+  saveAll(true);
+  return { merged: mergedCount, primaryIds: [...mergedPrimaries] };
+}
+
+// Non-blocking report, per spec: "if anything merged, show a notice with a way to see the list
+// and undo. No new screen. No new button." Reuses the existing tap-to-act toast (see toast()'s
+// opts.onAction) and the existing "מוזגו לתוך לקוח זה" / "בטל מיזוג" section already on the
+// client card (renderClientDetail, _cdUnmergeClient) — nothing new to learn. Completely silent
+// when nothing merged (checked here, not by the caller, so this is the single source of truth).
+function _phoneMergeNotifyIfNeeded(result){
+  if(!result || !result.merged) return;
+  const ids = result.primaryIds || [];
+  toast(`אוחדו ${result.merged} לקוחות כפולים לפי מספר טלפון · הצג`, {
+    duration: 6000,
+    onAction: () => {
+      if(ids.length === 1 && typeof openClientDetail === 'function') openClientDetail(ids[0]);
+      else if(typeof goClientsList === 'function') goClientsList();
+    },
+  });
+}
+
 // ─── DUPLICATE-CLIENT SCANNER (suggest-only, per Or's iron rule: never merges by itself) ───
 // Three signals, checked in order of reliability so a pair caught by a stronger one never ALSO
 // surfaces under a weaker one:
@@ -24743,7 +24931,11 @@ function _waImportProcessJsonText(text, sourceLabel){
           extractedAddress: L.extractedAddress || null,
           chatThumbs: Array.isArray(L.chatThumbs) ? L.chatThumbs : [],
           contactPhoto: _isSafeImageDataUrl(L.contactPhoto) ? L.contactPhoto : null,
-          checked: !dup,
+          // v3.37.0 — ai_client (existing client, per the local whatsapp-leads AI classifier) with
+          // ZERO tasks is a pure no-op: no lead will be created (see _waImportCommit) and there's
+          // nothing to do, so don't pre-select it. ai_client WITH tasks, and every other reason,
+          // keep the pre-existing !dup default.
+          checked: (L.reason === 'ai_client' && !_waRawTasks(L).length) ? false : !dup,
           dupAction: 'new',
           dup
         };
@@ -25068,6 +25260,14 @@ function _waFindDup(phone){
   return null;
 }
 
+// v3.37.0 — shared "does this raw whatsapp-leads item have real tasks?" check (a task with no
+// title doesn't count — matches what _waCreateTasksFor actually creates). Used by the default-
+// checked logic above, the review-row note below, and the ai_client skip-check in _waImportCommit,
+// so the three stay in sync instead of drifting with three separate ad-hoc filters.
+function _waRawTasks(raw){
+  return (raw && Array.isArray(raw.tasks)) ? raw.tasks.filter(t => t && t.title) : [];
+}
+
 function waImportHelp(){
   openMo(`
     <h3 style="margin:0 0 10px;font-size:16px">ייבוא לידים מ-WhatsApp</h3>
@@ -25090,9 +25290,14 @@ function _waReasonChip(item){
     label:   `תווית: ${item.raw.labels && item.raw.labels[0] ? item.raw.labels[0] : 'ליד'}`,
     keyword: `מילת מפתח${item.matchedKeyword ? ': ' + item.matchedKeyword : ''}`,
     name:    'שם נראה כטלפון',
-    unknown: 'שולח לא מוכר'
+    unknown: 'שולח לא מוכר',
+    // v3.36.0 — סיווגי AI מכלי "וואטסאפ-לידים" המקומי
+    ai_new:    'ליד חדש (AI)',
+    ai_client: 'לקוח קיים (AI)',
+    ai_wait:   'מחכה לתשובה (AI)'
   };
-  const cls = ({label:'r-label',keyword:'r-keyword',name:'r-name',unknown:'r-unknown'})[r] || 'r-unknown';
+  const cls = ({label:'r-label',keyword:'r-keyword',name:'r-name',unknown:'r-unknown',
+    ai_new:'r-ai-new',ai_client:'r-ai-client',ai_wait:'r-ai-wait'})[r] || 'r-unknown';
   return `<span class="wai-chip ${cls}">${esc(labels[r] || r)}</span>`;
 }
 
@@ -25135,6 +25340,9 @@ function _waImportRender(){
 function _waRowHtml(item, idx){
   const name = item.displayName || item.title || item.phone || '(ללא שם)';
   const phoneStr = item.phone || '(ללא טלפון)';
+  // v3.37.0 — ai_client (existing client, per whatsapp-leads AI) never creates a lead on commit
+  // (see _waImportCommit) — surface that BEFORE the user commits, right on the row.
+  const waClientTasks = item.reason === 'ai_client' ? _waRawTasks(item.raw) : null;
   // v3.10.1 — surface image content
   // v3.11.6 — unify image sources: chatThumbs (new) + messages[].mediaThumb (legacy)
   const imageThumbs = [];
@@ -25176,6 +25384,7 @@ function _waRowHtml(item, idx){
           ${item.dup?`<span class="wai-chip r-dup">🔁 כבר קיים (${esc(item.dup.kind)})</span>`:''}
         </div>
         ${item.preview?`<div class="wai-snippet">${esc(item.preview)}</div>`:''}
+        ${waClientTasks ? `<div class="wai-note" style="font-size:11px;font-weight:700;margin-top:4px;color:${waClientTasks.length ? 'var(--gold2)' : 'var(--text3)'}">${waClientTasks.length ? 'משימות בלבד — לא ייווצר ליד חדש' : 'אין משימות — לא ייווצר כלום'}</div>` : ''}
         ${imageThumbs.length ? `<div class="wai-thumb-row" onclick="event.stopPropagation()" style="gap:6px;flex-wrap:wrap">${imageThumbs.slice(0, 3).map(t=>`<img class="wai-thumb" src="${t}" alt="תמונה מהלקוח" loading="lazy" style="max-width:120px;max-height:90px">`).join('')}</div>` : ''}
         ${dupBlock}
         ${canBlock?`<div class="wai-block-row" onclick="event.stopPropagation()">
@@ -25254,7 +25463,12 @@ function _waBuildLead(item){
     label: 'WhatsApp · תווית ליד',
     keyword: `WhatsApp · מילת מפתח${item.matchedKeyword?`: ${item.matchedKeyword}`:''}`,
     name: 'WhatsApp · שם נראה כטלפון',
-    unknown: 'WhatsApp · שולח לא מוכר'
+    unknown: 'WhatsApp · שולח לא מוכר',
+    // v3.36.0 — סיווגי AI מכלי "וואטסאפ-לידים" המקומי. חייבים להתחיל ב-'WhatsApp' —
+    // כך זוהי (l.source||'').startsWith('WhatsApp') הקיים (~שורה 22866 ואילך) ממשיך לעבוד.
+    ai_new: 'WhatsApp · ליד חדש (AI)',
+    ai_client: 'WhatsApp · לקוח קיים (AI)',
+    ai_wait: 'WhatsApp · מחכה לתשובה (AI)'
   };
   // v3.10.1 → v3.11.6 — pull image thumbnails into lead.photos[]
   // Sources, in priority order:
@@ -25283,6 +25497,15 @@ function _waBuildLead(item){
     (titleIsNotPhone ? item.title : '') ||
     ''
   ).trim();
+  // v3.36.0 — כלי "וואטסאפ-לידים" מוסיף item.raw.problem (תיאור-הבעיה שחילץ ה-AI מהשיחה),
+  // בנוסף ל-preview הרגיל. הוחלט: description (לא notes — v3.11.1 קבעה ש-notes נשארת ריקה
+  // בכוונה, השיחה עצמה נגישה בלחיצה בליד). preview+problem משורשרים בשורה נפרדת, תקרה 400
+  // (גבוהה מ-240 הרגילה כדי שלא לקטוע את הבעיה כשיש גם preview).
+  const _rawProblem = (item.raw && typeof item.raw.problem === 'string') ? item.raw.problem.trim() : '';
+  const _previewText = (item.preview || '').trim();
+  const description = _rawProblem
+    ? (_previewText ? _previewText + '\n' + _rawProblem : _rawProblem).slice(0, 400)
+    : _previewText.slice(0, 240);
   const lead = {
     id: uid(),
     createdAt: now,
@@ -25293,7 +25516,7 @@ function _waBuildLead(item){
     // v3.11.1 — auto-fill address from scraper extraction (city/street). User can edit in lead-detail.
     address: item.extractedAddress || '',
     source: reasonLabels[item.reason] || 'WhatsApp',
-    description: (item.preview || '').slice(0, 240),
+    description,
     photos,
     // v3.11.8 — contact profile photo (avatar) — preferred over colored avatar in lead row
     contactPhoto,
@@ -25346,12 +25569,54 @@ function _waFormatMessages(messages){
   return `${firstHeader}\n${firstBlock}\n\n${lastHeader}\n${lastBlock}`;
 }
 
+// v3.36.0 — Task 12: יוצר את משימות item.raw.tasks (מוגדרות ע"י כלי "וואטסאפ-לידים") דרך
+// מנגנון-המשימות הקיים, מקושרות לליד שנוצר/מוזג. due לא-תקין → promisedDate=null (בלי NaN).
+// v3.37.0 — leadId יכול עכשיו להיות null (ai_client בלי ליד תואם) → המשימה נוצרת בלי קישור
+// (linkedType:null) במקום להיכפות על ליד שלא נוצר. הקריאות הקיימות תמיד העבירו leadId אמיתי,
+// אז ההתנהגות שלהן לא משתנה.
+function _waCreateTasksFor(it, leadId){
+  const tasks = _waRawTasks(it.raw);
+  if(!tasks.length || typeof mt_create !== 'function') return 0;
+  let n = 0;
+  tasks.forEach(t => {
+    let promisedDate = null;
+    if(t.due){
+      const d = new Date(String(t.due) + 'T09:00:00').getTime();
+      promisedDate = Number.isFinite(d) ? d : null;
+    }
+    mt_create({
+      title: String(t.title).slice(0, 200),
+      source: 'whatsapp',
+      promisedDate,
+      linkedType: leadId ? 'lead' : null,
+      linkedId: leadId || null
+    });
+    n++;
+  });
+  return n;
+}
+
 function _waImportCommit(){
   if(!_waImport) return;
   const selected = _waImport.items.filter(i => i.checked && i.dupAction !== 'skip');
   if(!selected.length){ toast('לא נבחרו לידים'); return; }
-  let added = 0, merged = 0;
+  let added = 0, merged = 0, tasksAdded = 0, noopSkipped = 0;
   selected.forEach(it => {
+    // v3.37.0 — ai_client = existing client (real-data finding: 38 of 53 items the whatsapp-leads
+    // AI classified were people already in the app — pushing them as leads created duplicates).
+    // Never build/merge a lead for these — only create their tasks. Link to an existing LEAD if
+    // _waFindDup(phone) finds one (re-checked here, not the parse-time snapshot, since the batch
+    // itself may have just changed S.leads); a dup that's a visit/project doesn't count — never
+    // create a lead just to have something to link to. Zero tasks ⇒ true no-op, counted honestly.
+    if(it.reason === 'ai_client'){
+      const tasks = _waRawTasks(it.raw);
+      if(!tasks.length){ noopSkipped++; return; }
+      const dup = _waFindDup(it.phone);
+      const leadId = (dup && dup.kind === 'lead') ? dup.id : null;
+      tasksAdded += _waCreateTasksFor(it, leadId);
+      return;
+    }
+    let leadId = null;
     if(it.dup && it.dupAction === 'merge'){
       // Append messages to existing lead's notes
       const targetId = it.dup.kind === 'lead' ? it.dup.id : null;
@@ -25364,16 +25629,23 @@ function _waImportCommit(){
           merged++;
         }
         // If no messages to merge, treat as no-op (don't mislead the user)
+        leadId = target.id;
       } else {
         // dup is a visit/project — fall back to creating a new lead so info isn't lost
-        S.leads.unshift(_waBuildLead(it));
+        const lead = _waBuildLead(it);
+        S.leads.unshift(lead);
         added++;
+        leadId = lead.id;
       }
     } else {
       // 'new' (or dup with explicit 'new')
-      S.leads.unshift(_waBuildLead(it));
+      const lead = _waBuildLead(it);
+      S.leads.unshift(lead);
       added++;
+      leadId = lead.id;
     }
+    // v3.36.0 — משימות שחולצו ע"י הכלי (item.raw.tasks), מקושרות לליד שהתקבל למעלה
+    tasksAdded += _waCreateTasksFor(it, leadId);
   });
   saveAll(true);
   _waImport = null;
@@ -25382,6 +25654,10 @@ function _waImportCommit(){
   const parts = [];
   if(added)  parts.push(`${added} נוספו`);
   if(merged) parts.push(`${merged} מוזגו`);
+  if(tasksAdded) parts.push(`${tasksAdded} משימות`);
+  // v3.37.0 — ai_client items with zero tasks did nothing at all; say so honestly instead of
+  // silently dropping them (they must never be counted in "נוספו" — nothing was added for them).
+  if(noopSkipped) parts.push(`${noopSkipped} דולגו (אין משימות)`);
   toast('✅ ' + (parts.join(' · ') || 'בוצע'));
 }
 
@@ -41050,6 +41326,20 @@ async function init(){
   }
   // ═══════════════════════════════════════════════════════
 
+  // ═══════════════════════════════════════════════════════
+  // v3.38.0 — ONE-TIME AUTOMATIC PHONE-BASED CLIENT CONSOLIDATION. Runs once
+  // (S.settings._phoneMergeDoneV1), right here — after S.clients is guaranteed populated (the
+  // CLIENTS MIGRATION block just above) and before the first screen renders (_bootInitialView()
+  // below). See _runPhoneMergeMigrationV1() for the full rule + the deliberate scope decision.
+  // Result is reported (non-blocking, silent if nothing merged) after the first render, below.
+  // ═══════════════════════════════════════════════════════
+  let _phoneMergeBootResult = null;
+  if(typeof _runPhoneMergeMigrationV1 === 'function'){
+    try{ _phoneMergeBootResult = _runPhoneMergeMigrationV1(); }
+    catch(err){ console.warn('[v3.38.0] phone-merge migration failed:', err); }
+  }
+  // ═══════════════════════════════════════════════════════
+
   // Yearly quote-number reset (if last year < current year, reset to 1)
   const currentYear = new Date().getFullYear();
   if(S.lastQuoteYear !== null && S.lastQuoteYear < currentYear){
@@ -41172,6 +41462,16 @@ async function init(){
   if(typeof tasksKillAllV3927 === 'function') tasksKillAllV3927();
 
   _bootInitialView();   // v3.21.95 — restore last screen after a background-discard reload (else dash)
+
+  // v3.38.0 — report the phone-merge consolidation (see above) once the first screen is up.
+  // Completely silent if nothing merged — see _phoneMergeNotifyIfNeeded().
+  if(typeof _phoneMergeNotifyIfNeeded === 'function' && _phoneMergeBootResult){
+    setTimeout(() => _phoneMergeNotifyIfNeeded(_phoneMergeBootResult), 700);
+  }
+
+  // v3.36.0 — קליטת ייבוא-לידים מכלי "וואטסאפ-לידים" המקומי, אם יש #waimport= בכתובת.
+  // לא ממתינים ל-Promise (fetch לוקאלי, לא לחסום את עליית שאר האפליקציה).
+  if(typeof waImportFromUrlBoot === 'function') waImportFromUrlBoot();
 
   // v3.9.2 — הצג את כפתור ההקלטה הצף כבר בטעינה הראשונית (לפני שהמשתמש מנווט)
   if(typeof _toggleMicButtonVisibility==='function') _toggleMicButtonVisibility();
