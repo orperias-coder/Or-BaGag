@@ -7770,7 +7770,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.40.0'; // גיבוי ושחזור כנים מקצה לקצה: שואלים לפני שחזור בעייתי, מאמתים שהמדיה נכתבה, וגיבוי-דרייב חלקי לא מסמן הצלחה ולא דוחף גיבויים מלאים החוצה
+const APP_VERSION = '3.41.0'; // גשר דוחות חוצה-מכשירים: pull משחזר לבונה, mirror מזניק sync מושהה, וכשל localStorage אינו נבלע בשקט
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -8341,16 +8341,17 @@ async function rptMirrorIn(){
 /* כיוון 2 — כתיבה בחזרה, כדי שבמכשיר חדש הדוחות פשוט יהיו שם. */
 async function rptRestoreOut(){
   const mineAll = Array.isArray(S.reports) ? S.reports : [];
-  if(!mineAll.length) return { written:0, photos:0 };
+  if(!mineAll.length) return { written:0, photos:0, failed:0 };
   const lib = _rptLib() || { activeId:null, reports:[] };
   const rdb = await _rptIdb();
-  let written = 0, photos = 0;
+  let written = 0, photos = 0, failed = 0;
   for(const rec of mineAll){
     if(!rec || !rec.id || !rec.doc) continue;
     const existing = lib.reports.find(x => x.id === rec.id);
     // שוב: לא דורסים מסמך מקומי חדש יותר
     if(existing && (existing.updatedAt || 0) >= (rec.srcUpdatedAt || 0) && _rptDoc(rec.id)) continue;
-    try { localStorage.setItem(RPT_DOC_PREFIX + rec.id, JSON.stringify(rec.doc)); } catch(e){ continue; }
+    try { localStorage.setItem(RPT_DOC_PREFIX + rec.id, JSON.stringify(rec.doc)); }
+    catch(e){ failed++; console.warn('[reports] restore failed', 'doc', rec.id, e); continue; }
     const meta = { id: rec.id, title: rec.title, refNo: rec.refNo, address: rec.address,
                    client: rec.clientName, roofs: (rec.doc.roofs||[]).length, findings: rec.findings,
                    isFollowUp: rec.isFollowUp, createdAt: (existing && existing.createdAt) || Date.now(),
@@ -8368,8 +8369,11 @@ async function rptRestoreOut(){
       }
     }
   }
-  if(written){ try { localStorage.setItem(RPT_LIB_KEY, JSON.stringify(lib)); } catch(e){} }
-  return { written, photos };
+  if(written){
+    try { localStorage.setItem(RPT_LIB_KEY, JSON.stringify(lib)); }
+    catch(e){ failed++; console.warn('[reports] restore failed', 'library', e); }
+  }
+  return { written, photos, failed };
 }
 // כל מפתחות-התמונה שמסמך מפנה אליהם (שער, גג, ממצא, ותמונות "אחרי ביצוע" של דוח-המשך)
 function _rptDocPhotoKeys(doc){
@@ -11504,6 +11508,15 @@ async function _cloudPull(sb, uid2){
     for(const ent in _removed){ const sm=_syncSig[ent]; if(sm){ for(const id of _removed[ent]) delete sm[id]; } }
     _saveSyncSig();
     try{ await _saveAllNow(true); }catch(e){}
+    // v3.41.0 (REPORT-CLOUD-BRIDGE) — reports pulled into S are not visible in the separate
+    // report builder until its obLib/obDoc_* mirror is restored. Only run when a non-deleted
+    // report was actually accepted; rptRestoreOut's LWW guard keeps a newer local builder copy.
+    if(_pulled.reports && _pulled.reports.size && typeof rptRestoreOut === 'function'){
+      try{
+        const rr = await rptRestoreOut();
+        if(rr && rr.failed) _syncInitWarn('reports-restore', new Error(rr.failed + ' report write(s) failed'));
+      }catch(e){ _syncInitWarn('reports-restore', e); }
+    }
     try{ if(document.getElementById('view-dash')?.classList.contains('on') && typeof renderDash==='function') renderDash(); }catch(e){}
   } else if(_maxTs > _cursor){
     _saveSyncSig();   // nothing applied this round, but the cursor still moved — persist it so the next delta pull doesn't re-fetch this same window
@@ -11642,6 +11655,14 @@ _loadSyncMeta();
 // בלשונית השנייה וחוזר לכאן; בלי הריצה השנייה, מה שכתב שם לא היה נכנס לגיבוי עד הרענון הבא.
 // שקט לגמרי: בלי טוסטים, ובלי לגעת בכלום כשאין דוחות.
 let _rptSyncT = null;
+let _rptCloudSyncT = null;
+function rptScheduleCloudSync(delay){
+  clearTimeout(_rptCloudSyncT);
+  _rptCloudSyncT = setTimeout(async () => {
+    if(typeof cloudSyncNow !== 'function') return;
+    try{ await cloudSyncNow(); }catch(e){ _syncInitWarn('reports-push', e); }
+  }, delay == null ? 250 : delay);
+}
 function rptScheduleMirror(delay){
   clearTimeout(_rptSyncT);
   _rptSyncT = setTimeout(() => {
@@ -11650,6 +11671,10 @@ function rptScheduleMirror(delay){
       if(r.updated || r.photos){
         console.log('[reports] mirrored', r);
         if(typeof gdriveMarkChange === 'function') gdriveMarkChange();   // דוח חדש = שינוי שצריך גיבוי
+        // v3.41.0 (REPORT-CLOUD-BRIDGE) — mirror and boot sync both start at 2500ms, while
+        // mirror awaits IDB/media work. Schedule one follow-up sync only after a real report/media
+        // change; the debounce collapses focus/visibility bursts and deliberately leaves boot order intact.
+        rptScheduleCloudSync(250);
         if(_viewIsReports()) renderReportsList();
       }
     }).catch(e => console.warn('[reports] mirror failed', e));
