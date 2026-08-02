@@ -7770,7 +7770,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.39.0'; // עמידות דוחות: reports נשמר ונטען מ-IDB הראשי + סגירת חלון-עיוורון של ~3 שניות בעלייה (0ב.5)
+const APP_VERSION = '3.40.0'; // גיבוי ושחזור כנים מקצה לקצה: שואלים לפני שחזור בעייתי, מאמתים שהמדיה נכתבה, וגיבוי-דרייב חלקי לא מסמן הצלחה ולא דוחף גיבויים מלאים החוצה
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -9943,6 +9943,10 @@ function openReportApp(opts){
   opts = opts || {};
   const qs = [];
   if(opts.fresh) qs.push('new=1');
+  // v3.40.0 (REPORT-OPEN) — פתיחת דוח קיים. עד כה כל שורה ברשימת-הדוחות קראה openReportApp()
+  // בלי ארגומנטים, ולבונה-הדוחות לא היה בכלל פרמטר כזה — ולכן כל לחיצה נחתה על מסך אחר.
+  // זה השורש של "הדוחות ריקים" שאור דיווח עליו בשני המכשירים (COLLAB #43/#49).
+  if(opts.open) qs.push('open=' + encodeURIComponent(opts.open));
   if(opts.client)  qs.push('client='  + encodeURIComponent(opts.client));
   if(opts.phone)   qs.push('phone='   + encodeURIComponent(opts.phone));
   if(opts.address) qs.push('address=' + encodeURIComponent(opts.address));
@@ -12508,7 +12512,9 @@ const GDRIVE_CLIENT_ID = '472397941069-jjjtu2to3likpeqc4i0ooa6em8tlk4j7.apps.goo
 //                       the WhatsApp leads JSON written by the Mac scraper)
 const GDRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
 const GDRIVE_FOLDER_NAME = 'Or BaGag - גיבויים';
-const GDRIVE_BACKUP_KEEP = 30;          // כמה גיבויים לשמור
+const GDRIVE_BACKUP_KEEP = 30;          // כמה גיבויים **מלאים** לשמור
+const GDRIVE_PARTIAL_KEEP = 5;          // v3.40.0 — חלון נפרד לחלקיים; אינם נספרים מול ה-30
+const GDRIVE_LEGACY_WARN = 40;         // v3.40.0 — מעל זה מתריעים על גיבויים ישנים ללא סיווג
 const GDRIVE_COOLDOWN_MS = 60 * 60 * 1000;  // שעה בין גיבויים אוטומטיים
 
 let _gdriveTokenClient = null;          // OAuth client
@@ -12652,7 +12658,7 @@ async function _gdriveEnsureFolder(){
 }
 
 // ─── העלאת קובץ גיבוי ────────────────────────────────────────────
-async function _gdriveUploadBackup(folderId, content, fileName){
+async function _gdriveUploadBackup(folderId, content, fileName, appProps){
   // multipart upload
   const boundary = '-------orbagag' + Date.now();
   const metadata = {
@@ -12660,6 +12666,11 @@ async function _gdriveUploadBackup(folderId, content, fileName){
     parents: [folderId],
     mimeType: 'application/json'
   };
+  // v3.40.0 (תיקון COLLAB #52.ג) — סיווג הגיבוי נשמר ב-appProperties של Drive ולא נגזר משמו.
+  // הסיבה: v3.39.0, שכבר באוויר, מסוגלת להעלות גיבוי **חלקי בשם הישן**; סיווג לפי סיומת
+  // בלבד היה מסמן אותם כמלאים ומאפשר להם לדחוק גיבוי מלא ידוע החוצה. קובץ בלי המאפיין הזה
+  // הוא legacy — לא ידוע, ולכן לא נמחק אוטומטית לעולם (ר' _gdriveCleanupOldBackups).
+  if(appProps && typeof appProps === 'object') metadata.appProperties = appProps;
   const body =
     `--${boundary}\r\n` +
     `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
@@ -12687,15 +12698,32 @@ async function _gdriveCleanupOldBackups(folderId){
   try {
     const list = await gapi.client.drive.files.list({
       q: `'${folderId}' in parents and mimeType='application/json' and trashed=false`,
-      fields: 'files(id,name,createdTime)',
+      fields: 'files(id,name,createdTime,appProperties)',
       orderBy: 'createdTime desc',
       pageSize: 100
     });
 
     const files = list.result.files || [];
-    if(files.length <= GDRIVE_BACKUP_KEEP) return;
-
-    const toDelete = files.slice(GDRIVE_BACKUP_KEEP);
+    // v3.40.0 (תיקון COLLAB #49.ב) — עד כה הרוטציה מיינה את **כל** קובצי ה-JSON לפי תאריך
+    // ומחקה כל מה שמעבר ל-30. רצף גיבויים חלקיים היה נספר בתוך ה-30 ודוחק החוצה גיבויים
+    // מלאים ישנים — אובדן היסטוריה. עכשיו שתי בריכות נפרדות: 30 מלאים נשמרים תמיד, בלי קשר
+    // לכמה חלקיים נוצרו; לחלקיים חלון קטן משלהם.
+    // v3.40.0 (תיקון COLLAB #52.ג) — שלוש בריכות, וסיווג לפי appProperties.obKind בלבד:
+    //   full    → 30 האחרונים נשמרים
+    //   partial → חלון של 5
+    //   legacy  → קבצים בלי סיווג (נוצרו ע"י v3.39.0 ומטה). **לעולם לא נמחקים אוטומטית**,
+    //             כי אי-אפשר לדעת אם הם מלאים או חלקיים, ומחיקת גיבוי מלא היא בלתי-הפיכה.
+    //             אם הם מצטברים — אור מקבל התראה ומוחק ידנית. עדיף עודף על אובדן.
+    const _kind = f => (f.appProperties && f.appProperties.obKind) || (/_partial\.json$/i.test(f.name || '') ? 'partial' : 'legacy');
+    const fullFiles    = files.filter(f => _kind(f) === 'full');
+    const partialFiles = files.filter(f => _kind(f) === 'partial');
+    const legacyFiles  = files.filter(f => _kind(f) === 'legacy');
+    // v3.40.0 (תיקון COLLAB #57.ג) — הספירה נשמרת **תמיד** (גם כשהיא יורדת מתחת לסף,
+    // אחרת אזהרה ישנה נתקעת), נכתבת ל-state ומרונדרת בכרטיס. בגרסה הקודמת היה כאן
+    // assignment שאיש לא קרא — כלומר טענת-הבטיחות המרכזית לא הגיעה לאור בכלל.
+    if(S.gdrive) S.gdrive.legacyBackupCount = legacyFiles.length;
+    const toDelete = fullFiles.slice(GDRIVE_BACKUP_KEEP).concat(partialFiles.slice(GDRIVE_PARTIAL_KEEP));
+    if(!toDelete.length){ saveAll(true); if(typeof gdriveRenderSettingsCard==='function') gdriveRenderSettingsCard(); return { deleted: 0, legacy: legacyFiles.length }; }
     for(const f of toDelete){
       try {
         await gapi.client.drive.files.delete({fileId: f.id});
@@ -12703,6 +12731,9 @@ async function _gdriveCleanupOldBackups(folderId){
         console.warn('מחיקת גיבוי ישן נכשלה:', f.name);
       }
     }
+    saveAll(true);
+    if(typeof gdriveRenderSettingsCard==='function') gdriveRenderSettingsCard();
+    return { deleted: toDelete.length, legacy: legacyFiles.length };
   } catch(e){
     console.warn('ניקוי גיבויים ישנים נכשל:', e);
   }
@@ -12820,14 +12851,24 @@ async function gdriveBackupNow(silent){
     const content = JSON.stringify(backup);   // v3.23.13 (REL-09) — הוסרה הזחה: הקובץ לא נועד לקריאה ידנית, וההזחה מנפחת גיבוי-מלא-עם-תמונות בעשרות אחוזים
     const now = new Date();
     const ts = now.toISOString().replace(/[:.]/g, '-').split('.')[0];
-    const fileName = `orBagag_backup_${ts}.json`;
+    // v3.40.0 (תיקון COLLAB #49.ב) — גיבוי חלקי מקבל שם מסומן, כדי שרוטציית ה-30 תוכל
+    // להפריד בינו לבין גיבוי מלא. בלי זה חלקיים נספרים בתוך ה-30 ודוחקים מלאים למחיקה.
+    const fileName = _mediaOk ? `orBagag_backup_${ts}.json` : `orBagag_backup_${ts}_partial.json`;
 
-    const uploaded = await _gdriveUploadBackup(folderId, content, fileName);
+    const uploaded = await _gdriveUploadBackup(folderId, content, fileName, {
+      obKind: _mediaOk ? 'full' : 'partial',
+      obMedia: String((_lastMediaBackupStats && _lastMediaBackupStats.embedded) || 0),
+      obMediaExpected: String((_lastMediaBackupStats && _lastMediaBackupStats.expected) || 0),
+      obAppVersion: APP_VERSION
+    });
 
-    S.gdrive.lastBackupId = uploaded.id;
     S.gdrive.lastBackupCount = _cnt;   // v3.35.0 — נקודת-ההשוואה של שומר-הריק
-    S.gdrive.pendingChanges = false;
     S.gdrive.needsReconnect = false;
+    // v3.39.0 (תיקון COLLAB #47.ב) — גיבוי חלקי אינו מסיים את המשימה: pendingChanges נשאר
+    // דלוק כדי ש-gdriveAutoInit ינסה שוב בלי להמתין לעריכה חדשה, ו-lastBackupId לא מוחלף
+    // בקובץ חלקי כדי שלא נצביע עליו כנקודת-שחזור.
+    if(_mediaOk){ S.gdrive.lastBackupId = uploaded.id; S.gdrive.pendingChanges = false; }
+    else { S.gdrive.lastPartialId = uploaded.id; S.gdrive.pendingChanges = true; }
     S.gdrive.emptyGuardAt = null;
     // v3.39.0 (BACKUP-HONEST) — הקובץ הועלה בכל מקרה (גיבוי חלקי עדיף על אפס גיבוי), אבל
     // הוא **אינו** נחשב לגיבוי מלא: lastBackupAt לא מתעדכן, כדי שאזהרת "הגיבוי מתיישן" תמשיך
@@ -12844,7 +12885,9 @@ async function gdriveBackupNow(silent){
     }
     saveAll(true);
 
-    // ניקוי ברקע
+    // v3.40.0 (תיקון COLLAB #52.ד) — עכשיו שהבריכות מופרדות ו-legacy מוגן, הניקוי רץ אחרי
+    // **כל** העלאה מוצלחת. אחרת חלון 5 החלקיים לא נאכף כל עוד הכשל נמשך, והם מצטברים בלי
+    // גבול עד גיבוי מלא שאולי לא יגיע.
     _gdriveCleanupOldBackups(folderId);
 
     if(!silent) toast(_mediaOk ? '✅ גובה לדרייב' : '⚠️ ' + S.gdrive.lastError, _mediaOk ? undefined : { duration: 9000 });
@@ -12946,7 +12989,7 @@ async function gdriveShowHistory(){
     openMo(`<div style="padding:0">
       <div style="padding:16px 20px;border-bottom:1px solid var(--line)">
         <h3 style="margin:0">📋 היסטוריית גיבויים</h3>
-        <p style="margin:6px 0 0;font-size:12px;color:var(--text3)">${files.length} גיבויים בענן · נשמרים 30 האחרונים</p>
+        <p style="margin:6px 0 0;font-size:12px;color:var(--text3)">${files.length} גיבויים בענן · נשמרים 30 המלאים האחרונים, עד 5 חלקיים, וגיבויים ישנים ללא סיווג אינם נמחקים</p>
       </div>
       <div style="max-height:60vh;overflow-y:auto">${rows}</div>
       <div style="padding:12px 20px;border-top:1px solid var(--line);text-align:center">
@@ -12977,9 +13020,12 @@ async function gdriveRestoreFile(fileId, dateLabel){
         const data = await resp.json();
 
         // שימוש בלוגיקת ייבוא קיימת
-        await _applyImportedData(data);
-        toast('✅ שוחזר בהצלחה');
-        setTimeout(() => location.reload(), 1500);
+        // v3.39.0 (תיקון COLLAB #47.ג) — קודם ההודעה כאן הייתה בלתי-מותנית ודרסה את אזהרת
+        // הייבוא, ואז reload מחק אותה מהמסך. עכשיו התוצאה קובעת מה נאמר וכמה זמן.
+        const _res = await _applyImportedData(data);
+        if(_res && _res.cancelled) return;                         // אור בחר לא להמשיך
+        if(_res && _res.warning){ toast('⚠️ שוחזר עם בעיה: ' + _res.warning, { duration: 12000 }); setTimeout(() => location.reload(), 11000); }
+        else { toast('✅ שוחזר בהצלחה'); setTimeout(() => location.reload(), 1500); }
       } catch(e){
         console.error('gdriveRestoreFile:', e);
         toast('❌ שחזור נכשל');
@@ -13070,7 +13116,8 @@ function gdriveRenderSettingsCard(){
     <button class="btn btn-ghost btn-sm" onclick="gdriveBackupNow(false)" style="width:100%;margin-bottom:6px">🔄 גבה עכשיו</button>
     <button class="btn btn-ghost btn-sm" onclick="gdriveShowHistory()" style="width:100%;margin-bottom:6px">📋 היסטוריית גיבויים</button>
     <button class="btn btn-ghost btn-sm" onclick="gdriveDisconnect()" style="width:100%;color:var(--red)">🔌 נתק</button>
-    <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">נשמרים 30 הגיבויים האחרונים בתיקייה "Or BaGag - גיבויים" בדרייב שלך.</div>
+    ${(S.gdrive && S.gdrive.legacyBackupCount > GDRIVE_LEGACY_WARN) ? `<div style="margin-top:8px;padding:8px 10px;border-radius:8px;background:#fdf0e6;color:#8a4b1f;font-size:12px;line-height:1.5">${S.gdrive.legacyBackupCount} גיבויים ישנים ללא סיווג — הם לא נמחקים אוטומטית כדי לא לאבד גיבוי מלא. אפשר למחוק ידנית בדרייב.</div>` : ''}
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5">נשמרים 30 הגיבויים המלאים האחרונים (ועוד עד 5 חלקיים) בתיקייה "Or BaGag - גיבויים" בדרייב שלך.</div>
   `;
 }
 
@@ -13984,8 +14031,32 @@ function _sanitizeImportedImages(node, stats){
     if(val && typeof val === 'object') _sanitizeImportedImages(val, stats);
   }
 }
-async function _applyImportedData(d){
+// v3.39.0 (BACKUP-HONEST) — בודק את הצהרת הגיבוי ומחזיר טקסט אזהרה, או null אם תקין.
+// מופרד מ-_applyImportedData כדי שאפשר יהיה לשאול **לפני** שנוגעים ב-S.
+function _backupDeclaredProblem(d){
+  const ms = d && d.mediaStats;
+  if(!ms || typeof ms !== 'object') return null;          // קובץ ישן — תאימות לאחור מלאה
+  const keys = (d && d.media) ? Object.keys(d.media).length : 0;
+  if(ms.ok !== true){
+    return (ms.reason === 'no-idb' || String(ms.reason||'').startsWith('scan-failed'))
+      ? 'הגיבוי הזה נוצר בלי התמונות — אחסון המדיה לא נקרא בזמן הייצוא'
+      : `הגיבוי הזה סומן חלקי בזמן היצירה — ${ms.embedded||0} מתוך ${ms.expected||0} קובצי מדיה`;
+  }
+  if(typeof ms.embedded === 'number' && ms.embedded !== keys)
+    return `אי-התאמה: הקובץ מצהיר על ${ms.embedded} קובצי מדיה ובפועל יש בו ${keys}`;
+  return null;
+}
+async function _applyImportedData(d, opts){
   if(!d.visits && !d.projects) throw new Error('Invalid backup');
+  // v3.39.0 (תיקון COLLAB #47.ג) — האזהרה חייבת להישאל **לפני** שמחליפים את S ולפני saveAll,
+  // אחרת היא הודעה בדיעבד על מצב שכבר נכתב. opts.force מדלג (למשל בבדיקות/מסלול שכבר שאל).
+  const _declared = _backupDeclaredProblem(d);
+  if(_declared && !(opts && opts.force)){
+    if(typeof confirm === 'function' && !confirm(`⚠️ ${_declared}\n\nלהמשיך בשחזור בכל זאת?`)){
+      if(typeof toast === 'function') toast('השחזור בוטל');
+      return { cancelled: true, reason: _declared };
+    }
+  }
   if(typeof _invalidateWorks === 'function') _invalidateWorks();   // v3.27.0 (WORKS-01) — כל המערכים מוחלפים
 
   // v3.9.16 — טען את *כל* השדות. אם שדה חסר בקובץ, שמור את הקיים
@@ -14090,9 +14161,16 @@ async function _applyImportedData(d){
       _warn = `אי-התאמה: הקובץ מצהיר על ${_ms.embedded} קובצי מדיה ובפועל יש בו ${_mediaKeys}`;
     }
   }
+  // v3.39.0 (תיקון COLLAB #47.ג) — לא מספיק להשוות להצהרה שבקובץ: בודקים כמה פריטי מדיה
+  // **נכתבו בפועל**. שחזור עם db תקול החזיר עד כה "נטען בהצלחה" בעוד אפס מדיה נכתבה.
+  const _mediaInFile = (d && d.media) ? Object.keys(d.media).length : 0;
+  if(_mediaInFile && _mediaRestored !== _mediaInFile)
+    _warn = (_warn ? _warn + ' · ' : '') + `רק ${_mediaRestored} מתוך ${_mediaInFile} קובצי מדיה נכתבו למכשיר`;
   if(_warn) toast('⚠️ נטען, אבל: ' + _warn, { duration: 10000 });
   else toast('✅ נטען: ' + stats.join(', '));
-  goDash();
+  goDash();   // v3.40.0 (תיקון COLLAB #49.ג) — היה **אחרי** ה-return שהוספתי, כלומר קוד מת:
+              // ייבוא מקומי סיים והשאיר את אור על מסך ההגדרות. הניווט חוזר לפני ההחזרה.
+  return { cancelled: false, warning: _warn || null, mediaRestored: _mediaRestored, mediaInFile: _mediaInFile };
 }
 async function clearAll(){
   // v3.22.37 (ביקורת C2#22) — רשת-ביטחון: מורידים גיבוי-מלא לפני המחיקה הבלתי-הפיכה.
@@ -20043,7 +20121,7 @@ function renderReportsList(){
     if(r.findings) bits.push(r.findings + ' ממצאים');
     if(r.srcUpdatedAt) bits.push(_fmtWhen(r.srcUpdatedAt));
     return `
-      <button class="wk-row-item" onclick="openReportApp()">
+      <button class="wk-row-item" onclick="openReportApp({open:'${_jsAttr(r.id||'')}'})">
         <span class="wr-av"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon></span>
         <span class="wr-bd">
           <span class="wr-l1">${r.isFollowUp ? '<span class="rpt-tag">המשך</span> ' : ''}${esc(r.title)}</span>
