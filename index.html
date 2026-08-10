@@ -7770,7 +7770,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.41.0'; // גשר דוחות חוצה-מכשירים: pull משחזר לבונה, mirror מזניק sync מושהה, וכשל localStorage אינו נבלע בשקט
+const APP_VERSION = '3.42.0'; // כפתור GIS ממשלתי (govmap) בגיליון-הניווט של כתובת — נגיש מכל כרטיס לקוח (בקשת אור 10.08)
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -37266,13 +37266,14 @@ function leadNavigate(id, ev){
   _touchLead(id);
   _openNavSheet(l.address);
 }
-// Show a sheet with Waze + Google Maps options for a given address.
+// Show a sheet with Waze + Google Maps + govmap (GIS) options for a given address.
 function _openNavSheet(address){
   const addr = String(address || '').trim();
   if(!addr) return;
   const encoded = encodeURIComponent(addr);
   const wazeUrl  = `https://waze.com/ul?q=${encoded}&navigate=yes`;
   const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encoded}`;
+  const govmapUrl = `https://www.govmap.gov.il/?q=${encoded}`;
   const html = `
     <div class="mo-title">פתח ניווט</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;direction:rtl;text-align:center">${esc(addr)}</div>
@@ -37290,6 +37291,14 @@ function _openNavSheet(address){
         <div style="flex:1">
           <div style="font-size:15px">Google Maps</div>
           <div style="font-size:11px;opacity:.85;font-weight:600">תחבורה ציבורית, הליכה</div>
+        </div>
+        <div style="opacity:.7">←</div>
+      </a>
+      <a href="${govmapUrl}" target="_blank" rel="noopener noreferrer" onclick="closeMo()" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#2b6cb0,#1a4e8a);color:#fff;border-radius:14px;padding:14px 16px;text-decoration:none;font-weight:800;box-shadow:0 4px 12px rgba(43,108,176,.35)">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><iconify-icon icon="mdi:map-search-outline"></iconify-icon></div>
+        <div style="flex:1">
+          <div style="font-size:15px">GIS ממשלתי (Govmap)</div>
+          <div style="font-size:11px;opacity:.85;font-weight:600">צילום לוויין, מדידת מטראז'ים</div>
         </div>
         <div style="opacity:.7">←</div>
       </a>

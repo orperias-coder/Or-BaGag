@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.42.0 — cache bump (אפשרות GIS ממשלתי (govmap) בגיליון-הניווט של כתובת — ראה comment ליד APP_VERSION).
  * v3.37.0 — cache bump (תיקון-כפילויות בקליטת וואטסאפ-לידים: reason==='ai_client' (לקוח קיים,
  *   38 מתוך 53 בנתוני-אמת) יוצר רק משימות, לא ליד חדש — ראה comment ליד APP_VERSION).
  * v3.36.0 — cache bump (Task 12 מתוכנית "וואטסאפ-לידים": hook #waimport=<localhost-url>,
@@ -36,7 +37,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.41.0';
+const CACHE_NAME = 'or-bagag-cache-v3.42.0';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
