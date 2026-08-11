@@ -7789,7 +7789,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.54.0'; // פרלשטיין קודם מדמו לפרויקט אמיתי (74,871₪ נכנסים להכנסות, הגירה הפיכה, דמו נקי לא מקודם). הלוגו של אור מופיע עכשיו גם בשני דוחות-התמונות (מהביקור ומההצעה) — ב-PDF הראשי הוא כבר היה. כולל 3.53.0 (תחנות-המסלול).
+const APP_VERSION = '3.55.0'; // תיקון הבאג שאור מצא: כותרת חופשית של סעיף (שלא מהקטלוג) לא נשמרה — רכיב-הבורר רק סינן את הקטלוג ולא כתב את ההקלדה לסעיף. עכשיו כל הקשה נשמרת מיד, גם בעורך-ההצעות וגם בסעיפי-הפרויקט (אותו באג בשניהם).
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -36507,6 +36507,7 @@ function pdToggleTask(ti){
 /* v3.28.0 (MODEL-01) — בחירה מהקטלוג בסעיף-פרויקט ממלאת שם + יחידה + מחיר-ליחידה.
    המחיר הסופי נגזר מ-qty × pricePerUnit דרך pdSectionSet הקיים (v3.27.0/FIX-QTY). */
 function _pdRegisterPick(i){
+  window['pdSectionFreeWT_'+i] = function(v){ pdSectionSet(i, 'name', v); };   // v3.54.0 — שם חופשי נשמר
   window['pdSectionPickWT_'+i] = function(name, price, unit){
     pdSectionSet(i, 'name', name);
     if(unit)  pdSectionSet(i, 'unit', unit);
@@ -36527,7 +36528,7 @@ function pdManageSections(){
       </div>
       <div class="pms-body">
         ${/* v3.28.0 (MODEL-01) — גם כאן היה input חופשי בלבד. אותו בורר-קטלוג כמו בהצעה ובאשף. */''}
-        ${_wtPickerHtml('pms-name-'+i, t.name||'', 'pdSectionPickWT_'+i, {placeholder:'שם הסעיף — הקלד או בחר מהקטלוג', inputStyle:'border:none;background:transparent;font-size:14px;font-weight:700;color:var(--text);padding:2px 0'})}
+        ${_wtPickerHtml('pms-name-'+i, t.name||'', 'pdSectionPickWT_'+i, {placeholder:'שם הסעיף — הקלד או בחר מהקטלוג', inputStyle:'border:none;background:transparent;font-size:14px;font-weight:700;color:var(--text);padding:2px 0', onFree:'pdSectionFreeWT_'+i})}
         <!-- v3.27.0 (FIX-QTY) — כל סעיף שומר qty/unit/pricePerUnit מאז _buildTask (17515), אבל
              המסך הזה — המסך היחיד לעריכת סעיפים — הציג רק שם ומחיר. אור דיווח על זה במדויק:
              "לסעיף שמורים כמות/יחידה/מחיר-ליחידה אבל אין שום מסך לערוך אותם". כאן הם נפתחים. -->
@@ -41720,6 +41721,8 @@ function getQuote(id){ return S.quotes.find(q => q.id === (id || S.activeQuoteId
 /* v3.28.0 (MODEL-01) — בחירה מהקטלוג בשורת-הצעה ממלאת שם + יחידה + מחיר-ליחידה,
    ואז מחשבת מחדש את הסכום דרך qRecalcItem הקיים — אותה נגזרת שהעורך כבר משתמש בה. */
 function _qRegisterPick(idx){
+  // v3.54.0 — הקלדה חופשית של כותרת נשמרת מיד (השורש של "הכותרת לא נשמרת")
+  window['qItemFreeWT_'+idx] = function(v){ qUpdateItem(idx, 'title', v); };
   window['qItemPickWT_'+idx] = function(name, price, unit){
     qUpdateItem(idx, 'title', name);
     if(unit)  qUpdateItem(idx, 'unit', unit);
@@ -41751,7 +41754,7 @@ function qItemHtml(it, idx){
         <span style="font-size:13px;font-weight:800;color:var(--gold2);background:var(--gold-l);border-radius:6px;padding:2px 8px;flex-shrink:0">${idx+1}</span>
         ${/* v3.28.0 (MODEL-01) — היה input חופשי בלבד: אי-אפשר היה לבחור מהקטלוג בעורך-ההצעה,
              בעוד שבאשף-הביקור כן. אותו רכיב-בורר משמש עכשיו בשני המקומות. */''}
-        <div style="flex:1">${_wtPickerHtml('qe-it-'+idx, it.title, 'qItemPickWT_'+idx, {placeholder:'כותרת השורה — הקלד או בחר מהקטלוג', inputStyle:'padding:8px 10px;font-size:14px;font-weight:700'})}</div>
+        <div style="flex:1">${_wtPickerHtml('qe-it-'+idx, it.title, 'qItemPickWT_'+idx, {placeholder:'כותרת השורה — הקלד או בחר מהקטלוג', inputStyle:'padding:8px 10px;font-size:14px;font-weight:700', onFree:'qItemFreeWT_'+idx})}</div>
         <button class="btn-xs btn-ghost" onclick="qItemMove(${idx},-1)" title="העלה סעיף" style="padding:6px 7px" ${idx===0?'disabled':''}>↑</button>
         <button class="btn-xs btn-ghost" onclick="qItemMove(${idx},1)" title="הורד סעיף" style="padding:6px 7px" ${idx>=_n-1?'disabled':''}>↓</button>
         <button class="btn-xs btn-ghost" onclick="qToggleVisible(${idx})" title="${it.visible?'הסתר':'הצג'}" style="padding:6px 8px">${it.visible?'👁':'🚫'}</button>
@@ -42811,13 +42814,18 @@ function allWorkTypes(){ return getCatalog(); }
    ═══════════════════════════════════════════════════════════════════════════════ */
 let _wtPickOpenFor = null;   // id של השדה שהרשימה פתוחה עבורו
 
+/* v3.54.0 (באג שאור מצא) — הקלדה חופשית ברכיב-הבורר רק סיננה את רשימת-הקטלוג ומעולם
+   לא נשמרה: הכותרת נכתבה לסעיף רק בבחירה מהקטלוג, וההודעה "מה שתקליד יישמר כסעיף
+   חופשי" הייתה שקר. סעיף חופשי איבד את הכותרת ברינדור הבא. עכשיו onFree שומר כל
+   הקשה (שמירה בלבד, בלי רינדור — כדי לא לגנוב פוקוס באמצע הקלדה). */
 function _wtPickerHtml(inputId, value, onPickFnName, opts){
   const o = opts || {};
+  const freeCall = o.onFree ? `${o.onFree}(this.value);` : '';
   return `
     <div class="wtp" style="position:relative">
       <input type="text" id="${esc(inputId)}" class="wtp-input" value="${esc(value||'')}"
              placeholder="${esc(o.placeholder || 'הקלד או בחר מהקטלוג')}" autocomplete="off"
-             oninput="_wtPickInput('${_jsAttr(inputId)}','${_jsAttr(onPickFnName)}',this.value)"
+             oninput="${freeCall}_wtPickInput('${_jsAttr(inputId)}','${_jsAttr(onPickFnName)}',this.value)"
              onfocus="_wtPickInput('${_jsAttr(inputId)}','${_jsAttr(onPickFnName)}',this.value)"
              ${o.inputStyle ? `style="${o.inputStyle}"` : ''}>
       <button type="button" class="wtp-btn" title="בחר מהקטלוג" aria-label="בחר מהקטלוג"
