@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.46.0 — cache bump (הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב).
  * v3.45.0 — cache bump (שלב 0: ניקוי, כפילות-אנשים, ביטול-מיזוג, תאריך-צילום, עקביות-מסמכים).
  * v3.44.5 — cache bump (עקביות: כרטיס-לקוח, ארכיון במסך-האנשים, וחזרה מכל 'מסך ישן').
  * v3.44.4 — cache bump (גיבוי כולל waBlocklist+todayDone; ארכיון מסתיר גם ממסך-היום).
@@ -45,7 +46,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.45.0';
+const CACHE_NAME = 'or-bagag-cache-v3.46.0';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.

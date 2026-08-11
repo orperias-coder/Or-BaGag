@@ -7766,7 +7766,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.45.0'; // שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.46.0'; // הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב, בלי מגע-יד. שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -18926,14 +18926,19 @@ async function _migrateLegacyMediaFamilies(){
     }catch(e){ console.warn('[_migrateLegacyMediaFamilies] putB64 failed', key, e); return false; }
   };
 
-  // 1) LEAD photos — camera/gallery captures only. WhatsApp-imported photos (source:'whatsapp')
-  //    are deliberately skipped: they have no full-res dataFull anyway, and _waMergeIntoLead's
-  //    dedup keys off ph.data's first 80 chars — stripping .data would break that and could
-  //    re-import duplicates on the next WhatsApp sync.
+  // 1) LEAD photos — כולל תמונות-וואטסאפ מאז v3.46.0.
+  //    היסטוריה: הן דולגו כאן במכוון, כי ה-dedup של _waMergeIntoLead נשען על 80 התווים
+  //    הראשונים של ph.data — והסרת data הייתה שוברת אותו ומייצרת כפילות בכל סנכרון.
+  //    הסיבה הזאת בוטלה: לכל תמונת-וואטסאפ יש עכשיו waKey (טביעה יציבה של התוכן),
+  //    וה-dedup נשען עליו. בלי הדילוג הזה התמונות לעולם לא הגיעו לטלפון, כי רק בלובים
+  //    מסתנכרנים. תמונה ישנה בלי waKey מקבלת אחד עכשיו, לפני שה-data נמחק.
   for(const l of (S.leads||[])){
     for(const ph of (l.photos||[])){
       try{
-        if(!ph || ph.blobKey || ph.source === 'whatsapp') continue;
+        if(!ph || ph.blobKey) continue;
+        if(ph.source === 'whatsapp' && !ph.waKey && typeof _waPhotoKey === 'function'){
+          ph.waKey = _waPhotoKey(ph.data || ph.dataFull || '');
+        }
         const src = ph.dataFull || ph.data;
         if(!src || typeof src !== 'string' || !src.startsWith('data:')) continue;
         const key = `lead-${l.id}-${ph.id || uid()}`;
@@ -25649,19 +25654,28 @@ function _waImportProcessJsonText(text, sourceLabel){
 // v3.13.0 — Centralized Drive fetch. Returns { text, fileName, modifiedTime } on
 // success, or null on any failure (after a clear toast/modal explaining why).
 // Used by both waSyncFromDrive (preview flow) and waUpdateLeadsFromDrive (auto).
-async function _waFetchLatestDriveText(){
+/* v3.46.0 (הגשר) — `silent` למסלול-האוטומטי: בלי טוסטים, ובלי לבקש טוקן חדש.
+   המוקש שמתועד ב-gdriveBackupNow (GDRIVE-LOOP): בקשת-טוקן ברקע פותחת חלון-הרשאה של
+   גוגל באמצע עבודה, והמסך "נעלם וחוזר". לכן ברקע משתמשים רק בטוקן שכבר בזיכרון,
+   ואם אין — מדלגים בשקט עד שאור יבצע פעולה יזומה. */
+async function _waFetchLatestDriveText(silent){
+  const say = (m) => { if(!silent) toast(m); };
   if(typeof gapi === 'undefined' || !gapi.client?.drive){
-    toast('Google Drive עדיין נטען — נסה שוב בעוד 2 שניות');
+    say('Google Drive עדיין נטען — נסה שוב בעוד 2 שניות');
     return null;
   }
   if(typeof _gdriveEnsureToken !== 'function'){
-    toast('החיבור לגוגל דרייב לא זמין כרגע — נסה שוב מאוחר יותר.');
+    say('החיבור לגוגל דרייב לא זמין כרגע — נסה שוב מאוחר יותר.');
     return null;
   }
-  try { await _gdriveEnsureToken(); }
-  catch(e){
-    toast('נדרשת התחברות ל-Google Drive. הגדרות → ניהול נתונים');
-    return null;
+  if(silent){
+    if(!(typeof _gdriveAccessToken === 'string' && _gdriveAccessToken && Date.now() < _gdriveTokenExpiry)) return null;
+  } else {
+    try { await _gdriveEnsureToken(); }
+    catch(e){
+      toast('נדרשת התחברות ל-Google Drive. הגדרות → ניהול נתונים');
+      return null;
+    }
   }
   if(typeof _gdriveAccessToken !== 'string' || !_gdriveAccessToken){
     toast('גיבוי Drive עדיין לא מחובר — הפעל אותו פעם אחת בהגדרות → ניהול נתונים.');
@@ -25735,16 +25749,24 @@ function _waMergeIntoLead(l, source){
     changed = true;
   }
   // photos[]: add any new chatThumbs (and legacy mediaThumb) not already there
-  const existingPrefixes = new Set((l.photos||[]).map(p => (p.data || '').slice(0, 80)));
+  // v3.46.0 — waKey קודם (שורד את המעבר ל-blob), ותאימות-לאחור לתמונות ישנות שיש
+  // להן רק data. בלי זה כל סנכרון היה מוסיף את אותן תמונות שוב.
+  const existingKeys = new Set();
+  (l.photos||[]).forEach(p => {
+    if(p && p.waKey) existingKeys.add(p.waKey);
+    if(p && p.data)  existingKeys.add((p.data || '').slice(0, 80));
+  });
+  const existingPrefixes = existingKeys;
   const candidates = [];
   (source.chatThumbs || []).forEach(t => { if(_isSafeImageDataUrl(t)) candidates.push(t); });
   (source.messages || []).forEach(m => { if(m && _isSafeImageDataUrl(m.mediaThumb)) candidates.push(m.mediaThumb); });
   for(const data of candidates){
-    const pref = data.slice(0, 80);
+    const pref = _waPhotoKey(data);
+    if(existingPrefixes.has(data.slice(0, 80))) return;   // תמונה ישנה שנשמרה בדרך הקודמת
     if(existingPrefixes.has(pref)) continue;
     existingPrefixes.add(pref);
     l.photos = l.photos || [];
-    l.photos.push({ id: uid(), data, ts: now, source: 'whatsapp' });
+    l.photos.push({ id: uid(), data, ts: now, source: 'whatsapp', waKey: pref });
     changed = true;
   }
   // clientName: fill only if empty or looks like just-a-phone
@@ -25780,15 +25802,16 @@ function _waMergeIntoLead(l, source){
 //   • Existing leads → merge new info silently (photos, extracted name/address)
 //   • New leads → open preview screen for explicit approval
 //   • Blocklisted phones → skipped silently
-async function waUpdateLeadsFromDrive(){
-  toast('מחפש עדכון ב-Drive...');
-  const fetched = await _waFetchLatestDriveText();
+async function waUpdateLeadsFromDrive(silent){
+  const say = (m) => { if(!silent) toast(m); };
+  say('מחפש עדכון ב-Drive...');
+  const fetched = await _waFetchLatestDriveText(silent);
   if(!fetched) return;
   let data;
   try { data = JSON.parse(fetched.text); }
-  catch(e){ console.warn('[waUpdateLeadsFromDrive] parse error', e); toast('הקובץ שהתקבל מ-Drive אינו קובץ ייבוא-לידים תקין.'); return; }
-  if(!data || !Array.isArray(data.leads)){ toast('הקובץ שהתקבל מ-Drive אינו קובץ ייבוא-לידים תקין.'); return; }
-  if(data.leads.length === 0){ toast('הקובץ ריק'); return; }
+  catch(e){ console.warn('[waUpdateLeadsFromDrive] parse error', e); say('הקובץ שהתקבל מ-Drive אינו קובץ ייבוא-לידים תקין.'); return; }
+  if(!data || !Array.isArray(data.leads)){ say('הקובץ שהתקבל מ-Drive אינו קובץ ייבוא-לידים תקין.'); return; }
+  if(data.leads.length === 0){ say('הקובץ ריק'); return; }
 
   const blocked = new Set((S.waBlocklist || []).map(b => _waNormPhone(b.phone)).filter(Boolean));
   // Index existing leads by normalized phone for fast lookup
@@ -25826,8 +25849,18 @@ async function waUpdateLeadsFromDrive(){
   if(convertedSkippedCount) summary.push(`${convertedSkippedCount} כבר לקוחות`);
 
   if(newRaw.length === 0){
-    if(summary.length) toast('✓ ' + summary.join(' · '));
-    else toast('כלום חדש מ-Drive');
+    if(summary.length) say('✓ ' + summary.join(' · '));
+    else say('כלום חדש מ-Drive');
+    return;
+  }
+
+  // v3.46.0 — ברקע לא פותחים מסך-אישור באמצע עבודה. מודיעים בשקט, והמסך ייפתח
+  // כשאור ייגש ללידים בעצמו. שער-האמון נשמר: אין יצירה אוטומטית של לקוחות.
+  if(silent){
+    toast(`${newRaw.length} לידים חדשים מוואטסאפ · הקש לאישור`, {
+      duration: 7000,
+      onAction: () => { _waImportProcessJsonText(JSON.stringify({ ...data, leads: newRaw }), `${fetched.fileName} · ${newRaw.length} חדשים`); },
+    });
     return;
   }
 
@@ -26150,6 +26183,33 @@ function _waSetDup(idx, action){
 }
 
 // Build app lead object from a WA item.
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.46.0 (הגשר, שלב 1) — תמונות-וואטסאפ סוף-סוף מגיעות לטלפון.
+   הבאג שהיה: _waBuildLead שמר תמונה כ-{id, data, ts, source:'whatsapp'} בלי blobKey;
+   _migrateLegacyMediaFamilies דילגה עליה במפורש (`|| ph.source === 'whatsapp'`);
+   ולכן _cloudUploadMedia מעולם לא העלתה אותה, ו-_syncStripReplacer מחקה את `data`
+   בסנכרון. התוצאה: הליד הגיע לטלפון והתמונה הגיעה ריקה. תמיד.
+   התיקון: אותו מסלול בדיוק כמו כל תמונה אחרת באפליקציה (mediaPut + thumb).
+   **המוקש שהערה קודמת תיעדה:** ה-dedup הסתמך על `ph.data.slice(0,80)` — ובלי `data`
+   הוא היה שובר ומייצר כפילות בכל סנכרון. לכן נשמר `waKey`: טביעה יציבה של התמונה
+   שנגזרת מהתוכן עצמו ולא מהאחסון, ו-dedup נופל אליה קודם ורק אז לדרך הישנה. */
+function _waPhotoKey(dataUrl){
+  const s = String(dataUrl || '');
+  if(!s) return '';
+  // טביעה זולה ויציבה: אורך + דגימה משלושה מקומות. מספיק כדי לזהות את אותה תמונה,
+  // ואינו דורש לשמור את ה-base64 עצמו.
+  const mid = Math.floor(s.length / 2);
+  return `${s.length}:${s.slice(30, 70)}:${s.slice(mid, mid + 24)}:${s.slice(-24)}`;
+}
+async function _waMakePhoto(dataUrl, keyPrefix, now){
+  const base = { ts: now, source: 'whatsapp', waKey: _waPhotoKey(dataUrl) };
+  if(typeof _makeVisitPhoto === 'function'){
+    try { return await _makeVisitPhoto(dataUrl, dataUrl, keyPrefix, base); }
+    catch(e){ console.warn('[wa] mediaPut failed, falling back to inline', e); }
+  }
+  return Object.assign({ id: (typeof uid === 'function' ? uid() : String(Date.now() + Math.random())), data: dataUrl }, base);
+}
+
 function _waBuildLead(item){
   const now = ts();
   const reasonLabels = {
@@ -26169,11 +26229,14 @@ function _waBuildLead(item){
   //  (b) messages[].mediaThumb — legacy (scraper v0.4-0.7), only first image
   const photos = [];
   const seen = new Set();
+  // v3.46.0 — נשמר גם waKey (טביעה יציבה) כדי שה-dedup ישרוד את המעבר ל-blob.
+  // ההמרה ל-blob עצמה נעשית ב-_waPersistLeadPhotos אחרי היצירה, כי הפונקציה הזאת
+  // סינכרונית ונקראת מכמה מקומות.
   const addThumb = (data) => {
     if(!data || typeof data !== 'string' || !data.startsWith('data:image')) return;
     if(seen.has(data)) return;
     seen.add(data);
-    photos.push({ id: uid(), data, ts: now, source: 'whatsapp' });
+    photos.push({ id: uid(), data, ts: now, source: 'whatsapp', waKey: _waPhotoKey(data) });
   };
   (item.chatThumbs || []).forEach(addThumb);
   (item.messages || []).forEach(m => {
@@ -26289,7 +26352,37 @@ function _waCreateTasksFor(it, leadId){
   return n;
 }
 
+
+/* v3.46.0 (הגשר) — מעביר תמונות-וואטסאפ מ-base64-בזיכרון אל IndexedDB, בדיוק כמו
+   כל תמונה אחרת (mediaPut + thumb). זה מה שגורם להן להסתנכרן לטלפון: _cloudUploadMedia
+   רץ על מפתחות-הבלוב, ו-_syncStripReplacer מוחק בכוונה את data/dataFull מה-payload.
+   רץ ברקע ואינו חוסם את המסך; אם ה-IDB לא זמין, התמונה נשארת inline כמו קודם. */
+async function _waPersistLeadPhotos(leadIds){
+  if(!Array.isArray(leadIds) || !leadIds.length) return 0;
+  let moved = 0;
+  for(const id of leadIds){
+    const l = (S.leads || []).find(x => x.id === id);
+    if(!l || !Array.isArray(l.photos) || !l.photos.length) continue;
+    for(let i = 0; i < l.photos.length; i++){
+      const ph = l.photos[i];
+      if(!ph || ph.blobKey || !ph.data) continue;         // כבר מאוחסן, או אין מה להעביר
+      const built = await _waMakePhoto(ph.data, `lead-${l.id}`, ph.ts || ts());
+      if(built && built.blobKey){
+        l.photos[i] = Object.assign({}, built, { id: ph.id });   // שומרים מזהה — הפניות קיימות
+        moved++;
+      }
+    }
+    if(moved) l.updatedAt = ts();
+  }
+  if(moved){
+    saveAll(true);
+    if(typeof renderLeadsList === 'function' && document.querySelector('#view-leads-list.on')) renderLeadsList();
+  }
+  return moved;
+}
+
 function _waImportCommit(){
+  const _touchedLeadIds = [];
   if(!_waImport) return;
   const selected = _waImport.items.filter(i => i.checked && i.dupAction !== 'skip');
   if(!selected.length){ toast('לא נבחרו לידים'); return; }
@@ -26339,8 +26432,12 @@ function _waImportCommit(){
     }
     // v3.36.0 — משימות שחולצו ע"י הכלי (item.raw.tasks), מקושרות לליד שהתקבל למעלה
     tasksAdded += _waCreateTasksFor(it, leadId);
+    if(leadId) _touchedLeadIds.push(leadId);
   });
   saveAll(true);
+  // v3.46.0 (הגשר) — התמונות עוברות לאחסון האמיתי ברקע, ואז הן מסתנכרנות לטלפון
+  // כמו כל תמונה אחרת. רץ אחרי saveAll כדי שהמסך לא ימתין; כישלון לא מבטל את הייבוא.
+  _waPersistLeadPhotos(_touchedLeadIds);
   _waImport = null;
   goBack(); // back to leads-list
   if(typeof renderLeadsList === 'function') renderLeadsList();
@@ -42190,6 +42287,24 @@ async function init(){
   // v3.36.0 — קליטת ייבוא-לידים מכלי "וואטסאפ-לידים" המקומי, אם יש #waimport= בכתובת.
   // לא ממתינים ל-Promise (fetch לוקאלי, לא לחסום את עליית שאר האפליקציה).
   if(typeof waImportFromUrlBoot === 'function') waImportFromUrlBoot();
+
+  /* v3.46.0 (הגשר) — משיכה שקטה של לידים מהדרייב בעליית האפליקציה.
+     זה מה שסוגר את הלולאה: הכלי במק כותב בסוף כל ריצה יומית, והטלפון מושך לבד —
+     בלי שאור נוגע במחשב. שלוש הגנות מובנות: (1) רק טוקן שכבר בזיכרון, אחרת דילוג
+     שקט (מוקש GDRIVE-LOOP); (2) cooldown של שעתיים, עם חותמת שנכתבת **גם בכישלון**
+     כדי שלולאת-כשל לא תרוץ בכל פתיחה; (3) השהיה של 6 שניות אחרי העלייה, כדי לא
+     להתחרות בטעינת-הנתונים ובסנכרון-הענן. */
+  setTimeout(() => {
+    try {
+      if(!S.gdrive || !S.gdrive.enabled) return;
+      const WA_PULL_COOLDOWN_MS = 2 * 3600 * 1000;
+      const last = Date.parse(S.gdrive.lastWaPullAt || 0) || 0;
+      if(Date.now() - last < WA_PULL_COOLDOWN_MS) return;
+      S.gdrive.lastWaPullAt = new Date().toISOString();   // לפני הניסיון, לא אחריו
+      saveAll(true);
+      if(typeof waUpdateLeadsFromDrive === 'function') waUpdateLeadsFromDrive(true);
+    } catch(e){ console.warn('[wa] silent drive pull failed', e); }
+  }, 6000);
 
   // v3.9.2 — הצג את כפתור ההקלטה הצף כבר בטעינה הראשונית (לפני שהמשתמש מנווט)
   if(typeof _toggleMicButtonVisibility==='function') _toggleMicButtonVisibility();
