@@ -7788,7 +7788,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.44.3'; // תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.44.4'; // גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -12577,6 +12577,11 @@ function _buildCompleteBackup(options){
     // v3.22.17 — כלול לקוחות בגיבוי (היו חסרים → שחזור למכשיר-חדש איבד הערות/אימייל/תגיות ידניות)
     clients: S.clients || [],
     clientMigrationCompletedAt: S.clientMigrationCompletedAt,
+    // v3.44.4 (ביקורת-קוהרנטיות) — שניהם נשמרו ל-IDB אך נעדרו מהגיבוי המלא, ולכן שחזור
+    // למכשיר חדש איבד אותם בשקט מתחת להודעת "נטען בהצלחה": חסימות-הוואטסאפ (ואז לידים
+    // חסומים חוזרים) וסימוני "טופל" (ואז כל מסך-היום מתמלא מחדש).
+    waBlocklist: S.waBlocklist || [],
+    todayDone: S.todayDone || {},
   };
 }
 
@@ -14173,6 +14178,9 @@ async function _applyImportedData(d, opts){
   if(Array.isArray(d.learnedTasks))     S.learnedTasks = d.learnedTasks;
   if(_validRecords(d.clients))          S.clients = _validRecords(d.clients);   // v3.22.17 — שחזור לקוחות מגיבוי
   if(typeof d.clientMigrationCompletedAt === 'number') S.clientMigrationCompletedAt = d.clientMigrationCompletedAt;
+  // v3.44.4 — שחזור שני השדות שנוספו לגיבוי. גיבוי ישן שאין בו אותם משאיר את הקיים כמות שהוא.
+  if(Array.isArray(d.waBlocklist))      S.waBlocklist = d.waBlocklist;
+  if(d.todayDone && typeof d.todayDone === 'object' && !Array.isArray(d.todayDone)) S.todayDone = d.todayDone;
 
   if(d.business){
     // אם בקובץ יש לוגו — השתמש בו. אחרת שמור את הקיים
@@ -20022,6 +20030,9 @@ function _todayBuckets(){
   const b = { visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[], doneToday:[] };
   getWorks().forEach(w => {
     if(w.stage === 'done' && !(w.due > 0)) return;
+    // v3.44.4 (ביקורת-קוהרנטיות) — לקוח שאור סימן עליו "סיום טיפול" המשיך לדרוש פעולה
+    // במסך-היום. ארכוב מוריד מהתור; חוב פתוח הוא החריג היחיד — כסף לא נעלם בגלל ארכוב.
+    if(typeof _workClientArchived === 'function' && _workClientArchived(w) && !(w.due > 0)) return;
     if(_todayIsDone(w)){ b.doneToday.push({ w, at: _todayDoneMap()[w.id] }); return; }
 
     // v3.44.3 (ביקורת-קוהרנטיות) — כסף פתוח נבדק ראשון בשיוך-הדלי. קודם הוא נבדק אחרון,
