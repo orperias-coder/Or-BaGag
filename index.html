@@ -7327,6 +7327,18 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
         <div class="ec-arrow">→</div>
       </div>
 
+      <!-- v3.45.0 (שלב 0) — מסך "חסומים מ-WhatsApp" היה מנותק: הכניסה היחידה אליו היא
+           openWaBlocklist(), ולפונקציה הזאת לא היה אף קורא. הפיצ'ר חי ומשמש את צינור-הייבוא
+           (waBlocklist מסונן ב-_waImportProcessJsonText), ולכן חובר מחדש במקום להימחק. -->
+      <div class="entry-card" onclick="openWaBlocklist()">
+        <div class="ec-ico"><iconify-icon icon="mdi:account-cancel-outline" width="26"></iconify-icon></div>
+        <div class="ec-body">
+          <div class="ec-title">חסומים מ-WhatsApp</div>
+          <div class="ec-sub">מי שלא ייקלט כליד</div>
+        </div>
+        <div class="ec-arrow">→</div>
+      </div>
+
       <!-- v3.27.0 (WORKS-05) — המסכים הישנים לא נמחקו, רק ירדו מהתפריט הראשי.
            הכרטיס הזה הוא הדלת אליהם, וגם מציג את בדיקת-הכיסוי שמוכיחה שאף רשומה לא אבדה. -->
       <div class="entry-card" onclick="openOldScreens()">
@@ -7510,42 +7522,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <div class="body" id="analytics-body" style="padding:14px 12px"></div>
   </div>
 
-    <div class="view" id="view-gallery">
-    <div style="background:linear-gradient(135deg,#2A1F12 0%,#4A3418 100%);padding:0;flex-shrink:0;position:relative;overflow:hidden">
-      <!-- texture -->
-      <div style="position:absolute;inset:0;opacity:.06;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:8px 8px;pointer-events:none"></div>
-
-      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;position:relative;z-index:1">
-        <button class="back" aria-label="חזרה" onclick="goBack()" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);color:#fff;width:42px;height:42px;border-radius:11px;font-size:20px;cursor:pointer">→</button>
-        <div style="flex:1">
-          <div style="font-size:18px;font-weight:800;color:#F7EAD0;letter-spacing:0;display:flex;align-items:center;gap:8px;font-family:var(--serif,'Frank Ruhl Libre',Georgia,serif)"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-gallery"/></svg> תיק עבודות</div>
-          <div style="font-size:11px;color:rgba(247,234,208,.6);font-weight:600" id="gallery-header-sub">—</div>
-        </div>
-        <!-- v3.25.4 (R4/NEWUSER-02) — עוגן "איפה אני" חסר במסך הזה (כותרת-בהתאמה-אישית, בלי .topbar/.ico רגילים) — אותו כפתור-☰, בסגנון-הכותרת הכהה של המסך הזה. -->
-        <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);color:#fff;width:42px;height:42px;border-radius:11px;flex-shrink:0"><iconify-icon icon="mdi:menu"></iconify-icon></button>
-      </div>
-
-      <!-- Hero — תמונות מפרויקטים אחרונים -->
-      <div id="gallery-hero" style="padding:0 16px 14px;position:relative;z-index:1">
-        <!-- yfille by JS -->
-      </div>
-    </div>
-
-    <div class="body" style="padding:14px 12px">
-      <!-- לשוניות -->
-      <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch">
-        <button class="gallery-tab on" data-tab="featured" onclick="_switchGalleryTab('featured')"><svg class="obi" width="15" height="15" aria-hidden="true"><use href="#ic-star"/></svg> נבחרות</button>
-        <button class="gallery-tab" data-tab="categories" onclick="_switchGalleryTab('categories')"><svg class="obi" width="15" height="15" aria-hidden="true"><use href="#ic-folder"/></svg> קטגוריות</button>
-        <button class="gallery-tab" data-tab="projects" onclick="_switchGalleryTab('projects')"><svg class="obi" width="15" height="15" aria-hidden="true"><use href="#ic-projects"/></svg> פרויקטים</button>
-        <button class="gallery-tab" data-tab="all" onclick="_switchGalleryTab('all')"><svg class="obi" width="15" height="15" aria-hidden="true"><use href="#ic-gallery"/></svg> הכל</button>
-      </div>
-
-      <div id="gallery-tab-content"></div>
-    </div>
-  </div>
-
-    <!-- v3.21.55 — view-archive-detail removed; the editorial item-detail mode replaces it -->
-
+    <!-- v3.45.0 (שלב 0) — view-gallery הוסר: לא היה לו שום show/push, ושלושת הכפתורים
+         שנראו כמו כניסה קוראים ל-openMainGallery() שמרנדרת למודאל. הגלריה עצמה חיה. -->
   <!-- ═══════════════════════════════════════════
        VIEW: DAY SUMMARY (v3.9.55) — מסך אחד, שני מצבים
        ערב (🌙): מה היה היום · בוקר (☀️): מה צריך היום
@@ -7788,7 +7766,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.44.5'; // עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.45.0'; // שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -13229,15 +13207,6 @@ function gdriveRenderSettingsCard(){
 
 // קריאת תוכן מוטמע מ-script tag (CHANGELOG.md / archive / templates)
 // אם הוא בקידוד base64 (data-encoding="base64") — מפענחים אוטומטית
-function _readEmbedded(id){
-  const el = document.getElementById(id);
-  if(!el) return '';
-  const raw = el.textContent.trim();
-  if(el.dataset && el.dataset.encoding === 'base64'){
-    return _base64ToUtf8(raw);
-  }
-  return raw;
-}
 
 // המרת UTF-8 string ל-base64 (תומך בעברית)
 function _utf8ToBase64(str){
@@ -16857,10 +16826,10 @@ function wz4AddInteriorPhoto(){
   }, true);
 }
 function wz4PickInteriorFromGallery(){
-  pickPhoto(async (data, dataFull)=>{
+  pickPhoto(async (data, dataFull, meta)=>{
     const v = getVisit(); if(!v) return;
     if(!Array.isArray(v.interiorMoisturePhotos)) v.interiorMoisturePhotos=[];
-    const ph = await _makeVisitPhoto(data, dataFull, `visit-${v.id}-interior`, {note:""});
+    const ph = await _makeVisitPhoto(data, dataFull, `visit-${v.id}-interior`, {note:"", ..._photoMetaFields(meta)});
     v.interiorMoisturePhotos.push(ph);
     v.noInteriorMoisture = false;
     v.updatedAt=ts(); saveAll(true); wz4Render();
@@ -17852,11 +17821,11 @@ function findingAddPhoto(){
   }, true);
 }
 function findingPickFromGallery(){
-  pickPhoto(async (data, dataFull)=>{
+  pickPhoto(async (data, dataFull, meta)=>{
     if(!_activeFinding) return;
     if(!Array.isArray(_activeFinding.photos)) _activeFinding.photos=[];
     const v = getVisit();
-    const ph = await _makeVisitPhoto(data, dataFull, `finding-${(v&&v.id)||'x'}-${_activeFinding.id||'f'}`, {});
+    const ph = await _makeVisitPhoto(data, dataFull, `finding-${(v&&v.id)||'x'}-${_activeFinding.id||'f'}`, _photoMetaFields(meta));
     _activeFinding.photos.push(ph);
     if(v){ v.updatedAt=ts(); saveAll(true); } // v3.22.10 — bump updatedAt so the gallery-added finding photo syncs to other devices
     findingRender();
@@ -17884,12 +17853,6 @@ function findingDeletePhoto(i){
   };
   if(typeof confirmAction === 'function'){ confirmAction({ title:'מחיקת תמונה', msg:'למחוק את התמונה?', ok:'מחק', okCls:'btn-red', cb:_doDel }); return; }
   _doDel();
-}
-function _findingDeletePhotoLegacy(i){
-  if(!_activeFinding) return;
-  _activeFinding.photos.splice(i,1);
-  const v = getVisit(); if(v){ v.updatedAt=ts(); saveAll(true); } // v3.22.10 — bump updatedAt so the deletion syncs to other devices (else _itemSig unchanged → never re-pushed)
-  findingRender();
 }
 function findingDelete(){
   const v = getVisit(); if(!v) return;
@@ -19517,11 +19480,25 @@ function _workOf(kind, id){
 function getWork(workId){ return _workOf('work', workId); }
 
 /* לקוח העבודה — הראשון שנמצא, בסדר-אמינות יורד. */
+/* v3.45.0 (ביקורת-קוהרנטיות) — ליד בלי linkedClientId הפך ל"עבודה מרחפת", ולכן אותו
+   אדם הופיע פעמיים ברשימת-הלקוחות: פעם ככרטיס-לקוח ופעם כשורה נפרדת של הליד. זו תלונה
+   מפורשת של אור ("יולון לוי מופיע גם בארכיון וגם במגעים").
+   הפתרון הוא **שיוך-תצוגה בלבד לפי טלפון מנורמל** — לא מיזוג ולא כתיבה: שום רשומה לא
+   משתנה, ואם הקישור שגוי הוא נעלם ברגע שהטלפון מתוקן. התאמה לפי טלפון היא אותו קריטריון
+   שאור כבר אישר למיזוג-הטלפונים (v3.38.0); שם-דומה נשאר ידני בכוונה. */
+function _leadResolvedClientId(l){
+  if(!l) return null;
+  if(l.linkedClientId && (S.clients || []).some(c => c.id === l.linkedClientId)) return l.linkedClientId;
+  const ph = typeof _normPhoneClient === 'function' ? _normPhoneClient(l.phone) : '';
+  if(!ph || ph.length < 9) return null;                 // מספר חלקי לא מזהה אף אחד
+  const hit = (S.clients || []).find(c => !c.mergedIntoId && _normPhoneClient(c.phone) === ph);
+  return hit ? hit.id : null;
+}
 function _workClientId(w){
   const p = w.projects.find(x => x.clientId);           if(p) return p.clientId;
   const v = w.visits.find(x => x.clientId);             if(v) return v.clientId;
   const q = w.quotes.find(x => x.clientId);             if(q) return q.clientId;
-  if(w.lead && w.lead.linkedClientId) return w.lead.linkedClientId;
+  if(w.lead) { const rid = _leadResolvedClientId(w.lead); if(rid) return rid; }
   return null;
 }
 
@@ -19809,42 +19786,6 @@ function _workRowHtml(w){
 /* שם ישן נשמר: קוראים אחרים (כרטיס-האדם) ממשיכים לעבוד בלי שינוי */
 function _workCardHtml(w){ return _workRowHtml(w); }
 
-function _workCardHtmlLegacy(w){
-  const when  = w.updatedAt ? _humanTimeAgo(Date.now() - w.updatedAt) : '';
-  const photo = _workPhoto(w);
-  const nPh   = _workPhotoCount(w);
-  const alert = _workAlert(w);
-  const addr  = _workAddress(w);
-  const done  = w.stage === 'done';
-
-  const heroHtml = (photo && photo.url)
-    ? `<div class="wk-hero" style="background-image:url('${photo.url}')"></div>`
-    : `<div class="wk-hero wk-hero-fallback"${photo && photo.blobKey ? ` data-bg-blob-key="${esc(photo.blobKey)}"` : ''}>
-         <span class="wk-hero-line"></span><span class="wk-hero-arc"></span></div>`;
-
-  return `
-    <button class="wk-card${alert ? ' has-alert a-'+alert.cls : ''}${done ? ' is-done' : ''}" onclick="openWork('${_jsAttr(w.id)}')">
-      <div class="wk-hero-wrap">
-        ${heroHtml}
-        <div class="wk-hero-veil"></div>
-        <div class="wk-hero-txt">
-          <div class="wk-name">${esc(_workClientName(w))}</div>
-          ${addr ? `<div class="wk-addr"><iconify-icon icon="mdi:map-marker-outline" width="12"></iconify-icon> ${esc(addr)}</div>` : ''}
-        </div>
-        ${nPh > 0 ? `<span class="wk-hero-badge">${nPh} ${nPh===1?'תמונה':'תמונות'}</span>` : ''}
-        ${done ? `<span class="wk-hero-done"><iconify-icon icon="mdi:check-bold" width="13"></iconify-icon> נגמר</span>` : ''}
-      </div>
-      <div class="wk-body">
-        <div class="wk-what">${esc(w.title === _workClientName(w) ? _workStageLabel(w) + ' — ' + (_workPhone(w) || 'ללא טלפון') : w.title)}</div>
-        ${alert ? `<div class="wk-alert t-${alert.tone}">${esc(alert.label)}</div>` : ''}
-        ${_workStagesHtml(w)}
-        <div class="wk-foot">
-          <span class="wk-when">${esc(when)}</span>
-          ${alert && alert.tone === 'due' ? '' : _workAmountHtml(w)}
-        </div>
-      </div>
-    </button>`;
-}
 
 /* v3.27.0 (WORKS-09) — "המון פרויקטים שכבר נסגרו ועדיין מופיעים" היה אחד משלושת הדברים
    שאור אמר עליהם שהאפליקציה עמוסה. מסך-הבית מציג לכן רק עבודות **חיות**: כל מה שלא נגמר,
@@ -19981,7 +19922,6 @@ function setWorksQuery(v){
   const el = document.getElementById('wk-search-input');
   if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
-function openWorks(){ _worksQuery = ''; push('works'); renderWorks(); }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    v3.43.0 (שיקום שלב 3) — מסך "היום"
@@ -20210,7 +20150,6 @@ function _todayOpenChat(workId){
   if(!phone){ toast('אין טלפון לעבודה הזאת'); openWork(workId); return; }
   openWhatsApp(phone);
 }
-function openToday(){ push('today'); renderToday(); }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    v3.29.0 (QUOTE-WIN) — איזו הצעה הפכה לפרויקט.
@@ -21585,9 +21524,6 @@ function mergeClients(primaryId, secondaryId){
 }
 
 // Given a merged (hidden) client id, find the primary holding its mergedFrom archive entry.
-function findMergedClientOwner(secondaryId){
-  return (S.clients || []).find(c => Array.isArray(c.mergedFrom) && c.mergedFrom.some(m => m.id === secondaryId)) || null;
-}
 
 // Undo a merge, restoring the secondary as an independent client again: links move back, fields
 // filled by the merge (and left untouched since) revert to empty, and the archive entry is
@@ -21616,6 +21552,13 @@ function unmergeClient(secondaryId){
 
   // 2) Revert fields the merge filled in — but only if nothing has changed them since (a manual
   // edit made after the merge is never silently destroyed by an undo).
+  // v3.45.0 (ביקורת-קוהרנטיות) — הניקוי כאן היה ישיר על האובייקט, ולכן ניקה את הכרטיס
+  // אבל לא את המראות של השדות על הביקורים/הפרויקטים (v.phone, p.clientPhone). התוצאה
+  // שנמדדה: אחרי ביטול-מיזוג הכרטיס הציג טלפון ריק בעוד הביקור הציג את המספר של האדם
+  // האחר. עכשיו אוספים את מה שנוקה בפועל ומעבירים דרך _writeClientThrough — נקודת-הכתיבה
+  // היחידה שמפיצה גם למראות. בשלב זה ביקורי-המשני כבר הוחזרו אליו (שלב 1), ולכן
+  // ההפצה נוגעת רק ברשומות שבאמת נשארו על הראשי.
+  const revertUpdates = {};
   (meta.filledFields || []).forEach(field => {
     if(field === 'tags'){
       const same = Array.isArray(primary.tags) && Array.isArray(entry.tags) &&
@@ -21623,9 +21566,15 @@ function unmergeClient(secondaryId){
       if(same) primary.tags = [];
       return;
     }
-    if(primary[field] === entry[field]) primary[field] = '';
+    if(primary[field] === entry[field]){
+      primary[field] = '';
+      if(field === 'clientName' || field === 'phone' || field === 'address') revertUpdates[field] = '';
+    }
   });
   primary.updatedAt = ts();
+  if(Object.keys(revertUpdates).length && typeof _writeClientThrough === 'function'){
+    _writeClientThrough(primary.id, revertUpdates);
+  }
 
   // 3) Restore the secondary's visibility.
   delete secondary.mergedIntoId;
@@ -22665,27 +22614,6 @@ function _clientChipHtml(clientId){
   return _personHtml(m, 'chip');
 }
 
-function _clientChipHtmlLegacy(clientId){
-  if(!clientId) return '';
-  const c = getClient(clientId);
-  if(!c) return '';
-  const visitCount = getClientVisits(c.id).length;
-  const projectCount = getClientProjects(c.id).length;
-  const counts = [];
-  if(visitCount) counts.push(`${visitCount} ביקור${visitCount>1?'ים':''}`);
-  if(projectCount) counts.push(`${projectCount} פרויקט${projectCount>1?'ים':''}`);
-  const countText = counts.length ? ' · ' + counts.join(' · ') : '';
-  return `
-    <div onclick="openClientDetail('${esc(c.id)}')" style="margin:0 0 12px;padding:10px 14px;background:var(--ink3);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent">
-      <iconify-icon icon="mdi:card-account-details-outline" width="18" style="color:#7a5230;flex-shrink:0"></iconify-icon>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:11px;color:rgba(94,58,24,.7);font-weight:700">לכרטיס הלקוח</div>
-        <div style="font-size:13px;font-weight:800;color:#3d2812;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.clientName)}${esc(countText)}</div>
-      </div>
-      <iconify-icon icon="mdi:arrow-left" width="18" style="color:#7a5230;flex-shrink:0"></iconify-icon>
-    </div>
-  `;
-}
 
 function cdMenu(){
   if(typeof openMo !== 'function') return;
@@ -23194,17 +23122,6 @@ function openFinanceView(){
 
 // v3.21.64 — entry from the cockpit "חשבונית" tile: open finance and bring the
 // invoices-to-issue section into view with a brief highlight (mirrors goLeadsFollowUp).
-function goFinanceInvoices(){
-  openFinanceView();
-  setTimeout(() => {
-    const el = document.querySelector('#finance-body .fin-inv');
-    if(!el) return;
-    try{ el.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){ el.scrollIntoView(); }
-    el.style.transition = 'box-shadow .4s';
-    el.style.boxShadow = '0 0 0 3px var(--gold-l), 0 6px 20px rgba(168,123,46,.18)';
-    setTimeout(() => { el.style.boxShadow = ''; }, 1400);
-  }, 120);
-}
 
 // v3.14.4 — finance UX helpers
 function openFinanceHelp(){
@@ -24594,7 +24511,7 @@ function ldUpdate(field, value){
 }
 
 function ldAddPhoto(fromCamera){
-  takePhoto(async (data, dataFull) => {
+  takePhoto(async (data, dataFull, meta) => {
     const l = getLead();
     if(!l) return;
     if(!l.photos) l.photos = [];
@@ -24602,7 +24519,7 @@ function ldAddPhoto(fromCamera){
     // mediaPut, only a small thumb (+blobKey) stays in state/localStorage/cloud-sync. Reuses
     // _makeVisitPhoto as-is (it's generic on keyPrefix) so the contract is byte-for-byte identical.
     const ph = (typeof _makeVisitPhoto === 'function')
-      ? await _makeVisitPhoto(data, dataFull, `lead-${l.id}`, {})
+      ? await _makeVisitPhoto(data, dataFull, `lead-${l.id}`, _photoMetaFields(meta))
       : { id: uid(), data, dataFull: dataFull || data, ts: ts() };   // IDB unavailable — legacy fallback
     l.photos.push(ph);
     l.updatedAt = ts();
@@ -26549,7 +26466,6 @@ function _ucHebLetter(n){
   return tens[t] + ones[o];
 }
 // Legacy alias for any code that still calls Roman (kept until full sweep).
-function _ucRoman(n){ return _ucHebLetter(n); }
 
 function _ucRenderTopbar(){
   const topbar = document.querySelector('#view-catalog .topbar');
@@ -31469,6 +31385,19 @@ const VISIT_PHOTO_STORAGE_VERSION = 1;
 // Capture: turn freshly-compressed (data, dataFull) into a photo object that stores full-res
 // in IDB and keeps only a tiny thumb in S. Falls back to inline base64 if IDB is unavailable
 // (same contract as pdv2HandleMultiFiles). `extra` merges extra fields (e.g. {note:''}).
+/* v3.45.0 (תנאי-סף לשיוך-תמונות-לפי-יום) — `extra` יכול לכלול מעכשיו גם capturedAt:
+   זמן-הצילום האמיתי מתוך ה-EXIF, להבדיל מ-ts שהוא זמן-ההעלאה. בלי זה אי-אפשר לקבץ
+   "כל התמונות מיום שלישי", כי כל התמונות של אותו ערב-עבודה נראות כאילו צולמו יחד.
+   _extractPhotoMeta כבר קרא את הנתון — הוא פשוט נזרק ב-10 מתוך 11 אתרי-הקליטה. */
+/* v3.45.0 — מה שנשמר מתוך ה-EXIF. רק capturedAt נשמר בברירת-מחדל; GPS נשמר רק אם
+   הוא קיים, כדי לא לנפח כל תמונה בשדות ריקים. */
+function _photoMetaFields(meta){
+  if(!meta) return {};
+  const out = {};
+  if(meta.capturedAt) out.capturedAt = meta.capturedAt;
+  if(meta.gps && meta.gps.lat && meta.gps.lng) out.gps = { lat: meta.gps.lat, lng: meta.gps.lng };
+  return out;
+}
 async function _makeVisitPhoto(data, dataFull, keyPrefix, extra){
   const id = (typeof uid==='function') ? uid() : String(Date.now()+Math.random());
   const photo = Object.assign({ id, ts:(typeof ts==='function'?ts():Date.now()) }, extra||{});
@@ -31946,22 +31875,6 @@ function pdv2GalleryAutoDistribute(){
 }
 // v3.22.37 (ביקורת C5#17) — ביטול הסידור-האוטומטי האחרון (משחזר את ה-snapshot).
 let _pdv2DistUndo = null;
-function pdv2GalleryUndoDistribute(){
-  if(!_pdv2DistUndo) { if(typeof toast==='function') toast('אין סידור לבטל'); return; }
-  const p = (typeof getProject === 'function') ? getProject() : null;
-  if(!p || p.id !== _pdv2DistUndo.id){ _pdv2DistUndo = null; return; }
-  p.progressPhotos = p.progressPhotos || {};
-  p.progressPhotos.before = _pdv2DistUndo.before.slice();
-  p.progressPhotos.during = _pdv2DistUndo.during.slice();
-  p.progressPhotos.after  = _pdv2DistUndo.after.slice();
-  // רענון שדות-phase לפי המיקום המשוחזר
-  ['before','during','after'].forEach(phz => p.progressPhotos[phz].forEach(ph => { if(ph && typeof ph==='object') ph.phase = phz; }));
-  p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
-  _pdv2DistUndo = null;
-  if(typeof _saveAllNow === 'function') _saveAllNow(true); else if(typeof saveAll==='function') saveAll(true);
-  if(typeof renderProjectDetail === 'function') renderProjectDetail();
-  if(typeof toast==='function') toast('↩️ הסידור בוטל');
-}
 function _pdv2GalleryAutoDistributeApply(mode){
   const p = (typeof getProject === 'function') ? getProject() : null;
   if(!p) return;
@@ -32828,38 +32741,6 @@ function _allDuringPhotos(p){
 // back to a time-based split when the user uploaded everything into a single phase tab
 // (the gallery defaults to "during", so this is the common case). Photos without a ts
 // sort to the end. Includes progressPhotos (all 3 phases) + task.photos (any status).
-function _allPhotosByTime(p){
-  const all = [];
-  const _pushItem = ph => {
-    const item = _photoItemFrom(ph);
-    if(item){
-      item.ts = (typeof ph === 'object' && ph && ph.ts) || 0;
-      all.push(item);
-    }
-  };
-  const pp = p.progressPhotos;
-  if(pp && !Array.isArray(pp)){
-    for(const phase of ['before','during','after']){
-      for(const ph of (pp[phase] || [])) _pushItem(ph);
-    }
-  }
-  for(const t of (p.tasks || [])){
-    if(Array.isArray(t.photos)){
-      for(const ph of t.photos) _pushItem(ph);
-    }
-  }
-  // Dedupe by blobKey or thumb so the same photo isn't counted twice
-  const seen = new Set();
-  const uniq = [];
-  for(const it of all){
-    const key = it.blobKey || it.thumb;
-    if(!key || seen.has(key)) continue;
-    seen.add(key);
-    uniq.push(it);
-  }
-  uniq.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-  return uniq;
-}
 
 function openProjectClosure(projectId){
   S.activeProjectId = projectId || S.activeProjectId;
@@ -32921,18 +32802,6 @@ function _closureAddBullet(kind){
   }, 50);
 }
 
-function _closureResetBullets(){
-  const p = getProject(); if(!p) return;
-  confirmAction({ title:'איפוס bullets', msg:'לאפס את ה-bullets לברירת מחדל אוטומטית? כל העריכות שלך יימחקו.', ok:'אפס', okCls:'btn-gold', cb:function(){
-    p.closure = {
-      qualityBullets: _autoQualityBullets(p),
-      maintenanceBullets: _autoMaintenanceBullets(p),
-      generatedAt: ts(),
-    };
-    saveAll(true);
-    renderProjectClosure();
-  }});
-}
 
 // v3.21.32 — closure CTA: open the gallery sheet in edit mode, pre-targeted at the phase
 // the user wants to populate. They can then tap "✏️ עריכה", select photos, and use the
@@ -33742,19 +33611,6 @@ function shareProjectClosureWA(){
 }
 
 // Legacy text-only share (kept for the copy button fallback)
-function shareProjectClosureTextWA(){
-  const p = getProject();
-  if(!p){ toast('פרויקט לא נמצא'); return; }
-  const phone = p.clientPhone || (p.clientId && (typeof getClient === 'function') && (getClient(p.clientId)?.phone)) || '';
-  const text = _buildClosureText();
-  if(!text){ toast('אין תוכן לשליחה'); return; }
-  if(typeof openWhatsApp === 'function' && phone){
-    openWhatsApp(phone, text);
-  } else {
-    const url = 'https://wa.me/' + (phone || '') + '?text=' + encodeURIComponent(text);
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-}
 
 // v3.21.43 — Build a standalone HTML file with the full deck and ALL photos inlined
 // as data URLs. Customer opens it in any browser (no internet needed) and sees the
@@ -37552,16 +37408,6 @@ function _t17AppendFinished(entity, summary){
   cu.finishedLog.sort((a,b) => (b.sentAt||0) - (a.sentAt||0));
   return cu.finishedLog;
 }
-function _t17FinishedLog(entity){
-  const cu = (entity && entity.clientUpdates) || {};
-  if(Array.isArray(cu.finishedLog) && cu.finishedLog.length) return cu.finishedLog;
-  // רשומות מלפני v3.27.0 מחזיקות רק את התא היחיד — מוצג כשורה אחת, בלי מיגרציה כותבת.
-  if(cu.finished && cu.finished.sentAt){
-    return [{ day: localDateStr(cu.finished.sentAt),
-              sentAt: cu.finished.sentAt, summary: cu.finished.summary || '' }];
-  }
-  return [];
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    v3.27.0 (WORKS-03) — שלוש הפעולות שאור אישר ומעולם לא נבנו:
@@ -38534,6 +38380,7 @@ async function qBuildPhotoReport(lang='he'){
     docTitle:'Quote with Photos', barTitle:'Quote with Photos',
     dateLabel:'Date', itemsLabel:'items', qty:'Qty', price:'Price',
     notes:'Notes', unforeseen:'Note — Unforeseen Work', summary:'Summary', subtotal:'Subtotal', discount:'Discount', afterDiscount:'After discount', vat:'VAT',
+    protection:'General Terms', advance:'Advance payment', qtHeader:'Quote', validUntil:'Valid until',   // v3.45.0 — עקביות מול המסמך הראשי
     total:'Total due', itemFallback:'Item', savePdf:'Save PDF',
     urgHigh:'🔴 Critical', urgMed:'🟡 Required', urgLow:'🟢 Recommended',
     waMsg:`Hello, please find attached our quote with photos from ${(S.business||{}).businessName||'Or BaGag'}.`,
@@ -38542,6 +38389,7 @@ async function qBuildPhotoReport(lang='he'){
     docTitle:'הצעה עם תמונות', barTitle:'הצעה עם תמונות',
     dateLabel:'תאריך', itemsLabel:'סעיפים', qty:'כמות', price:'מחיר',
     notes:'הערות', unforeseen:'הבהרה — עבודות בלתי-צפויות', summary:'סיכום', subtotal:'סה"כ לפני מע"מ', discount:'הנחה', afterDiscount:'סה"כ לאחר הנחה', vat:'מע"מ',
+    protection:'תנאים כלליים', advance:'מקדמה', qtHeader:'הצעת מחיר', validUntil:'בתוקף עד',   // v3.45.0 — עקביות מול המסמך הראשי
     total:'סה"כ לתשלום', itemFallback:'סעיף', savePdf:'שמור PDF',
     urgHigh:'🔴 קריטי', urgMed:'🟡 נדרש', urgLow:'🟢 מומלץ',
     waMsg:`שלום, מצורפת הצעת מחיר עם תמונות מ${(S.business||{}).businessName||'אור בגג'}.`,
@@ -38614,6 +38462,28 @@ async function qBuildPhotoReport(lang='he'){
       <div style="font-size:14px;color:#5a4a3a;line-height:1.7;white-space:pre-wrap">${e(_uc.text)}</div>
     </div>` : '';
 
+  /* v3.45.0 (בדיקת-עקביות-מסמכים) — מסמך-התמונות הוא הצעה שאור שולח ללקוח, אבל נבנה
+     בנפרד ולכן חסרו בו ארבעה דברים שיש במסמך הרגיל: מספר-ההצעה, תאריך-התוקף,
+     סעיף-ההגנה הקבוע ושורת-המקדמה. הפער הזה משמעותי מסחרית — הצעה בלי תוקף פתוחה
+     לנצח, והצעה בלי סעיף-ההגנה משאירה את אור חשוף. נגזר מאותם מקורות בדיוק
+     (QUOTE_PROTECTION_CLAUSE · q.validityDays · האחוז שבתוך q.paymentTerms). */
+  const _prValidUntil = new Date(Date.now() + (q.validityDays || 30) * 86400000);
+  const _prAdvPct = (() => { const m = String(q.paymentTerms || '').match(/(\d{1,3})\s*%/); const n = m ? parseInt(m[1], 10) : 0; return (n > 0 && n < 100) ? n : 0; })();
+  const protectionHtml = `
+    <div style="margin-top:16px;background:#faf7f2;border:1px solid #e5ddd0;border-radius:12px;padding:16px 20px">
+      <div style="font-size:13px;font-weight:800;color:#9a7c5e;margin-bottom:8px;letter-spacing:.3px">${PL.protection || 'תנאים כלליים'}</div>
+      <div style="font-size:14px;color:#5a4a3a;line-height:1.7;white-space:pre-wrap">${e(QUOTE_PROTECTION_CLAUSE)}</div>
+    </div>`;
+  const advanceRowHtml = _prAdvPct
+    ? `<div style="display:flex;justify-content:space-between;font-size:14px;color:#5a4a3a;padding-top:8px">
+         <span>${PL.advance || 'מקדמה'} ${_prAdvPct}%</span><strong>${fmt(A.grandTotal * _prAdvPct / 100)} ₪</strong>
+       </div>` : '';
+  const quoteMetaHtml = `
+    <div style="font-size:13px;color:#7a6a58;margin-top:6px">
+      ${q.quoteCode ? `${PL.qtHeader || 'הצעת מחיר'} #${e(q.quoteCode)}` : ''}
+      ${q.quoteCode ? ' · ' : ''}<span style="color:#b8482e;font-weight:700">${PL.validUntil || 'בתוקף עד'} ${_prValidUntil.toLocaleDateString(PL.locale)}</span>
+    </div>`;
+
   let waPhone = String(q.clientPhone || sourceVisit?.phone || '').replace(/[^\d]/g, '');
   if(waPhone.startsWith('0')) waPhone = '972' + waPhone.slice(1);
   else if(waPhone && !waPhone.startsWith('972') && waPhone.length === 9) waPhone = '972' + waPhone;
@@ -38640,6 +38510,7 @@ async function qBuildPhotoReport(lang='he'){
           <div style="font-size:20px;font-weight:900">${e(clientName||'')}</div>
           ${address?`<div style="color:#9a7c5e;margin-top:4px">📍 ${e(address)}</div>`:''}
           <div style="color:#9a7c5e;margin-top:4px;font-size:13px">${PL.dateLabel}: ${today} · ${visibleItems.length} ${PL.itemsLabel}</div>
+          ${quoteMetaHtml}
         </div>
       </div>
       ${itemsHtml}
@@ -38653,9 +38524,11 @@ async function qBuildPhotoReport(lang='he'){
         <div style="display:flex;justify-content:space-between;font-size:20px;font-weight:900;border-top:1px solid #4a3a2a;padding-top:12px;margin-top:6px">
           <span style="color:#e89a3c">${PL.total}</span><span style="color:#e89a3c">${fmt(grand)} ₪</span>
         </div>
+        ${advanceRowHtml ? advanceRowHtml.replace('color:#5a4a3a','color:#c8b89a') : ''}
       </div>
       ${notesSectionHtml}
       ${unforeseenHtml}
+      ${protectionHtml}
       <div style="text-align:center;margin-top:24px;font-size:12px;color:#baa98a;line-height:1.6">
         ${e(b.businessName||'')} ${b.phone?`· ${e(b.phone)}`:''} ${b.email?`· ${e(b.email)}`:''}
       </div>
@@ -38690,17 +38563,6 @@ function vdMenu(){
 }
 
 
-function editCurrentVisit(){
-  const v = getVisit();
-  if(!v){ toast('אין ביקור פעיל'); return; }
-  // Make sure no other modal is in the way
-  closeMo();
-  // Open the wizard for this visit
-  S.activeVisitId = v.id;
-  S.wz = { step: 1 };
-  push('wizard');
-  wzRender();
-}
 
 
 function pdViewPhoto_interior(i){
@@ -38758,11 +38620,6 @@ function wazeNavigateVisit(visitId){
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-function openWaze(address){
-  closeMo();
-  const url = `https://waze.com/ul?q=${encodeURIComponent(address)}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-}
 
 // V2.5 — open WhatsApp chat with phone (auto-converts to international format)
 
@@ -40729,14 +40586,14 @@ function markArrivedManually(){
 // מפתח משלו. הקידומת מכוונת לא להיקלט ע"י סורק-השחזור של תמונות-פרויקט, שמפרש מפתחות
 // בתבנית `proj-<id>-<phase>-<photoId>` (29758) — `quote-...` לא מתאים לה.
 function qItemAddPhoto(idx){
-  takePhoto(async (data, dataFull) => {
+  takePhoto(async (data, dataFull, meta) => {
     const q = getQuote();
     if(!q) return;
     const it = q.items && q.items[idx];
     if(!it || it.isDiscountLine) return;                 // קו-הנחה אינו סעיף — אין לו תמונה
     const itemId = it.id;                                // v3.30.0 — לוכדים id, לא idx:
     if(!Array.isArray(it.attachedPhotos)) it.attachedPhotos = [];   // הסדר יכול להשתנות תוך כדי
-    const ph = await _makeVisitPhoto(data, dataFull, `quote-${q.id}-item-${itemId}`, {});
+    const ph = await _makeVisitPhoto(data, dataFull, `quote-${q.id}-item-${itemId}`, _photoMetaFields(meta));
     // מוצאים מחדש לפי id — qItemMove/qInsertItemAt יכולים היו להזיז את השורה בזמן ההמתנה
     const live = (q.items||[]).find(x => x && x.id === itemId);
     if(!live) return;
@@ -41194,12 +41051,12 @@ function fmRevertCalc(){
 // Photo add — split between camera (true) and gallery (false). Re-render allowed (visible action).
 
 function fmAddPhoto(fromCamera){
-  takePhoto(async (data, dataFull) => {
+  takePhoto(async (data, dataFull, meta) => {
     const f = currentDraft;
     if(!f) return;
     if(!Array.isArray(f.photos)) f.photos=[];
     const v = getVisit();
-    const ph = await _makeVisitPhoto(data, dataFull, `finding-${(v&&v.id)||'x'}-${f.id||'f'}`, {});
+    const ph = await _makeVisitPhoto(data, dataFull, `finding-${(v&&v.id)||'x'}-${f.id||'f'}`, _photoMetaFields(meta));
     f.photos.push(ph);
     // Push to v.findings if title is already set (and was draft)
     fmEnsureInFindings();
@@ -42707,7 +42564,6 @@ const WORK_TYPE_ICONS = {
   'החלפת סנטף bh':               '🔩',
   'החלפת סנטף רגיל':             '🔩',
 };
-function _workTypeIcon(name){ return WORK_TYPE_ICONS[name] || WORK_TYPE_ICONS[(name||'').toLowerCase()] || '🔧'; }
 // v3.21.55 — renderArchive / openArchiveDetail / renderArchiveDetail / archiveEditMode / archiveSave
 // removed. The editorial Phase-2 catalog (renderCatalog router) replaces them. The
 // detail-view entry point is openWorkTypeFromName, which now deep-links into mode=item.
@@ -43215,52 +43071,7 @@ function pdSaveWorkDay(){
 }
 
 // ─── DEBUG FUNCTIONS (temp) ───
-function debugShowVisitData(){
-  const v = S.visits[0];
-  if(!v){ toast('אין ביקורים'); return; }
-  const data = {
-    clientName: v.clientName,
-    phone: v.phone,
-    address: v.address,
-    interiorPhotos: (v.interiorMoisturePhotos||[]).length,
-    outsidePhotos: (v.outsidePhotos||[]).length,
-    roofPhotos: (v.roofPhotos||[]).length,
-    roofPhoto: !!v.roofProfile?.roofPhoto,
-    slopePhoto: !!v.roofProfile?.slopePhoto,
-    slopeAngle: v.roofProfile?.slopeAngle,
-    findings: (v.findings||[]).map(f=>({
-      title: f.title,
-      photos: (f.photos||[]).length,
-      price: f.priceEstimate
-    }))
-  };
-  const el = document.getElementById('debug-output-area');
-  if(el){ el.style.display='block'; el.textContent = JSON.stringify(data, null, 2); }
-}
 
-function debugShowProjectData(){
-  const p = S.projects[0];
-  if(!p){ toast('אין פרויקטים'); return; }
-  const data = {
-    clientName: p.clientName,
-    clientPhone: p.clientPhone,
-    clientAddress: p.clientAddress,
-    sourceVisitId: p.sourceVisitId,
-    beforePhotos: (p.progressPhotos?.before||[]).length,
-    duringPhotos: (p.progressPhotos?.during||[]).length,
-    afterPhotos: (p.progressPhotos?.after||[]).length,
-    tasks: (p.tasks||[]).map(t=>({
-      name: t.name,
-      photos: (t.photos||[]).length,
-      steps: (t.steps||[]).length,
-      price: t.price
-    })),
-    roofProfile: p.roofProfile ? 'קיים' : 'חסר',
-    notes: p.notes ? p.notes.substring(0,50) : ''
-  };
-  const el = document.getElementById('debug-output-area');
-  if(el){ el.style.display='block'; el.textContent = JSON.stringify(data, null, 2); }
-}
 
 // v3.9.82 — IndexedDB media stats (count + size of stored photo Blobs)
 async function debugShowStorageStats(){
@@ -43780,73 +43591,8 @@ function scheduleDailyNotification(){
 function checkAndShowDailySummary(){ /* disabled */ }
 
 // ── חישוב נתוני יום ─────────────────────────────────────
-function calcTodayStats(){
-  const today = new Date().toDateString();
-  const visits = (S.visits||[]).filter(v=>{
-    const d = new Date(v.updatedAt||v.createdAt||0);
-    return d.toDateString()===today;
-  });
-  let stepsToday = 0, photosToday = 0;
-  const activeProjects = (S.projects||[]).filter(p=>p.status!=='done');
-  activeProjects.forEach(p=>{
-    (p.tasks||[]).forEach(t=>{
-      (t.steps||[]).forEach(st=>{
-        if(st.done && st.doneAt && new Date(st.doneAt).toDateString()===today) stepsToday++;
-      });
-    });
-    const allPhotos = [...(p.progressPhotos?.before||[]),...(p.progressPhotos?.during||[]),...(p.progressPhotos?.after||[])];
-    allPhotos.forEach(ph=>{ if(ph.ts && new Date(ph.ts).toDateString()===today) photosToday++; });
-  });
-  return { visits: visits.length, stepsToday, photosToday, activeProjects };
-}
 
 // ── חישוב תחזית פרויקט ──────────────────────────────────
-function calcProjectForecast(p){
-  const tasks = p.tasks||[];
-  const totalSteps = tasks.reduce((s,t)=>s+(t.steps||[]).length, 0);
-  const doneSteps  = tasks.reduce((s,t)=>s+(t.steps||[]).filter(st=>st.done).length, 0);
-  const remSteps   = totalSteps - doneSteps;
-  const pct        = totalSteps > 0 ? Math.round(doneSteps/totalSteps*100) : 0;
-  const rev        = projRevenue(p);
-  const exp        = (p.expenses||[]).reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
-
-  // ממוצע שלבים ליום
-  const stepsPerDay = 3;
-  const daysLeft = remSteps > 0 ? Math.ceil(remSteps / stepsPerDay) : 0;
-  const daysSoFar = totalSteps > 0 ? Math.ceil(doneSteps / stepsPerDay) : 0;
-  const totalDays = daysSoFar + daysLeft;
-
-  // ── תחזית עלות עובדים ──
-  // עלות יומית של כל העובדים בפרויקט + מנהל אם הוגדר
-  const workersIds = (p.workers||[]).map(pw=>pw.id);
-  const businessWorkers = S.business?.workers || S.workers || [];
-  let dailyWorkerCost = 0;
-  businessWorkers.forEach(w=>{
-    if(workersIds.includes(w.id)) dailyWorkerCost += (parseFloat(w.dailyRate)||0);
-  });
-  // אם מוגדר מנהל ב-business
-  const managerRate = parseFloat(S.business?.manager?.dailyRate)||0;
-  if(managerRate > 0) dailyWorkerCost += managerRate;
-
-  // עלות עבודה צפויה לכל הפרויקט
-  const totalWorkerCost = dailyWorkerCost * totalDays;
-  const remainingWorkerCost = dailyWorkerCost * daysLeft;
-  const workerCostSoFar = dailyWorkerCost * daysSoFar;
-
-  // רווח עם תחזית עלות עובדים
-  const profit = rev - exp - totalWorkerCost;
-  const profitNoLabor = rev - exp; // ללא עלות עובדים — אם רוצים השוואה
-
-  const endDate = new Date();
-  endDate.setDate(endDate.getDate() + daysLeft);
-  const endStr = daysLeft > 0 ? endDate.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit'}) : 'היום!';
-
-  return {
-    pct, remSteps, daysLeft, daysSoFar, totalDays, endStr,
-    profit, profitNoLabor, rev, exp,
-    dailyWorkerCost, totalWorkerCost, remainingWorkerCost, workerCostSoFar
-  };
-}
 
 // ═══════════════════════════════════════════════════════════════════════
 // מסך סיכום יום — v3.9.55: שלד המסך החדש (view + טוגל)
@@ -45356,7 +45102,7 @@ function _renderGalleryFull(){
       heroEl.innerHTML = `
         <div style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
           ${heroPhotos.map(h=>`
-            <div onclick="S.activeProjectId='${h.projectId}';viewStack=['roofs','gallery','project-detail'];show('project-detail');renderProjectDetail()"
+            <div onclick="S.activeProjectId='${h.projectId}';viewStack=['today','project-detail'];show('project-detail');renderProjectDetail()"
               style="flex-shrink:0;width:200px;height:130px;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;border:1.5px solid rgba(232,154,60,.3)">
               <img src="${esc(h.src)}" data-blob-key="${esc(h.blobKey || '')}" style="width:100%;height:100%;object-fit:cover" alt="">
               <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:14px 10px 8px;color:#fff;font-size:11px;font-weight:700">
@@ -45445,7 +45191,7 @@ function _renderGalleryFull(){
 
     contentEl.innerHTML = projects.map(([pid, data])=>{
       const firstPhoto = data.photos[0];
-      return `<div onclick="S.activeProjectId='${pid}';viewStack=['roofs','gallery','project-detail'];show('project-detail');renderProjectDetail()" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--ink2);border-radius:12px;border:1.5px solid var(--line);margin-bottom:8px;cursor:pointer">
+      return `<div onclick="S.activeProjectId='${pid}';viewStack=['today','project-detail'];show('project-detail');renderProjectDetail()" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--ink2);border-radius:12px;border:1.5px solid var(--line);margin-bottom:8px;cursor:pointer">
         <div style="width:64px;height:64px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--ink3)">
           <img src="${firstPhoto.data}" style="width:100%;height:100%;object-fit:cover" alt="">
         </div>
