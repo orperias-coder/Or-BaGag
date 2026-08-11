@@ -7789,7 +7789,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.50.0'; // תיקון-שורש לכפל-ספירת-כסף: עבודה אחת = מחיר אחד — רק הפרויקט הקנוני (תשלום שנרשם ← הצעה שאושרה ← פעיל ← עדכני) נושא את הכסף, והשני מוצג עם הסבר וכפתור "זו עבודה נפרדת". אישור-הצעה כשכבר יש פרויקט מציע לעדכן אותו במקום לפתוח שני. שלושת מסלולי ההמרה מהצעה-לפרויקט אוחדו לנקודה אחת (_projApplyQuotePricing): ההנחה נפרסת על הסעיפים ואחוז-המע"מ נלקח מההצעה עצמה. הנחה שאבדה בפרויקטים מלפני v3.44.3 משוחזרת בהגירה הפיכה, וההגירות רצות עכשיו גם בשחזור-גיבוי. מסך-הכסף כולל ג'וב שנסגר ולא שולם, כמו כרטיס-הלקוח. נמדד על נתוני-אמת: נחשון 144,550₪ ← 44,800₪.
+const APP_VERSION = '3.53.0'; // המסלול שאור אישר נכנס למסך-הלקוחות: הקבוצות הן תחנות-המסלול (לבירור ← ליצירת קשר ← ביקור מתואם ← לשלוח הצעה ← במעקב ← לתיאום ביצוע ← בביצוע ← גבייה ← נגמר) במקום "דורש טיפול/בביצוע" העמומות. נוסף שלב-הבירור: "מתאים לי / לא מתאים" על כל פנייה חדשה, וכפתור "קדם שלב" בכל שורה עם הפעולה הטבעית של התחנה. כולל 3.52.0 (המסך נקרא לקוחות) ו-3.51.0 (תור-הוואטסאפ).
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7867,6 +7867,7 @@ const S = {
   clientMigrationCompletedAt: null, // v3.19.0 — timestamp of last successful clients migration; null = needs to run
   photoDays: { assigned:{}, dismissed:{} },  // v3.47.0 — שיוך קבוצות-יום; ארבע נגיעות: כאן, _saveAllInner, טעינה, גיבוי
   todayDone: {},        // v3.44.0 — סימוני "טופל" במסך-היום: workId → חותמת. נשמר ונטען (v3.44.1)
+  waDecided: {},        // v3.51.0 — פריטי-וואטסאפ שאור כבר הכריע עליהם: key → {at, action}. לא חוזרים.
   waBlocklist: [],      // v3.10.0 — phones to always skip when importing from WhatsApp ({phone, name, addedAt}[])
   expenses: [],         // V2.5 — per-project expenses
   products: [],         // V2.8 — services catalog (work types with prices + descriptions)
@@ -8672,6 +8673,9 @@ async function _saveAllInner(quiet){
     // אך לא נשמר ולא נטען → כל רענון החזיר את כל מי שאור סימן כטופל. אותה מחלקת-באג
     // בדיוק שתוקנה ל-clients (v3.21.95) ול-workTypeTemplates (v3.22.15).
     if(typeof S.todayDone !== 'undefined') _pairs.push(['todayDone', S.todayDone]);
+    // v3.51.0 — תור-ההכרעות של ייבוא-הוואטסאפ. בלי זה כל רענון היה מציע מחדש
+    // את מי שאור כבר טיפל בו — בדיוק מחלקת-הבאג של todayDone.
+    if(typeof S.waDecided !== 'undefined') _pairs.push(['waDecided', S.waDecided]);
     if(typeof S.photoDays !== 'undefined') _pairs.push(['photoDays', S.photoDays]);
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
@@ -10718,7 +10722,9 @@ async function waImportFromUrlBoot(){
   try{
     const r = await fetch(url);
     if(!r.ok) throw new Error('HTTP ' + r.status);
-    _waImportProcessJsonText(await r.text(), 'וואטסאפ-לידים');
+    const _txt = await r.text();
+    _waCacheLastPackage(_txt, 'וואטסאפ-לידים');   // v3.51.0 — כדי שאפשר יהיה לחזור לסריקה הזאת ידנית
+    _waImportProcessJsonText(_txt, 'וואטסאפ-לידים');
   }catch(e){
     console.error('[waimport]', e);
     toast('קליטה מוואטסאפ נכשלה — ודא שהמחשב דלוק ושרת הלידים רץ');
@@ -11257,7 +11263,7 @@ try{ _tabAnnounce(); }catch(e){}
 // לא קיים (אין רשומת DNS ל-azojpbraehirtgooxanp.supabase.co) — כלומר לא היה להם שום גיבוי.
 // הרישום כאן מכניס אותם לסנכרון-הענן, ו-_buildCompleteBackup מכניס אותם לגיבוי-הדרייב.
 const SYNC_ENTITIES = ['visits','projects','quotes','leads','clients','expenses','products','fixedExpenses','modifiers','learnedTasks','roofProfiles','tasks','waBlocklist','reports'];
-const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags'];
+const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags','waDecided'];
 let _syncing = false, _syncAgain = false, _syncSig = {}, _lastSyncAt = 0, _syncPollTimer = null;
 function _loadSyncMeta(){
   try{ _syncSig = JSON.parse(localStorage.getItem('obv_sync_sig')||'{}'); }catch(e){ _syncSig={}; }
@@ -12594,6 +12600,7 @@ function _buildCompleteBackup(options){
     // חסומים חוזרים) וסימוני "טופל" (ואז כל מסך-היום מתמלא מחדש).
     waBlocklist: S.waBlocklist || [],
     todayDone: S.todayDone || {},
+    waDecided: S.waDecided || {},   // v3.51.0
     photoDays: S.photoDays || { assigned:{}, dismissed:{} },
   };
 }
@@ -14185,6 +14192,7 @@ async function _applyImportedData(d, opts){
   // v3.44.4 — שחזור שני השדות שנוספו לגיבוי. גיבוי ישן שאין בו אותם משאיר את הקיים כמות שהוא.
   if(Array.isArray(d.waBlocklist))      S.waBlocklist = d.waBlocklist;
   if(d.todayDone && typeof d.todayDone === 'object' && !Array.isArray(d.todayDone)) S.todayDone = d.todayDone;
+  if(d.waDecided && typeof d.waDecided === 'object' && !Array.isArray(d.waDecided)) S.waDecided = d.waDecided;   // v3.51.0
   if(d.photoDays && typeof d.photoDays === 'object' && !Array.isArray(d.photoDays)) S.photoDays = d.photoDays;
 
   if(d.business){
@@ -19892,6 +19900,93 @@ function _workPhotoCount(w){
 
 /* מה דורש ממני משהו עכשיו — וכמה זה דחוף. זה מה שקובע אם הכרטיס בולט או שקט,
    וזה מה שהיה חסר: עבודה דחופה נראתה בדיוק כמו עבודה שנגמרה לפני שנה. */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.53.0 — תחנות-המסלול. השלד שאור אישר ב-11.08: כל לקוח נמצא בתחנה אחת,
+   שאומרת מה הפעולה הבאה איתו. l.fitDecision הוא שלב-הבירור שביקש:
+   "לחקור את הבעיה, להחליט אם העבודה מתאימה לי — ורק אז תיאום".
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const WORK_STATIONS = [
+  { key:'screen',  label:'לבירור — מתאים לי?' },
+  { key:'contact', label:'ליצירת קשר' },
+  { key:'visit',   label:'ביקור מתואם' },
+  { key:'quote',   label:'לשלוח הצעה' },
+  { key:'follow',  label:'במעקב — הצעה אצל הלקוח' },
+  { key:'coord',   label:'אושר — לתיאום ביצוע' },
+  { key:'exec',    label:'בביצוע' },
+  { key:'collect', label:'גבייה' },
+  { key:'done',    label:'נגמר' },
+];
+function _workStation(w){
+  if(w.stage === 'done') return 'done';
+  if(w.due > 0) return 'collect';
+  const proj = w.projects[0];
+  if(proj){
+    const st = proj.status || 'active';
+    if(st === 'active' || st === 'paused') return 'exec';
+    if(st === 'planned') return 'coord';           // אושר, מחכה לתיאום עם עובדים ולקוח
+  }
+  if(w.quotes.some(q => q.status === 'sent' && q.sentAt)) return 'follow';
+  const hasQuote = w.quotes.some(q => (q.status || 'draft') === 'draft');
+  const now = Date.now();
+  const futureVisit = w.visits.some(v => (v.scheduledAt || 0) > now);
+  const pastVisit   = w.visits.some(v => {
+    const at = v.finishedAt || v.scheduledAt || v.date || v.createdAt || 0;
+    return at && at <= now;
+  });
+  if(hasQuote || pastVisit) return 'quote';        // יש חומר — ההצעה היא הצעד הבא
+  if(futureVisit) return 'visit';
+  // ליד בלבד: הבירור קודם ליצירת-הקשר — "להחליט אם העבודה מתאימה לי, ורק אז תיאום"
+  if(w.lead && !(w.lead.fitDecision && w.lead.fitDecision.fit)) return 'screen';
+  return 'contact';
+}
+/* שלב-הבירור: "מתאים" מקדם ליצירת-קשר; "לא מתאים" סוגר עם סיבה — והכל הפיך. */
+function leadMarkFit(leadId){
+  const l = (S.leads || []).find(x => x.id === leadId);
+  if(!l) return;
+  l.fitDecision = { fit:true, at: ts() };
+  l.updatedAt = ts();
+  saveAll(true);
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  toast('✓ מתאים — עבר ליצירת קשר · הקש לביטול', {
+    onAction: () => { delete l.fitDecision; l.updatedAt = ts(); saveAll(true);
+                      if(typeof _invalidateWorks === 'function') _invalidateWorks(); _closureRefresh(); },
+    duration: 5000 });
+  _closureRefresh();
+}
+function leadMarkUnfit(leadId){
+  const l = (S.leads || []).find(x => x.id === leadId);
+  if(!l) return;
+  const prev = l.status;
+  l.fitDecision = { fit:false, at: ts() };
+  l.status = 'dropped';
+  l.updatedAt = ts();
+  saveAll(true);
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  toast('לא מתאים — הפנייה נסגרה · הקש לביטול', {
+    onAction: () => { delete l.fitDecision; l.status = prev; l.updatedAt = ts(); saveAll(true);
+                      if(typeof _invalidateWorks === 'function') _invalidateWorks(); _closureRefresh(); },
+    duration: 6000 });
+  _closureRefresh();
+}
+/* "קדם שלב" — הפעולה הטבעית של התחנה, בלחיצה אחת מהשורה */
+function _workAdvanceBtn(w){
+  const st = _workStation(w);
+  // שורת-העבודה היא <button>, וכפתור-בתוך-כפתור נשפך החוצה — לכן span עם role=button
+  const b = (label, call, ghost) => `<span role="button" tabindex="0" class="btn ${ghost?'btn-ghost':'btn-gold'} btn-xs" style="margin:0;display:inline-flex;align-items:center;justify-content:center" onclick="event.stopPropagation();${call}">${label}</span>`;
+  if(st === 'screen' && w.lead)
+    return b('מתאים ✓', `leadMarkFit('${_jsAttr(w.lead.id)}')`) +
+           b('לא מתאים', `leadMarkUnfit('${_jsAttr(w.lead.id)}')`, true);
+  if(st === 'contact') return b('פתח שיחה', `_todayOpenChat('${_jsAttr(w.id)}')`);
+  if(st === 'quote'){
+    const v = w.visits[0];
+    if(v) return b('בנה הצעה', `createQuoteFromVisit('${_jsAttr(v.id)}')`);
+  }
+  if(st === 'follow'){
+    const q = w.quotes.filter(x => x.status === 'sent' && x.sentAt).sort((a,b)=>(b.sentAt||0)-(a.sentAt||0))[0];
+    if(q) return b('✓ התקבלה', `quoteAccepted('${_jsAttr(q.id)}')`);
+  }
+  return '';
+}
 function _workAlert(w){
   const DAY = 86400000, now = Date.now();
   // v3.28.0 — בלי הסכום בתווית: הוא מוצג בעמודה הימנית, וכפילות מבזבזת את השורה
@@ -19955,6 +20050,9 @@ function _workRowHtml(w){
         <span class="wr-l1">${esc(line1)}</span>
         ${line2 ? `<span class="wr-l2">${esc(line2)}</span>` : ''}
         <span class="wr-l3">${meta.join('<i class="wr-sep">·</i>')}</span>
+        ${/* v3.53.0 — "קדם שלב": הפעולה הטבעית של התחנה, מהשורה עצמה (הכרעת אור 4) */''}
+        ${(typeof _workAdvanceBtn === 'function' && !done) ? (adv => adv
+          ? `<span style="display:flex;gap:8px;margin-top:7px;flex-wrap:wrap">${adv}</span>` : '')(_workAdvanceBtn(w)) : ''}
       </span>
       <span class="wr-end">${end}</span>
     </button>`;
@@ -20013,21 +20111,21 @@ function renderWorks(){
   const doneCount = total - liveCount;
   const q = (_worksQuery || '').trim();
   const showing = q ? total : (_worksScope === 'all' ? total : liveCount);
+  // v3.52.0 — אור: "אני רוצה שהוא יקרא לקוחות בכל מקום". הלשונית כבר נקראה כך (v3.44.0)
+  // אבל הכותרת אמרה "עבודות". הספירה עוברת ללקוחות ייחודיים — כי כשללקוח יש שתי
+  // עבודות, "8 עבודות" על מסך שנקרא "לקוחות" היה מספר שקרי.
+  const _distinct = arr => new Set(arr.map(w => w.clientId || w.id)).size;
+  const clientCount = _distinct(list);
+  const liveClients = _distinct(all.filter(_workIsLive));
+  const allClients  = _distinct(all);
 
-  // v3.28.0 (ROWS-01) — קיבוץ לפי דחיפות, כמו ב-16 מתוך 19 האפליקציות שנבדקו.
-  // "דורש טיפול" למעלה כי זה מה שאור צריך לראות ראשון; "נגמר" למטה ושקט.
-  // בחיפוש לא מקבצים — מי שמחפש רוצה רשימה שטוחה של תוצאות.
-  const _group = (w) => {
-    const a = _workAlert(w);
-    if(w.stage === 'done') return 'done';
-    if(a && (a.tone === 'due' || a.tone === 'stuck' || a.tone === 'soon')) return 'attention';
-    return 'active';
-  };
-  const GROUPS = [
-    { key:'attention', label:'דורש טיפול' },
-    { key:'active',    label:'בביצוע'     },
-    { key:'done',      label:'נגמר'       },
-  ];
+  /* v3.53.0 — הקבוצות הן תחנות-המסלול שאור אישר (11.08), במקום "דורש טיפול/בביצוע/נגמר".
+     אור על "בביצוע" הישן: קבוצת-ברירת-מחדל שהכניסה לשם לקוח אחרי ביקור בלי הצעה —
+     "השם משקר". עכשיו כל לקוח יושב בתחנה שאומרת מה הפעולה הבאה איתו, לפי הסדר
+     שהוא עובר בפועל: בירור ← קשר ← ביקור ← הצעה ← מעקב ← ביצוע ← גבייה ← נגמר.
+     בחיפוש לא מקבצים — מי שמחפש רוצה רשימה שטוחה. */
+  const _group = (w) => _workStation(w);
+  const GROUPS = WORK_STATIONS;
   const groupedHtml = () => {
     const by = {};
     list.forEach(w => { const g = _group(w); (by[g] || (by[g] = [])).push(w); });
@@ -20043,23 +20141,23 @@ function renderWorks(){
            <h3>לא נמצא</h3><p>אין עבודה שמתאימה ל"${esc(q)}". נסה שם, טלפון או כתובת.</p></div>`
       : (_worksScope === 'live' && doneCount
         ? `<div class="wk-empty"><div class="wk-empty-i"><iconify-icon icon="mdi:check-all" width="46"></iconify-icon></div>
-             <h3>אין עבודות פתוחות</h3><p>הכל סגור ושולם. ${doneCount} ${doneCount===1?'עבודה שהסתיימה':'עבודות שהסתיימו'} נמצאות תחת "הכל".</p></div>`
+             <h3>אין לקוחות בטיפול</h3><p>הכל סגור ושולם. מי שהטיפול בו הסתיים נמצא תחת "הכל".</p></div>`
         : `<div class="wk-empty"><div class="wk-empty-i"><iconify-icon icon="mdi:hammer-wrench" width="46"></iconify-icon></div>
-             <h3>עוד אין עבודות</h3><p>כל פנייה, ביקור, הצעה ופרויקט יופיעו כאן כעבודה אחת — מהשיחה הראשונה ועד הגבייה.</p>
+             <h3>עוד אין לקוחות</h3><p>כל פנייה, ביקור, הצעה ופרויקט יופיעו כאן — לקוח אחד בכל שורה, מהשיחה הראשונה ועד הגבייה.</p>
              <button class="btn btn-gold" style="margin-top:20px;max-width:280px;margin-inline:auto" onclick="_gnavCreate()">התחל עבודה חדשה</button></div>`));
 
   // הלשוניות מוצגות רק כשיש בכלל מה להסתיר — בלי זה הן רעש על חשבון-חדש
   const tabsHtml = (!q && doneCount) ? `
     <div class="wk-tabs">
-      <button class="wk-tab ${_worksScope==='live'?'on':''}" onclick="setWorksScope('live')">פתוחות (${liveCount})</button>
-      <button class="wk-tab ${_worksScope==='all'?'on':''}" onclick="setWorksScope('all')">הכל (${total})</button>
+      <button class="wk-tab ${_worksScope==='live'?'on':''}" onclick="setWorksScope('live')">בטיפול (${liveClients})</button>
+      <button class="wk-tab ${_worksScope==='all'?'on':''}" onclick="setWorksScope('all')">הכל (${allClients})</button>
     </div>` : '';
 
   // v3.27.0 (WORKS-07) — הרמז החד-פעמי חי עד כה רק ב-_roofsHtml (מסך-הבית הישן), ולכן מי
   // שנוחת על הבית החדש לא קיבל שום הכוונה — דווקא כשהמבנה הוא מה שהשתנה. אותו רכיב ואותו
   // מנגנון-כיבוי (S.settings.hints), עם טקסט שמתאר את המבנה החדש.
   const homeHint = (typeof _onceHintHtml === 'function')
-    ? _onceHintHtml('home-works', 'כל שורה = עבודה אחת אצל לקוח, מהפנייה ועד הגבייה', 'margin:0 2px 12px')
+    ? _onceHintHtml('home-works', 'כל שורה = לקוח אחד והעבודה שלו, מהפנייה ועד הגבייה', 'margin:0 2px 12px')
     : '';
   body.innerHTML = `
     <div class="wk-wrap">
@@ -20071,8 +20169,8 @@ function renderWorks(){
              שום דרך להגיע להגדרות / קטלוג / תיק-עבודות / "מסכים ישנים". -->
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
           <div style="min-width:0">
-            <div class="wk-eyebrow">העבודות שלי</div>
-            <div class="wk-h1">${showing} ${showing === 1 ? 'עבודה' : 'עבודות'}</div>
+            <div class="wk-eyebrow">הלקוחות שלי</div>
+            <div class="wk-h1">${clientCount} ${clientCount === 1 ? 'לקוח' : 'לקוחות'}</div>
             <div class="wk-sub">מה שנגעת בו אחרון — למעלה</div>
           </div>
           <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="flex-shrink:0;margin-top:4px"><iconify-icon icon="mdi:menu"></iconify-icon></button>
@@ -20668,8 +20766,8 @@ function renderToday(){
     <div class="wk-empty">
       <div class="wk-empty-i"><iconify-icon icon="mdi:check-all" width="46"></iconify-icon></div>
       <h3>אין מה לעשות עכשיו</h3>
-      <p>אין ביקור שמחכה להצעה, אין פנייה פתוחה ואין הצעה ששותקת. כל העבודות נמצאות תחת "העסק".</p>
-      <button class="btn btn-ghost" style="margin-top:18px;max-width:280px;margin-inline:auto" onclick="_gnavGo('works')">לכל העבודות</button>
+      <p>אין ביקור שמחכה להצעה, אין פנייה פתוחה ואין הצעה ששותקת. כולם בלשונית "לקוחות".</p>
+      <button class="btn btn-ghost" style="margin-top:18px;max-width:280px;margin-inline:auto" onclick="_gnavGo('works')">לכל הלקוחות</button>
     </div>`;
 
   body.innerHTML = `
@@ -24952,6 +25050,16 @@ function openLeadAddSheet(){
         </div>
         <div class="ll-arrow">←</div>
       </button>
+      ${/* v3.51.0 — אור: "אני רוצה אפשרות לחזור לסריקה האחרונה באופן ידני". בלי רשת,
+             בלי שהמק יהיה דלוק — קורא את החבילה השמורה. מוצג רק כשיש מה לפתוח. */''}
+      <button class="lead-launcher" id="wa-last-scan-btn" onclick="closeMo();waOpenLastScan()" style="display:none">
+        <div class="ll-ico" style="background:var(--gold-l);color:var(--gold2)"><iconify-icon icon="mdi:history" width="20"></iconify-icon></div>
+        <div class="ll-body">
+          <div class="ll-title">חזור לסריקה האחרונה</div>
+          <div class="ll-sub" id="wa-last-scan-sub">מה שנשאר להכריע עליו — בלי משיכה חדשה</div>
+        </div>
+        <div class="ll-arrow">←</div>
+      </button>
       <button class="lead-launcher" onclick="closeMo();waImportPickFile()" style="opacity:.55;border-color:var(--line)">
         <div class="ll-ico" style="background:var(--ink3);color:var(--text2);border-color:var(--line)"><iconify-icon icon="mdi:file-upload-outline" width="18"></iconify-icon></div>
         <div class="ll-body">
@@ -24962,6 +25070,29 @@ function openLeadAddSheet(){
       </button>
     </div>
   `);
+  /* v3.51.0 — הכפתור נחשף רק אם באמת יש סריקה שמורה, ואומר כמה נשאר להכריע.
+     הקריאה ל-IDB אסינכרונית, ולכן היא רצה אחרי שהגיליון כבר על המסך. */
+  (async () => {
+    try{
+      const pkg = await dbGet('waLastPackage');
+      const btn = document.getElementById('wa-last-scan-btn');
+      if(!pkg || !pkg.text || !btn) return;
+      let left = 0, total = 0;
+      try{
+        const data = JSON.parse(pkg.text);
+        const blocked = new Set((S.waBlocklist || []).map(b => _waNormPhone(b.phone)).filter(Boolean));
+        const pool = (data.leads || []).filter(L => { const n = _waNormPhone(L.phone); return !n || !blocked.has(n); });
+        total = pool.length;
+        left  = pool.filter(L => !_waIsDecided(L)).length;
+      }catch(e){}
+      const when = pkg.at ? new Date(pkg.at).toLocaleString('he-IL',{day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+      btn.style.display = '';
+      const sub = document.getElementById('wa-last-scan-sub');
+      if(sub) sub.textContent = left
+        ? `${left} מתוך ${total} עדיין מחכים להכרעה${when ? ' · נסרק ' + when : ''}`
+        : `הכל טופל${when ? ' · נסרק ' + when : ''}`;
+    }catch(e){}
+  })();
 }
 
 // Bottom sheet: filters — three dropdowns + reset/apply
@@ -26389,7 +26520,7 @@ function waImportHandleFile(ev){
   const f = ev.target.files && ev.target.files[0];
   if(!f) return;
   const reader = new FileReader();
-  reader.onload = () => _waImportProcessJsonText(reader.result, f.name);
+  reader.onload = () => { _waCacheLastPackage(String(reader.result||''), f.name); _waImportProcessJsonText(reader.result, f.name); };
   reader.onerror = () => toast('קריאת הקובץ נכשלה');
   reader.readAsText(f, 'utf-8');
 }
@@ -26408,10 +26539,13 @@ function _waImportProcessJsonText(text, sourceLabel){
       return;
     }
     const blocked = new Set((S.waBlocklist || []).map(b => _waNormPhone(b.phone)).filter(Boolean));
-    const rawLeads = data.leads.filter(L => {
+    const notBlocked = data.leads.filter(L => {
       const n = _waNormPhone(L.phone);
       return !n || !blocked.has(n);
     });
+    // v3.51.0 — התור מתרוקן: מה שאור כבר הכריע עליו לא חוזר, לא בפתיחה ידנית ולא בסריקה הבאה
+    const rawLeads = notBlocked.filter(L => !_waIsDecided(L));
+    const alreadyDecided = notBlocked.length - rawLeads.length;
     // v3.22.33 (C4#23) — dedup גם בתוך הקובץ עצמו: אותו טלפון פעמיים בקובץ-ייבוא אחד
     // יצר שני לידים. נשמרת ההופעה הראשונה; שורות בלי טלפון נשארות.
     const _seenInFile = new Set();
@@ -26421,9 +26555,21 @@ function _waImportProcessJsonText(text, sourceLabel){
       if(_seenInFile.has(n)) return false;
       _seenInFile.add(n); return true;
     });
-    const skippedByBlocklist = data.leads.length - rawLeads.length;
+    const skippedByBlocklist = data.leads.length - notBlocked.length;
+    /* v3.51.0 — "בסוף לא ייפתח כלום עד הסריקה הבאה". כשאין מה להכריע לא פותחים רשימה
+       ריקה ולא מציפים באזהרה — אומרים בשקט שהכל טופל, ונותנים דרך חזרה למי שדילג. */
     if(rawLeads.length === 0){
-      toast(`כל ${data.leads.length} הלידים חסומים. בדוק את ניהול החסומים בהגדרות.`);
+      const done = alreadyDecided > 0;
+      openMo(`
+        <div class="mo-title">${done ? 'הכל טופל' : 'אין לידים לייבוא'}</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+          ${done
+            ? `כל ${alreadyDecided} הפריטים בסריקה הזאת כבר עברו אצלך. בסריקה הבאה יופיעו רק דברים חדשים.`
+            : `כל ${data.leads.length} הפריטים חסומים. אפשר לנהל את החסומים בהגדרות.`}
+        </div>
+        ${done ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();waShowSkipped()">מה שדילגתי עליו</button>` : ''}
+        <button class="btn" style="width:100%;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>
+      `);
       return;
     }
     _waImport = {
@@ -26698,6 +26844,7 @@ async function waSyncFromDrive(){
   const fetched = await _waFetchLatestDriveText();
   if(!fetched) return;
   const when = fetched.modifiedTime ? new Date(fetched.modifiedTime).toLocaleString('he-IL', { dateStyle:'short', timeStyle:'short' }) : '';
+  _waCacheLastPackage(fetched.text, fetched.fileName);   // v3.51.0
   _waImportProcessJsonText(fetched.text, `${fetched.fileName}${when?' · '+when:''}`);
 }
 
@@ -26776,6 +26923,7 @@ async function waSyncFromDrive(){
     }
     const text = await dlRes.text();
     const when = target.modifiedTime ? new Date(target.modifiedTime).toLocaleString('he-IL', { dateStyle:'short', timeStyle:'short' }) : '';
+    _waCacheLastPackage(text, target.name);   // v3.51.0
     _waImportProcessJsonText(text, `${target.name}${when?' · '+when:''}`);
   } catch(e){
     console.error('[wa-sync] error', e);
@@ -26785,6 +26933,93 @@ async function waSyncFromDrive(){
 
 // Normalize phone for dedup matching:
 // strip +, 972 prefix (Israel), spaces, hyphens, parens, leading 0.
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.51.0 — תור-ההכרעות של ייבוא-הוואטסאפ.
+   ───────────────────────────────────────────────────────────────────────────────
+   אור: "אני רוצה אפשרות לחזור לסריקה האחרונה באופן ידני. אחרי הסימונים שלי יכנס מה
+   שיכנס לתוך האפליקציה ובסריקה הבאה כבר לא יופיע. גם בלחיצה הבאה שלי כבר לא יופיע.
+   עד שהכל יסומן ובסוף לא יפתח כלום עד הסריקה הבאה שתתעדכן בדברים חדשים."
+
+   עד היום: פריט שאור לא סימן חזר בכל סנכרון, שוב ושוב — 65 פריטים שמוצעים מחדש בכל
+   פעם. מעכשיו כל פריט שהוא הכריע עליו (נכנס **או** דולג) נרשם ב-S.waDecided ולא חוזר.
+   התור מתרוקן; כשאין מה להכריע — נפתח מסך ריק במקום רשימה.
+
+   **מפתח יציב** הוא הלב של זה. הוא חייב לשרוד בין סריקות, ולכן אסור שיכיל שדה שמשתנה:
+   lastMsgPreview, messages ו-chatThumbs משתנים בכל הודעה חדשה. הטלפון הוא המפתח; ב-65
+   הפריטים האמיתיים רק לאחד אין טלפון, ולכן יש נפילה-לאחור לכותרת-השיחה (שגם היא ייחודית
+   ב-65/65). אם אור ישמור איש-קשר והכותרת תשתנה — הפריט יופיע פעם אחת נוספת, וזה נכון:
+   זו כבר שיחה עם שם.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _waDecidedMap(){
+  if(!S.waDecided || typeof S.waDecided !== 'object' || Array.isArray(S.waDecided)) S.waDecided = {};
+  return S.waDecided;
+}
+function _waItemKey(L){
+  if(!L) return '';
+  const ph = _waNormPhone(L.phone);
+  if(ph) return 'p:' + ph;
+  const t = String(L.title || L.displayName || '').replace(/[‎‏‪-‮]/g, '').trim();
+  return t ? 't:' + t : '';
+}
+function _waIsDecided(L){
+  const k = _waItemKey(L);
+  return !!(k && _waDecidedMap()[k]);
+}
+/* נרשם על **כל** פריט שהוצג לאור — גם על מה שלא סימן. זו בדיוק הבקשה שלו. */
+function _waMarkDecided(items, actionOf){
+  const map = _waDecidedMap();
+  const now = ts();
+  (items || []).forEach(it => {
+    const k = _waItemKey(it.raw || it);
+    if(!k) return;
+    map[k] = { at: now, action: (typeof actionOf === 'function' ? actionOf(it) : actionOf) || 'skipped',
+               name: (it.extractedName || it.displayName || it.title || '').slice(0, 40) };
+  });
+}
+/* ביטול — כי הכרעה בטעות היא הכרעה, ואסור שתהיה בלתי-הפיכה */
+function _waUndecide(keys){
+  const map = _waDecidedMap();
+  (keys || []).forEach(k => { delete map[k]; });
+  saveAll(true);
+}
+function waShowSkipped(){
+  const map = _waDecidedMap();
+  const skipped = Object.entries(map).filter(([, v]) => v && v.action === 'skipped');
+  if(!skipped.length){ toast('אין פריטים שדילגת עליהם'); return; }
+  openMo(`
+    <div class="mo-title">דילגת על ${skipped.length}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+      אלה לא נכנסו לאפליקציה ולא יוצעו שוב. אפשר להחזיר אותם לתור.</div>
+    <div style="max-height:46vh;overflow:auto;margin-bottom:12px">
+      ${skipped.slice(0, 60).map(([k, v]) => `
+        <div class="fin-row"><div class="fr-name">${esc(v.name || k.replace(/^[pt]:/, ''))}</div>
+          <button class="btn-xs btn-ghost" onclick="_waUndecide(['${_jsAttr(k)}']);closeMo();toast('הוחזר לתור')">החזר לתור</button>
+        </div>`).join('')}
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:100%" onclick="_waUndecide(${_jsAttr(JSON.stringify(skipped.map(x=>x[0])))});closeMo();toast('כולם הוחזרו לתור')">החזר את כולם</button>
+    <button class="btn" style="width:100%;margin-top:8px;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>
+  `);
+}
+/* ── הסריקה האחרונה נשמרת מקומית, כדי שאפשר יהיה לחזור אליה בלי רשת ובלי המק ──
+   נשמר ב-IndexedDB ולא ב-S: זה מטען כבד (~4MB) שניתן לשחזור מהדרייב, ולכן אין לו
+   מקום בגיבוי המלא. רק החותמת נשמרת ב-state, לתצוגה. */
+async function _waCacheLastPackage(text, label){
+  try{
+    await dbSet('waLastPackage', { text, label: label || '', at: Date.now() });
+    S.waLastScanAt = Date.now();
+    saveAll(true);
+  }catch(e){ console.warn('[wa] cache failed', e); }
+}
+async function waOpenLastScan(){
+  let pkg = null;
+  try{ pkg = await dbGet('waLastPackage'); }catch(e){}
+  if(!pkg || !pkg.text){
+    toast('אין סריקה שמורה — משוך פעם אחת מהדרייב');
+    return;
+  }
+  const when = pkg.at ? new Date(pkg.at).toLocaleString('he-IL', {day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+  _waImportProcessJsonText(pkg.text, `${pkg.label || 'הסריקה האחרונה'}${when ? ' · ' + when : ''}`);
+}
 function _waNormPhone(p){
   if(!p) return '';
   let s = String(p).replace(/[^0-9]/g, '');
@@ -27205,7 +27440,24 @@ function _waImportCommit(){
   const _touchedLeadIds = [];
   if(!_waImport) return;
   const selected = _waImport.items.filter(i => i.checked && i.dupAction !== 'skip');
-  if(!selected.length){ toast('לא נבחרו לידים'); return; }
+  /* v3.51.0 — אישור בלי אף סימון הוא עדיין הכרעה: "עברתי על הרשימה, שום דבר מזה לא
+     רלוונטי". לכן שואלים במקום לחסום — ואם אור מאשר, כולם נרשמים כדולגו ולא יחזרו. */
+  if(!selected.length){
+    const n = _waImport.items.length;
+    confirmAction({
+      title: 'לסגור את הרשימה בלי לייבא?',
+      msg: `לא סימנת כלום. ${n} הפריטים ייחשבו כמטופלים ולא יוצעו שוב — אפשר תמיד להחזיר אותם דרך "מה שדילגתי עליו".`,
+      ok: 'כן, סיימתי', okCls: 'btn-gold',
+      cb: () => {
+        _waMarkDecided(_waImport.items, 'skipped');
+        _waImport = null;
+        saveAll(true);
+        goBack();
+        toast(`${n} סומנו כמטופלים`);
+      }
+    });
+    return;
+  }
   let added = 0, merged = 0, tasksAdded = 0, noopSkipped = 0;
   selected.forEach(it => {
     // v3.37.0 — ai_client = existing client (real-data finding: 38 of 53 items the whatsapp-leads
@@ -27254,6 +27506,12 @@ function _waImportCommit(){
     tasksAdded += _waCreateTasksFor(it, leadId);
     if(leadId) _touchedLeadIds.push(leadId);
   });
+  /* v3.51.0 — כל פריט שהוצג נרשם כמוכרע: מה שנבחר לפי מה שנעשה בו, וכל השאר כ"דולג".
+     זה מה שמרוקן את התור ומונע מהרשימה להציע את אותם 65 פריטים בכל פעם מחדש. */
+  _waMarkDecided(_waImport.items, it =>
+    (it.checked && it.dupAction !== 'skip')
+      ? (it.dupAction === 'merge' ? 'merged' : 'imported')
+      : 'skipped');
   saveAll(true);
   // v3.46.0 (הגשר) — התמונות עוברות לאחסון האמיתי ברקע, ואז הן מסתנכרנות לטלפון
   // כמו כל תמונה אחרת. רץ אחרי saveAll כדי שהמסך לא ימתין; כישלון לא מבטל את הייבוא.
@@ -42704,6 +42962,7 @@ async function init(){
   const gitD = await dbGet('gitDev');           if(gitD) S.gitDev = {...S.gitDev, ...gitD};  // v3.9.32
   // v3.44.1 (תיקון-רגרסיה) — בלי הטעינה הזאת כל "טופל" חזר אחרי רענון (ראה ההערה ב-_saveAllInner)
   const tdDone = await dbGet('todayDone');      if(tdDone && typeof tdDone === 'object' && !Array.isArray(tdDone)) S.todayDone = tdDone;
+  const waDec = await dbGet('waDecided');       if(waDec && typeof waDec === 'object' && !Array.isArray(waDec)) S.waDecided = waDec;   // v3.51.0
   const pDays  = await dbGet('photoDays');     if(pDays && typeof pDays === 'object' && !Array.isArray(pDays)) S.photoDays = pDays;
   // v3.23.4 (SEC-03) — this PAT can push straight to the production repo's main branch. It
   // never leaves IDB (excluded from every export/backup/sync — see _buildCompleteBackup,
