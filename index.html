@@ -6534,6 +6534,17 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
        שדה+צ'יפים יושבים כאחים-קבועים לפני .body בתוך .view (flex-column) — נשארים במקום
        בזמן שהתוצאות (.body, flex:1) גוללות, בלי CSS חדש/hack — אותה ארכיטקטורה כמו topbar.
        ═══════════════════════════════════════════ -->
+  <!-- v3.47.0 (שלב 2) — "תמונות היום": מנוע-התמונות ב-or-bagag-os מקבץ תמונות
+       לפי יום-צילום; כאן אור משייך קבוצה שלמה ללקוח בהקשה אחת. אפס הקלדה. -->
+  <div class="view" id="view-photo-days">
+    <div class="topbar pearl-clients">
+      <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
+      <h1 style="display:flex;align-items:center;gap:8px"><iconify-icon icon="mdi:image-multiple-outline"></iconify-icon> תמונות לשיוך</h1>
+      <button class="ico" onclick="photoDaysRefresh()" title="רענן" aria-label="רענן"><iconify-icon icon="mdi:refresh"></iconify-icon></button>
+    </div>
+    <div class="body" id="photo-days-body" style="padding:0"></div>
+  </div>
+
   <div class="view" id="view-search">
     <div class="topbar pearl-clients">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
@@ -7673,6 +7684,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
          הם ראשונים כאן. שום יכולת לא אבדה — רק החליפה מקום. -->
     <button onclick="closeGlobalDrawer();_gnavGo('search')"><iconify-icon icon="mdi:magnify"></iconify-icon><span>חיפוש בכל העסק</span></button>
     <button onclick="closeGlobalDrawer();openFolk()"><iconify-icon icon="mdi:archive-outline"></iconify-icon><span>כל הלקוחות וארכיון</span></button>
+    <button onclick="closeGlobalDrawer();openPhotoDays()"><iconify-icon icon="mdi:image-multiple-outline"></iconify-icon><span>תמונות לשיוך</span><span class="gdrawer-badge" id="gdb-photodays"></span></button>
     <!-- v3.24.1 (N2) — "פרויקטים" (הרשימה עם סינון/מיון/חיפוש) איבדה את מקומה בניווט הראשי: לשונית
          "גגות" מובילה עכשיו ל-view-roofs (רשת כרטיסי-גג), לא ל-projects-list. חוק-הברזל "מסך שמאבד
          את מקומו בניווט הראשי — מקבל מקום במגירה" — הרשימה עצמה (עם הפילטרים) עדיין קיימת ונגישה כאן. -->
@@ -7766,7 +7778,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.46.0'; // הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב, בלי מגע-יד. שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.47.0'; // תמונות-היום: קבוצת-יום מהמנוע מוצעת לשיוך ללקוח בהקשה אחת. הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב, בלי מגע-יד. שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7842,6 +7854,7 @@ const S = {
   leads: [],            // V2.5 — opportunities pipeline
   clients: [],          // v3.19.0 — unified customer records (anyone with a visit/project). Computed via migration on first run.
   clientMigrationCompletedAt: null, // v3.19.0 — timestamp of last successful clients migration; null = needs to run
+  photoDays: { assigned:{}, dismissed:{} },  // v3.47.0 — שיוך קבוצות-יום; ארבע נגיעות: כאן, _saveAllInner, טעינה, גיבוי
   todayDone: {},        // v3.44.0 — סימוני "טופל" במסך-היום: workId → חותמת. נשמר ונטען (v3.44.1)
   waBlocklist: [],      // v3.10.0 — phones to always skip when importing from WhatsApp ({phone, name, addedAt}[])
   expenses: [],         // V2.5 — per-project expenses
@@ -8648,6 +8661,7 @@ async function _saveAllInner(quiet){
     // אך לא נשמר ולא נטען → כל רענון החזיר את כל מי שאור סימן כטופל. אותה מחלקת-באג
     // בדיוק שתוקנה ל-clients (v3.21.95) ול-workTypeTemplates (v3.22.15).
     if(typeof S.todayDone !== 'undefined') _pairs.push(['todayDone', S.todayDone]);
+    if(typeof S.photoDays !== 'undefined') _pairs.push(['photoDays', S.photoDays]);
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
     if(typeof S.workTypeTemplates !== 'undefined') _pairs.push(['workTypeTemplates', S.workTypeTemplates]);
@@ -9827,6 +9841,7 @@ const VIEW_RENDERERS = {
   'client-detail': () => typeof renderClientDetail === 'function' && renderClientDetail(),
   'project-closure':() => typeof renderProjectClosure === 'function' && renderProjectClosure(),
   'search':        () => typeof renderViewSearch === 'function' && renderViewSearch(),
+  'photo-days':    () => typeof renderPhotoDays === 'function' && renderPhotoDays(),
   'client-duplicates': () => typeof renderClientDuplicates === 'function' && renderClientDuplicates(), // v3.26.2 (C4)
 };
 
@@ -9911,7 +9926,7 @@ const GNAV_TAB_OF = {
   'works':'works', 'work':'works', 'roofs':'works', 'projects-list':'works', 'project-detail':'works',
   'visit-detail':'works', 'quote-edit':'works', 'lead-detail':'works', 'visits-list':'works', 'leads-list':'works',
   'folk':'works', 'folk-one':'works', 'people':'works', 'client-detail':'works', 'clients-list':'works',
-  'calendar':'', 'finance':'money', 'search':'more',
+  'calendar':'', 'finance':'money', 'search':'more', 'photo-days':'more',
 };
 function _gnavSync(id){
   const activeTab = GNAV_TAB_OF[id] || '';
@@ -12568,6 +12583,7 @@ function _buildCompleteBackup(options){
     // חסומים חוזרים) וסימוני "טופל" (ואז כל מסך-היום מתמלא מחדש).
     waBlocklist: S.waBlocklist || [],
     todayDone: S.todayDone || {},
+    photoDays: S.photoDays || { assigned:{}, dismissed:{} },
   };
 }
 
@@ -14158,6 +14174,7 @@ async function _applyImportedData(d, opts){
   // v3.44.4 — שחזור שני השדות שנוספו לגיבוי. גיבוי ישן שאין בו אותם משאיר את הקיים כמות שהוא.
   if(Array.isArray(d.waBlocklist))      S.waBlocklist = d.waBlocklist;
   if(d.todayDone && typeof d.todayDone === 'object' && !Array.isArray(d.todayDone)) S.todayDone = d.todayDone;
+  if(d.photoDays && typeof d.photoDays === 'object' && !Array.isArray(d.photoDays)) S.photoDays = d.photoDays;
 
   if(d.business){
     // אם בקובץ יש לוגו — השתמש בו. אחרת שמור את הקיים
@@ -19943,6 +19960,256 @@ const QUOTE_NUDGE_DAYS  = 3;         // הכרעת אור: תזכורת אחרי
 const QUOTE_LAST_CALL_DAYS = 7;      // ותזכורת אחרונה אחרי שבוע
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   v3.47.0 (שלב 2) — תמונות היום לפי לקוח
+   המנוע יושב ב-or-bagag-os (photos.py): 4,364 תמונות רשומות, מסווגות עבודה/פרטי,
+   מקובצות לפי יום-צילום. bin/photo_bridge.py אורז את הקבוצות הלא-משויכות לאותה
+   תיקיית-דרייב שדרכה עוברים הלידים. כאן אור רואה "12 תמונות מיום שלישי", המערכת
+   מציעה לקוח לפי הביקורים של אותו יום, והוא מאשר או בוחר אחר — בהקשה אחת.
+   שום תמונה לא זזה ולא נמחקת: מה שנשמר הוא הפניה + תמונה ממוזערת.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+/* v3.47.0 — קריאת קובץ-JSON לפי שם מתיקיית OrBaGag בדרייב. נבנתה כדי שגשר-התמונות
+   לא ישכפל את כל טיפול-ההרשאות של _waFetchLatestDriveText, ובכוונה **לא** מבקשת
+   טוקן חדש: היא משתמשת רק במה שכבר בזיכרון (מוקש GDRIVE-LOOP). מסך-התמונות נפתח
+   ביוזמת אור, ולכן אם אין טוקן — הוא יקבל הודעה ברורה במקום חלון-הרשאה מפתיע. */
+async function _driveReadJsonByName(fileName, silent){
+  const say = (m) => { if(!silent) toast(m); };
+  if(typeof gapi === 'undefined' || !gapi.client?.drive){ say('Google Drive עדיין נטען'); return null; }
+  if(!(typeof _gdriveAccessToken === 'string' && _gdriveAccessToken && Date.now() < _gdriveTokenExpiry)){
+    say('חבר את גוגל דרייב פעם אחת בהגדרות → ניהול נתונים');
+    return null;
+  }
+  try {
+    const folderRes = await gapi.client.drive.files.list({
+      q: `name='OrBaGag' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id)', pageSize: 5,
+    });
+    const folder = folderRes.result?.files?.[0];
+    if(!folder){ say('לא נמצאה תיקיית OrBaGag בדרייב'); return null; }
+    const listRes = await gapi.client.drive.files.list({
+      q: `name='${fileName}' and '${folder.id}' in parents and trashed=false`,
+      fields: 'files(id,name,modifiedTime)', orderBy: 'modifiedTime desc', pageSize: 1,
+    });
+    const file = listRes.result?.files?.[0];
+    if(!file){ say(`לא נמצא ${fileName} בתיקייה`); return null; }
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+      headers: { Authorization: `Bearer ${_gdriveAccessToken}` },
+    });
+    if(!res.ok){ say(`הורדה נכשלה: ${res.status}`); return null; }
+    return await res.text();
+  } catch(e){
+    console.warn('[_driveReadJsonByName]', e);
+    say('שגיאה בקריאה מ-Drive');
+    return null;
+  }
+}
+
+const PHOTO_DAYS_FILE = 'photo-days-latest.json';
+let _photoDays = null;          // { days:[...], generatedAt }
+let _photoDaysBusy = false;
+
+function _photoDayStore(){
+  if(!S.photoDays || typeof S.photoDays !== 'object') S.photoDays = { assigned: {}, dismissed: {} };
+  if(!S.photoDays.assigned)  S.photoDays.assigned  = {};
+  if(!S.photoDays.dismissed) S.photoDays.dismissed = {};
+  // v3.47.0 — תמונות בודדות שאור הוציא. נמדד על נתוני-אמת: המסווג טעה וסימן תמונה
+  // משפחתית כ"עבודה" (ציון 0.476), בעוד תמונות-גג אמיתיות ירדו עד 0.21 — כלומר סף-ביטחון
+  // היה מוחק עבודה אמיתית. לכן ההכרעה נשארת אצל אור, בהקשה אחת ועם ביטול.
+  if(!S.photoDays.hiddenPhotos) S.photoDays.hiddenPhotos = {};
+  return S.photoDays;
+}
+
+/* הלקוח המוצע ליום: מי שהיה אצלו ביקור באותו יום. אם אין — עבודה שנגעת בה באותו יום.
+   זו הצעה בלבד; אור מאשר או בוחר אחר, ואפשר תמיד לבטל. */
+function _photoDaySuggest(day){
+  const start = new Date(day + 'T00:00:00').getTime();
+  const end   = start + 86400000;
+  const inDay = (t) => t && t >= start && t < end;
+
+  for(const v of (S.visits || [])){
+    if(inDay(v.finishedAt) || inDay(v.scheduledAt) || inDay(v.createdAt)){
+      const c = v.clientId && typeof getClient === 'function' ? getClient(v.clientId) : null;
+      if(c) return { clientId: c.id, name: c.clientName, why: 'ביקור באותו יום' };
+      if(v.clientName) return { clientId: null, name: v.clientName, why: 'ביקור באותו יום' };
+    }
+  }
+  for(const w of (typeof getWorks === 'function' ? getWorks() : [])){
+    if(inDay(w.updatedAt) && w.clientId){
+      const c = getClient(w.clientId);
+      if(c) return { clientId: c.id, name: c.clientName, why: 'עבודה שנגעת בה באותו יום' };
+    }
+  }
+  return null;
+}
+
+async function _photoDaysFetch(silent){
+  try {
+    const txt = await _driveReadJsonByName(PHOTO_DAYS_FILE, silent);
+    if(!txt) return null;
+    const data = JSON.parse(txt);
+    if(!data || !Array.isArray(data.days)) return null;
+    return data;
+  } catch(e){ console.warn('[photoDays] fetch failed', e); return null; }
+}
+
+function openPhotoDays(){ push('photo-days'); renderPhotoDays(); if(!_photoDays) photoDaysRefresh(); }
+
+async function photoDaysRefresh(){
+  if(_photoDaysBusy) return;
+  _photoDaysBusy = true;
+  try {
+    toast('מחפש תמונות חדשות...');
+    const data = await _photoDaysFetch(false);
+    if(!data){ toast('לא נמצאה חבילת-תמונות בדרייב. הרץ את photo_bridge במחשב.'); return; }
+    _photoDays = data;
+    renderPhotoDays();
+    const n = data.days.reduce((s,d) => s + (d.photos||[]).length, 0);
+    toast(`${data.days.length} ימים · ${n} תמונות`);
+  } finally { _photoDaysBusy = false; }
+}
+
+/* שיוך קבוצת-יום ללקוח: נשמרות הפניות + תמונות ממוזערות על הלקוח.
+   התמונה המלאה נשארת בדרייב/במק — האפליקציה לא מחזיקה עותק כבד. */
+function photoDayAssign(day, clientId){
+  const store = _photoDayStore();
+  const grp = (_photoDays && _photoDays.days || []).find(d => d.day === day);
+  const c = clientId ? getClient(clientId) : null;
+  if(!grp || !c){ toast('בחר לקוח'); return; }
+  const usable = grp.photos.filter(ph => !store.hiddenPhotos[ph.sha]);
+  if(!usable.length){ toast('כל התמונות של היום הוצאו'); return; }
+  const prev = JSON.parse(JSON.stringify(store.assigned[day] || null));
+  store.assigned[day] = { clientId: c.id, at: ts(), count: usable.length };
+
+  // התמונות עצמן נצמדות ללקוח, כדי שיופיעו בכרטיס שלו
+  c.dayPhotos = Array.isArray(c.dayPhotos) ? c.dayPhotos : [];
+  usable.forEach(ph => {
+    if(c.dayPhotos.some(x => x.sha === ph.sha)) return;
+    c.dayPhotos.push({ sha: ph.sha, day, at: ph.at, thumb: ph.thumb, source: 'day-bridge' });
+  });
+  c.updatedAt = ts();
+  saveAll(true);
+  renderPhotoDays();
+  toast(`✓ ${usable.length} תמונות שויכו ל${c.clientName} · הקש לביטול`, {
+    duration: 6000,
+    onAction: () => photoDayUndo(day, prev),
+  });
+}
+
+function photoDayUndo(day, prev){
+  const store = _photoDayStore();
+  const cur = store.assigned[day];
+  if(cur){
+    const c = getClient(cur.clientId);
+    if(c && Array.isArray(c.dayPhotos)){
+      c.dayPhotos = c.dayPhotos.filter(x => x.day !== day);
+      c.updatedAt = ts();
+    }
+  }
+  if(prev) store.assigned[day] = prev; else delete store.assigned[day];
+  saveAll(true);
+  renderPhotoDays();
+  toast('בוטל');
+}
+
+/* v3.47.0 — הוצאת תמונה בודדת מהקבוצה (הקשה עליה), עם החזרה בהקשה נוספת. */
+function photoDayTogglePhoto(sha){
+  const store = _photoDayStore();
+  if(store.hiddenPhotos[sha]) delete store.hiddenPhotos[sha];
+  else store.hiddenPhotos[sha] = ts();
+  saveAll(true);
+  renderPhotoDays();
+}
+
+function photoDayDismiss(day){
+  const store = _photoDayStore();
+  store.dismissed[day] = ts();
+  saveAll(true);
+  renderPhotoDays();
+  toast('היום הוסתר · הקש לביטול', { duration: 5000, onAction: () => {
+    delete _photoDayStore().dismissed[day]; saveAll(true); renderPhotoDays();
+  }});
+}
+
+function photoDayPickClient(day){
+  const rows = (S.clients || []).filter(c => !c.mergedIntoId)
+    .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)).slice(0, 40);
+  openMo(`
+    <div class="mo-title">למי לשייך את ${esc(_photoDayLabel(day))}?</div>
+    <div style="max-height:52vh;overflow:auto;margin-top:6px">
+      ${rows.map(c => `
+        <button class="wk-row" onclick="closeMo();photoDayAssign('${_jsAttr(day)}','${_jsAttr(c.id)}')">
+          <div class="wk-row-ico">${esc(_clientInitial ? _clientInitial(c) : '?')}</div>
+          <div class="wk-row-main"><div class="wk-row-t">${esc(c.clientName || 'לקוח')}</div>
+            <div class="wk-row-s">${esc(c.address || c.phone || '')}</div></div>
+        </button>`).join('') || '<div class="wk-empty"><p>אין לקוחות עדיין</p></div>'}
+    </div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="closeMo()">ביטול</button>`);
+}
+
+function _photoDayLabel(day){
+  const d = new Date(day + 'T12:00:00');
+  return d.toLocaleDateString('he-IL', { weekday:'long', day:'numeric', month:'long' });
+}
+
+function renderPhotoDays(){
+  const body = document.getElementById('photo-days-body');
+  if(!body) return;
+  const store = _photoDayStore();
+  const days = (_photoDays && _photoDays.days || []).filter(d => !store.dismissed[d.day]);
+  const pending = days.filter(d => !store.assigned[d.day]);
+
+  const card = (d) => {
+    const assigned = store.assigned[d.day];
+    const c = assigned ? getClient(assigned.clientId) : null;
+    const sug = assigned ? null : _photoDaySuggest(d.day);
+    const extra = d.total > d.photos.length ? ` · ועוד ${d.total - d.photos.length}` : '';
+    const hiddenN = d.photos.filter(x => store.hiddenPhotos[x.sha]).length;
+    return `
+      <div class="card" style="margin:10px 14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+          <div style="font-weight:900;font-size:16px">${esc(_photoDayLabel(d.day))}</div>
+          <div style="font-size:13px;color:var(--text2)">${d.photos.filter(x=>!store.hiddenPhotos[x.sha]).length} תמונות${extra}</div>
+        </div>
+        <div style="display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;-webkit-overflow-scrolling:touch">
+          ${d.photos.slice(0,12).map(ph => {
+            const off = !!store.hiddenPhotos[ph.sha];
+            return `<img src="${ph.thumb}" alt="" loading="lazy" title="${off ? 'הוצאה — הקש להחזרה' : 'הקש כדי להוציא'}"
+              onclick="photoDayTogglePhoto('${_jsAttr(ph.sha)}')"
+              style="width:82px;height:82px;object-fit:cover;border-radius:10px;flex:0 0 auto;cursor:pointer;
+                     border:${off ? '2px dashed var(--text3)' : '1px solid var(--line)'};
+                     opacity:${off ? '.35' : '1'};filter:${off ? 'grayscale(1)' : 'none'}">`;
+          }).join('')}
+        </div>
+        ${c ? `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px">
+            <div style="font-size:14px;color:var(--green);font-weight:800">✓ שויך ל${esc(c.clientName)}</div>
+            <button class="btn btn-ghost btn-xs" style="margin:0" onclick="photoDayUndo('${_jsAttr(d.day)}',null)">בטל</button>
+          </div>`
+        : `
+          ${hiddenN ? `<div style="font-size:12.5px;color:var(--text3);margin:2px 0 6px">${hiddenN} הוצאו — הקש עליהן להחזרה</div>` : ''}
+          ${sug ? `<div style="font-size:13.5px;color:var(--text2);margin:2px 0 8px">כנראה <b style="color:var(--text)">${esc(sug.name)}</b> — ${esc(sug.why)}</div>`
+                : `<div style="font-size:13.5px;color:var(--text2);margin:2px 0 8px">לא מצאתי ביקור באותו יום</div>`}
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${sug && sug.clientId ? `<button class="btn btn-gold btn-xs" style="margin:0" onclick="photoDayAssign('${_jsAttr(d.day)}','${_jsAttr(sug.clientId)}')">כן, ${esc(sug.name)}</button>` : ''}
+            <button class="btn btn-ghost btn-xs" style="margin:0" onclick="photoDayPickClient('${_jsAttr(d.day)}')">בחר לקוח</button>
+            <button class="btn btn-ghost btn-xs" style="margin:0;opacity:.85" onclick="photoDayDismiss('${_jsAttr(d.day)}')">לא רלוונטי</button>
+          </div>`}
+      </div>`;
+  };
+
+  body.innerHTML = `
+    <div class="wk-wrap" style="padding-top:6px">
+      ${!_photoDays ? `
+        <div class="wk-empty"><div class="wk-empty-i"><iconify-icon icon="mdi:cloud-download-outline" width="46"></iconify-icon></div>
+          <h3>טוען תמונות…</h3><p>החבילה נמשכת מהדרייב.</p></div>`
+      : (!days.length ? `
+        <div class="wk-empty"><div class="wk-empty-i"><iconify-icon icon="mdi:check-all" width="46"></iconify-icon></div>
+          <h3>אין תמונות לשיוך</h3><p>כל ימי-הצילום האחרונים כבר שויכו או הוסתרו.</p></div>`
+      : `<div class="wk-grp" style="padding-bottom:0"><span class="wk-grp-t">ממתינות לשיוך</span><span class="wk-grp-n">${pending.length}</span></div>
+         ${days.map(card).join('')}`)}
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    v3.44.0 — "טופל" (בקשת אור: "אפשרות לסמן טופל ולהעיף את הלקוח מהמסך הזה")
    סימון בלבד, אפס מחיקה: נשמרת חותמת-זמן לכל עבודה ב-S.todayDone. העבודה יורדת
    ממסך-היום — אבל **חוזרת מעצמה** אם קרה בה משהו חדש אחרי הסימון (הודעה, הצעה,
@@ -21929,6 +22196,16 @@ function renderClientDetail(){
         ${!c.kind ? `<span class="ch-since" style="align-self:center;margin-inline-end:4px">מי זה?</span>` : ''}
         ${CLIENT_KINDS.map(o => `<button class="ch-chip${c.kind === o.k ? ' nav' : ''}" style="${c.kind === o.k ? '' : 'font-weight:600'}" onclick="setClientKind('${esc(c.id)}','${o.k}')">${o.l}</button>`).join('')}
       </div>
+      ${/* v3.47.0 — תמונות שיוך-לפי-יום, ישירות על הכרטיס. אלה תמונות שאור צילם
+           בשטח באותו יום ושייך ללקוח בהקשה אחת; המקור נשאר בדרייב/במק. */''}
+      ${(Array.isArray(c.dayPhotos) && c.dayPhotos.length) ? `
+        <div style="margin-top:10px">
+          <div class="ch-since" style="margin-bottom:6px">${c.dayPhotos.length} תמונות מהשטח</div>
+          <div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px">
+            ${c.dayPhotos.slice(0,14).map(ph => `<img src="${ph.thumb}" alt="" loading="lazy" title="${esc(ph.day||'')}"
+                style="width:64px;height:64px;object-fit:cover;border-radius:9px;flex:0 0 auto;border:1px solid var(--line)">`).join('')}
+          </div>
+        </div>` : ''}
       ${_clientIsArchived(c) ? `<div class="ch-since" style="margin-top:8px">בארכיון מאז ${esc(new Date(c.archivedAt).toLocaleDateString('he-IL'))}</div>` : ''}
       <div class="ch-actions">
         ${c.phone ? `<button onclick="openWhatsApp('${esc(c.phone)}')"><iconify-icon icon="mdi:whatsapp"></iconify-icon> WhatsApp</button>` : ''}
@@ -41782,6 +42059,7 @@ async function init(){
   const gitD = await dbGet('gitDev');           if(gitD) S.gitDev = {...S.gitDev, ...gitD};  // v3.9.32
   // v3.44.1 (תיקון-רגרסיה) — בלי הטעינה הזאת כל "טופל" חזר אחרי רענון (ראה ההערה ב-_saveAllInner)
   const tdDone = await dbGet('todayDone');      if(tdDone && typeof tdDone === 'object' && !Array.isArray(tdDone)) S.todayDone = tdDone;
+  const pDays  = await dbGet('photoDays');     if(pDays && typeof pDays === 'object' && !Array.isArray(pDays)) S.photoDays = pDays;
   // v3.23.4 (SEC-03) — this PAT can push straight to the production repo's main branch. It
   // never leaves IDB (excluded from every export/backup/sync — see _buildCompleteBackup,
   // SYNC_ENTITIES, _lsBackupReplacer, _obvMirrorValue), but any XSS on this origin can still
