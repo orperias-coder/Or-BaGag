@@ -7788,7 +7788,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.44.0'; // שיקום, סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.44.1'; // תיקון-רגרסיה: סימוני "טופל" נשמרים ושורדים רענון. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7864,6 +7864,7 @@ const S = {
   leads: [],            // V2.5 — opportunities pipeline
   clients: [],          // v3.19.0 — unified customer records (anyone with a visit/project). Computed via migration on first run.
   clientMigrationCompletedAt: null, // v3.19.0 — timestamp of last successful clients migration; null = needs to run
+  todayDone: {},        // v3.44.0 — סימוני "טופל" במסך-היום: workId → חותמת. נשמר ונטען (v3.44.1)
   waBlocklist: [],      // v3.10.0 — phones to always skip when importing from WhatsApp ({phone, name, addedAt}[])
   expenses: [],         // V2.5 — per-project expenses
   products: [],         // V2.8 — services catalog (work types with prices + descriptions)
@@ -8665,6 +8666,10 @@ async function _saveAllInner(quiet){
       ['gdrive', S.gdrive], ['gitDev', S.gitDev],
     ];
     if(typeof S.clients !== 'undefined') _pairs.push(['clients', S.clients]);
+    // v3.44.1 (תיקון-רגרסיה) — todayDone (סימוני "טופל" במסך-היום) נכתב בזיכרון ב-v3.44.0
+    // אך לא נשמר ולא נטען → כל רענון החזיר את כל מי שאור סימן כטופל. אותה מחלקת-באג
+    // בדיוק שתוקנה ל-clients (v3.21.95) ול-workTypeTemplates (v3.22.15).
+    if(typeof S.todayDone !== 'undefined') _pairs.push(['todayDone', S.todayDone]);
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
     if(typeof S.workTypeTemplates !== 'undefined') _pairs.push(['workTypeTemplates', S.workTypeTemplates]);
@@ -41722,6 +41727,8 @@ async function init(){
   const lqy = await dbGet('lastQuoteYear');     if(typeof lqy === 'number') S.lastQuoteYear = lqy;
   const gd = await dbGet('gdrive');             if(gd) S.gdrive = {...S.gdrive, ...gd};  // v3.9.30
   const gitD = await dbGet('gitDev');           if(gitD) S.gitDev = {...S.gitDev, ...gitD};  // v3.9.32
+  // v3.44.1 (תיקון-רגרסיה) — בלי הטעינה הזאת כל "טופל" חזר אחרי רענון (ראה ההערה ב-_saveAllInner)
+  const tdDone = await dbGet('todayDone');      if(tdDone && typeof tdDone === 'object' && !Array.isArray(tdDone)) S.todayDone = tdDone;
   // v3.23.4 (SEC-03) — this PAT can push straight to the production repo's main branch. It
   // never leaves IDB (excluded from every export/backup/sync — see _buildCompleteBackup,
   // SYNC_ENTITIES, _lsBackupReplacer, _obvMirrorValue), but any XSS on this origin can still

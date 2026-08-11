@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.44.1 — cache bump (תיקון-רגרסיה: סימוני "טופל" נשמרים ונטענים).
  * v3.44.0 — cache bump (סבב אור: "טופל" במסך-היום, הלשונית "לקוחות", "ההצעה התקבלה" → מסך הכסף).
  * v3.43.0 — cache bump (שיקום שלב 1-5: ניווט אחד, מסך "היום", זרימת-ההצעה, כרטיס-הלקוח ותיקון הדוחות).
  * v3.42.0 — cache bump (אפשרות GIS ממשלתי (govmap) בגיליון-הניווט של כתובת — ראה comment ליד APP_VERSION).
@@ -39,7 +40,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.44.0';
+const CACHE_NAME = 'or-bagag-cache-v3.44.1';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
