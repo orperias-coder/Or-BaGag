@@ -7338,6 +7338,17 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
         <div class="ec-arrow">→</div>
       </div>
 
+      <!-- v3.48.0 (שלב 3) — כפתור-התקנה. מוסתר כברירת-מחדל ונחשף רק כשהדפדפן
+           מדווח שההתקנה אפשרית (beforeinstallprompt), כדי לא להציע משהו שלא יעבוד. -->
+      <div class="entry-card" id="install-card" style="display:none" onclick="promptInstallApp()">
+        <div class="ec-ico"><iconify-icon icon="mdi:cellphone-arrow-down" width="26"></iconify-icon></div>
+        <div class="ec-body">
+          <div class="ec-title">התקן כאפליקציה</div>
+          <div class="ec-sub">פתיחה מהמסך הראשי, בלי סרגל-דפדפן</div>
+        </div>
+        <div class="ec-arrow">→</div>
+      </div>
+
       <!-- v3.45.0 (שלב 0) — מסך "חסומים מ-WhatsApp" היה מנותק: הכניסה היחידה אליו היא
            openWaBlocklist(), ולפונקציה הזאת לא היה אף קורא. הפיצ'ר חי ומשמש את צינור-הייבוא
            (waBlocklist מסונן ב-_waImportProcessJsonText), ולכן חובר מחדש במקום להימחק. -->
@@ -7778,7 +7789,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.47.0'; // תמונות-היום: קבוצת-יום מהמנוע מוצעת לשיוך ללקוח בהקשה אחת. הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב, בלי מגע-יד. שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.48.0'; // אנדרואיד: שיתוף-תמונה מוואטסאפ ישירות לאפליקציה, כפתור-התקנה, והרשאת-התראות בהקשה. תמונות-היום: קבוצת-יום מהמנוע מוצעת לשיוך ללקוח בהקשה אחת. הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב, בלי מגע-יד. שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -20004,6 +20015,121 @@ async function _driveReadJsonByName(fileName, silent){
 }
 
 const PHOTO_DAYS_FILE = 'photo-days-latest.json';
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.48.0 (שלב 3) — התקנה כאפליקציה
+   רקע: עד v3.21.25 ההתקנה הייתה שבורה לגמרי (המניפסט הוגש מ-blob וכרום נתן
+   "הוסף קיצור דרך" במקום "התקן אפליקציה"). גם אחרי התיקון לא היה שום כפתור-התקנה
+   באפליקציה — התלות הייתה בתפריט-הכרום, שאור צריך לדעת למצוא. עכשיו הדפדפן מודיע
+   שההתקנה אפשרית, ואנחנו שומרים את האירוע ומציגים כפתור בהגדרות.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.48.0 (שלב 3) — קליטת תמונה ששותפה מוואטסאפ (או מכל אפליקציה)
+   ה-service worker קלט את ה-POST ושמר את הקבצים ב-Cache Storage. כאן שולפים
+   אותם, מציגים אותם לאור, והוא בוחר לקוח בהקשה אחת. זה המסלול הישיר ביותר
+   מהשטח לתיק-הלקוח: אין העתקה לגלריה, אין ייצוא, אין מחשב.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const SHARE_CACHE = 'or-bagag-share';
+const SHARE_KEY   = '/__shared_payload__';
+
+async function _readSharedPayload(){
+  try{
+    if(!('caches' in window)) return null;
+    const cache = await caches.open(SHARE_CACHE);
+    const metaRes = await cache.match(SHARE_KEY);
+    if(!metaRes) return null;
+    const meta = await metaRes.json();
+    const blobs = [];
+    for(let i = 0; i < (meta.count || 0); i++){
+      const r = await cache.match(`${SHARE_KEY}/${i}`);
+      if(r) blobs.push(await r.blob());
+    }
+    return { meta, blobs };
+  }catch(e){ console.warn('[share] read failed', e); return null; }
+}
+async function _clearSharedPayload(){
+  try{ await caches.delete(SHARE_CACHE); }catch(e){}
+}
+
+async function handleIncomingShare(){
+  const payload = await _readSharedPayload();
+  if(!payload || !payload.blobs.length){ await _clearSharedPayload(); return; }
+  const urls = payload.blobs.map(b => URL.createObjectURL(b));
+  const rows = (S.clients || []).filter(c => !c.mergedIntoId)
+    .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0)).slice(0, 30);
+  openMo(`
+    <div class="mo-title">${payload.blobs.length} תמונות שותפו — למי הן שייכות?</div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding:8px 0 12px">
+      ${urls.map(u => `<img src="${u}" alt="" style="width:78px;height:78px;object-fit:cover;border-radius:10px;flex:0 0 auto;border:1px solid var(--line)">`).join('')}
+    </div>
+    <div style="max-height:44vh;overflow:auto">
+      ${rows.map(c => `
+        <button class="wk-row" onclick="_shareAssignTo('${_jsAttr(c.id)}')">
+          <div class="wk-row-ico">${esc(typeof _clientInitial === 'function' ? _clientInitial(c) : '?')}</div>
+          <div class="wk-row-main"><div class="wk-row-t">${esc(c.clientName || 'לקוח')}</div>
+            <div class="wk-row-s">${esc(c.address || c.phone || '')}</div></div>
+        </button>`).join('') || '<div class="wk-empty"><p>אין לקוחות עדיין</p></div>'}
+    </div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="closeMo();_clearSharedPayload()">לא עכשיו</button>`);
+}
+
+async function _shareAssignTo(clientId){
+  const c = getClient(clientId);
+  const payload = await _readSharedPayload();
+  if(!c || !payload){ closeMo(); return; }
+  let saved = 0;
+  for(const blob of payload.blobs){
+    try{
+      const dataUrl = await new Promise((res, rej) => {
+        const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob);
+      });
+      const ph = await _makeVisitPhoto(dataUrl, dataUrl, `client-${c.id}-share`, { source: 'share', ts: ts() });
+      if(!Array.isArray(c.dayPhotos)) c.dayPhotos = [];
+      c.dayPhotos.push({ sha: ph.blobKey || ph.id, day: new Date().toISOString().slice(0,10),
+                         at: new Date().toISOString(), thumb: ph.thumbDataUrl || dataUrl, source: 'share' });
+      saved++;
+    }catch(e){ console.warn('[share] save failed', e); }
+  }
+  c.updatedAt = ts();
+  saveAll(true);
+  await _clearSharedPayload();
+  closeMo();
+  toast(`✓ ${saved} תמונות נשמרו אצל ${c.clientName}`);
+  S.activeClientId = c.id; push('client-detail'); renderClientDetail();
+}
+
+let _installPrompt = null;
+function _isStandalone(){
+  return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();               // אנחנו מחליטים מתי להציע, לא הדפדפן
+  _installPrompt = e;
+  const row = document.getElementById('install-card');
+  if(row) row.style.display = '';
+});
+window.addEventListener('appinstalled', () => {
+  _installPrompt = null;
+  const row = document.getElementById('install-card');
+  if(row) row.style.display = 'none';
+  toast('✓ האפליקציה הותקנה');
+});
+async function promptInstallApp(){
+  if(_isStandalone()){ toast('האפליקציה כבר מותקנת'); return; }
+  if(!_installPrompt){
+    openMo(`<div class="mo-title">התקנה כאפליקציה</div>
+      <div style="font-size:14px;line-height:1.7;color:var(--text2)">
+        הדפדפן לא הציע התקנה כרגע. בכרום באנדרואיד: תפריט (⋮) ← <b>התקן אפליקציה</b>.<br>
+        אם מופיע רק "הוסף קיצור דרך" — נקה את נתוני-האתר ונסה שוב.
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="closeMo()">סגור</button>`);
+    return;
+  }
+  _installPrompt.prompt();
+  try { await _installPrompt.userChoice; } catch(e){}
+  _installPrompt = null;
+}
+
 let _photoDays = null;          // { days:[...], generatedAt }
 let _photoDaysBusy = false;
 
@@ -42216,14 +42342,15 @@ async function init(){
     });
   }
 
-  // Daily summary notifications
-  requestNotificationPermission().then(granted=>{
-    if(granted){
-      // SW כבר נרשם למעלה
-      scheduleDailyNotification();    // 20:30 — סיכום יום
-      scheduleMorningNotification();  // 9:00 — משימות דחופות
-    }
-  });
+  /* v3.48.0 (שלב 3) — בקשת-ההרשאה כבר לא רצה אוטומטית בעלייה.
+     אנדרואיד וכרום חוסמים בקשת-הרשאה שלא באה מהקשה של המשתמש, ובקשה שנחסמה
+     נספרת לרעת האתר — כלומר הדפוס הקודם דווקא הקטין את הסיכוי לקבל התראות.
+     ההרשאה נשארת מבוקשת מהמתג בהגדרות (_toggleNotifications). מי שכבר אישר
+     בעבר — התזמון ממשיך לרוץ כרגיל, בלי לבקש שוב. */
+  if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+    scheduleDailyNotification();    // 20:30 — סיכום יום
+    scheduleMorningNotification();  // 9:00 — משימות דחופות
+  }
   // v3.9.54 — ההפעלה האוטומטית הושבתה. תחזור עם המסך החדש (v3.9.55+).
   // setTimeout(checkAndShowDailySummary, 5000);
 
@@ -42565,6 +42692,13 @@ async function init(){
   // v3.36.0 — קליטת ייבוא-לידים מכלי "וואטסאפ-לידים" המקומי, אם יש #waimport= בכתובת.
   // לא ממתינים ל-Promise (fetch לוקאלי, לא לחסום את עליית שאר האפליקציה).
   if(typeof waImportFromUrlBoot === 'function') waImportFromUrlBoot();
+
+  // v3.48.0 — תמונה ששותפה מוואטסאפ: ה-SW כבר שמר אותה, כאן מציעים לשייך.
+  try {
+    if(new URLSearchParams(location.search).has('share') && typeof handleIncomingShare === 'function'){
+      setTimeout(handleIncomingShare, 800);
+    }
+  } catch(e){ console.warn('[share] boot hook failed', e); }
 
   /* v3.46.0 (הגשר) — משיכה שקטה של לידים מהדרייב בעליית האפליקציה.
      זה מה שסוגר את הלולאה: הכלי במק כותב בסוף כל ריצה יומית, והטלפון מושך לבד —

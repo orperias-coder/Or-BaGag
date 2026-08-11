@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.48.0 — cache bump (אנדרואיד: share_target, כפתור-התקנה, הרשאת-התראות בהקשה).
  * v3.47.0 — cache bump (תמונות-היום: קבוצת-יום מוצעת לשיוך ללקוח בהקשה אחת).
  * v3.46.0 — cache bump (הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב).
  * v3.45.0 — cache bump (שלב 0: ניקוי, כפילות-אנשים, ביטול-מיזוג, תאריך-צילום, עקביות-מסמכים).
@@ -47,7 +48,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.47.0';
+const CACHE_NAME = 'or-bagag-cache-v3.48.0';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
@@ -168,7 +169,37 @@ async function cacheFirst(req) {
   }
 }
 
+/* v3.48.0 (שלב 3) — קליטת share_target.
+   כשאור משתף תמונה מוואטסאפ אל "אור בגג", אנדרואיד שולח POST אל ./?share=1 עם
+   הקבצים. ה-POST הזה חייב להיקלט כאן: אין שרת, וניווט-POST רגיל היה מחזיר 405.
+   הקבצים נשמרים ב-Cache Storage תחת מפתח ידוע, והדף נטען מיד עם ?share=1 —
+   האפליקציה שולפת אותם משם בעלייה ומציעה לאור לשייך אותם.
+   שום דבר לא נשלח לשום מקום; הכל נשאר על המכשיר. */
+const SHARE_CACHE = 'or-bagag-share';
+const SHARE_KEY   = '/__shared_payload__';
+
+async function handleShareTarget(event){
+  try{
+    const form = await event.request.formData();
+    const files = form.getAll('photos').filter(f => f && f.size);
+    const meta  = { title: form.get('title') || '', text: form.get('text') || '',
+                    url: form.get('url') || '', count: files.length, at: Date.now() };
+    const cache = await caches.open(SHARE_CACHE);
+    await cache.put(SHARE_KEY, new Response(JSON.stringify(meta), { headers: { 'Content-Type': 'application/json' } }));
+    for(let i = 0; i < files.length; i++){
+      await cache.put(`${SHARE_KEY}/${i}`, new Response(files[i], {
+        headers: { 'Content-Type': files[i].type || 'image/jpeg' } }));
+    }
+  }catch(e){ /* שיתוף שנכשל לא ישבור את הפתיחה — הדף ייטען בלי מטען */ }
+  return Response.redirect('./?share=1', 303);
+}
+
 self.addEventListener('fetch', event => {
+  // v3.48.0 — share_target: POST אל השורש עם ?share=1
+  if (event.request.method === 'POST' && new URL(event.request.url).searchParams.has('share')) {
+    event.respondWith(handleShareTarget(event));
+    return;
+  }
   const req = event.request;
   if (req.method !== 'GET') return;                 // writes (Supabase POST etc.) → straight to network
   let url;
