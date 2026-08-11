@@ -7788,7 +7788,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.44.2'; // תיקון: כסף של הצעה שהתקבלה לא נעלם בין "התקבלה" לתחילת-העבודה. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.44.3'; // תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -19844,11 +19844,18 @@ function _workIsLive(w){
   const age = Date.now() - (w.updatedAt || 0);
   return age <= WORK_RECENT_DONE_DAYS * 86400000;
 }
+/* v3.44.3 (ביקורת-קוהרנטיות) — "סיום טיפול" בכרטיס-הלקוח הודיע שהלקוח עבר לארכיון,
+   אבל הוא נשאר בלשונית "לקוחות" (מסך-העבודות) כאילו כלום. מעכשיו עבודה של לקוח
+   מאורכב יורדת מהרשימה — אבל **לא** מהחיפוש ולא מלשונית "הכל", כדי ששום דבר לא ייעלם. */
+function _workClientArchived(w){
+  const c = w && w.clientId && typeof getClient === 'function' ? getClient(w.clientId) : null;
+  return typeof _clientIsArchived === 'function' ? _clientIsArchived(c) : false;
+}
 function _worksMatching(){
   const all = getWorks();
   const q = (_worksQuery || '').trim().toLowerCase();
   // חיפוש עוקף את הסינון לגמרי — מי שמחפש מצפה למצוא, גם עבודה מלפני שנה
-  const pool = q ? all : (_worksScope === 'all' ? all : all.filter(_workIsLive));
+  const pool = q ? all : (_worksScope === 'all' ? all : all.filter(w => _workIsLive(w) && !_workClientArchived(w)));
   if(!q) return pool;
   return pool.filter(w => {
     const hay = [ _workClientName(w), w.title, _workPhone(w), _workAddress(w),
@@ -20017,29 +20024,46 @@ function _todayBuckets(){
     if(w.stage === 'done' && !(w.due > 0)) return;
     if(_todayIsDone(w)){ b.doneToday.push({ w, at: _todayDoneMap()[w.id] }); return; }
 
-    // 1. ביקור שכבר בוצע (לא מתוכנן לעתיד) ואין לעבודה שום הצעה
-    const doneVisit = w.visits.find(v => {
-      const at = v.scheduledAt || v.date || v.createdAt || 0;
+    // v3.44.3 (ביקורת-קוהרנטיות) — כסף פתוח נבדק ראשון בשיוך-הדלי. קודם הוא נבדק אחרון,
+    // ולכן עבודה עם חוב שהיה בה גם ביקור טרי בלי הצעה נבלעה בדלי-הביקורים והחוב לא הופיע
+    // כלל במסך-היום. סדר-התצוגה על המסך לא השתנה — הוא עדיין סבב-הערב של אור.
+    if(w.due > 0){ b.toCollect.push({ w, at: w.updatedAt || 0 }); return; }
+
+    // 1. ביקור שזמנו עבר ואין לעבודה שום הצעה.
+    // v3.44.3 — קודם כל ביקור כזה תואר "הביקור היה לפני X", גם אם הוא רק תוכנן ולא התקיים.
+    // לא מסננים אותו החוצה (אור לא תמיד סוגר ביקור באפליקציה, ואסור שעבודה אמיתית תיעלם) —
+    // אלא מסמנים אם הוא נסגר בפועל, והשורה אומרת את האמת בהתאם.
+    const pastVisit = w.visits.find(v => {
+      const at = v.finishedAt || v.scheduledAt || v.date || v.createdAt || 0;
       return at && at <= now && (now - at) <= TODAY_VISIT_WINDOW_DAYS * DAY;
     });
-    if(doneVisit && !w.quotes.length){ b.visitNoQuote.push({ w, at: doneVisit.scheduledAt || doneVisit.date || doneVisit.createdAt || 0 }); return; }
+    if(pastVisit && !w.quotes.length){
+      const finished = !!(pastVisit.finishedAt || pastVisit.status === 'finished' || pastVisit.status === 'done');
+      b.visitNoQuote.push({
+        w, finished,
+        at: pastVisit.finishedAt || pastVisit.scheduledAt || pastVisit.date || pastVisit.createdAt || 0,
+      });
+      return;
+    }
 
     // 2. פנייה חדשה שעוד לא הפכה לביקור או להצעה
     if(w.stage === 'lead' && !w.visits.length && !w.quotes.length){
       b.newLead.push({ w, at: (w.lead && (w.lead.createdAt || w.lead.updatedAt)) || w.updatedAt || 0 }); return;
     }
 
-    // 3. הצעה שנשלחה ושותקת מספיק זמן כדי להזכיר
-    const sent = w.quotes.find(q => q.sentAt);
-    if(sent){
-      const days = Math.floor((now - sent.sentAt) / DAY);
-      if(days >= QUOTE_NUDGE_DAYS && w.stage !== 'project' && !(w.due > 0)){
-        b.quoteWaiting.push({ w, at: sent.sentAt, days, quote: sent }); return;
+    // 3. הצעה שנשלחה ועדיין פתוחה.
+    // v3.44.3 — שני תיקונים: (א) הצעה שכבר התקבלה או נדחתה נשארה כאן עם "הכן תזכורת",
+    // כי הסינון היה על sentAt בלבד ולא על הסטטוס. (ב) כשהיו כמה הצעות לאותה עבודה
+    // נבחרה הראשונה במערך ולא העדכנית — ולכן "התקבלה!" סימן את ההצעה הלא-נכונה.
+    const openSent = w.quotes
+      .filter(q => q.sentAt && q.status === 'sent')
+      .sort((x, y) => (y.sentAt || 0) - (x.sentAt || 0))[0];
+    if(openSent){
+      const days = Math.floor((now - openSent.sentAt) / DAY);
+      if(days >= QUOTE_NUDGE_DAYS && w.stage !== 'project'){
+        b.quoteWaiting.push({ w, at: openSent.sentAt, days, quote: openSent }); return;
       }
     }
-
-    // 4. כסף פתוח
-    if(w.due > 0){ b.toCollect.push({ w, at: w.updatedAt || 0 }); return; }
   });
   // בתוך כל דלי: הישן קודם — מי שמחכה הכי הרבה זמן הוא הדחוף ביותר
   Object.values(b).forEach(list => list.sort((x, y) => (x.at || 0) - (y.at || 0)));
@@ -20091,7 +20115,10 @@ function renderToday(){
     : '';
 
   const s1 = section('ביקורים שמחכים להצעה', b.visitNoQuote.map(e =>
-    _todayRowHtml(e, `הביקור היה ${_humanTimeAgo(Date.now() - e.at)} — עוד אין הצעה`,
+    _todayRowHtml(e,
+      e.finished
+        ? `הביקור הסתיים ${_humanTimeAgo(Date.now() - e.at)} — עוד אין הצעה`
+        : `הביקור היה אמור להתקיים ${_humanTimeAgo(Date.now() - e.at)} — לא נסגר ואין הצעה`,
       'הכן הצעה', `_todayStartQuote('${_jsAttr(e.w.id)}')`)));
 
   const s2 = section('פניות חדשות', b.newLead.map(e =>
@@ -40277,6 +40304,32 @@ function doConvertQuoteToProject(quoteId){
     sourceItemId: i.id,
     notes: i.description || '',
   }));
+
+  /* v3.44.3 (ביקורת-קוהרנטיות — באג-חיוב קריטי) — ההנחה נעלמה במעבר להצעה→פרויקט.
+     estimatedTotal נשמר נטו (אחרי הנחה), אבל המשימות נבנו במחיר-המלא, ו-totalPrice/totalDue
+     — מקור-האמת של הכסף בפרויקט — סוכמים משימות. התוצאה שנמדדה: לקוח אישר 15,930 ₪
+     (15,000 פחות 10% ועוד מע"מ) והפרויקט דרש 17,700 ₪ — פער של 1,770 ₪ לרעת הלקוח.
+     התיקון: פורסים את ההנחה על המשימות באופן יחסי, כך שסכומן שווה בדיוק לנטו שאושר.
+     שארית-העיגול נופלת על השורה האחרונה כדי שהסכום יהיה מדויק לשקל. ההנחה המקורית
+     נשמרת על הפרויקט (quoteDiscount) כדי שתמיד יהיה אפשר להראות מאיפה הגיע המספר. */
+  const _grossTasks = tasks.reduce((s, t) => s + (parseFloat(t.price) || 0), 0);
+  let _quoteDiscount = null;
+  if(_grossTasks > 0 && netPreVat >= 0 && Math.round(netPreVat) !== Math.round(_grossTasks)){
+    const ratio = netPreVat / _grossTasks;
+    let running = 0;
+    tasks.forEach((t, idx) => {
+      const scaled = (idx === tasks.length - 1)
+        ? Math.round((netPreVat - running) * 100) / 100
+        : Math.round((parseFloat(t.price) || 0) * ratio * 100) / 100;
+      running += scaled;
+      const qty = parseFloat(t.qty) || 1;
+      t.price = scaled;
+      t.pricePerUnit = qty ? Math.round((scaled / qty) * 100) / 100 : scaled;
+    });
+    _quoteDiscount = { beforeDiscount: Math.round(_grossTasks), afterDiscount: Math.round(netPreVat),
+                       amount: Math.round(_grossTasks - netPreVat), quoteId: q.id, quoteCode: q.quoteCode || '' };
+  }
+
   const project = _buildNewProject({
     sourceVisitId: q.sourceVisitId || null,
     sourceQuoteId: q.id,
@@ -40288,6 +40341,8 @@ function doConvertQuoteToProject(quoteId){
     findingsSnapshot: q.items.filter(i => !i.pendingDelete && !i.isDiscountLine).length,
     tasks,
   });
+  // v3.44.3 — תיעוד ההנחה שנפרסה על המשימות, כדי שהמספר לעולם לא ייראה "סתם נמוך יותר"
+  if(_quoteDiscount) project.quoteDiscount = _quoteDiscount;
   // v3.22.10 — קשר ללקוח לפני השמירה (כמו הנתיב הידני) — אחרת פרויקט-מהצעה יתום מכרטיס-הלקוח
   if(typeof _autoLinkClient === 'function') _autoLinkClient(project, 'project');
   S.projects.unshift(project);
@@ -40311,7 +40366,8 @@ function doConvertQuoteToProject(quoteId){
   S.activeProjectId = project.id;
   push('project-detail');
   renderProjectDetail();
-  toast('🔨 פרויקט פעיל נוצר!');
+  // v3.44.3 — ההודעה אמרה "פעיל" בעוד הפרויקט נולד במצב "מתוכנן". נוסח שתואם למציאות.
+  toast('🔨 נפתח פרויקט — מתוכנן, ממתין לתחילת עבודה');
   vib(30);
 }
 
