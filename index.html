@@ -7789,7 +7789,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.53.0'; // המסלול שאור אישר נכנס למסך-הלקוחות: הקבוצות הן תחנות-המסלול (לבירור ← ליצירת קשר ← ביקור מתואם ← לשלוח הצעה ← במעקב ← לתיאום ביצוע ← בביצוע ← גבייה ← נגמר) במקום "דורש טיפול/בביצוע" העמומות. נוסף שלב-הבירור: "מתאים לי / לא מתאים" על כל פנייה חדשה, וכפתור "קדם שלב" בכל שורה עם הפעולה הטבעית של התחנה. כולל 3.52.0 (המסך נקרא לקוחות) ו-3.51.0 (תור-הוואטסאפ).
+const APP_VERSION = '3.54.0'; // פרלשטיין קודם מדמו לפרויקט אמיתי (74,871₪ נכנסים להכנסות, הגירה הפיכה, דמו נקי לא מקודם). הלוגו של אור מופיע עכשיו גם בשני דוחות-התמונות (מהביקור ומההצעה) — ב-PDF הראשי הוא כבר היה. כולל 3.53.0 (תחנות-המסלול).
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -14248,6 +14248,7 @@ async function _applyImportedData(d, opts){
      הנחה שאבדה בהמרה מהצעה לפרויקט. אותן הגירות, אותו סדר, גם כאן. */
   if(typeof _migrateEstTotalsPreVat === 'function')      _migrateEstTotalsPreVat();
   if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
+  if(typeof _migratePromotePerlstein === 'function')     _migratePromotePerlstein();   // v3.54.0
   if(typeof _migrateQuoteClientIds === 'function')       _migrateQuoteClientIds();
 
   saveAll();
@@ -18581,6 +18582,7 @@ async function wz4BuildPhotoReport(){
     <div style="max-width:680px;margin:0 auto;padding:32px 20px">
       <!-- כותרת -->
       <div style="text-align:center;margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid #e5ddd0">
+        ${b.logoData ? `<img src="${b.logoData}" alt="" style="max-width:120px;max-height:84px;display:block;margin:0 auto 8px">` : ''}
         <div style="font-size:28px;font-weight:900;color:#2a1f12;margin-bottom:4px">${esc(b.businessName||'אור בגג')}</div>
         <div style="font-size:15px;color:#9a7c5e">${esc(b.ownerName||'')} ${b.phone?`· <span dir="ltr">${esc(b.phone)}</span>`:''}</div>
         <div style="margin-top:20px;background:#faf5ed;border-radius:12px;padding:16px;text-align:right">
@@ -18968,6 +18970,41 @@ function _migrateQuoteDiscountToTasks(){
     console.log(`[v3.50.0] הנחה שוחזרה ב-${changed} פרויקט(ים) שנוצרו לפני v3.44.3`);
   }
   return changed;
+}
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.54.0 — פרלשטיין הוא לקוח אמיתי, לא דמו.
+   אור (11.08): "פרלשטיין כבר בוצע מזמן, התקבל הכסף... הזנתי גם הוצאות כי התלהבתי."
+   הפרויקט נולד מכפתור-הדמו (id='demo-perlstein', source='demo') ואור מילא אותו
+   בנתונים אמיתיים — תשלום של 74,871₪ שהמערכת התעלמה ממנו כי _isDemoProject מסנן
+   את הדמו מכל חישובי-הכסף. ההוכחה שהוא אמיתי: הסיד יוצר payments ריק, ולכן תשלום
+   רשום = אור הזין אותו. ההגירה מקדמת אותו לפרויקט מן-המניין, פעם אחת, הפיך
+   (_wasDemoId נשמר). כפתור "טען דמו" בהגדרות ימשיך לעבוד — הוא ייצור דמו חדש ונקי.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _migratePromotePerlstein(){
+  const p = (S.projects || []).find(x => x && x.id === 'demo-perlstein');
+  if(!p) return 0;
+  const paid = (p.payments || []).reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
+  if(!(paid > 0)) return 0;                       // דמו נקי — נשאר דמו
+  const oldId = p.id;
+  p._wasDemoId = oldId;
+  p.id = 'proj-perlstein-real';
+  delete p.source;
+  // אור: "כבר בוצע מזמן, התקבל הכסף" — הושלם, לא פעיל
+  if((p.status || 'active') === 'active'){ p.status = 'done'; p.actualEndDate = p.actualEndDate || p.updatedAt; }
+  p.updatedAt = ts();
+  // כל מי שהצביע על המזהה הישן עובר איתו
+  (S.expenses || []).forEach(e => { if(e && e.projectId === oldId) e.projectId = p.id; });
+  (S.quotes || []).forEach(q => { if(q && q.linkedProjectId === oldId) q.linkedProjectId = p.id; });
+  (S.visits || []).forEach(v => {
+    if(Array.isArray(v && v.linkedProjectIds)){
+      const i = v.linkedProjectIds.indexOf(oldId);
+      if(i > -1) v.linkedProjectIds[i] = p.id;
+    }
+  });
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  if(typeof saveAll === 'function') saveAll(true);
+  console.log('[v3.54.0] פרלשטיין קודם לפרויקט אמיתי — 74,871₪ נספרים עכשיו בהכנסות');
+  return 1;
 }
 function _migrateEstTotalsPreVat(){
   let changed = 0;
@@ -39687,6 +39724,7 @@ async function qBuildPhotoReport(lang='he'){
     </div>
     <div style="max-width:680px;margin:0 auto;padding:32px 20px">
       <div style="text-align:center;margin-bottom:32px;padding-bottom:24px;border-bottom:2px solid #e5ddd0">
+        ${b.logoData ? `<img src="${b.logoData}" alt="" style="max-width:120px;max-height:84px;display:block;margin:0 auto 8px">` : ''}
         <div style="font-size:28px;font-weight:900;color:#2a1f12;margin-bottom:4px">${e(b.businessName||'אור בגג')}</div>
         <div style="font-size:15px;color:#9a7c5e">${e(b.ownerName||'')} ${b.phone?`· ${e(b.phone)}`:''}</div>
         <div style="margin-top:20px;background:#faf5ed;border-radius:12px;padding:16px;text-align:${PL.dir==='rtl'?'right':'left'}">
@@ -43073,6 +43111,7 @@ async function init(){
   if(typeof _migrateEstTotalsPreVat === 'function') _migrateEstTotalsPreVat();   // v3.22.43 (#2) — estimatedTotal ללפני-מע"מ
   // v3.50.0 — אחרי נרמול estimatedTotal, כי ההשוואה כאן היא מול סעיפי-ההצעה עצמם
   if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
+  if(typeof _migratePromotePerlstein === 'function') _migratePromotePerlstein();   // v3.54.0 — פרלשטיין אמיתי
   if(typeof _migrateQuoteClientIds === 'function') _migrateQuoteClientIds();   // v3.26.0 (C1) — quote.clientId מ-sourceVisitId
   if(typeof _cleanGhostRecords === 'function') _cleanGhostRecords();   // v3.22.26 (3.15)
   // v3.22.33 (6.12) — נקה דגלי-שאיבה ישנים שנתקעו על פרויקטים מגרסאות קודמות
