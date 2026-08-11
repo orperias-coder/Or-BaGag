@@ -7789,7 +7789,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.48.1'; // תיקון: מיזוג ללקוח קיים לא נעצר באמצע בגלל תמונה כפולה. אנדרואיד: שיתוף-תמונה מוואטסאפ ישירות לאפליקציה, כפתור-התקנה, והרשאת-התראות בהקשה. תמונות-היום: קבוצת-יום מהמנוע מוצעת לשיוך ללקוח בהקשה אחת. הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב, בלי מגע-יד. שלב 0 — ניקוי: 21 פונקציות מתות ומסך-גלריה מת הוסרו, חסימות-וואטסאפ חוברו מחדש. עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.49.0'; // סיום-טיפול בלקוח עם סיבה (בוצע / לא רלוונטי / לא חזר / המחיר לא התאים), ואחרי "בוצע" — שאלת-הכסף: התקבל / עוד לא / ויתרתי, דרך רישום-תשלום אמיתי. "מחכה ללקוח" מסתיר לשבוע/חודש ומחזיר מעצמו לדלי "חזרו לטיפול". תיקון-באג: לקוח מאורכב עם חוב פתוח נעלם משלוש הלשוניות במסך-האנשים.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -15952,7 +15952,10 @@ function _dashHtml(){
   // New-lead badge · active projects. (money-to-collect moved into _computeStuckRows(), v3.24.1)
   const _ckNewLeads = (S.leads||[]).filter(l => l.status === 'new').length;
   // v3.21.76 — unified "לקוחות" tile shows the active-clients count.
-  const _ckActiveClients = (typeof _clientIsActive === 'function') ? (S.clients||[]).filter(_clientIsActive).length : (S.clients||[]).length;
+  // v3.49.0 — לקוח שהטיפול בו נסגר לא נספר כ"פעיל" (אותו כלל כמו בכל שאר המסכים)
+  const _ckActiveClients = (typeof _clientIsActive === 'function')
+    ? (S.clients||[]).filter(c => _clientIsActive(c) && !(typeof _clientIsArchived === 'function' && _clientIsArchived(c))).length
+    : (S.clients||[]).length;
   const _ckProjects  = (S.projects||[]).filter(p => { const st = p.status||'active'; return st==='active'||st==='planned'; });
   const _ckProjNames = _ckProjects.map(p => p.clientName || p.name || p.title || '').filter(Boolean).slice(0,2).join(' · ');
   const _ckFollowCount = urgentLeads.length;          // leads tile sub: needs first response (new / stale-contacted)
@@ -20373,7 +20376,7 @@ function todayUndoDone(workId){
    לפי סדר-העדיפות של אור — כדי שהרשימה תהיה רשימת-פעולות ולא תמונת-מצב כפולה. */
 function _todayBuckets(){
   const DAY = 86400000, now = Date.now();
-  const b = { visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[], doneToday:[] };
+  const b = { backFromWait:[], visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[], doneToday:[] };
   getWorks().forEach(w => {
     if(w.stage === 'done' && !(w.due > 0)) return;
     // v3.44.4 (ביקורת-קוהרנטיות) — לקוח שאור סימן עליו "סיום טיפול" המשיך לדרוש פעולה
@@ -20385,6 +20388,14 @@ function _todayBuckets(){
     // ולכן עבודה עם חוב שהיה בה גם ביקור טרי בלי הצעה נבלעה בדלי-הביקורים והחוב לא הופיע
     // כלל במסך-היום. סדר-התצוגה על המסך לא השתנה — הוא עדיין סבב-הערב של אור.
     if(w.due > 0){ b.toCollect.push({ w, at: w.updatedAt || 0 }); return; }
+
+    // v3.49.0 — לקוח שאור סימן "מחכה ללקוח" חוזר מעצמו כשעובר הזמן, לדלי משלו,
+    // כדי שיהיה ברור שהוא חזר ולא נפל לתוך הרשימה בשקט. אחרי בדיקת-החוב, כי כסף
+    // פתוח נשאר הדבר הראשון בכל מקרה.
+    const _wc = (w.clientId && typeof getClient === 'function') ? getClient(w.clientId) : null;
+    if(_wc && typeof _clientBackFromWait === 'function' && _clientBackFromWait(_wc)){
+      b.backFromWait.push({ w, at: (_wc.closure && _wc.closure.until) || w.updatedAt || 0 }); return;
+    }
 
     // 1. ביקור שזמנו עבר ואין לעבודה שום הצעה.
     // v3.44.3 — קודם כל ביקור כזה תואר "הביקור היה לפני X", גם אם הוא רק תוכנן ולא התקיים.
@@ -20429,7 +20440,7 @@ function _todayBuckets(){
 
 function todayCount(){
   const b = _todayBuckets();
-  return b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
+  return b.backFromWait.length + b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
 }
 
 /* שורה במסך-היום: אותה אנטומיה של _workRowHtml, עם שורת-סיבה ופעולה ראשית אחת.
@@ -20462,7 +20473,7 @@ function renderToday(){
   const body = document.getElementById('today-body');
   if(!body) return;
   const b = _todayBuckets();
-  const total = b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
+  const total = b.backFromWait.length + b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
   const hour = new Date().getHours();
   const hello = hour < 12 ? 'בוקר טוב' : (hour < 18 ? 'צהריים טובים' : 'ערב טוב');
 
@@ -20470,6 +20481,12 @@ function renderToday(){
     ? `<div class="wk-grp"><span class="wk-grp-t">${esc(label)}</span><span class="wk-grp-n">${rows.length}</span></div>
        <div class="wk-list">${rows.join('')}</div>`
     : '';
+
+  // v3.49.0 — מי שהיה "מחכה ללקוח" והזמן שלו עבר, חוזר ראשון ומסומן ככזה
+  const s0 = section('חזרו לטיפול', b.backFromWait.map(e =>
+    _todayRowHtml(e, `ההמתנה הסתיימה ${_humanTimeAgo(Date.now() - e.at)} — הגיע הזמן לחזור אליו`,
+      'פתח שיחה', `_todayOpenChat('${_jsAttr(e.w.id)}')`,
+      `<button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();clientWaitFor('${_jsAttr(e.w.clientId || '')}',7)">עוד שבוע</button>`)));
 
   const s1 = section('ביקורים שמחכים להצעה', b.visitNoQuote.map(e =>
     _todayRowHtml(e,
@@ -20528,7 +20545,7 @@ function renderToday(){
           <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="flex-shrink:0;margin-top:4px"><iconify-icon icon="mdi:menu"></iconify-icon></button>
         </div>
       </div>
-      ${total ? (s1 + s2 + s3 + s4) : empty}
+      ${total ? (s0 + s1 + s2 + s3 + s4) : empty}
       ${doneStrip}
     </div>`;
 }
@@ -20961,7 +20978,13 @@ function renderFolk(){
   const rowHtml = r => {
     if(r.kind === 'client'){
       const m = _personModel(r.id);
-      if(m) return _personHtml(m, 'row');
+      // v3.49.0 — בארכיון, השורה השלישית אומרת למה הטיפול נסגר. אותו רכיב-שורה בדיוק,
+      // רק עם טקסט אחר במקום העיר — כדי שבמבט אחד רואים למה כל אחד כאן.
+      if(m){
+        const lbl = (typeof _closureLabel === 'function') ? _closureLabel(getClient(r.id)) : '';
+        if(lbl) m.city = lbl;
+        return _personHtml(m, 'row');
+      }
     }
     const w = r.works[0];
     const m = { id:r.id, name:r.name, phone:r.phone||'', address:'', city:'',
@@ -21171,8 +21194,12 @@ function _peopleLeads(){ return (S.leads || []).filter(_personLeadIsOpen); }
 // v3.44.5 (ביקורת-קוהרנטיות) — לקוח שסומן "סיום טיפול" נעלם מלשונית-הלקוחות וממסך-היום
 // אך נשאר במסך-האנשים הישן. אותו סינון בדיוק, כדי ש"ארכיון" יהיה ארכיון בכל מקום.
 function _peopleActiveClients(){ return (S.clients || []).filter(c => !c.mergedIntoId && !_clientIsArchived(c) && _clientIsActive(c)); }
+// v3.49.0 (תיקון-באג) — לקוח מאורכב שהוא עדיין "פעיל" (חוב פתוח / פרויקט רץ) נפל
+// בין הכיסאות: הלשונית "פעילים" סיננה אותו כמאורכב (v3.44.5), ו"היסטוריה" דרשה
+// !_clientIsActive — כך שהוא נעלם משלוש הלשוניות. שוחזר: לקוח עם חוב 5,000₪
+// שסומן "סיום טיפול" לא הופיע באף לשונית. מאורכב שייך להיסטוריה, נקודה.
 function _peopleHistory(){
-  const doneClients = (S.clients || []).filter(c => !c.mergedIntoId && !_clientIsActive(c));
+  const doneClients = (S.clients || []).filter(c => !c.mergedIntoId && (_clientIsArchived(c) || !_clientIsActive(c)));
   const shown = new Set(doneClients.map(c => c.id));
   // v3.21.78 — also drop closed leads whose client is currently ACTIVE (that active client already
   // represents them), so an unpaid job-done lead isn't double-listed across tabs. (ultra-review low)
@@ -21388,16 +21415,22 @@ function renderClientsList(){
   const withDue = [];
   const active = [];
   const dormant = [];
+  const closed = [];
   for(const c of list){
     const due = getClientTotalDue(c.id);
-    if(due > 0){ withDue.push({c, due, last: getClientLastActivityTs(c.id)}); continue; }
     const last = getClientLastActivityTs(c.id);
+    // v3.49.0 — אור: "מה שסיימתי את הטיפול בו... רק בלקוחות הכלליים." כאן הוא נשאר
+    // גלוי — אבל בקבוצה משלו בתחתית, כדי שלא יתערבב עם מי שדורש טיפול. חוב פתוח גובר:
+    // כסף לא יורד לתחתית הרשימה בגלל סגירת-טיפול.
+    if(due > 0){ withDue.push({c, due, last}); continue; }
+    if(_clientIsArchived(c) || (c.closure && c.closure.kind === 'closed')){ closed.push({c, due:0, last}); continue; }
     if(now - last < SIX_MONTHS) active.push({c, due:0, last});
     else dormant.push({c, due:0, last});
   }
   withDue.sort((a,b) => b.due - a.due);
   active.sort((a,b)  => b.last - a.last);
   dormant.sort((a,b) => b.last - a.last);
+  closed.sort((a,b)  => b.last - a.last);
 
   const toolbarHtml = `
     <div class="lk-mast"><div class="lk-eyebrow"><span class="lk-dot"></span> מאגר לקוחות</div><div class="lk-h1">${total} <em>${total===1?'לקוח':'לקוחות'}</em></div></div>
@@ -21446,6 +21479,10 @@ function renderClientsList(){
   if(dormant.length){
     html += `<div class="cl-group"><iconify-icon icon="mdi:account-off-outline" width="14"></iconify-icon> לא פעילים (${dormant.length})</div>`;
     html += dormant.map(({c}) => clientRowHtml(c)).join('');
+  }
+  if(closed.length){
+    html += `<div class="cl-group"><iconify-icon icon="mdi:check-circle-outline" width="14"></iconify-icon> הטיפול נסגר (${closed.length})</div>`;
+    html += closed.map(({c}) => clientRowHtml(c)).join('');
   }
   body.innerHTML = html;
 }
@@ -21828,7 +21865,53 @@ const CLIENT_KINDS = [
   { k:'supplier',  l:'ספק'       },
   { k:'other',     l:'אחר'       },
 ];
-function _clientIsArchived(c){ return !!(c && c.archivedAt); }
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.49.0 — סיום-טיפול עם סיבה, ועם סגירת-הכסף.
+   ───────────────────────────────────────────────────────────────────────────────
+   אור: "צריך להתחיל לקטלג ולסווג את הלקוחות... מה שסיימתי את הטיפול בו אני לא
+   רוצה לראות אותו במסכים הראשונים." ועל הכסף: "העבודה בוצעה במלואה — זה לא מעיד
+   על האם התקבל הכסף... שהמערכת תדע שנכנס הכסף ולא תתזכר אותי ולא תשאיר חוב פתוח,
+   וזה ייכנס לנתונים הכספיים."
+
+   שני מצבים בלבד: **סגור** (נגמר) ו**מחכה ללקוח** (השהיה שחוזרת מעצמה).
+   הכל נשמר על הלקוח ב-c.closure, לצד archivedAt הקיים — כדי ששום קורא לא יישבר.
+   כסף עובר רק דרך p.payments / p.writtenOff, כלומר דרך totalDue — נקודת-המחנק
+   היחידה — ולכן החוב נעלם (או נשאר) בכל המסכים בבת-אחת, בלי חישוב מקביל.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const CLOSE_REASONS = [
+  { k:'done',       l:'העבודה בוצעה והסתיימה', d:'סיימנו — נשאר רק לוודא שהכסף נכנס' },
+  { k:'irrelevant', l:'לא רלוונטי / לא יצא לפועל', d:'התבטל, נדחה או לא היה רלוונטי' },
+  { k:'noreply',    l:'הלקוח לא חזר / נעלם',   d:'אין מענה — סוגר ולא רודף' },
+  { k:'price',      l:'המחיר לא התאים / בחר אחר', d:'ההצעה לא התקבלה' },
+];
+function _closeReasonLabel(k){ const r = CLOSE_REASONS.find(x => x.k === k); return r ? r.l : ''; }
+// המתנה היא הסתרה זמנית: אותה הסתרה בדיוק כמו ארכיון, אבל פגה מעצמה בזמן שנקבע —
+// בלי טיימר ובלי מנגנון שני. ברגע ש-until עבר, הלקוח חוזר לכל המסכים.
+function _clientSnoozed(c){
+  const cl = c && c.closure;
+  return !!(cl && cl.kind === 'waiting' && (cl.until || 0) > Date.now());
+}
+function _clientBackFromWait(c){
+  const cl = c && c.closure;
+  return !!(cl && cl.kind === 'waiting' && (cl.until || 0) <= Date.now());
+}
+function _clientIsArchived(c){ return !!(c && (c.archivedAt || _clientSnoozed(c))); }
+/* שורת-המצב שאור רואה על הכרטיס ובארכיון — במקום "בארכיון מאז" היבש */
+function _closureLabel(c){
+  if(!c) return '';
+  const cl = c.closure;
+  if(cl && cl.kind === 'waiting'){
+    const d = new Date(cl.until || 0).toLocaleDateString('he-IL');
+    return _clientBackFromWait(c) ? `חזר להמתנה שהסתיימה ב-${d}` : `מחכה ללקוח עד ${d}`;
+  }
+  if(cl && cl.kind === 'closed'){
+    const when = cl.at ? new Date(cl.at).toLocaleDateString('he-IL') : '';
+    const why  = _closeReasonLabel(cl.reason);
+    return `נסגר: ${why || 'סיום טיפול'}${when ? ' · ' + when : ''}`;
+  }
+  if(c.archivedAt) return `נסגר · ${new Date(c.archivedAt).toLocaleDateString('he-IL')}`;
+  return '';
+}
 function setClientKind(clientId, kind){
   const c = getClient(clientId);
   if(!c) return;
@@ -21837,23 +21920,159 @@ function setClientKind(clientId, kind){
   saveAll(true);
   if(typeof renderClientDetail === 'function') renderClientDetail();
 }
+/* הכפתור "סיום טיפול" — עכשיו שואל למה, במקום לארכב בשקט */
 function clientFinishWork(clientId){
   const c = getClient(clientId);
   if(!c) return;
+  const due = (typeof getClientTotalDue === 'function') ? Math.round(getClientTotalDue(clientId) || 0) : 0;
+  openMo(`
+    <div class="mo-title">סיום טיפול ב${esc(c.clientName || 'לקוח')}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">מה קרה בסוף? הלקוח יירד מהמסכים היומיים ויישאר ברשימת הלקוחות.</div>
+    ${CLOSE_REASONS.map(o => `
+      <button class="btn btn-ghost btn-sm" onclick="clientCloseWith('${esc(clientId)}','${o.k}')" style="margin-bottom:8px;justify-content:flex-start;text-align:right;flex-direction:column;align-items:flex-start;padding:10px 14px;height:auto">
+        <div style="font-weight:800;margin-bottom:2px">${esc(o.l)}</div>
+        <div style="font-size:11px;color:var(--text2);font-weight:500">${esc(o.d)}${(o.k === 'done' && due > 0) ? ` · יש ${fmt(due)}₪ פתוחים` : ''}</div>
+      </button>`).join('')}
+    <div style="height:1px;background:var(--line);margin:12px 0"></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:8px">עוד לא נגמר, רק לא עכשיו:</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-xs" style="margin:0" onclick="clientWaitFor('${esc(clientId)}',7)">מחכה ללקוח — שבוע</button>
+      <button class="btn btn-ghost btn-xs" style="margin:0" onclick="clientWaitFor('${esc(clientId)}',30)">מחכה ללקוח — חודש</button>
+    </div>
+  `);
+}
+/* סוגר את הטיפול עם סיבה. אפס מחיקה: closure הוא שדה נוסף, archivedAt נשאר,
+   ואף ליד/הצעה/פרויקט לא משנה סטטוס בגלל הפעולה הזאת. */
+function clientCloseWith(clientId, reason){
+  const c = getClient(clientId);
+  if(!c) return;
+  c.closure    = { kind:'closed', reason: reason || '', at: ts() };
   c.archivedAt = ts();
   c.updatedAt  = ts();
   saveAll(true);
-  toast('✓ עבר לארכיון — אפשר להחזיר בכל רגע');
-  if(typeof renderClientDetail === 'function') renderClientDetail();
+  if(typeof closeMo === 'function') closeMo();
+  const due = (typeof getClientTotalDue === 'function') ? Math.round(getClientTotalDue(clientId) || 0) : 0;
+  // אור: "העבודה בוצעה" לא אומר שהכסף נכנס. שואלים — אבל רק כשבאמת יש חוב פתוח.
+  if(reason === 'done' && due > 0){ _clientCloseMoneySheet(clientId, due); return; }
+  toast(`✓ ${_closeReasonLabel(reason) || 'הטיפול נסגר'} · הקש לביטול`,
+        { onAction: () => clientUnarchive(clientId), duration: 5000 });
+  _closureRefresh();
+}
+/* השהיה, לא סגירה — חוזר מעצמו כשעובר הזמן (ר' _clientSnoozed) */
+function clientWaitFor(clientId, days){
+  const c = getClient(clientId);
+  if(!c) return;
+  c.closure   = { kind:'waiting', at: ts(), until: Date.now() + (days || 7) * 86400000 };
+  delete c.archivedAt;                    // המתנה אינה ארכיון — הלקוח לא נקבר
+  c.updatedAt = ts();
+  saveAll(true);
+  if(typeof closeMo === 'function') closeMo();
+  toast(`ממתין ללקוח — יחזור מעצמו בעוד ${days} ימים · הקש לביטול`,
+        { onAction: () => clientUnarchive(clientId), duration: 5000 });
+  _closureRefresh();
 }
 function clientUnarchive(clientId){
   const c = getClient(clientId);
   if(!c) return;
-  c.archivedAt = 0;
+  delete c.archivedAt;                    // מוחזר בדיוק למה שהיה — בלי שארית-שדה
+  delete c.closure;
   c.updatedAt  = ts();
   saveAll(true);
-  toast('הוחזר מהארכיון');
-  if(typeof renderClientDetail === 'function') renderClientDetail();
+  toast('חזר לטיפול');
+  _closureRefresh();
+}
+function _closureRefresh(){
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  const on = id => { const el = document.getElementById('view-' + id); return el && el.classList.contains('on'); };
+  if(on('client-detail') && typeof renderClientDetail === 'function') renderClientDetail();
+  if(on('today')  && typeof renderToday === 'function') renderToday();
+  if(on('folk')   && typeof renderFolk === 'function') renderFolk();
+  if(on('works')  && typeof renderWorks === 'function') renderWorks();
+}
+
+/* ── סגירת-הכסף ────────────────────────────────────────────────────────────────
+   שלוש הדרכים היחידות שבהן חוב מפסיק להיות חוב, וכולן עוברות דרך totalDue:
+   תשלום שנרשם · ויתור מסומן · או שהחוב פשוט נשאר גלוי בכספים. */
+function _clientCloseMoneySheet(clientId, due){
+  const c = getClient(clientId);
+  openMo(`
+    <div class="mo-title">והכסף?</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">
+      ל${esc((c && c.clientName) || 'לקוח')} רשומים ${fmt(due)}₪ פתוחים. העבודה הסתיימה — מה עם התשלום?</div>
+    <button class="btn btn-ghost btn-sm" onclick="clientCloseMoneyPaid('${esc(clientId)}')" style="margin-bottom:8px;justify-content:flex-start;text-align:right;flex-direction:column;align-items:flex-start;padding:10px 14px;height:auto">
+      <div style="font-weight:800;margin-bottom:2px">הכסף התקבל במלואו</div>
+      <div style="font-size:11px;color:var(--text2);font-weight:500">נרשם תשלום של ${fmt(due)}₪ והחוב נסגר</div>
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="clientCloseMoneyLater('${esc(clientId)}')" style="margin-bottom:8px;justify-content:flex-start;text-align:right;flex-direction:column;align-items:flex-start;padding:10px 14px;height:auto">
+      <div style="font-weight:800;margin-bottom:2px">עוד לא שולם</div>
+      <div style="font-size:11px;color:var(--text2);font-weight:500">הלקוח יורד מהמסכים היומיים, אבל החוב נשאר גלוי בכספים</div>
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="clientCloseMoneyWaive('${esc(clientId)}')" style="margin-bottom:8px;justify-content:flex-start;text-align:right;flex-direction:column;align-items:flex-start;padding:10px 14px;height:auto">
+      <div style="font-weight:800;margin-bottom:2px">ויתרתי על הכסף</div>
+      <div style="font-size:11px;color:var(--text2);font-weight:500">מסומן כלא-ייגבה ולא מופיע כחוב. אפשר לבטל בכל רגע</div>
+    </button>
+  `);
+}
+// הפרויקטים שנושאים בפועל את החוב של הלקוח — אותו סינון בדיוק של getClientTotalDue
+function _clientDueProjects(clientId){
+  return (typeof getClientProjects === 'function' ? getClientProjects(clientId) : []).filter(p => {
+    const st = p.status || 'active';
+    return (st === 'active' || st === 'done') && (typeof totalDue === 'function') && totalDue(p) > 0;
+  });
+}
+function clientCloseMoneyPaid(clientId){
+  const list = _clientDueProjects(clientId);
+  const marks = [];
+  list.forEach(p => {
+    const amount = Math.round(totalDue(p));
+    if(!(amount > 0)) return;
+    if(!Array.isArray(p.payments)) p.payments = [];
+    const now = ts();
+    const pay = { id: uid(), payType:'final', name:'', amount, type:'', date: now,
+                  note:'נרשם בסיום-טיפול', ref:'', refFile:null,
+                  createdAt: now, occurredAt: now, updatedAt: now };
+    p.payments.push(pay);
+    marks.push({ projectId: p.id, payId: pay.id, prevStatus: p.status || 'active' });
+    p.status = 'done';
+    p.updatedAt = now;
+  });
+  saveAll();
+  if(typeof closeMo === 'function') closeMo();
+  toast(`✓ נרשם תשלום — אין יותר חוב פתוח · הקש לביטול`,
+        { onAction: () => _clientClosePaidUndo(marks), duration: 6000 });
+  _closureRefresh();
+  if(typeof _refreshInvoiceSurfaces === 'function') _refreshInvoiceSurfaces();
+}
+function _clientClosePaidUndo(marks){
+  (marks || []).forEach(m => {
+    const p = (S.projects || []).find(x => x.id === m.projectId);
+    if(!p) return;
+    p.payments = (p.payments || []).filter(x => x.id !== m.payId);
+    p.status = m.prevStatus;
+    p.updatedAt = ts();
+  });
+  saveAll();
+  toast('בוטל — החוב חזר');
+  _closureRefresh();
+  if(typeof _refreshInvoiceSurfaces === 'function') _refreshInvoiceSurfaces();
+}
+function clientCloseMoneyLater(clientId){
+  if(typeof closeMo === 'function') closeMo();
+  const due = Math.round(getClientTotalDue(clientId) || 0);
+  toast(`הטיפול נסגר · ${fmt(due)}₪ נשארים ברשימת הגבייה`);
+  _closureRefresh();
+}
+function clientCloseMoneyWaive(clientId){
+  const list = _clientDueProjects(clientId);
+  list.forEach(p => { p.writtenOff = true; p.writtenOffAt = ts(); p.updatedAt = ts(); });
+  saveAll();
+  if(typeof closeMo === 'function') closeMo();
+  toast('סומן כלא-ייגבה — ניתן לבטל בכל עת', {
+    onAction: () => { list.forEach(p => { p.writtenOff = false; p.writtenOffAt = null; p.updatedAt = ts(); });
+                      saveAll(); toast('הוויתור בוטל — החוב חזר'); _closureRefresh(); },
+    duration: 6000 });
+  _closureRefresh();
+  if(typeof _refreshInvoiceSurfaces === 'function') _refreshInvoiceSurfaces();
 }
 
 // primaryId survives; secondaryId is archived (never deleted) and hidden from every list/search/
@@ -22332,11 +22551,12 @@ function renderClientDetail(){
                 style="width:64px;height:64px;object-fit:cover;border-radius:9px;flex:0 0 auto;border:1px solid var(--line)">`).join('')}
           </div>
         </div>` : ''}
-      ${_clientIsArchived(c) ? `<div class="ch-since" style="margin-top:8px">בארכיון מאז ${esc(new Date(c.archivedAt).toLocaleDateString('he-IL'))}</div>` : ''}
+      ${/* v3.49.0 — שורת-המצב אומרת למה נסגר, לא רק מתי. ר' _closureLabel. */''}
+      ${_closureLabel(c) ? `<div class="ch-since" style="margin-top:8px">${esc(_closureLabel(c))}</div>` : ''}
       <div class="ch-actions">
         ${c.phone ? `<button onclick="openWhatsApp('${esc(c.phone)}')"><iconify-icon icon="mdi:whatsapp"></iconify-icon> WhatsApp</button>` : ''}
-        ${_clientIsArchived(c)
-          ? `<button onclick="clientUnarchive('${esc(c.id)}')"><iconify-icon icon="mdi:archive-arrow-up-outline"></iconify-icon> החזר מהארכיון</button>`
+        ${(_clientIsArchived(c) || c.closure)
+          ? `<button onclick="clientUnarchive('${esc(c.id)}')"><iconify-icon icon="mdi:archive-arrow-up-outline"></iconify-icon> החזר לטיפול</button>`
           : `<button onclick="clientFinishWork('${esc(c.id)}')"><iconify-icon icon="mdi:archive-outline"></iconify-icon> סיום טיפול</button>`}
         ${(due > 0 && c.phone) ? `<button onclick="waDueReminderClient('${esc(c.id)}')" style="background:#e6f9ee;border-color:#25d366;color:#1c8a47"><iconify-icon icon="mdi:whatsapp"></iconify-icon> תזכורת בוואטסאפ</button>` : ''}
         <!-- v3.26.1 (C3#2) — "ביקור חדש"/"פרויקט חדש" duplicate-creation buttons removed from here
