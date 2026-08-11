@@ -7789,7 +7789,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.49.0'; // סיום-טיפול בלקוח עם סיבה (בוצע / לא רלוונטי / לא חזר / המחיר לא התאים), ואחרי "בוצע" — שאלת-הכסף: התקבל / עוד לא / ויתרתי, דרך רישום-תשלום אמיתי. "מחכה ללקוח" מסתיר לשבוע/חודש ומחזיר מעצמו לדלי "חזרו לטיפול". תיקון-באג: לקוח מאורכב עם חוב פתוח נעלם משלוש הלשוניות במסך-האנשים.
+const APP_VERSION = '3.50.0'; // תיקון-שורש לכפל-ספירת-כסף: עבודה אחת = מחיר אחד — רק הפרויקט הקנוני (תשלום שנרשם ← הצעה שאושרה ← פעיל ← עדכני) נושא את הכסף, והשני מוצג עם הסבר וכפתור "זו עבודה נפרדת". אישור-הצעה כשכבר יש פרויקט מציע לעדכן אותו במקום לפתוח שני. שלושת מסלולי ההמרה מהצעה-לפרויקט אוחדו לנקודה אחת (_projApplyQuotePricing): ההנחה נפרסת על הסעיפים ואחוז-המע"מ נלקח מההצעה עצמה. הנחה שאבדה בפרויקטים מלפני v3.44.3 משוחזרת בהגירה הפיכה, וההגירות רצות עכשיו גם בשחזור-גיבוי. מסך-הכסף כולל ג'וב שנסגר ולא שולם, כמו כרטיס-הלקוח. נמדד על נתוני-אמת: נחשון 144,550₪ ← 44,800₪.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -14235,6 +14235,13 @@ async function _applyImportedData(d, opts){
   // No-op (resolves immediately) when sync isn't logged in.
   if(typeof _offerRestoreAuthoritative === 'function') await _offerRestoreAuthoritative();
 
+  /* v3.50.0 — שחזור-גיבוי היה הדלת השנייה שדילגה על כל ההגירות: הן רצות רק במסלול
+     העלייה (init), ולכן נתונים ישנים שנכנסו דרך שחזור חזרו למצבם הלא-מתוקן — למשל
+     הנחה שאבדה בהמרה מהצעה לפרויקט. אותן הגירות, אותו סדר, גם כאן. */
+  if(typeof _migrateEstTotalsPreVat === 'function')      _migrateEstTotalsPreVat();
+  if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
+  if(typeof _migrateQuoteClientIds === 'function')       _migrateQuoteClientIds();
+
   saveAll();
 
   // ספירת מה נטען
@@ -18900,6 +18907,60 @@ function wzExit(){
 // השוואת-רווחיות בין פרויקטים. מתקנים רק פרויקטים ישנים שמקורם בהצעה (sourceQuoteId) ועדיין לא
 // סומנו. הדגל _estPreVat נשמר על הפרויקט עצמו (נוסע איתו בסנכרון) → אידמפוטנטי וללא חלוקה-כפולה
 // בין מכשירים. פרויקטים חדשים כבר נבנים עם _estPreVat=true, כך שלעולם לא ייחלקו.
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.50.0 — ההנחה שאבדה בדרך מההצעה לפרויקט (הפרויקטים שנוצרו לפני v3.44.3).
+   ───────────────────────────────────────────────────────────────────────────────
+   אור: "אצל נחשון יש הנחה. צריך שהיא תהיה מגולמת במחיר הסופי."
+   נמדד בנתוני-אמת: הצעה 2026-012 = 46,300 פחות 18% (8,334) = 37,966, ועם מע"מ
+   44,800₪ — וזה מה שהלקוח אישר. אבל סעיפי-הפרויקט הועתקו במחיר המלא, ו-totalPrice
+   (שממנו נגזר כל הכסף) סוכם אותם — כלומר החיוב היה 9,834₪ גבוה מההצעה החתומה.
+
+   v3.44.3 כבר פורסת את ההנחה על הסעיפים בכל המרה חדשה. כאן מביאים את הפרויקטים
+   הישנים לאותו מצב בדיוק, פעם אחת — כדי שהכלל יהיה נכון בנתונים ולא רק בתצוגה,
+   וימשיך להיות נכון גם אחרי עריכת-סעיפים.
+
+   שמרנות: רצה **רק** כשאפשר להוכיח שהסעיפים עדיין ברוטו — סכומם שווה בדיוק לסכום
+   ההצעה לפני הנחה. סעיפים שאור ערך ידנית לא ייגעו. הסעיפים המקוריים נשמרים
+   ב-_tasksBeforeDiscount וההנחה נרשמת ב-quoteDiscount — הכל הפיך, שום דבר לא נמחק.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _migrateQuoteDiscountToTasks(){
+  let changed = 0;
+  (S.projects || []).forEach(p => {
+    if(!p || p.quoteDiscount || !p.sourceQuoteId) return;      // כבר פרוסה, או לא מהצעה
+    const tasks = p.tasks || [];
+    if(!tasks.length) return;
+    const q = (S.quotes || []).find(x => x.id === p.sourceQuoteId);
+    if(!q || typeof _quoteAmounts !== 'function') return;
+    const a = _quoteAmounts(q);
+    if(!(a.discount > 0)) return;                              // אין הנחה — אין מה לפרוס
+    const gross = tasks.reduce((s, t) => s + (parseFloat(t.price) || 0), 0);
+    if(Math.round(gross) !== Math.round(a.subtotal)) return;   // ההוכחה: הסעיפים עדיין ברוטו
+    if(!p._tasksBeforeDiscount) p._tasksBeforeDiscount = JSON.parse(JSON.stringify(tasks));
+    const ratio = a.net / gross;
+    let running = 0;
+    tasks.forEach((t, idx) => {
+      const scaled = (idx === tasks.length - 1)
+        ? Math.round((a.net - running) * 100) / 100
+        : Math.round((parseFloat(t.price) || 0) * ratio * 100) / 100;
+      running += scaled;
+      const qty = parseFloat(t.qty) || 1;
+      t.price = scaled;
+      t.pricePerUnit = qty ? Math.round((scaled / qty) * 100) / 100 : scaled;
+    });
+    p.quoteDiscount = { beforeDiscount: Math.round(a.subtotal), afterDiscount: Math.round(a.net),
+                        amount: Math.round(a.discount), quoteId: q.id, quoteCode: q.quoteCode || '',
+                        recoveredAt: (typeof ts === 'function' ? ts() : Date.now()) };
+    p.estimatedTotal = a.net;
+    p.updatedAt = (typeof ts === 'function' ? ts() : Date.now());
+    changed++;
+  });
+  if(changed){
+    if(typeof _invalidateWorks === 'function') _invalidateWorks();
+    if(typeof saveAll === 'function') saveAll(true);
+    console.log(`[v3.50.0] הנחה שוחזרה ב-${changed} פרויקט(ים) שנוצרו לפני v3.44.3`);
+  }
+  return changed;
+}
 function _migrateEstTotalsPreVat(){
   let changed = 0;
   (S.projects||[]).forEach(p => {
@@ -19396,7 +19457,15 @@ function getClientTotalDue(clientId){
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 let _worksCache = null;          // {works, byRecord} — נבנה בעצלתיים, מתבטל בכל שמירה
-function _invalidateWorks(){ _worksCache = null; }
+/* v3.50.0 — קבוצת-הפרויקטים שנדחקו מספירת-הכסף (ר' _workCanonicalProject). נבנית
+   פעם אחת בכל בניית-עבודות ומתאפסת יחד עם המטמון, כדי ש-totalDue יוכל לשאול אותה
+   ב-O(1) בלי לבנות עבודות מתוך עצמו — כלומר בלי רקורסיה אינסופית. */
+const _EMPTY_SET = new Set();
+let _supersededIds = null;
+let _buildingWorks = false;
+// v3.50.0 — קבוצת-הנדחקים חיה ונופלת יחד עם מטמון-העבודות. אחרת שינוי סטטוס/תשלום
+// היה משאיר החלטת-כסף ישנה בזיכרון.
+function _invalidateWorks(){ _worksCache = null; _supersededIds = null; }
 
 // חמשת השלבים כפי שאור אישר אותם במוקאפ. הסדר הוא הסדר על-הפס.
 const WORK_STAGES = [
@@ -19426,6 +19495,8 @@ function _wufUnion(parent, a, b){
 /* בונה את כל העבודות. O(n·α) — נקרא פעם אחת ומוחזק במטמון עד השמירה הבאה. */
 function _buildWorks(){
   if(_worksCache) return _worksCache;
+  _buildingWorks = true;   // v3.50.0 — ר' _supersededSet: מונע רקורסיה דרך totalDue
+  try{
 
   const leads    = S.leads    || [];
   const visits   = S.visits   || [];
@@ -19500,8 +19571,17 @@ function _buildWorks(){
   });
 
   works.sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0));
+  // v3.50.0 — מי נדחק מספירת-הכסף. נקבע כאן פעם אחת, ו-totalDue קורא מכאן.
+  _supersededIds = new Set();
+  works.forEach(w => {
+    if(w.projects.length < 2) return;
+    const canon = _workCanonicalProject(w);
+    if(!canon) return;
+    w.projects.forEach(p => { if(!p.separateWork && p.id !== canon.id) _supersededIds.add(p.id); });
+  });
   _worksCache = { works, byRecord };
   return _worksCache;
+  } finally { _buildingWorks = false; }
 }
 
 function getWorks(){ return _buildWorks().works; }
@@ -19611,9 +19691,69 @@ function _workStageLabel(w){
 
 /* כמה כסף פתוח על העבודה — סכום החוב על פרויקטיה + ג'וב שלא שולם.
    משתמש ב-totalDue() הקיים, בלי חישוב-כסף מקביל חדש. */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.50.0 — עבודה אחת = מחיר אחד. תיקון-שורש לכפל-ספירת-כסף.
+   ───────────────────────────────────────────────────────────────────────────────
+   מה שקרה אצל אור (נחשון, נמדד על הנתונים האמיתיים): לאותו ביקור נוצרו שני
+   פרויקטים — אחד מהביקור עם מחירי הצעה שנדחתה (76,200) ואחד מההצעה שאושרה
+   (46,300). שניהם נספרו, וכרטיס-הלקוח דרש 144,550₪ על עבודה ששווה 54,634₪.
+
+   השורש לא היה "פרויקט כפול" אלא **המודל**: הכסף נספר לכל פרויקט בנפרד, ולכן
+   שתי רשומות של אותה עבודה תמיד יסתכמו יחד. גם אחרי שסוגרים את מסלול-היצירה,
+   כל כפילות עתידית (או קיימת) הייתה מייצרת את אותו מספר שגוי.
+
+   התיקון: לעבודה יש **פרויקט קנוני אחד** שנושא את הכסף שלה. הבחירה אינה ניחוש —
+   היא לפי ראיות, בסדר הזה:
+     1. פרויקט שכבר נרשם עליו תשלום  — כסף שהתקבל הוא העובדה החזקה ביותר.
+     2. פרויקט שמקושר להצעה שאושרה   — זה מה שהלקוח אישר.
+     3. פרויקט פעיל/שהושלם על פני מתוכנן.
+     4. העדכני מביניהם.
+   פרויקט שאור סימן במפורש "זו עבודה נפרדת" (p.separateWork) יוצא מהתחרות
+   ונספר בנפרד — כי לפעמים באמת יש שתי עבודות לאותו ביקור.
+
+   שום נתון לא נמחק ושום כסף לא נעלם בשקט: הפרויקט שאינו קנוני מוצג בכרטיס-הלקוח
+   עם הסבר ועם כפתור להחזיר אותו לספירה.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _projHasPayments(p){ return !!(p && Array.isArray(p.payments) && p.payments.some(x => (parseFloat(x.amount)||0) > 0)); }
+function _projCountsAsMoney(p){ const st = (p && p.status) || 'active'; return st === 'active' || st === 'done'; }
+/* הפרויקט שנושא את הכסף של העבודה. null אם אין אף פרויקט. */
+function _workCanonicalProject(w){
+  if(!w || !w.projects || !w.projects.length) return null;
+  const pool = w.projects.filter(p => !p.separateWork);
+  if(!pool.length) return null;
+  if(pool.length === 1) return pool[0];
+  const acceptedIds = new Set((w.quotes || []).filter(q => q.status === 'accepted').map(q => q.id));
+  const score = p => {
+    let s = 0;
+    if(_projHasPayments(p))                          s += 8;   // כסף שהתקבל — הראיה החזקה ביותר
+    if(p.sourceQuoteId && acceptedIds.has(p.sourceQuoteId)) s += 4;   // מה שהלקוח אישר
+    if(_projCountsAsMoney(p))                        s += 2;   // פעיל/הושלם על פני מתוכנן
+    return s;
+  };
+  return pool.slice().sort((a, b) => (score(b) - score(a)) || ((b.updatedAt||0) - (a.updatedAt||0)))[0];
+}
+/* הפרויקטים שהכסף שלהם נספר: הקנוני + כל מה שאור סימן כעבודה נפרדת. */
+function _workMoneyProjects(w){
+  if(!w || !w.projects) return [];
+  const canon = _workCanonicalProject(w);
+  return w.projects.filter(p => p.separateWork || (canon && p.id === canon.id));
+}
+function _supersededSet(){
+  if(_buildingWorks) return _EMPTY_SET;      // בזמן הבנייה _workDue כבר מסנן בעצמו
+  if(!_supersededIds){ try{ _buildWorks(); }catch(e){ return _EMPTY_SET; } }
+  return _supersededIds || _EMPTY_SET;
+}
+/* הפוך: האם הפרויקט הזה נדחק מהספירה בגלל פרויקט אחר של אותה עבודה? */
+function _projSupersededBy(projectId){
+  const p = (S.projects || []).find(x => x.id === projectId);
+  if(!p || p.separateWork) return null;
+  if(!_supersededSet().has(projectId)) return null;
+  const w = (typeof _workOf === 'function') ? _workOf('project', projectId) : null;
+  return w ? _workCanonicalProject(w) : null;
+}
 function _workDue(w){
   let due = 0;
-  w.projects.forEach(p => {
+  _workMoneyProjects(w).forEach(p => {
     const st = p.status || 'active';
     if(st !== 'active' && st !== 'done') return;
     if(typeof totalDue === 'function'){ const d = totalDue(p); if(d > 0) due += d; }
@@ -20630,7 +20770,11 @@ function wkPickWinningQuote(workId){
 
 function _wkSetWinningQuote(workId, quoteId){
   const w = getWork(workId); if(!w) return;
-  const p = w.projects[0]; const q = (S.quotes||[]).find(x => x.id === quoteId);
+  // v3.50.0 — היה w.projects[0] (העדכני ביותר). כשיש שני פרויקטים לאותה עבודה זה
+  // עדכן דווקא את מי שלא נושא את הכסף, ולכן "בחירת ההצעה שאושרה" לא שינתה כלום
+  // על המסך. הפרויקט הקנוני הוא זה שהכסף נספר ממנו — אז הוא זה שמתעדכן.
+  const p = (typeof _workCanonicalProject === 'function' ? _workCanonicalProject(w) : null) || w.projects[0];
+  const q = (S.quotes||[]).find(x => x.id === quoteId);
   if(!p || !q) return;
   const oldTotal = (typeof totalPrice === 'function') ? Math.round(totalPrice(p)) : 0;
   const newTotal = (q.items||[]).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine)
@@ -20656,7 +20800,10 @@ function _wkSetWinningQuote(workId, quoteId){
                                // מושכת את השטיח מתחת לשני.
                                photos:(i.attachedPhotos||[]).map(ph=>({...ph})) }));
       p2.sourceQuoteId = q2.id;
-      if(typeof _quoteAmounts === 'function') p2.estimatedTotal = _quoteAmounts(q2).net;
+      /* v3.50.0 — כאן חי בדיוק אותו באג של נחשון: הסעיפים הועתקו במחיר-המלא בעוד
+         estimatedTotal קיבל את הנטו-אחרי-הנחה, ולכן החיוב (שנגזר מהסעיפים) היה גבוה
+         מההצעה שהלקוח אישר. אותה פריסה יחסית כמו בשני מסלולי-ההמרה האחרים. */
+      if(typeof _projApplyQuotePricing === 'function') _projApplyQuotePricing(p2, q2);
       p2.updatedAt = ts();
       q2.status = 'accepted'; q2.acceptedAt = ts(); q2.linkedProjectId = p2.id; q2.updatedAt = ts();
       // שאר ההצעות של אותה עבודה — מסומנות, לא נמחקות
@@ -21896,6 +22043,29 @@ function _clientBackFromWait(c){
   return !!(cl && cl.kind === 'waiting' && (cl.until || 0) <= Date.now());
 }
 function _clientIsArchived(c){ return !!(c && (c.archivedAt || _clientSnoozed(c))); }
+/* v3.50.0 — הדלת האחורית של "עבודה אחת = מחיר אחד": לפעמים באמת יש שתי עבודות
+   לאותו ביקור (שלב א' ושלב ב'). אור אומר זאת בהקשה, והכסף חוזר להיספר. */
+function projectMarkSeparate(projectId){
+  const p = (S.projects || []).find(x => x.id === projectId);
+  if(!p) return;
+  p.separateWork = true;
+  p.updatedAt = ts();
+  saveAll(true);
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  toast('סומן כעבודה נפרדת — הסכום שלו נספר שוב · הקש לביטול',
+        { onAction: () => projectUnmarkSeparate(projectId), duration: 6000 });
+  _closureRefresh();
+}
+function projectUnmarkSeparate(projectId){
+  const p = (S.projects || []).find(x => x.id === projectId);
+  if(!p) return;
+  delete p.separateWork;
+  p.updatedAt = ts();
+  saveAll(true);
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  toast('חזר להיות חלק מאותה עבודה');
+  _closureRefresh();
+}
 /* שורת-המצב שאור רואה על הכרטיס ובארכיון — במקום "בארכיון מאז" היבש */
 function _closureLabel(c){
   if(!c) return '';
@@ -22622,14 +22792,20 @@ function renderClientDetail(){
   const projectsBody = projects.length ? projects.map(p => {
     const before = (p.progressPhotos && !Array.isArray(p.progressPhotos)) ? (p.progressPhotos.before || []) : [];
     const thumbSrc = before[0]?.data || (function(){ for(const t of (p.tasks||[])){ if(t.photos && t.photos[0]) return t.photos[0].data || t.photos[0]; } return ''; })();
-    const total = parseFloat(p.estimatedTotal) || 0;
+    // v3.50.0 — המחיר מוצג מהסעיפים (totalPrice), לא מ-estimatedTotal. אצל נחשון
+    // estimatedTotal היה 37,966 בעוד הסעיפים מסתכמים ב-46,300 — שני מספרים לאותו
+    // פרויקט. totalPrice הוא מה שהכסף באמת מחושב ממנו, אז זה מה שמוצג.
+    const total = (p.tasks && p.tasks.length) ? totalPrice(p) : (parseFloat(p.estimatedTotal) || 0);
     // v3.22.45 (T2) — כמו getClientTotalDue: total-paid שגוי כי estimatedTotal לפני-מע"מ; totalDue(p) הוא מקור-האמת.
     // v3.44.5 (ביקורת-קוהרנטיות) — ...ו"כמו getClientTotalDue" חייב לכלול גם את סינון-הסטטוס
     // שיש שם: פרויקט מתוכנן/מושהה אינו חוב-לקוח. בלי זה הכרטיס הציג "לגבייה" על פרויקט
     // שטרם התחיל, בעוד getClientTotalDue (וסיכום-הכרטיס למעלה) החזירו 0 — שני מספרים
     // סותרים על אותו מסך.
     const _pst = p.status || 'active';
-    const projDue = (_pst === 'active' || _pst === 'done') ? totalDue(p) : 0;
+    // v3.50.0 — פרויקט שנדחק על-ידי פרויקט אחר של אותה עבודה לא תובע כסף, ואומר זאת
+    // במפורש. אף שקל לא נעלם בשקט: השורה נשארת, המספר נשאר, ויש כפתור להחזיר לספירה.
+    const _sup = (typeof _projSupersededBy === 'function') ? _projSupersededBy(p.id) : null;
+    const projDue = (!_sup && (_pst === 'active' || _pst === 'done')) ? totalDue(p) : 0;
     const status = _pst;
     const statusLabel = ({active:'פעיל', done:'הושלם', planned:'מתוכנן', paused:'מושהה'}[status]) || status;
     return `
@@ -22641,11 +22817,21 @@ function renderClientDetail(){
             <span>${esc(statusLabel)}</span>
             ${total ? `<span class="price">${fmt(Math.round(total))}₪</span>` : ''}
             ${projDue > 0 ? `<span class="due">לגבייה: ${fmt(Math.round(projDue))}₪</span>` : ''}
+            ${/* v3.50.0 — כשיש הנחה, המחיר לבדו נראה "סתם נמוך יותר". אומרים מאיפה הוא בא. */''}
+            ${(p.quoteDiscount && p.quoteDiscount.amount > 0)
+              ? `<span style="color:var(--text3)">אחרי הנחה של ${fmt(Math.round(p.quoteDiscount.amount))}₪ (מ-${fmt(Math.round(p.quoteDiscount.beforeDiscount))}₪)</span>` : ''}
+            ${_sup ? `<span style="color:var(--text3)">לא נספר בכסף — אותה עבודה כמו "${esc((_sup.title || _sup.clientName || 'הפרויקט השני').slice(0,26))}"</span>` : ''}
             ${(()=>{ const w=(typeof _warrantyStatus==='function')?_warrantyStatus(p,Date.now()):null; const sd=(typeof _nextServiceDue==='function')?_nextServiceDue(p):null; const bits=[]; if(w&&w.active)bits.push('אחריות עד '+_humanDate(w.endsAt)); if(sd)bits.push('שירות '+_humanDate(sd)); return bits.length?`<span style="color:var(--text3)">${bits.join(' · ')}</span>`:''; })()}
           </div>
         </div>
         <div class="cs-row-arrow">←</div>
       </div>
+      ${_sup ? `<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 12px 10px">
+          <button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();projectMarkSeparate('${esc(p.id)}')">זו עבודה נפרדת — תספור אותה</button>
+        </div>` : ''}
+      ${(p.separateWork) ? `<div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 12px 10px">
+          <button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();projectUnmarkSeparate('${esc(p.id)}')">בטל "עבודה נפרדת"</button>
+        </div>` : ''}
     `;
   }).join('') : null;
 
@@ -23488,8 +23674,15 @@ function _acceptedQuotesPendingTotal(){
   return _acceptedQuotesPending().reduce((s, q) => s + (_quoteGrandTotal(q) || 0), 0);
 }
 function _openReceivables(){
-  return (S.projects || []).filter(p => !_isDemoProject(p) && (p.status === 'active' || p.status === 'done'))   // v3.22.38 (6.13)
+  const fromProjects = (S.projects || []).filter(p => !_isDemoProject(p) && (p.status === 'active' || p.status === 'done'))   // v3.22.38 (6.13)
     .reduce((s, p) => s + Math.max(0, (typeof totalDue === 'function' ? totalDue(p) : 0)), 0);
+  /* v3.50.0 — ג'וב שנסגר ולא שולם נספר כחוב ב-getClientTotalDue (כרטיס-הלקוח) וב-_workDue
+     (מסך-העבודות), אך לא כאן — ולכן מסך-הכסף הציג פחות ממה שחייבים לאור, בלי שאף אחד
+     ידע. אותו מקור, אותו סכום, בשלושת המסכים. */
+  const fromJobs = (S.leads || []).reduce((s, l) =>
+    (l && l.status === 'job-done' && l.jobData && !l.jobData.paid)
+      ? s + (parseFloat(l.jobData.amount) || 0) : s, 0);
+  return fromProjects + fromJobs;
 }
 
 // Compute total income for current month — v3.21.90: עכשיו = כסף-אמיתי-שנכנס (לא צפי).
@@ -29771,7 +29964,15 @@ function totalReceived(p){ return (p.payments||[]).reduce((s,x)=>s+(parseFloat(x
 // נשער כאן בלבד — נקודת-המחנק היחידה של חישוב-חוב (38 קוראים) — כדי שהוויתור יתפשט אוטומטית
 // לכל תצוגה (קוקפיט/כספים/כרטיס-לקוח) בלי לצוד כל צרכן בנפרד. שום נתון לא נמחק: p.payments/
 // p.tasks נשארים בדיוק כפי שהיו, רק totalDue(p) חוזר 0.
-function totalDue(p){ if(p && p.writtenOff) return 0; return totalPrice(p) + calcVat(totalPrice(p), p) - totalReceived(p); }
+// v3.50.0 — נקודת-המחנק מקבלת כלל שני: פרויקט שנדחק על-ידי פרויקט אחר של אותה
+// עבודה אינו חוב. מכאן זה מתפשט בבת-אחת לכל 38 הקוראים — מסך-הכסף, הקוקפיט,
+// כרטיס-הלקוח, רשימת-הפרויקטים ודוח-הסגירה — בלי לתקן כל אחד בנפרד, וכך אי-אפשר
+// לקבל שני מספרים סותרים לאותו לקוח. (השורש של באג-נחשון: 144,550₪ במקום 54,634₪.)
+function totalDue(p){
+  if(p && p.writtenOff) return 0;
+  if(p && p.id && !p.separateWork && _supersededSet().has(p.id)) return 0;
+  return totalPrice(p) + calcVat(totalPrice(p), p) - totalReceived(p);
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // v3.25.1 (R2 — "רק מה שחי") — מחזור-חיים שנכבה לבד. שדה/סטטוס לא משתנה, שום שורה לא נמחקת —
@@ -40893,9 +41094,98 @@ function renderTimesCardHtml(v){
    STEP 3 — ROOF WIDE PHOTOS
    ═══════════════════════════════════════════════════════ */
 
-function doConvertQuoteToProject(quoteId){
+/* v3.50.0 — השער שלא היה קיים. עד כה כל אישור-הצעה יצר פרויקט חדש, גם כשלאותה
+   עבודה כבר היה פרויקט: הבדיקה היחידה (convertQuoteToProject) השוותה sourceQuoteId
+   בלבד, ופרויקט שנוצר מביקור נושא sourceQuoteId=null — ולכן אף פעם לא נמצא.
+   ככה נולדו שני הפרויקטים של נחשון. עכשיו שואלים, וברירת-המחדל היא לעדכן. */
+function _quoteExistingWorkProject(q){
+  if(!q) return null;
+  const w = (typeof _workOf === 'function')
+    ? (_workOf('quote', q.id) || (q.sourceVisitId ? _workOf('visit', q.sourceVisitId) : null))
+    : null;
+  if(!w || !w.projects || !w.projects.length) return null;
+  return w.projects.find(p => p.sourceQuoteId !== q.id) || null;
+}
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.50.0 — נקודה אחת שקובעת "כמה הפרויקט הזה עולה לפי ההצעה".
+   שלושה מסלולים שונים העתיקו הצעה לפרויקט, וכל אחד עשה זאת קצת אחרת: אחד פרס את
+   ההנחה, אחד לא, ואף אחד לא לקח את אחוז-המע"מ מההצעה. זה בדיוק המקור לכך שהחיוב
+   לא שווה למה שהלקוח חתם עליו. מעכשיו כולם עוברים כאן.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _projApplyQuotePricing(p, q){
+  if(!p || !q) return;
+  const items = (q.items || []).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine);
+  const gross = items.reduce((s, i) => s + (parseFloat(i.total) || 0), 0);
+  const net   = (typeof _quoteAmounts === 'function') ? _quoteAmounts(q).net : gross;
+  p.tasks = items.map(i => _buildTask({ name:i.title, price:parseFloat(i.total)||0, quantity:i.quantity,
+    unit:i.unit, pricePerUnit:i.pricePerUnit, sourceProductId:i.productId||null, sourceItemId:i.id,
+    notes:i.description||'', photos:(i.attachedPhotos||[]).map(ph=>({...ph})) }));
+  // פריסת-ההנחה היחסית (v3.44.3), עם שארית-העיגול על השורה האחרונה
+  if(gross > 0 && net >= 0 && Math.round(net) !== Math.round(gross)){
+    const ratio = net / gross; let running = 0;
+    p.tasks.forEach((t, idx) => {
+      const scaled = (idx === p.tasks.length - 1) ? Math.round((net - running) * 100) / 100
+                                                  : Math.round((parseFloat(t.price) || 0) * ratio * 100) / 100;
+      running += scaled;
+      const qty = parseFloat(t.qty) || 1;
+      t.price = scaled;
+      t.pricePerUnit = qty ? Math.round((scaled / qty) * 100) / 100 : scaled;
+    });
+    p.quoteDiscount = { beforeDiscount: Math.round(gross), afterDiscount: Math.round(net),
+                        amount: Math.round(gross - net), quoteId: q.id, quoteCode: q.quoteCode || '' };
+  } else {
+    delete p.quoteDiscount;                       // אין הנחה בהצעה הזאת — ולא נשארת ישנה
+  }
+  // אחוז-המע"מ נלקח מההצעה עצמה, לא מההגדרות של היום. הצעה שנשלחה ב-17% (או 0%
+  // לעוסק פטור) חויבה עד היום לפי ברירת-המחדל הנוכחית — פער אמיתי לטובת/לרעת הלקוח.
+  const qv = parseFloat(q.vatRate);
+  if(!isNaN(qv)) p.vatRate = qv;
+  p.sourceQuoteId  = q.id;
+  p.estimatedTotal = net;
+}
+/* מעדכן פרויקט קיים לפי ההצעה שאושרה — במקום לפתוח פרויקט שני. */
+function quoteUpdateExistingProject(quoteId, projectId){
+  const q = (S.quotes || []).find(x => x.id === quoteId);
+  const p = (S.projects || []).find(x => x.id === projectId);
+  if(!q || !p) return;
+  if(!p._tasksBeforeQuote) p._tasksBeforeQuote = JSON.parse(JSON.stringify(p.tasks || []));
+  _projApplyQuotePricing(p, q);
+  p.updatedAt = ts();
+  q.status = 'accepted'; q.acceptedAt = q.acceptedAt || ts(); q.linkedProjectId = p.id; q.updatedAt = ts();
+  saveAll(true);
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  if(typeof closeMo === 'function') closeMo();
+  toast(`הפרויקט מעודכן לפי הצעה ${q.quoteCode || ''} · ${fmt(Math.round(totalPrice(p)))}₪`);
+  S.activeProjectId = p.id;
+  if(typeof push === 'function'){ push('project-detail'); if(typeof renderProjectDetail === 'function') renderProjectDetail(); }
+}
+function doConvertQuoteToProject(quoteId, force){
   const q = S.quotes.find(x => x.id === quoteId);
   if(!q) return;
+  // השער: לאותה עבודה כבר יש פרויקט? לא פותחים שני בשקט.
+  if(!force){
+    const existing = _quoteExistingWorkProject(q);
+    if(existing){
+      const oldP = Math.round(totalPrice(existing));
+      const newP = Math.round((q.items || []).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine)
+                     .reduce((s, i) => s + (parseFloat(i.total) || 0), 0));
+      openMo(`
+        <div class="mo-title">כבר יש פרויקט לעבודה הזאת</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:14px">
+          "${esc((existing.title || existing.clientName || 'הפרויקט').slice(0,40))}" כבר פתוח על אותו ביקור,
+          עם מחיר ${fmt(oldP)}₪. ההצעה שאישרת היא ${fmt(newP)}₪.</div>
+        <button class="btn btn-ghost btn-sm" onclick="quoteUpdateExistingProject('${esc(q.id)}','${esc(existing.id)}')" style="margin-bottom:8px;justify-content:flex-start;text-align:right;flex-direction:column;align-items:flex-start;padding:10px 14px;height:auto">
+          <div style="font-weight:800;margin-bottom:2px">עדכן את הפרויקט הקיים</div>
+          <div style="font-size:11px;color:var(--text2);font-weight:500">המחיר יעבור ל-${fmt(newP)}₪ לפי ההצעה. הסעיפים הישנים נשמרים.</div>
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="closeMo();doConvertQuoteToProject('${esc(q.id)}',true)" style="margin-bottom:8px;justify-content:flex-start;text-align:right;flex-direction:column;align-items:flex-start;padding:10px 14px;height:auto">
+          <div style="font-weight:800;margin-bottom:2px">פתח פרויקט נוסף — זו עבודה נפרדת</div>
+          <div style="font-size:11px;color:var(--text2);font-weight:500">שתי עבודות אמיתיות אצל אותו לקוח. שתיהן ייספרו בכסף.</div>
+        </button>
+      `);
+      return;
+    }
+  }
   // v3.22.43 (#2) — estimatedTotal נשמר *לפני מע"מ* (נטו אחרי הנחה) כדי שיהיה עקבי עם הנתיב מביקור
   // ועם איך שאור משווה רווחיות. (היה grandTotal כולל-מע"מ — מקור אי-העקביות של APP-20.)
   const netPreVat = _quoteAmounts(q).net;
@@ -40953,6 +41243,11 @@ function doConvertQuoteToProject(quoteId){
   });
   // v3.44.3 — תיעוד ההנחה שנפרסה על המשימות, כדי שהמספר לעולם לא ייראה "סתם נמוך יותר"
   if(_quoteDiscount) project.quoteDiscount = _quoteDiscount;
+  // v3.50.0 — אחוז-המע"מ מגיע מההצעה, לא מברירת-המחדל של היום (ר' _projApplyQuotePricing)
+  { const _qv = parseFloat(q.vatRate); if(!isNaN(_qv)) project.vatRate = _qv; }
+  // v3.50.0 — אור בחר במפורש "זו עבודה נפרדת", אז הפרויקט הזה נספר בכסף בנפרד
+  // ולא נדחק על-ידי הפרויקט הקיים של אותה עבודה.
+  if(force) project.separateWork = true;
   // v3.22.10 — קשר ללקוח לפני השמירה (כמו הנתיב הידני) — אחרת פרויקט-מהצעה יתום מכרטיס-הלקוח
   if(typeof _autoLinkClient === 'function') _autoLinkClient(project, 'project');
   S.projects.unshift(project);
@@ -42517,6 +42812,8 @@ async function init(){
   // pdMigrateProjects removed v2.2.0
   migrateVisits();
   if(typeof _migrateEstTotalsPreVat === 'function') _migrateEstTotalsPreVat();   // v3.22.43 (#2) — estimatedTotal ללפני-מע"מ
+  // v3.50.0 — אחרי נרמול estimatedTotal, כי ההשוואה כאן היא מול סעיפי-ההצעה עצמם
+  if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
   if(typeof _migrateQuoteClientIds === 'function') _migrateQuoteClientIds();   // v3.26.0 (C1) — quote.clientId מ-sourceVisitId
   if(typeof _cleanGhostRecords === 'function') _cleanGhostRecords();   // v3.22.26 (3.15)
   // v3.22.33 (6.12) — נקה דגלי-שאיבה ישנים שנתקעו על פרויקטים מגרסאות קודמות
