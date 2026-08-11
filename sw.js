@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.48.1 — cache bump (תיקון: מיזוג ללקוח קיים לא נעצר באמצע בגלל תמונה כפולה).
  * v3.48.0 — cache bump (אנדרואיד: share_target, כפתור-התקנה, הרשאת-התראות בהקשה).
  * v3.47.0 — cache bump (תמונות-היום: קבוצת-יום מוצעת לשיוך ללקוח בהקשה אחת).
  * v3.46.0 — cache bump (הגשר: לידים ותמונות מוואטסאפ נוחתים בטלפון דרך הדרייב).
@@ -48,7 +49,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.48.0';
+const CACHE_NAME = 'or-bagag-cache-v3.48.1';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
