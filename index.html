@@ -7788,7 +7788,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.44.1'; // תיקון-רגרסיה: סימוני "טופל" נשמרים ושורדים רענון. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.44.2'; // תיקון: כסף של הצעה שהתקבלה לא נעלם בין "התקבלה" לתחילת-העבודה. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -22854,10 +22854,21 @@ function _calcMonthCashIn(){
    (חוב מפרויקטים בלבד). הצעה במצב accepted בלי פרויקט לא נכללה באף אחד מהם — ולכן
    אור סימן "התקבלה" ולא ראה כלום. מוצגות עכשיו בשורה נפרדת ומפורשת, ולא מתמזגות
    ל"צפוי לגבייה" — כדי שלא ייספרו פעמיים ברגע שייפתח פרויקט. */
+/* v3.44.2 (תיקון שנמצא בביקורת-הקוהרנטיות) — הכסף נעלם בין שני המסכים:
+   פרויקט שנוצר מהצעה נולד בסטטוס 'planned', ו-_openReceivables סופר במכוון רק
+   active/done ("פרויקט מתוכנן אינו חוב-לקוח" — v3.22.32/C3#6). התוצאה: מרגע פתיחת
+   הפרויקט ועד תחילת-העבודה הסכום לא הופיע באף מספר — לא כאן ולא ב"צפוי לגבייה".
+   הפתרון: ההצעה נשארת מוצגת כאן כל עוד הפרויקט שלה עדיין לא פעיל. שני המקורות
+   משלימים בהגדרה (אותו תנאי בדיוק, הפוך) ולכן ספירה כפולה אינה אפשרית. */
+function _projectCountsAsReceivable(p){
+  const st = (p && p.status) || 'active';
+  return st === 'active' || st === 'done';
+}
 function _acceptedQuotesPending(){
   return (S.quotes || []).filter(q => {
     if(q.status !== 'accepted') return false;
-    if(q.linkedProjectId && (S.projects || []).some(p => p.id === q.linkedProjectId)) return false;
+    const p = q.linkedProjectId ? (S.projects || []).find(x => x.id === q.linkedProjectId) : null;
+    if(p && _projectCountsAsReceivable(p)) return false;   // כבר נספר ב"צפוי לגבייה"
     return true;
   });
 }
@@ -23629,15 +23640,18 @@ function renderFinance(){
       return `
       <div class="card" id="fin-accepted-card" style="border:1px solid var(--green)">
         <div class="card-label" style="color:var(--green)">הצעות שהתקבלו · ${pend.length} · ${fmt(Math.round(tot))} ₪</div>
-        <div style="font-size:12.5px;color:var(--text2);margin:-4px 0 8px">אושרו על-ידי הלקוח, עוד לא נפתח פרויקט</div>
-        ${pend.slice(0, 12).map(q => `
+        <div style="font-size:12.5px;color:var(--text2);margin:-4px 0 8px">אושרו על-ידי הלקוח, העבודה עוד לא התחילה</div>
+        ${pend.slice(0, 12).map(q => {
+          const pj = q.linkedProjectId ? (S.projects || []).find(x => x.id === q.linkedProjectId) : null;
+          return `
           <div class="fin-row" style="cursor:pointer" onclick="S.activeQuoteId='${_jsAttr(q.id)}';push('quote-edit');renderQuoteEdit()">
             <div>
               <div class="fr-name"><iconify-icon icon="mdi:check-circle-outline"></iconify-icon> ${esc(q.clientName || 'לקוח')}</div>
-              <div class="fr-meta">#${esc(q.quoteCode || '')}${q.acceptedAt ? ' · התקבלה ' + fmtD(q.acceptedAt) : ''}</div>
+              <div class="fr-meta">#${esc(q.quoteCode || '')}${q.acceptedAt ? ' · התקבלה ' + fmtD(q.acceptedAt) : ''}${pj ? ' · פרויקט נפתח, טרם התחיל' : ''}</div>
             </div>
             <span class="fr-amt" style="color:var(--green)">${fmt(Math.round(_quoteGrandTotal(q)))} ₪</span>
-          </div>`).join('')}
+          </div>`;
+        }).join('')}
         ${pend.length > 12 ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">מציג 12 מתוך ${pend.length}</div>` : ''}
       </div>`;
     })()}
