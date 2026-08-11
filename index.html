@@ -7665,8 +7665,10 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   <button class="gnav-tab" data-gtab="today" onclick="_gnavGo('today')">
     <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-sparkle"/></svg><span>היום</span>
   </button>
+  <!-- v3.44.0 — בבקשת אור: הלשונית נקראת "לקוחות". התוכן לא השתנה — כל שורה היא
+       לקוח והעבודה שלו, וזו הרשימה שאור מחפש בה. -->
   <button class="gnav-tab" data-gtab="works" onclick="_gnavGo('works')">
-    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-projects"/></svg><span>העסק</span>
+    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-clients"/></svg><span>לקוחות</span>
   </button>
   <div class="gnav-mid">
     <button class="gnav-fab" onclick="_gnavCreate()" aria-label="יצירה חדשה" title="יצירה חדשה">
@@ -7692,7 +7694,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <!-- v3.43.0 (שיקום שלב 1) — חיפוש ולקוחות ירדו מהסרגל התחתון (חמישה סלוטים בלבד) ולכן
          הם ראשונים כאן. שום יכולת לא אבדה — רק החליפה מקום. -->
     <button onclick="closeGlobalDrawer();_gnavGo('search')"><iconify-icon icon="mdi:magnify"></iconify-icon><span>חיפוש בכל העסק</span></button>
-    <button onclick="closeGlobalDrawer();openFolk()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות</span></button>
+    <button onclick="closeGlobalDrawer();openFolk()"><iconify-icon icon="mdi:archive-outline"></iconify-icon><span>כל הלקוחות וארכיון</span></button>
     <!-- v3.24.1 (N2) — "פרויקטים" (הרשימה עם סינון/מיון/חיפוש) איבדה את מקומה בניווט הראשי: לשונית
          "גגות" מובילה עכשיו ל-view-roofs (רשת כרטיסי-גג), לא ל-projects-list. חוק-הברזל "מסך שמאבד
          את מקומו בניווט הראשי — מקבל מקום במגירה" — הרשימה עצמה (עם הפילטרים) עדיין קיימת ונגישה כאן. -->
@@ -7737,15 +7739,15 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     </button>
     <button class="grail-item" data-gtab="works" onclick="_gnavGo('works')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-projects"/></svg>
-      <span class="grail-lbl">העסק</span><span class="grail-badge" id="gr-b-roofs"></span>
+      <span class="grail-lbl">לקוחות</span><span class="grail-badge" id="gr-b-roofs"></span>
     </button>
     <button class="grail-item" data-gtab="money" onclick="_gnavGo('finance')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-finance"/></svg>
       <span class="grail-lbl">כסף</span><span class="grail-badge" id="gr-b-money"></span>
     </button>
     <button class="grail-item" onclick="openFolk()">
-      <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-clients"/></svg>
-      <span class="grail-lbl">לקוחות</span><span class="grail-badge" id="gr-b-folk"></span>
+      <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-archive"/></svg>
+      <span class="grail-lbl">כל הלקוחות וארכיון</span><span class="grail-badge" id="gr-b-folk"></span>
     </button>
     <button class="grail-item" data-gtab="more" onclick="_gnavGo('search')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-search"/></svg>
@@ -7786,7 +7788,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.43.0'; // שיקום שלב 1: ניווט אחד (היום · העסק · + · כסף · עוד), חיפוש בראש המגירה, וסוף לשלוש מערכות-הניווט המקבילות
+const APP_VERSION = '3.44.0'; // שיקום, סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -15348,6 +15350,35 @@ function qMarkSentNow(){
   toast('סומן: ההצעה נשלחה — מתחיל לספור ימים');
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.44.0 — "ההצעה התקבלה" בהקשה אחת, מכל מקום.
+   שאלת אור: "עדיין לא הצלחתי להבין איך אני מסמן איזו הצעה התקבלה ולפי זה מוצגת
+   במסך הכספים". הבדיקה בקוד: הסימון תמיד היה אפשרי — אבל רק דרך מודאל "שנה סטטוס",
+   או דרך כפתור "🔨 הצעה התקבלה — פתח פרויקט" שקבור בתחתית מסך-ההצעה מתחת להערות.
+   החישוב הכספי כבר עבד: _incomeInPeriod סופר הצעה במצב accepted גם בלי פרויקט.
+   התיקון הוא חשיפה, לא צנרת: כפתור ירוק בראש כרטיס-הסטטוס וגם בשורת מסך-היום.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function quoteAccepted(quoteId){
+  const q = quoteId ? (S.quotes || []).find(x => x.id === quoteId) : getQuote();
+  if(!q){ toast('ההצעה לא נמצאה'); return; }
+  if(q.status !== 'accepted'){
+    q.status = 'accepted';
+    q.acceptedAt = ts();
+    if(!q.sentAt) q.sentAt = ts();     // התקבלה ⇒ בהכרח נשלחה
+    q.updatedAt = ts();
+    saveAll(true);
+  }
+  const total = _quoteGrandTotal(q);
+  // אין יצירת פרויקט אוטומטית — זו החלטה נפרדת של אור; ההצעה כבר נספרת בכסף.
+  toast(`✓ התקבלה · ${fmt(total)} ₪ נכנסו לכסף · הקש לפתיחת פרויקט`, {
+    duration: 6000,
+    onAction: () => { S.activeQuoteId = q.id; if(typeof convertQuoteToProject === 'function'){ push('quote-edit'); renderQuoteEdit(); convertQuoteToProject(); } },
+  });
+  if(typeof renderToday === 'function' && document.querySelector('#view-today.on')) renderToday();
+  if(typeof renderQuoteEdit === 'function' && document.querySelector('#view-quote-edit.on')) renderQuoteEdit();
+  if(typeof renderWorks === 'function' && document.querySelector('#view-works.on')) renderWorks();
+}
+
 // V2.6 — Quote follow-up: open WhatsApp with a polite reminder template
 // v3.43.0 — stage: 1 = תזכורת אחרי 3 ימים · 2 = תזכורת אחרונה אחרי שבוע
 function qFollowUpReminder(quoteId, stage){
@@ -19938,13 +19969,48 @@ const TODAY_VISIT_WINDOW_DAYS = 3;   // ביקור "טרי" שעדיין מחכ�
 const QUOTE_NUDGE_DAYS  = 3;         // הכרעת אור: תזכורת אחרי 3 ימים בלי מענה
 const QUOTE_LAST_CALL_DAYS = 7;      // ותזכורת אחרונה אחרי שבוע
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.44.0 — "טופל" (בקשת אור: "אפשרות לסמן טופל ולהעיף את הלקוח מהמסך הזה")
+   סימון בלבד, אפס מחיקה: נשמרת חותמת-זמן לכל עבודה ב-S.todayDone. העבודה יורדת
+   ממסך-היום — אבל **חוזרת מעצמה** אם קרה בה משהו חדש אחרי הסימון (הודעה, הצעה,
+   תשלום). ככה "טופל" לא הופך ל"נשכח", וזה בדיוק מה שאור ביקש שלא יקרה.
+   לכל סימון יש ביטול מיידי, כמו בכל הסרה אחרת באפליקציה.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _todayDoneMap(){
+  if(!S.todayDone || typeof S.todayDone !== 'object') S.todayDone = {};
+  return S.todayDone;
+}
+function _todayIsDone(w){
+  const at = _todayDoneMap()[w.id];
+  if(!at) return false;
+  return (w.updatedAt || 0) <= at;          // קרה משהו חדש מאז? חוזר לרשימה
+}
+function todayMarkDone(workId){
+  const w = getWork(workId);
+  const map = _todayDoneMap();
+  map[workId] = Date.now() + 1000;          // שנייה קדימה, שהעדכון-של-עצמו לא יחזיר אותו מיד
+  saveAll(true);
+  renderToday();
+  const name = w ? _workClientName(w) : 'הפריט';
+  // אותו דפוס tap-to-undo שכבר בשימוש במחיקות (v3.23.11) — לא ממציאים מנגנון חדש
+  toast(`✓ ${name} — טופל · הקש לביטול`, { onAction: () => todayUndoDone(workId), duration: 5000 });
+}
+function todayUndoDone(workId){
+  const map = _todayDoneMap();
+  delete map[workId];
+  saveAll(true);
+  renderToday();
+  toast('בוטל — חזר לרשימה');
+}
+
 /* חלוקת העבודות לארבעת הדליים. עבודה נכנסת לדלי אחד בלבד — הראשון שמתאים לה,
    לפי סדר-העדיפות של אור — כדי שהרשימה תהיה רשימת-פעולות ולא תמונת-מצב כפולה. */
 function _todayBuckets(){
   const DAY = 86400000, now = Date.now();
-  const b = { visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[] };
+  const b = { visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[], doneToday:[] };
   getWorks().forEach(w => {
     if(w.stage === 'done' && !(w.due > 0)) return;
+    if(_todayIsDone(w)){ b.doneToday.push({ w, at: _todayDoneMap()[w.id] }); return; }
 
     // 1. ביקור שכבר בוצע (לא מתוכנן לעתיד) ואין לעבודה שום הצעה
     const doneVisit = w.visits.find(v => {
@@ -19980,8 +20046,10 @@ function todayCount(){
   return b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
 }
 
-/* שורה במסך-היום: אותה אנטומיה של _workRowHtml, עם שורת-סיבה ופעולה ראשית אחת. */
-function _todayRowHtml(entry, reason, actionLabel, actionCall){
+/* שורה במסך-היום: אותה אנטומיה של _workRowHtml, עם שורת-סיבה ופעולה ראשית אחת.
+   v3.44.0 — נוסף "טופל" בכל שורה (מוריד מהמסך), ו-extraBtn לפעולה ייחודית לדלי
+   (למשל "ההצעה התקבלה" בדלי ההצעות הממתינות). */
+function _todayRowHtml(entry, reason, actionLabel, actionCall, extraBtn){
   const w = entry.w;
   const name = _workClientName(w);
   const addr = _workAddress(w);
@@ -19996,7 +20064,9 @@ function _todayRowHtml(entry, reason, actionLabel, actionCall){
         ${/* btn-xs הוא היחיד עם width:auto — שורה נשארת שורה, לא כרטיס-ענק */''}
         <span style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
           <button class="btn btn-gold btn-xs" style="margin:0" onclick="event.stopPropagation();${actionCall}">${esc(actionLabel)}</button>
-          <button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();openWork('${_jsAttr(w.id)}')">פתח עבודה</button>
+          ${extraBtn || ''}
+          <button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();openWork('${_jsAttr(w.id)}')">פתח</button>
+          <button class="btn btn-ghost btn-xs" style="margin:0;opacity:.85" onclick="event.stopPropagation();todayMarkDone('${_jsAttr(w.id)}')" title="הורד ממסך היום">✓ טופל</button>
         </span>
       </span>
     </div>`;
@@ -20023,15 +20093,30 @@ function renderToday(){
     _todayRowHtml(e, `נכנסה ${_humanTimeAgo(Date.now() - e.at)} — עוד לא נקבע ביקור`,
       'פתח שיחה', `_todayOpenChat('${_jsAttr(e.w.id)}')`)));
 
+  // v3.44.0 — "ההצעה התקבלה" ישירות מהשורה: זה הרגע שבו אור באמת יודע שהיא התקבלה
   const s3 = section('הצעות שממתינות לתשובה', b.quoteWaiting.map(e =>
     _todayRowHtml(e,
       e.days >= QUOTE_LAST_CALL_DAYS ? `נשלחה לפני ${e.days} ימים — הזמן לתזכורת אחרונה`
                                      : `נשלחה לפני ${e.days} ימים — בלי מענה`,
-      'הכן תזכורת', `_todayNudge('${_jsAttr(e.w.id)}')`)));
+      'הכן תזכורת', `_todayNudge('${_jsAttr(e.w.id)}')`,
+      `<button class="btn btn-xs" style="margin:0;background:var(--green-l);border:1px solid var(--green);color:var(--green);font-weight:800" onclick="event.stopPropagation();quoteAccepted('${_jsAttr(e.quote.id)}')">✓ התקבלה!</button>`)));
 
   const s4 = section('כסף לגבייה', b.toCollect.map(e =>
     _todayRowHtml(e, `${fmt(Math.round(e.w.due))} ₪ פתוחים`,
       'פתח עבודה', `openWork('${_jsAttr(e.w.id)}')`)));
+
+  // v3.44.0 — מה שסומן "טופל" לא נעלם: שורה מקופלת בתחתית עם החזרה בהקשה
+  const doneStrip = b.doneToday.length ? `
+    <div class="wk-grp"><span class="wk-grp-t">טופלו היום</span><span class="wk-grp-n">${b.doneToday.length}</span></div>
+    <div class="wk-list">${b.doneToday.map(e => `
+      <div class="wk-row-item" style="cursor:default;opacity:.6">
+        <span class="wr-av">${esc(_initialsOf(_workClientName(e.w)))}</span>
+        <span class="wr-bd">
+          <span class="wr-l1" style="text-decoration:line-through">${esc(_workClientName(e.w))}</span>
+          <span class="wr-l3">סומן כטופל · יחזור אם יקרה משהו חדש</span>
+        </span>
+        <span class="wr-end"><button class="btn btn-ghost btn-xs" style="margin:0" onclick="todayUndoDone('${_jsAttr(e.w.id)}')">החזר</button></span>
+      </div>`).join('')}</div>` : '';
 
   const empty = `
     <div class="wk-empty">
@@ -20055,6 +20140,7 @@ function renderToday(){
         </div>
       </div>
       ${total ? (s1 + s2 + s3 + s4) : empty}
+      ${doneStrip}
     </div>`;
 }
 
@@ -22758,6 +22844,21 @@ function _calcMonthCashIn(){
 }
 
 // צפוי לגבייה (נכון להיום): Σ חוב-פתוח על פרויקטים פעילים/הושלמו.
+/* v3.44.0 — הצעות שהתקבלו ועדיין אין מהן פרויקט.
+   ממצא מהבדיקה: מסך-הכסף נשען על _cashInBetween (כסף שנכנס) ו-_openReceivables
+   (חוב מפרויקטים בלבד). הצעה במצב accepted בלי פרויקט לא נכללה באף אחד מהם — ולכן
+   אור סימן "התקבלה" ולא ראה כלום. מוצגות עכשיו בשורה נפרדת ומפורשת, ולא מתמזגות
+   ל"צפוי לגבייה" — כדי שלא ייספרו פעמיים ברגע שייפתח פרויקט. */
+function _acceptedQuotesPending(){
+  return (S.quotes || []).filter(q => {
+    if(q.status !== 'accepted') return false;
+    if(q.linkedProjectId && (S.projects || []).some(p => p.id === q.linkedProjectId)) return false;
+    return true;
+  });
+}
+function _acceptedQuotesPendingTotal(){
+  return _acceptedQuotesPending().reduce((s, q) => s + (_quoteGrandTotal(q) || 0), 0);
+}
 function _openReceivables(){
   return (S.projects || []).filter(p => !_isDemoProject(p) && (p.status === 'active' || p.status === 'done'))   // v3.22.38 (6.13)
     .reduce((s, p) => s + Math.max(0, (typeof totalDue === 'function' ? totalDue(p) : 0)), 0);
@@ -23513,6 +23614,28 @@ function renderFinance(){
       ${paymentItems.length > 20 ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">מציג 20 אחרונים מתוך ${paymentItems.length}</div>` : ''}
     </div>
     ` : ''}
+
+    ${/* v3.44.0 — הצעות שאור סימן "התקבלה" ועוד לא נפתח מהן פרויקט: הכסף שכבר סגור
+         אבל עדיין לא התחיל לזוז. זה מה שחסר לאור כשהוא שאל "איפה זה מוצג בכספים". */''}
+    ${(() => {
+      const pend = _acceptedQuotesPending();
+      if(!pend.length) return '';
+      const tot = pend.reduce((s,q) => s + (_quoteGrandTotal(q)||0), 0);
+      return `
+      <div class="card" id="fin-accepted-card" style="border:1px solid var(--green)">
+        <div class="card-label" style="color:var(--green)">הצעות שהתקבלו · ${pend.length} · ${fmt(Math.round(tot))} ₪</div>
+        <div style="font-size:12.5px;color:var(--text2);margin:-4px 0 8px">אושרו על-ידי הלקוח, עוד לא נפתח פרויקט</div>
+        ${pend.slice(0, 12).map(q => `
+          <div class="fin-row" style="cursor:pointer" onclick="S.activeQuoteId='${_jsAttr(q.id)}';push('quote-edit');renderQuoteEdit()">
+            <div>
+              <div class="fr-name"><iconify-icon icon="mdi:check-circle-outline"></iconify-icon> ${esc(q.clientName || 'לקוח')}</div>
+              <div class="fr-meta">#${esc(q.quoteCode || '')}${q.acceptedAt ? ' · התקבלה ' + fmtD(q.acceptedAt) : ''}</div>
+            </div>
+            <span class="fr-amt" style="color:var(--green)">${fmt(Math.round(_quoteGrandTotal(q)))} ₪</span>
+          </div>`).join('')}
+        ${pend.length > 12 ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">מציג 12 מתוך ${pend.length}</div>` : ''}
+      </div>`;
+    })()}
 
     <!-- v3.43.0 (שיקום שלב 1) — "הוצאות קבועות" ו"תוספות סיכון" ירדו מהתפריט היומי
          (מפת-ההסרה 0ג §3 שורות 18-19: תחזוקה אינה ניווט יומי) ונחתו כאן, במסך שאליו
@@ -39024,6 +39147,8 @@ function renderQuoteEdit(){
              ואז הוא מתחיל לספור לי את הימים". עד כה זה דרש מעבר במודאל-הסטטוס. qSetStatus
              כבר חותם sentAt, שומר ומרנדר — הכפתור רק חוסך את הדרך. */''}
         ${status !== 'sent' && status !== 'accepted' ? `<button class="btn-xs btn-ghost" onclick="qMarkSentNow()" style="background:var(--gold-l);border-color:var(--gold2);color:#7a5a08;font-size:12px;font-weight:800">✓ נשלחה הצעה</button>` : ''}
+        ${/* v3.44.0 — הכפתור שאור חיפש: סימון "התקבלה" בהקשה אחת, מהמקום הכי גלוי במסך */''}
+        ${status !== 'accepted' ? `<button class="btn-xs btn-ghost" onclick="quoteAccepted()" style="background:var(--green-l);border-color:var(--green);color:var(--green);font-size:12px;font-weight:800">✓ התקבלה!</button>` : ''}
         ${status === 'sent' && q.clientPhone ? _qReminderBtnHtml(q, sentDays) : ''}
         <button class="btn-xs btn-ghost" onclick="qChangeStatus()" style="font-size:12px">שנה סטטוס</button>
       </div>
@@ -39034,6 +39159,17 @@ function renderQuoteEdit(){
       <div class="card" style="padding:11px 14px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px">
         <iconify-icon icon="mdi:bell-outline" width="17" style="flex-shrink:0"></iconify-icon>
         <span>${esc(_qReminderStatusText(q, sentDays))}</span>
+      </div>` : ''}
+    ${/* v3.44.0 — אחרי "התקבלה": אישור שהסכום נכנס לכסף, והצעד הבא (פרויקט) בהישג יד */''}
+    ${status === 'accepted' ? `
+      <div class="card" style="padding:12px 14px;background:var(--green-l);border:1px solid var(--green)">
+        <div style="font-size:13px;color:var(--green);font-weight:800;display:flex;align-items:center;gap:7px">
+          <iconify-icon icon="mdi:check-circle-outline" width="18"></iconify-icon>
+          ההצעה התקבלה — ${fmt(_quoteGrandTotal(q))} ₪ מופיעים במסך "כסף"
+        </div>
+        ${q.linkedProjectId
+          ? `<div style="font-size:12.5px;color:var(--text2);margin-top:6px">נפתח פרויקט מההצעה הזאת.</div>`
+          : `<button class="btn-xs btn-ghost" style="margin-top:9px;font-size:12px" onclick="convertQuoteToProject()">🔨 פתח פרויקט מההצעה</button>`}
       </div>` : ''}
 
     <!-- v3.21.94 (SM-4) — client signature -->
