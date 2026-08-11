@@ -6504,9 +6504,16 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
        שקיימת, גם כזו שאין לה קישורים ושנפלה עד היום בין הכיסאות.
        שום מסך ישן לא נמחק — הם רק יורדים מהתפריטים.
        ═══════════════════════════════════════════ -->
-  <div class="view on" id="view-works">
+  <!-- v3.43.0 (שיקום שלב 3) — "היום": מסך-הפתיחה. יורש את בקרה/יומן/סיכום-יום/משימות
+       (מפת-ההסרה 0ג §2) ומסודר לפי סבב-הערב שאור הכתיב: ביקורי-היום שאין להם הצעה ←
+       פניות חדשות ← הצעות שממתינות לתזכורת ← כסף לגבייה. -->
+  <div class="view on" id="view-today">
+    <div id="today-body" class="body" style="padding:0"></div>
+  </div>
+  <div class="view" id="view-works">
     <div id="works-body" class="body" style="padding:0"></div>
   </div>
+
   <div class="view" id="view-work">
     <div id="work-body" class="body" style="padding:0"></div>
   </div>
@@ -7652,11 +7659,14 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   <!-- v3.27.0 (WORKS-04) — ארבע לשוניות. "גגות"→"עבודות" (עכשיו מציג עבודות ולא רק פרויקטים),
        "יומן"→"אנשים" (היומן ירד: renderCalendar קורא רק S.projects ולכן הציג רק חלק מהתמונה —
        הוא נשאר נגיש מהתפריט). חיפוש נשאר, כי זו הדרך המהירה למצוא משהו ישן. -->
-  <button class="gnav-tab" data-gtab="works" onclick="_gnavGo('works')">
-    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-projects"/></svg><span>עבודות</span>
+  <!-- v3.43.0 (שיקום שלב 1) — הניווט שאור בחר ב-01.08 ומעולם לא מומש: חמישה סלוטים
+       "היום | העסק | (+) | כסף | עוד". "לקוחות" ו"חיפוש" לא אבדו — הם בראש המגירה
+       ("עוד"), וחיפוש-העבודות ממילא יושב בראש מסך-העסק. -->
+  <button class="gnav-tab" data-gtab="today" onclick="_gnavGo('today')">
+    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-sparkle"/></svg><span>היום</span>
   </button>
-  <button class="gnav-tab" data-gtab="folk" onclick="_gnavGo('folk')">
-    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-clients"/></svg><span>לקוחות</span>
+  <button class="gnav-tab" data-gtab="works" onclick="_gnavGo('works')">
+    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-projects"/></svg><span>העסק</span>
   </button>
   <div class="gnav-mid">
     <button class="gnav-fab" onclick="_gnavCreate()" aria-label="יצירה חדשה" title="יצירה חדשה">
@@ -7666,8 +7676,8 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   <button class="gnav-tab" data-gtab="money" onclick="_gnavGo('finance')">
     <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-finance"/></svg><span>כסף</span>
   </button>
-  <button class="gnav-tab" data-gtab="search" onclick="_gnavGo('search')">
-    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-search"/></svg><span>חיפוש</span>
+  <button class="gnav-tab" data-gtab="more" onclick="openGlobalDrawer()">
+    <svg class="obi" width="21" height="21" aria-hidden="true"><use href="#ic-more"/></svg><span>עוד</span>
   </button>
 </nav>
 
@@ -7679,6 +7689,9 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <button class="gdrawer-close" onclick="closeGlobalDrawer()" aria-label="סגור"><iconify-icon icon="mdi:close"></iconify-icon></button>
   </div>
   <div class="gdrawer-list">
+    <!-- v3.43.0 (שיקום שלב 1) — חיפוש ולקוחות ירדו מהסרגל התחתון (חמישה סלוטים בלבד) ולכן
+         הם ראשונים כאן. שום יכולת לא אבדה — רק החליפה מקום. -->
+    <button onclick="closeGlobalDrawer();_gnavGo('search')"><iconify-icon icon="mdi:magnify"></iconify-icon><span>חיפוש בכל העסק</span></button>
     <button onclick="closeGlobalDrawer();openFolk()"><iconify-icon icon="mdi:account-multiple-outline"></iconify-icon><span>לקוחות</span></button>
     <!-- v3.24.1 (N2) — "פרויקטים" (הרשימה עם סינון/מיון/חיפוש) איבדה את מקומה בניווט הראשי: לשונית
          "גגות" מובילה עכשיו ל-view-roofs (רשת כרטיסי-גג), לא ל-projects-list. חוק-הברזל "מסך שמאבד
@@ -7687,16 +7700,15 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
          של אותה עבודה, וזו הייתה אחת הסיבות שאותו דבר נראה בשלושה מקומות ולא נמצא באף אחד.
          הם לא נמחקו — הם תחת "מסכים ישנים" בהגדרות, וכל רשומה שבהם מכוסה במסך "עבודות"
          (מאומת ע"י worksCoverageReport לפני שהורדנו אותם). -->
-    <button onclick="closeGlobalDrawer();openNextTasksScreen()"><iconify-icon icon="mdi:check-circle-outline"></iconify-icon><span>משימות</span><span class="gdrawer-badge" id="gdb-tasks"></span></button>
     <button onclick="closeGlobalDrawer();openCatalog()"><iconify-icon icon="mdi:package-variant"></iconify-icon><span>קטלוג עבודות</span><span class="gdrawer-badge" id="gdb-catalog"></span></button>
     <button onclick="closeGlobalDrawer();openMainGallery()"><iconify-icon icon="mdi:image-multiple-outline"></iconify-icon><span>תיק עבודות</span><span class="gdrawer-badge" id="gdb-gallery"></span></button>
-    <button onclick="closeGlobalDrawer();openAnalyticsView()"><iconify-icon icon="mdi:chart-bar"></iconify-icon><span>אנליטיקה ודוחות</span></button>
     <!-- v3.31.0 (REPORT-LINK) — פתיחת האפליקציה עצמה, בלי ליצור דוח חדש: כאן אור מגיע
          לדוחות שכבר כתב. ה-[+] יוצר חדש, המגירה נותנת גישה. -->
     <button onclick="closeGlobalDrawer();openReportsList()"><iconify-icon icon="mdi:clipboard-text-outline"></iconify-icon><span>דוחות ייעוץ</span></button>
-    <button onclick="closeGlobalDrawer();openFixedExpenses()"><iconify-icon icon="mdi:cash-minus"></iconify-icon><span>הוצאות קבועות</span></button>
-    <button onclick="closeGlobalDrawer();openModifiers()"><iconify-icon icon="mdi:alert-octagon-outline"></iconify-icon><span>תוספות סיכון</span></button>
-    <button onclick="closeGlobalDrawer();openDailySummary()"><iconify-icon icon="mdi:weather-sunset"></iconify-icon><span>סיכום יום</span></button>
+    <!-- v3.43.0 (שיקום שלב 1, מפת-ההסרה 0ג §3 שורות 17-22) — "אנליטיקה", "הוצאות קבועות",
+         "תוספות סיכון", "משימות" ו"סיכום יום" ירדו מהתפריט היומי: תחזוקה ומספרים אינם
+         ניווט יומי. הוצאות-קבועות ותוספות-סיכון נגישות ממסך "כסף"; סיכום-היום והמשימות
+         נבלעו במסך "היום"; כולם נשארים גם תחת הגדרות ← מסכים ישנים. אפס מחיקה. -->
     <!-- v3.25.0 (R1/NEWUSER-03) — "בקרה (המסך הישן)" removed from here: it read as a second,
          near-identical home with no way back in (ORIENTATION-01/NEWUSER-03). view-dash and goDash()
          are untouched in code — only this menu entry (and the desktop rail's twin below) are gone. -->
@@ -7717,19 +7729,25 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
     <svg class="obi" width="18" height="18" aria-hidden="true"><use href="#ic-plus"/></svg><span>יצירה חדשה</span>
   </button>
   <div class="grail-primary">
+    <!-- v3.43.0 (שיקום שלב 1) — אותם חמישה סלוטים כמו בנייד, בסדר זהה. במחשב יש מקום,
+         ולכן "לקוחות" ו"חיפוש" נשארים גלויים כאן בשורה נפרדת ולא נעלמים לתפריט. -->
+    <button class="grail-item" data-gtab="today" onclick="_gnavGo('today')">
+      <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-sparkle"/></svg>
+      <span class="grail-lbl">היום</span><span class="grail-badge" id="gr-b-today"></span>
+    </button>
     <button class="grail-item" data-gtab="works" onclick="_gnavGo('works')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-projects"/></svg>
-      <span class="grail-lbl">עבודות</span><span class="grail-badge" id="gr-b-roofs"></span>
-    </button>
-    <button class="grail-item" data-gtab="folk" onclick="_gnavGo('folk')">
-      <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-clients"/></svg>
-      <span class="grail-lbl">לקוחות</span><span class="grail-badge" id="gr-b-folk"></span>
+      <span class="grail-lbl">העסק</span><span class="grail-badge" id="gr-b-roofs"></span>
     </button>
     <button class="grail-item" data-gtab="money" onclick="_gnavGo('finance')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-finance"/></svg>
       <span class="grail-lbl">כסף</span><span class="grail-badge" id="gr-b-money"></span>
     </button>
-    <button class="grail-item" data-gtab="search" onclick="_gnavGo('search')">
+    <button class="grail-item" onclick="openFolk()">
+      <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-clients"/></svg>
+      <span class="grail-lbl">לקוחות</span><span class="grail-badge" id="gr-b-folk"></span>
+    </button>
+    <button class="grail-item" data-gtab="more" onclick="_gnavGo('search')">
       <svg class="obi" width="22" height="22" aria-hidden="true"><use href="#ic-search"/></svg>
       <span class="grail-lbl">חיפוש</span>
     </button>
@@ -7737,19 +7755,17 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
   <div class="grail-sep"></div>
   <div class="grail-drawer-items">
 
-    <button class="grail-item" onclick="openNextTasksScreen()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-tasks"/></svg><span class="grail-lbl">משימות</span><span class="grail-badge" id="gr-b-tasks"></span></button>
+    <!-- v3.43.0 — "משימות" ירד: הוא נבלע במסך "היום" (מפת 0ג §3 שורה 17). -->
     <button class="grail-item" onclick="openCatalog()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-archive"/></svg><span class="grail-lbl">קטלוג עבודות</span><span class="grail-badge" id="gr-b-catalog"></span></button>
     <button class="grail-item" onclick="openMainGallery()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-gallery"/></svg><span class="grail-lbl">תיק עבודות</span><span class="grail-badge" id="gr-b-gallery"></span></button>
-    <button class="grail-item" onclick="openAnalyticsView()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-chart"/></svg><span class="grail-lbl">אנליטיקה ודוחות</span></button>
+    <!-- v3.43.0 — "אנליטיקה" ירדה מהניווט (0ג §3 שורה 22); נשארת תחת הגדרות ← מסכים ישנים. -->
     <!-- v3.39.0 (NAV-PARITY) — הוחזר בעקבות COLLAB #45.ב. הוספתי כאן "דוחות ייעוץ" כי הוא קיים
          במגירת המובייל ולא ב-rail, אבל מפת 0ב.1 (שורה 5) קובעת ל-view-reports "להסיר כיעד גלובלי
          לאחר איחוד" ויעד "עבודה → מסמכים ודוחות". הוספת יעד גלובלי שלישי דווקא אחרי עדות אור על
          עודף מסכים, ולפני הכרעת 0ג, סותרת את המפה. ובעיקר: הנתונים אינם נגישים יותר בגלל כפתור
          למסך שבו הם מוצגים ריקים — הפגם האמיתי הוא ש-onclick של כל שורה הוא openReportApp() בלי
          מזהה, ובונה-הדוחות אינו תומך בפרמטר כזה כלל. שם צריך התיקון, לא כאן. -->
-    <button class="grail-item" onclick="openFixedExpenses()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-cycle"/></svg><span class="grail-lbl">הוצאות קבועות</span></button>
-    <button class="grail-item" onclick="openModifiers()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-shield"/></svg><span class="grail-lbl">תוספות סיכון</span></button>
-    <button class="grail-item" onclick="openDailySummary()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-sparkle"/></svg><span class="grail-lbl">סיכום יום</span></button>
+    <!-- v3.43.0 — הוצאות-קבועות ותוספות-סיכון עברו למסך "כסף"; סיכום-היום נבלע ב"היום". -->
     <!-- v3.25.0 (R1/NEWUSER-03) — "בקרה (המסך הישן)" removed, same as the drawer above. -->
     <button class="grail-item" onclick="openSettings()"><svg class="obi" width="20" height="20" aria-hidden="true"><use href="#ic-settings"/></svg><span class="grail-lbl">הגדרות</span></button>
   </div>
@@ -7770,7 +7786,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.42.0'; // כפתור GIS ממשלתי (govmap) בגיליון-הניווט של כתובת — נגיש מכל כרטיס לקוח (בקשת אור 10.08)
+const APP_VERSION = '3.43.0'; // שיקום שלב 1: ניווט אחד (היום · העסק · + · כסף · עוד), חיפוש בראש המגירה, וסוף לשלוש מערכות-הניווט המקבילות
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7826,6 +7842,14 @@ const APP_VERSION = '3.42.0'; // כפתור GIS ממשלתי (govmap) בגילי
 // v3.22.41 (#1 — תוספות-עבודה) — משפט קבוע לכל הצעה: עבודה שהתגלתה באתר ואינה כלולה בהצעה תתומחר בנפרד.
 // מוגדר לפני S כי quoteTemplate מפנה אליו. quoteUnforeseenClause() מטה מרכז הצעה→תבנית→ברירת-מחדל.
 const DEFAULT_UNFORESEEN_CLAUSE = 'במידה ויתגלו במהלך העבודה כשלים, נזקים או צרכים שלא נצפו ואינם כלולים בהצעה זו — יינתן עבורם תמחור נפרד בתיאום מראש עם הלקוח.';
+/* v3.43.0 (שיקום שלב 2) — סעיף-ההגנה הקבוע. אור, מילה-במילה: "אני בהצעות מחיר שלי
+   לא אני לא מוגן... אני צריך להוסיף בהצעות מחיר שלי סעיפים שמגינים עליי בעניין הזה".
+   בשונה מסעיף העבודות-הבלתי-צפויות (שניתן לכיבוי בתבנית) — זה מודפס תמיד. */
+const QUOTE_PROTECTION_CLAUSE = [
+  'המחירים כוללים אך ורק את הסעיפים המפורטים בהצעה זו. עבודה שאינה מופיעה כאן אינה כלולה במחיר.',
+  'לוח הזמנים כפוף לתנאי מזג האוויר ולזמינות חומרים, ויתואם מראש מול הלקוח.',
+  'ההצעה מחייבת את הצדדים רק לאחר אישור הלקוח, ובתוקף עד המועד הנקוב בראש המסמך.',
+].join('\n');
 
 /* ═══════════════════════════════════════════════════════
    STATE
@@ -7947,7 +7971,7 @@ let confirmCb = null;
 let confirmCancelCb = null;   // v3.23.1 (REL-05) — see confirmAction's onCancel
 let toastTimer = null;
 let saveIndTimer = null;
-let viewStack = ['works'];  // v3.27.0 (WORKS-04) — מסך העבודות הוא הבית. v3.24.1 (N2) — the new roofs home is the app's root now; 'dash' (the old cockpit) stays a valid, separately-reachable stack member (goDash() still sets viewStack=['dash']) but is no longer where a cold boot lands.
+let viewStack = ['today'];  // v3.43.0 (שיקום שלב 3) — "היום" הוא הבית; מסך-העבודות נשאר לשונית. v3.27.0 (WORKS-04) — מסך העבודות הוא הבית. v3.24.1 (N2) — the new roofs home is the app's root now; 'dash' (the old cockpit) stays a valid, separately-reachable stack member (goDash() still sets viewStack=['dash']) but is no longer where a cold boot lands.
 
 /* ═══════════════════════════════════════════════════════
    UTILITIES
@@ -8255,6 +8279,29 @@ function _rptLib(){
 function _rptDoc(id){
   try { return JSON.parse(localStorage.getItem(RPT_DOC_PREFIX + id) || 'null'); } catch(e){ return null; }
 }
+/* v3.43.0 (שיקום שלב 5) — "הדוחות ריקים בטלפון": מסמכי-הדוח נכתבו רק ל-localStorage,
+   שמכסתו ~5MB בעוד המסמכים כבר תופסים ~6.67MB. הכתיבה נכשלה, ה-catch דילג על הדוח
+   (continue) והמסך הציג דוח ריק. עכשיו: IndexedDB הוא היעד הראשי (אין שם מכסה מעשית),
+   ו-localStorage נשאר עותק-נוסף לתאימות-לאחור מול בונה-הדוחות. דוח נחשב "נכתב" אם
+   לפחות אחד מהשניים הצליח — ורק כשל כפול נספר ככשל.
+   מפתח 'doc::<id>' באותו store קיים; אין גרסת-DB חדשה ואין store חדש. */
+const RPT_DOC_IDB_PREFIX = 'doc::';
+async function _rptDocRead(rdb, id){
+  if(rdb){
+    const v = await _rptGet(rdb, RPT_DOC_IDB_PREFIX + id);
+    if(v){
+      try { return (typeof v === 'string') ? JSON.parse(v) : v; } catch(e){ /* נופלים ל-localStorage */ }
+    }
+  }
+  return _rptDoc(id);
+}
+async function _rptDocWrite(rdb, id, doc){
+  let idbOk = false, lsOk = false;
+  if(rdb){ try { idbOk = await _rptPut(rdb, RPT_DOC_IDB_PREFIX + id, JSON.parse(JSON.stringify(doc))); } catch(e){ idbOk = false; } }
+  try { localStorage.setItem(RPT_DOC_PREFIX + id, JSON.stringify(doc)); lsOk = true; }
+  catch(e){ lsOk = false; if(!idbOk) console.warn('[reports] doc write failed both ways', id, e); }
+  return { ok: idbOk || lsOk, idbOk, lsOk };
+}
 function _rptIdb(){
   return new Promise(res => {
     try { const rq = indexedDB.open(RPT_IDB);
@@ -8305,7 +8352,8 @@ async function rptMirrorIn(){
   let updated = 0, photos = 0;
   for(const entry of lib.reports){
     if(!entry || !entry.id) continue;
-    const doc = _rptDoc(entry.id);
+    // v3.43.0 — קוראים קודם מ-IndexedDB (שם יושבים מסמכים שלא נכנסו למכסת localStorage)
+    const doc = await _rptDocRead(rdb, entry.id);
     if(!doc || !doc.meta) continue;                       // מסמך חסר — לא ממציאים אחד
     const stamp = entry.updatedAt || 0;
     const mine = S.reports.find(r => r.id === entry.id);
@@ -8349,9 +8397,10 @@ async function rptRestoreOut(){
     if(!rec || !rec.id || !rec.doc) continue;
     const existing = lib.reports.find(x => x.id === rec.id);
     // שוב: לא דורסים מסמך מקומי חדש יותר
-    if(existing && (existing.updatedAt || 0) >= (rec.srcUpdatedAt || 0) && _rptDoc(rec.id)) continue;
-    try { localStorage.setItem(RPT_DOC_PREFIX + rec.id, JSON.stringify(rec.doc)); }
-    catch(e){ failed++; console.warn('[reports] restore failed', 'doc', rec.id, e); continue; }
+    if(existing && (existing.updatedAt || 0) >= (rec.srcUpdatedAt || 0) && await _rptDocRead(rdb, rec.id)) continue;
+    // v3.43.0 — כתיבה כפולה (IDB + localStorage); רק כשל בשניהם מדלג על הדוח
+    const wr = await _rptDocWrite(rdb, rec.id, rec.doc);
+    if(!wr.ok){ failed++; console.warn('[reports] restore failed', 'doc', rec.id); continue; }
     const meta = { id: rec.id, title: rec.title, refNo: rec.refNo, address: rec.address,
                    client: rec.clientName, roofs: (rec.doc.roofs||[]).length, findings: rec.findings,
                    isFollowUp: rec.isFollowUp, createdAt: (existing && existing.createdAt) || Date.now(),
@@ -9765,6 +9814,7 @@ function _applyViewTheme(id){
 // their own openXxx() entry points that handle init.
 const VIEW_RENDERERS = {
   // v3.27.0 (WORKS-02) — ארבעת המסכים החדשים. רשומים ראשונים כי הם המסלול הרגיל מעכשיו.
+  'today':         () => typeof renderToday === 'function' && renderToday(),
   'works':         () => typeof renderWorks === 'function' && renderWorks(),
   'work':          () => typeof renderWork === 'function' && renderWork(),
   'folk':          () => typeof renderFolk === 'function' && renderFolk(),
@@ -9868,11 +9918,15 @@ const GNAV_HIDDEN_VIEWS = new Set(['wizard','finding','visit-summary','project-c
 // v3.27.0 (WORKS-04) — כל מסך-משנה מסומן ללשונית שממנה הוא נפתח, כדי שהסרגל התחתון תמיד
 // יראה לאור איפה הוא נמצא. work/project-detail/visit-detail/quote-edit/lead-detail כולם
 // שייכים ל"עבודות" — כי כולם הם מבט על אותה עבודה.
+// v3.43.0 (שיקום שלב 1) — הלשוניות הן עכשיו today/works/money/more. מסכי-הלקוח, שירדו
+// מהסרגל, נדלקים תחת "העסק" (הם הקשר של עבודה, לא עולם מקביל — מפת-ההסרה 0ג §3 שורה 14),
+// ומסך-החיפוש נדלק תחת "עוד" כי לשם הוא עבר.
 const GNAV_TAB_OF = {
+  'today':'today',
   'works':'works', 'work':'works', 'roofs':'works', 'projects-list':'works', 'project-detail':'works',
   'visit-detail':'works', 'quote-edit':'works', 'lead-detail':'works', 'visits-list':'works', 'leads-list':'works',
-  'folk':'folk', 'folk-one':'folk', 'people':'folk', 'client-detail':'folk', 'clients-list':'folk',
-  'calendar':'', 'finance':'money', 'search':'search',
+  'folk':'works', 'folk-one':'works', 'people':'works', 'client-detail':'works', 'clients-list':'works',
+  'calendar':'', 'finance':'money', 'search':'more',
 };
 function _gnavSync(id){
   const activeTab = GNAV_TAB_OF[id] || '';
@@ -9921,7 +9975,9 @@ function _gnavGo(id){
   // itself as the real dead end (spec intent — home shouldn't be "diggable" via tab taps), but the
   // other 3 tabs get 'roofs' underneath them so back has somewhere real to land.
   // v3.27.0 (WORKS-04) — הבית הוא 'works' (מסך העבודות). 'roofs' נשאר קיים ונגיש מהתפריט.
-  viewStack = (id === 'works') ? ['works'] : ['works', id];
+  // v3.43.0 (שיקום שלב 1) — 'today' הוא מסך-הבית החדש (הכניסה של הבוקר/ערב), ולכן הוא
+  // הקצה האמיתי של המחסנית; 'works' וכל השאר יושבים מעליו כדי שלכפתור-חזרה יהיה לאן לנחות.
+  viewStack = (id === 'today') ? ['today'] : ['today', id];
   // v3.25.2 (RESTORE-02) — a root tab is never itself tied to one project/visit/lead/quote/
   // client; leaving project-detail's entity ids sitting in S after switching tabs is what let,
   // e.g., "הוצאה חדשה" opened from the finance tab silently pre-select a project the user isn't
@@ -10708,8 +10764,9 @@ function _bootInitialView(){
   // leave a stale id sitting in S. A failed/absent restore must be equivalent to a true cold boot.
   S.activeProjectId = null; S.activeVisitId = null; S.activeLeadId = null; S.activeQuoteId = null; S.activeClientId = null;
   renderDash();          // keep populating the (now hidden) legacy dash elements some code paths still read
-  viewStack = ['works'];
-  show('works');
+  // v3.43.0 (שיקום שלב 3) — עלייה קרה נוחתת ב"היום", מסך-הפתיחה החדש.
+  viewStack = ['today'];
+  show('today');
 }
 
 // v2.2.2 — Android/browser back button: intercept and navigate within app.
@@ -15244,19 +15301,79 @@ function qSetStatus(status){
   renderQuoteEdit();
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   v3.43.0 (שיקום שלב 2) — שעון-התזכורות של אור, מילה-במילה מהאפיון:
+   "זה לא יכול להגיע למצב ששבוע אין מענה — אולי כדאי שתוך שלושה ימים, אם אין שום
+   תשובה, לשלוח איזושהי תזכורת". מדרגה 1 = 3 ימים, מדרגה 2 = תזכורת אחרונה בשבוע.
+   המערכת מכינה טקסט ופותחת וואטסאפ — לעולם לא שולחת בעצמה.
+   ═══════════════════════════════════════════════════════════════════ */
+const QUOTE_REMIND_DAYS_1 = 3;
+const QUOTE_REMIND_DAYS_2 = 7;
+
+/* איזו מדרגה רלוונטית עכשיו: 0 = עוד מוקדם, 1 = תזכורת, 2 = אחרונה */
+function _qReminderStage(sentDays){
+  if(sentDays == null) return 0;
+  if(sentDays >= QUOTE_REMIND_DAYS_2) return 2;
+  if(sentDays >= QUOTE_REMIND_DAYS_1) return 1;
+  return 0;
+}
+/* כמה תזכורות כבר יצאו בפועל (אור לחץ ושלח) */
+function _qRemindersSent(q){ return Array.isArray(q && q.remindersSent) ? q.remindersSent : []; }
+
+function _qReminderStatusText(q, sentDays){
+  const stage = _qReminderStage(sentDays);
+  const sent  = _qRemindersSent(q);
+  if(sent.length){
+    const last = new Date(sent[sent.length - 1]).toLocaleDateString('he-IL', { day:'numeric', month:'short' });
+    const nextTxt = stage >= 2 ? '' : ` · תזכורת אחרונה בעוד ${QUOTE_REMIND_DAYS_2 - sentDays} ימים`;
+    return `נשלחה תזכורת ב-${last}${nextTxt}`;
+  }
+  if(stage === 0) return `אם לא יענו — תזכורת בעוד ${QUOTE_REMIND_DAYS_1 - sentDays} ${QUOTE_REMIND_DAYS_1 - sentDays === 1 ? 'יום' : 'ימים'}`;
+  if(stage === 1) return 'עברו 3 ימים בלי מענה — הזמן לתזכורת';
+  return 'עבר שבוע — הזמן לתזכורת אחרונה';
+}
+
+function _qReminderBtnHtml(q, sentDays){
+  const stage = _qReminderStage(sentDays);
+  if(!stage) return '';
+  const label = stage === 2 ? '💬 תזכורת אחרונה' : '💬 תזכיר ללקוח';
+  return `<button class="btn-xs btn-ghost" onclick="qFollowUpReminder('${_jsAttr(q.id)}',${stage})" style="background:#e6f9ee;border-color:#25d366;color:#1c8a47;font-size:12px">${label}</button>`;
+}
+
+/* כפתור "נשלחה הצעה" בהקשה אחת — מדלג על מודאל-הסטטוס */
+function qMarkSentNow(){
+  const q = getQuote();
+  if(!q) return;
+  qSetStatus('sent');
+  toast('סומן: ההצעה נשלחה — מתחיל לספור ימים');
+}
+
 // V2.6 — Quote follow-up: open WhatsApp with a polite reminder template
-function qFollowUpReminder(quoteId){
+// v3.43.0 — stage: 1 = תזכורת אחרי 3 ימים · 2 = תזכורת אחרונה אחרי שבוע
+function qFollowUpReminder(quoteId, stage){
   const q = S.quotes.find(x => x.id === quoteId);
   if(!q || !q.clientPhone) return;
   const total = _quoteGrandTotal(q); // v3.22.11 — כולל הנחה
   const sentAgoDays = q.sentAt ? Math.floor((ts() - q.sentAt) / (24*3600*1000)) : 0;
+  const _stage = stage || _qReminderStage(sentAgoDays) || 1;
+  const owner = (S.business?.ownerName || '').trim() || 'אור פריאס';   // v3.22.35 (C2#19) — ownerName חסר הראה 'undefined'
+  const validUntil = q.sentAt
+    ? new Date(q.sentAt + (q.validityDays || 30) * 86400000).toLocaleDateString('he-IL', { day:'numeric', month:'long' })
+    : '';
 
-  const txt = `שלום ${q.clientName},
+  const txt = _stage >= 2
+    ? `שלום ${q.clientName},
+פנייה אחרונה בנוגע להצעת המחיר #${q.quoteCode} (סה"כ ${fmt(total)}₪) ששלחתי לפני ${sentAgoDays} ימים.${validUntil ? `
+ההצעה בתוקף עד ${validUntil}.` : ''}
+אם זה לא רלוונטי כרגע — אין בעיה בכלל, רק תעדכן אותי ואסגור אצלי.
+תודה,
+${owner}`
+    : `שלום ${q.clientName},
 מקווה שהכל טוב.
 לפני ${sentAgoDays} ימים שלחתי לך הצעת מחיר #${q.quoteCode} (סה"כ ${fmt(total)}₪).
 רציתי לוודא שקיבלת ולשמוע מה דעתך — האם יש שאלות, או שנמשיך?
 תודה,
-${(S.business?.ownerName || '').trim() || 'אור פריאס'}`;   // v3.22.35 (C2#19) — ownerName חסר הראה 'undefined'
+${owner}`;
 
   let phone = String(q.clientPhone||'').replace(/[^\d]/g, '');
   if(phone.startsWith('0')) phone = '972' + phone.slice(1);
@@ -15266,7 +15383,14 @@ ${(S.business?.ownerName || '').trim() || 'אור פריאס'}`;   // v3.22.35 (
     ? `https://wa.me/${phone}?text=${encodeURIComponent(txt)}`
     : `https://wa.me/?text=${encodeURIComponent(txt)}`;
   window.open(_waUrl, '_blank', 'noopener,noreferrer');
+  // v3.43.0 — רישום שהתזכורת יצאה, כדי שהמסך יציג "נשלחה תזכורת ב-X" ולא יבקש שוב.
+  // רישום בלבד — פתיחת וואטסאפ אינה הוכחת-שליחה, ולכן הסטטוס עצמו לא משתנה.
+  if(!Array.isArray(q.remindersSent)) q.remindersSent = [];
+  q.remindersSent.push(ts());
+  q.updatedAt = ts();
+  saveAll();
   toast('📤 פותח וואטסאפ עם תזכורת');
+  if(typeof renderQuoteEdit === 'function' && S.activeQuoteId === q.id) renderQuoteEdit();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -19573,10 +19697,14 @@ function _workAlert(w){
     if(at && at > now && at - now < 2*DAY) return { cls:'soon', label:'ביקור מתוכנן', tone:'soon' };
   }
   // הצעה שנשלחה ואין תשובה
+  // v3.43.0 (שיקום שלב 2) — בקשת אור: "אני רואה לקוחות שהצעה נשלחה לפני יום, לפני יומיים,
+  // לפני שלושה ימים". עד כה הספירה הופיעה רק מיום 7 ומה שלפניה היה שקוף. עכשיו מיום 0,
+  // ומיום 7 היא עולה לטון "תקוע" — אותם tone-ים קיימים, בלי מחלקת-CSS חדשה.
   const sent = w.quotes.find(q => q.status === 'sent' && q.sentAt);
   if(sent){
     const days = Math.floor((now - sent.sentAt)/DAY);
     if(days >= 7) return { cls:'stuck', label:`ממתין ${days} ימים`, tone:'stuck' };
+    return { cls:'soon', label: days === 0 ? 'הצעה נשלחה היום' : `נשלחה לפני ${days} ${days === 1 ? 'יום' : 'ימים'}`, tone:'soon' };
   }
   if(w.quotes.some(q => (q.status||'draft') === 'draft')) return { cls:'draft', label:'הצעה בטיוטה', tone:'draft' };
   if(w.stage === 'lead') return { cls:'soon', label:'פנייה חדשה', tone:'soon' };
@@ -19795,6 +19923,157 @@ function setWorksQuery(v){
   if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
 function openWorks(){ _worksQuery = ''; push('works'); renderWorks(); }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.43.0 (שיקום שלב 3) — מסך "היום"
+   העוגן שמעולם לא נבנה. יורש את בקרה (dash), יומן, סיכום-יום ומשימות (מפת-ההסרה 0ג §2),
+   ומסודר בדיוק לפי סבב-הערב שאור הכתיב (אפיון 08.08 §0):
+     1. ביקורי-היום שאין להם עדיין הצעה — "להכין ולהגיש ולמחוק מהרשימה"
+     2. פניות חדשות שממתינות למענה
+     3. הצעות שנשלחו ושותקות — 3 ימים תזכורת, 7 ימים תזכורת אחרונה
+     4. כסף לגבייה
+   העיצוב הוא הקיים: אותן מחלקות wk-* של מסך-העבודות. אין רכיב חדש ואין צבע חדש.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const TODAY_VISIT_WINDOW_DAYS = 3;   // ביקור "טרי" שעדיין מחכה להצעה
+const QUOTE_NUDGE_DAYS  = 3;         // הכרעת אור: תזכורת אחרי 3 ימים בלי מענה
+const QUOTE_LAST_CALL_DAYS = 7;      // ותזכורת אחרונה אחרי שבוע
+
+/* חלוקת העבודות לארבעת הדליים. עבודה נכנסת לדלי אחד בלבד — הראשון שמתאים לה,
+   לפי סדר-העדיפות של אור — כדי שהרשימה תהיה רשימת-פעולות ולא תמונת-מצב כפולה. */
+function _todayBuckets(){
+  const DAY = 86400000, now = Date.now();
+  const b = { visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[] };
+  getWorks().forEach(w => {
+    if(w.stage === 'done' && !(w.due > 0)) return;
+
+    // 1. ביקור שכבר בוצע (לא מתוכנן לעתיד) ואין לעבודה שום הצעה
+    const doneVisit = w.visits.find(v => {
+      const at = v.scheduledAt || v.date || v.createdAt || 0;
+      return at && at <= now && (now - at) <= TODAY_VISIT_WINDOW_DAYS * DAY;
+    });
+    if(doneVisit && !w.quotes.length){ b.visitNoQuote.push({ w, at: doneVisit.scheduledAt || doneVisit.date || doneVisit.createdAt || 0 }); return; }
+
+    // 2. פנייה חדשה שעוד לא הפכה לביקור או להצעה
+    if(w.stage === 'lead' && !w.visits.length && !w.quotes.length){
+      b.newLead.push({ w, at: (w.lead && (w.lead.createdAt || w.lead.updatedAt)) || w.updatedAt || 0 }); return;
+    }
+
+    // 3. הצעה שנשלחה ושותקת מספיק זמן כדי להזכיר
+    const sent = w.quotes.find(q => q.sentAt);
+    if(sent){
+      const days = Math.floor((now - sent.sentAt) / DAY);
+      if(days >= QUOTE_NUDGE_DAYS && w.stage !== 'project' && !(w.due > 0)){
+        b.quoteWaiting.push({ w, at: sent.sentAt, days, quote: sent }); return;
+      }
+    }
+
+    // 4. כסף פתוח
+    if(w.due > 0){ b.toCollect.push({ w, at: w.updatedAt || 0 }); return; }
+  });
+  // בתוך כל דלי: הישן קודם — מי שמחכה הכי הרבה זמן הוא הדחוף ביותר
+  Object.values(b).forEach(list => list.sort((x, y) => (x.at || 0) - (y.at || 0)));
+  return b;
+}
+
+function todayCount(){
+  const b = _todayBuckets();
+  return b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
+}
+
+/* שורה במסך-היום: אותה אנטומיה של _workRowHtml, עם שורת-סיבה ופעולה ראשית אחת. */
+function _todayRowHtml(entry, reason, actionLabel, actionCall){
+  const w = entry.w;
+  const name = _workClientName(w);
+  const addr = _workAddress(w);
+  const sub  = [addr, _workTitle(w)].filter(Boolean).join(' · ');
+  return `
+    <div class="wk-row-item" style="cursor:default">
+      <span class="wr-av">${esc(_initialsOf(name))}</span>
+      <span class="wr-bd">
+        <span class="wr-l1">${esc(name)}</span>
+        ${sub ? `<span class="wr-l2">${esc(sub)}</span>` : ''}
+        <span class="wr-l3">${esc(reason)}</span>
+        ${/* btn-xs הוא היחיד עם width:auto — שורה נשארת שורה, לא כרטיס-ענק */''}
+        <span style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-gold btn-xs" style="margin:0" onclick="event.stopPropagation();${actionCall}">${esc(actionLabel)}</button>
+          <button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();openWork('${_jsAttr(w.id)}')">פתח עבודה</button>
+        </span>
+      </span>
+    </div>`;
+}
+
+function renderToday(){
+  const body = document.getElementById('today-body');
+  if(!body) return;
+  const b = _todayBuckets();
+  const total = b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? 'בוקר טוב' : (hour < 18 ? 'צהריים טובים' : 'ערב טוב');
+
+  const section = (label, rows) => rows.length
+    ? `<div class="wk-grp"><span class="wk-grp-t">${esc(label)}</span><span class="wk-grp-n">${rows.length}</span></div>
+       <div class="wk-list">${rows.join('')}</div>`
+    : '';
+
+  const s1 = section('ביקורים שמחכים להצעה', b.visitNoQuote.map(e =>
+    _todayRowHtml(e, `הביקור היה ${_humanTimeAgo(Date.now() - e.at)} — עוד אין הצעה`,
+      'הכן הצעה', `_todayStartQuote('${_jsAttr(e.w.id)}')`)));
+
+  const s2 = section('פניות חדשות', b.newLead.map(e =>
+    _todayRowHtml(e, `נכנסה ${_humanTimeAgo(Date.now() - e.at)} — עוד לא נקבע ביקור`,
+      'פתח שיחה', `_todayOpenChat('${_jsAttr(e.w.id)}')`)));
+
+  const s3 = section('הצעות שממתינות לתשובה', b.quoteWaiting.map(e =>
+    _todayRowHtml(e,
+      e.days >= QUOTE_LAST_CALL_DAYS ? `נשלחה לפני ${e.days} ימים — הזמן לתזכורת אחרונה`
+                                     : `נשלחה לפני ${e.days} ימים — בלי מענה`,
+      'הכן תזכורת', `_todayNudge('${_jsAttr(e.w.id)}')`)));
+
+  const s4 = section('כסף לגבייה', b.toCollect.map(e =>
+    _todayRowHtml(e, `${fmt(Math.round(e.w.due))} ₪ פתוחים`,
+      'פתח עבודה', `openWork('${_jsAttr(e.w.id)}')`)));
+
+  const empty = `
+    <div class="wk-empty">
+      <div class="wk-empty-i"><iconify-icon icon="mdi:check-all" width="46"></iconify-icon></div>
+      <h3>אין מה לעשות עכשיו</h3>
+      <p>אין ביקור שמחכה להצעה, אין פנייה פתוחה ואין הצעה ששותקת. כל העבודות נמצאות תחת "העסק".</p>
+      <button class="btn btn-ghost" style="margin-top:18px;max-width:280px;margin-inline:auto" onclick="_gnavGo('works')">לכל העבודות</button>
+    </div>`;
+
+  body.innerHTML = `
+    <div class="wk-wrap">
+      ${_backupWarnStrip()}
+      <div class="wk-mast">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="min-width:0">
+            <div class="wk-eyebrow">${esc(hello)}, אור</div>
+            <div class="wk-h1">${total ? `${total} ${total === 1 ? 'דבר מחכה לך' : 'דברים מחכים לך'}` : 'הכל מטופל'}</div>
+            <div class="wk-sub">${new Date().toLocaleDateString('he-IL', { weekday:'long', day:'numeric', month:'long' })}</div>
+          </div>
+          <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="flex-shrink:0;margin-top:4px"><iconify-icon icon="mdi:menu"></iconify-icon></button>
+        </div>
+      </div>
+      ${total ? (s1 + s2 + s3 + s4) : empty}
+    </div>`;
+}
+
+/* שלוש הפעולות של המסך. כולן מובילות למסכים הקיימים — אין כאן לוגיקה עסקית חדשה. */
+function _todayStartQuote(workId){
+  const w = getWork(workId);
+  if(!w){ toast('העבודה לא נמצאה'); return; }
+  const v = w.visits[0];
+  if(v && typeof createQuoteFromVisit === 'function'){ createQuoteFromVisit(v.id); return; }
+  openWork(workId);
+}
+function _todayOpenChat(workId){
+  const w = getWork(workId);
+  if(!w){ toast('העבודה לא נמצאה'); return; }
+  const phone = _workPhone(w);
+  if(!phone){ toast('אין טלפון לעבודה הזאת'); openWork(workId); return; }
+  openWhatsApp(phone);
+}
+function openToday(){ push('today'); renderToday(); }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    v3.29.0 (QUOTE-WIN) — איזו הצעה הפכה לפרויקט.
@@ -20185,12 +20464,23 @@ function renderReportsList(){
     </div>`;
 }
 
+/* v3.43.0 (שיקום שלב 4) — הארכיון שאור ביקש: "נגיש ומסודר בדיוק כמו המסך הראשי, אבל
+   משני". אותה רשימה, שתי לשוניות — פעילים / ארכיון. לקוח עובר בין הלשוניות בסימון
+   "סיום טיפול" בכרטיס, ואפשר תמיד להחזיר. שום רשומה לא נמחקת ולא מוסתרת מהחיפוש. */
+let _folkTab = 'active';
+function setFolkTab(t){ _folkTab = t; renderFolk(); }
+
 function renderFolk(){
   const body = document.getElementById('folk-body');
   if(!body) return;
-  const all = _folkRows();
+  const everyone = _folkRows();
+  const isArch = r => r.kind === 'client' && _clientIsArchived(getClient(r.id));
+  const archived = everyone.filter(isArch);
+  const active   = everyone.filter(r => !isArch(r));
+  const all = (_folkTab === 'archive') ? archived : active;
   const q = (_folkQuery || '').trim().toLowerCase();
-  const rows = q ? all.filter(r => (r.name + ' ' + r.phone).toLowerCase().includes(q)) : all;
+  // בחיפוש לא מסננים לפי לשונית — מי שמחפש רוצה למצוא, גם אם סגר את הטיפול
+  const rows = q ? everyone.filter(r => (r.name + ' ' + r.phone).toLowerCase().includes(q)) : all;
 
   // v3.28.1 (MODEL-02) — שורת-אדם עוברת דרך אותו רכיב כמו הצ'יפ וכמו ראש-הכרטיס.
   // אדם בלי כרטיס-לקוח (עבודה מרחפת) נבנה כמודל-מינימלי ומוצג באותה צורה בדיוק.
@@ -20214,7 +20504,7 @@ function renderFolk(){
           <div style="min-width:0">
             <div class="wk-eyebrow">לקוחות</div>
             <div class="wk-h1">${all.length} ${all.length === 1 ? 'לקוח' : 'לקוחות'}</div>
-            <div class="wk-sub">כל מי שעבדת איתו — פניות ולקוחות ביחד</div>
+            <div class="wk-sub">${_folkTab === 'archive' ? 'טיפולים שנסגרו — אפשר להחזיר בכל רגע' : 'כל מי שעבדת איתו — פניות ולקוחות ביחד'}</div>
           </div>
           <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="flex-shrink:0;margin-top:4px"><iconify-icon icon="mdi:menu"></iconify-icon></button>
         </div>
@@ -20224,9 +20514,16 @@ function renderFolk(){
         <input type="search" id="folk-search-input" enterkeyhint="search" placeholder="שם או טלפון"
                value="${esc(_folkQuery)}" oninput="setFolkQuery(this.value)" autocomplete="off">
       </div>
+      ${/* הלשוניות מוצגות רק כשיש בכלל ארכיון — אותו כלל כמו במסך-העבודות */''}
+      ${(!q && archived.length) ? `
+        <div class="wk-tabs">
+          <button class="wk-tab ${_folkTab === 'active' ? 'on' : ''}" onclick="setFolkTab('active')">פעילים (${active.length})</button>
+          <button class="wk-tab ${_folkTab === 'archive' ? 'on' : ''}" onclick="setFolkTab('archive')">ארכיון (${archived.length})</button>
+        </div>` : ''}
+      ${q ? `<div class="wk-count">${rows.length} תוצאות — החיפוש כולל גם את הארכיון</div>` : ''}
       ${rows.length ? `<div class="wk-list">${rows.map(rowHtml).join('')}</div>`
         : `<div class="wk-empty"><div class="wk-empty-i"><iconify-icon icon="mdi:account-group-outline" width="46"></iconify-icon></div>
-             <h3>${q ? 'לא נמצא' : 'עוד אין לקוחות'}</h3><p>${q ? 'נסה שם או טלפון אחר.' : 'כל לקוח ופנייה יופיעו כאן אוטומטית.'}</p></div>`}
+             <h3>${q ? 'לא נמצא' : (_folkTab === 'archive' ? 'הארכיון ריק' : 'עוד אין לקוחות')}</h3><p>${q ? 'נסה שם או טלפון אחר.' : (_folkTab === 'archive' ? 'לקוח שתסמן עליו "סיום טיפול" יופיע כאן.' : 'כל לקוח ופנייה יופיעו כאן אוטומטית.')}</p></div>`}
     </div>`;
 }
 function setFolkQuery(v){
@@ -20265,6 +20562,10 @@ function openOldScreens(){
     ${item('הגגות שלי', 'מסך הבית הקודם', "_gnavGo('roofs')")}
     ${item('בקרה', 'הקוקפיט הישן', 'goDash()')}
     ${item('יומן', 'לוח שנה של פרויקטים', "_gnavGo('calendar')")}
+    ${/* v3.43.0 (שיקום שלב 1) — ירדו מהתפריט היומי ונשמרו כאן, כדי ששום יכולת לא תיעלם */''}
+    ${item('אנליטיקה', 'המספרים והגרפים הישנים', 'openAnalyticsView()')}
+    ${item('סיכום יום', 'המסך שקדם ל"היום"', 'openDailySummary()')}
+    ${item('משימות', 'הרשימה הישנה — מוצגת גם ב"היום"', 'openNextTasksScreen()')}
     <button class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="closeMo()">סגור</button>
   `);
 }
@@ -21022,13 +21323,58 @@ function _writeClientThrough(clientId, updates){
 
 // Fields that follow decision 3 ("fill empty, never overwrite") on merge. Same set _writeClientThrough
 // already knows how to write + propagate to mirrors on visits/projects/leads.
-const _CLIENT_MERGE_FILL_FIELDS = ['clientName', 'phone', 'address', 'email', 'notes'];
+// v3.43.0 — 'kind' נוסף כדי שסיווג שאור נתן ללקוח המשני לא יאבד במיזוג (הוא ממילא
+// נשמר ב-mergedFrom, אבל אז הוא לא מוצג — וזה נראה כאילו הסיווג נעלם).
+const _CLIENT_MERGE_FILL_FIELDS = ['clientName', 'phone', 'address', 'email', 'notes', 'kind'];
 
 function _clientFieldIsEmpty(c, field){
   const v = c[field];
   if(!v || !String(v).trim()) return true;
   if(field === 'clientName' && v === '(ללא שם)') return true;
   return false;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.43.0 (שיקום שלב 4) — סיווג-בהקשה וסיום-טיפול על כרטיס-הלקוח
+   אור, מילה-במילה: "כל האפשרויות מול העיניים ואני פשוט שם את הנקודה... אני לוחץ,
+   מסמן, וזה שומר ומציג ולא שואל אותי יותר. אם אין סיווג — שיהיה קצת יותר בולט;
+   ברגע שסימנתי — זה הכל". ו"סיום טיפול" מעביר את הכרטיס לארכיון — סימון הפיך,
+   לא מחיקה: שום ביקור, הצעה או תמונה לא נוגעים.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+const CLIENT_KINDS = [
+  { k:'lead',      l:'ליד חדש'   },
+  { k:'private',   l:'לקוח פרטי' },
+  { k:'business',  l:'לקוח עסקי' },
+  { k:'colleague', l:'קולגה'     },
+  { k:'supplier',  l:'ספק'       },
+  { k:'other',     l:'אחר'       },
+];
+function _clientIsArchived(c){ return !!(c && c.archivedAt); }
+function setClientKind(clientId, kind){
+  const c = getClient(clientId);
+  if(!c) return;
+  c.kind = (c.kind === kind) ? '' : kind;   // הקשה חוזרת מנקה — בלי מודאל, בלי אישור
+  c.updatedAt = ts();
+  saveAll(true);
+  if(typeof renderClientDetail === 'function') renderClientDetail();
+}
+function clientFinishWork(clientId){
+  const c = getClient(clientId);
+  if(!c) return;
+  c.archivedAt = ts();
+  c.updatedAt  = ts();
+  saveAll(true);
+  toast('✓ עבר לארכיון — אפשר להחזיר בכל רגע');
+  if(typeof renderClientDetail === 'function') renderClientDetail();
+}
+function clientUnarchive(clientId){
+  const c = getClient(clientId);
+  if(!c) return;
+  c.archivedAt = 0;
+  c.updatedAt  = ts();
+  saveAll(true);
+  toast('הוחזר מהארכיון');
+  if(typeof renderClientDetail === 'function') renderClientDetail();
 }
 
 // primaryId survives; secondaryId is archived (never deleted) and hidden from every list/search/
@@ -21482,8 +21828,17 @@ function renderClientDetail(){
         <button class="ch-edit" onclick="openClientEdit('${esc(c.id)}')"><iconify-icon icon="mdi:pencil-outline" width="14"></iconify-icon> ערוך</button>
       </div>
       ${(waChip || navChip) ? `<div class="ch-contact">${waChip}${navChip}</div>` : ''}
+      ${/* v3.43.0 (שיקום שלב 4) — בורר-הסיווג: תמיד גלוי, נשמר בהקשה אחת, ובולט רק כשריק */''}
+      <div class="ch-contact" style="margin-top:6px${c.kind ? ';opacity:.85' : ''}">
+        ${!c.kind ? `<span class="ch-since" style="align-self:center;margin-inline-end:4px">מי זה?</span>` : ''}
+        ${CLIENT_KINDS.map(o => `<button class="ch-chip${c.kind === o.k ? ' nav' : ''}" style="${c.kind === o.k ? '' : 'font-weight:600'}" onclick="setClientKind('${esc(c.id)}','${o.k}')">${o.l}</button>`).join('')}
+      </div>
+      ${_clientIsArchived(c) ? `<div class="ch-since" style="margin-top:8px">בארכיון מאז ${esc(new Date(c.archivedAt).toLocaleDateString('he-IL'))}</div>` : ''}
       <div class="ch-actions">
         ${c.phone ? `<button onclick="openWhatsApp('${esc(c.phone)}')"><iconify-icon icon="mdi:whatsapp"></iconify-icon> WhatsApp</button>` : ''}
+        ${_clientIsArchived(c)
+          ? `<button onclick="clientUnarchive('${esc(c.id)}')"><iconify-icon icon="mdi:archive-arrow-up-outline"></iconify-icon> החזר מהארכיון</button>`
+          : `<button onclick="clientFinishWork('${esc(c.id)}')"><iconify-icon icon="mdi:archive-outline"></iconify-icon> סיום טיפול</button>`}
         ${(due > 0 && c.phone) ? `<button onclick="waDueReminderClient('${esc(c.id)}')" style="background:#e6f9ee;border-color:#25d366;color:#1c8a47"><iconify-icon icon="mdi:whatsapp"></iconify-icon> תזכורת בוואטסאפ</button>` : ''}
         <!-- v3.26.1 (C3#2) — "ביקור חדש"/"פרויקט חדש" duplicate-creation buttons removed from here
              per spec v3.26 (Or asked for this). Same actions ("ביקור אצל <שם>"/"גג חדש ל<שם>"),
@@ -23158,6 +23513,27 @@ function renderFinance(){
       ${paymentItems.length > 20 ? `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">מציג 20 אחרונים מתוך ${paymentItems.length}</div>` : ''}
     </div>
     ` : ''}
+
+    <!-- v3.43.0 (שיקום שלב 1) — "הוצאות קבועות" ו"תוספות סיכון" ירדו מהתפריט היומי
+         (מפת-ההסרה 0ג §3 שורות 18-19: תחזוקה אינה ניווט יומי) ונחתו כאן, במסך שאליו
+         הן שייכות מבחינת תוכן. אותם onclick-ים בדיוק — שום מסך לא נמחק. -->
+    <div class="card" id="fin-tools-card">
+      <div class="card-label">כלים</div>
+      <div class="fin-row" style="cursor:pointer" onclick="openFixedExpenses()">
+        <div>
+          <div class="fr-name"><iconify-icon icon="mdi:cash-minus"></iconify-icon> הוצאות קבועות</div>
+          <div class="fr-meta">מה יוצא כל חודש</div>
+        </div>
+        <span class="fr-amt" style="color:var(--text3)">›</span>
+      </div>
+      <div class="fin-row" style="cursor:pointer" onclick="openModifiers()">
+        <div>
+          <div class="fr-name"><iconify-icon icon="mdi:alert-octagon-outline"></iconify-icon> תוספות סיכון</div>
+          <div class="fr-meta">המקדמים שמשפיעים על התמחור</div>
+        </div>
+        <span class="fr-amt" style="color:var(--text3)">›</span>
+      </div>
+    </div>
     </div><!-- /.fin-page -->
   `;
 
@@ -37496,6 +37872,7 @@ async function qGeneratePDF(autoPrint=true, lang='he', qOverride=null){
     urgHigh:'🔴 Critical', urgMed:'🟡 Required', urgLow:'🟢 Recommended',
     subtotal:'Subtotal', discount:'Discount', afterDiscount:'After discount', vat:'VAT', grandTotal:'Total due',
     paymentTerms:'Payment Terms', notes:'Notes', unforeseen:'Note — Unforeseen Work',
+    protection:'General Terms', advance:'Advance payment',   // v3.43.0 (שיקום שלב 2)
     sigClient:'Client Signature · Date', sigContractor:'Contractor Signature · Date', sigSigned:'Signed by',
     footer:'Generated by "Or BaGag"', taxId:'Tax ID', noTitle:'(No title)',
   } : {
@@ -37507,6 +37884,7 @@ async function qGeneratePDF(autoPrint=true, lang='he', qOverride=null){
     urgHigh:'🔴 קריטי', urgMed:'🟡 נדרש', urgLow:'🟢 מומלץ',
     subtotal:'סה"כ לפני מע"מ', discount:'הנחה', afterDiscount:'סה"כ לאחר הנחה', vat:'מע"מ', grandTotal:'סה"כ לתשלום',
     paymentTerms:'תנאי תשלום', notes:'הערות', unforeseen:'הבהרה — עבודות בלתי-צפויות',
+    protection:'תנאים כלליים', advance:'מקדמה',   // v3.43.0 (שיקום שלב 2)
     sigClient:'חתימת הלקוח · תאריך', sigContractor:'חתימת הקבלן · תאריך', sigSigned:'נחתם ע"י',
     footer:'הופק מאפליקציית "אור בגג"', taxId:'ח.פ.', noTitle:'(ללא כותרת)',
   };
@@ -37760,6 +38138,14 @@ async function qGeneratePDF(autoPrint=true, lang='he', qOverride=null){
   ${A.hasDiscount ? `<div class="row"><span>${L.afterDiscount}</span><strong>${fmt(netAfterDiscount)} ₪</strong></div>` : ''}
   <div class="row"><span>${L.vat} ${q.vatRate}%</span><strong>${fmt(vatAmount)} ₪</strong></div>
   <div class="row big"><span>${L.grandTotal}</span><span>${fmt(grandTotal)} ₪</span></div>
+  ${/* v3.43.0 (שיקום שלב 2) — שורת-מקדמה מחושבת. האחוז נגזר מתוך תנאי-התשלום עצמם
+       ("30% מקדמה…") ולא משדה נפרד, כדי שהמסמך לא יסתור את עצמו אם אור ישנה את הנוסח. */''}
+  ${(() => {
+    const m = String(q.paymentTerms || '').match(/(\d{1,3})\s*%/);
+    const pct = m ? parseInt(m[1], 10) : 0;
+    if(!pct || pct >= 100) return '';
+    return `<div class="row"><span>${L.advance} ${pct}%</span><strong>${fmt(Math.round(grandTotal * pct / 100))} ₪</strong></div>`;
+  })()}
 </div>
 
 ${(showPayment && q.paymentTerms) ? `
@@ -37782,6 +38168,12 @@ ${(_uc.show && _uc.text) ? `
     <div class="body">${nl2br(_uc.text)}</div>
   </div>
 ` : ''}
+
+${/* v3.43.0 (שיקום שלב 2) — סעיף-ההגנה הקבוע, בכל הצעה ובלי אפשרות כיבוי בשוגג. */''}
+<div class="section">
+  <h3>${L.protection}</h3>
+  <div class="body">${nl2br(QUOTE_PROTECTION_CLAUSE)}</div>
+</div>
 
 ${showSigs ? `<div class="signatures">
   <div class="sig-block">
@@ -38628,10 +39020,21 @@ function renderQuoteEdit(){
         ${status === 'sent' && sentDays != null ? `<span style="font-size:12px;color:var(--text2);margin-right:8px">ממתינה ${sentDays === 0 ? 'מהיום' : sentDays + ' ימים'}</span>` : ''}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${status === 'sent' && q.clientPhone ? `<button class="btn-xs btn-ghost" onclick="qFollowUpReminder('${q.id}')" style="background:#e6f9ee;border-color:#25d366;color:#1c8a47;font-size:12px">💬 תזכיר ללקוח</button>` : ''}
+        ${/* v3.43.0 (שיקום שלב 2) — בקשת אור: "שיהיה כפתור נשלחה הצעת מחיר ואני לוחץ עליו
+             ואז הוא מתחיל לספור לי את הימים". עד כה זה דרש מעבר במודאל-הסטטוס. qSetStatus
+             כבר חותם sentAt, שומר ומרנדר — הכפתור רק חוסך את הדרך. */''}
+        ${status !== 'sent' && status !== 'accepted' ? `<button class="btn-xs btn-ghost" onclick="qMarkSentNow()" style="background:var(--gold-l);border-color:var(--gold2);color:#7a5a08;font-size:12px;font-weight:800">✓ נשלחה הצעה</button>` : ''}
+        ${status === 'sent' && q.clientPhone ? _qReminderBtnHtml(q, sentDays) : ''}
         <button class="btn-xs btn-ghost" onclick="qChangeStatus()" style="font-size:12px">שנה סטטוס</button>
       </div>
     </div>
+    ${/* v3.43.0 — שעון-התזכורות שאור הכתיב: 3 ימים בלי מענה ⇒ תזכורת, שבוע ⇒ אחרונה.
+         המערכת רק מכינה את הטקסט; השליחה תמיד בידו. */''}
+    ${status === 'sent' && sentDays != null ? `
+      <div class="card" style="padding:11px 14px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px">
+        <iconify-icon icon="mdi:bell-outline" width="17" style="flex-shrink:0"></iconify-icon>
+        <span>${esc(_qReminderStatusText(q, sentDays))}</span>
+      </div>` : ''}
 
     <!-- v3.21.94 (SM-4) — client signature -->
     ${q.signature ? `
@@ -41411,6 +41814,9 @@ async function init(){
     if(q.sentAt === undefined) q.sentAt = null;
     if(q.status === undefined) q.status = 'draft';
     if(!Array.isArray(q.items)) q.items = [];
+    // v3.43.0 (שיקום שלב 2) — יומן-התזכורות שיצאו בפועל. הצעות ישנות מקבלות מערך ריק
+    // כדי ש-push לא ייפול עליהן. שום ערך קיים לא נדרס.
+    if(!Array.isArray(q.remindersSent)) q.remindersSent = [];
   });
 
   // ═══════════════════════════════════════════════════════
