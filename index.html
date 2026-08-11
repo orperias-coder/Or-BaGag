@@ -7788,7 +7788,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.44.4'; // גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
+const APP_VERSION = '3.44.5'; // עקביות: כרטיס-לקוח לא מציג חוב על פרויקט שלא התחיל, ארכיון גם במסך-האנשים, ולכל 'מסך ישן' יש חזרה. גיבוי כולל חסימות-וואטסאפ וסימוני "טופל"; ארכיון מסתיר גם ממסך-היום. תיקוני ביקורת-הקוהרנטיות: מסך-היום לא מציג הצעות סגורות, בוחר את ההצעה הנכונה, חוב לא נבלע, וארכיון מסתיר גם מהלשונית. סבב אור: "טופל" מוריד ממסך-היום · הלשונית נקראת "לקוחות" · "ההצעה התקבלה" בהקשה אחת ומופיע בכסף
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -10863,7 +10863,15 @@ function _appBackOneLayer(){
     try { history.pushState({ appNav: true, depth: viewStack.length }, ''); } catch(e){}
   });
 })();
-function goDash(){ if(typeof _checkSyncBackToProject==='function') _checkSyncBackToProject(); viewStack = ['dash']; show('dash'); /* v3.21.95 — show('dash') already re-renders via VIEW_RENDERERS; dropped redundant renderDash() */ }
+// v3.44.5 (ביקורת-קוהרנטיות) — goDash דרס את כל מסלול-החזרה, ולכן "בקרה" מתוך
+// הגדרות ← מסכים ישנים הייתה דלת חד-כיוונית: אין חץ-חזרה במסך, וכפתור-החזרה של אנדרואיד
+// לא הוביל לשום מקום. שני הקוראים שבאמת צריכים איפוס (סיום-ייבוא ומחיקת-נתונים) ממשיכים
+// לקבל אותו; כניסה מגיליון-המסכים-הישנים מעבירה keep=true ושומרת את המסלול.
+function goDash(keep){
+  if(typeof _checkSyncBackToProject==='function') _checkSyncBackToProject();
+  if(keep === true && typeof push === 'function'){ push('dash'); return; }
+  viewStack = ['dash']; show('dash'); /* v3.21.95 — show('dash') already re-renders via VIEW_RENDERERS; dropped redundant renderDash() */
+}
 // v3.21.82 — מצב שמש: מתג ניגודיות-מקסימום לעבודה על הגג (נשמר ב-localStorage, מוחל בטעינה)
 function toggleSunMode(){
   const on = !document.body.classList.contains('sun');
@@ -20684,13 +20692,16 @@ function openOldScreens(){
       הכל נמצא גם במסך "עבודות".
     </div>
     <div style="margin-bottom:14px">${covLine}</div>
-    ${item('פרויקטים', 'הרשימה עם הסינון והמיון', 'openProjectsList()')}
-    ${item('לידים', 'פניות שעוד לא הפכו לביקור', 'goLeadsList()')}
-    ${item('ביקורים', 'כל הביקורים בשטח', 'goVisitsList()')}
-    ${item('לקוחות (המסך הקודם)', 'כרטיסי לקוח בפורמט הישן', 'openPeople()')}
-    ${item('הגגות שלי', 'מסך הבית הקודם', "_gnavGo('roofs')")}
-    ${item('בקרה', 'הקוקפיט הישן', 'goDash()')}
-    ${item('יומן', 'לוח שנה של פרויקטים', "_gnavGo('calendar')")}
+    ${/* v3.44.5 (ביקורת-קוהרנטיות) — כל הפריטים כאן נכנסים עכשיו כ-push, כך שלכולם יש
+         חזרה (חץ-במסך וכפתור-אנדרואיד). קודם 7 מהם דרסו את מסלול-החזרה ו-2 שמרו אותו,
+         ו"בקרה" בפרט הייתה דלת חד-כיוונית שממנה אי-אפשר היה לצאת. */''}
+    ${item('פרויקטים', 'הרשימה עם הסינון והמיון', "push('projects-list');renderProjectsList()")}
+    ${item('לידים', 'פניות שעוד לא הפכו לביקור', "push('leads-list');renderLeadsList()")}
+    ${item('ביקורים', 'כל הביקורים בשטח', "push('visits-list');renderVisitsList()")}
+    ${item('לקוחות (המסך הקודם)', 'כרטיסי לקוח בפורמט הישן', "push('people');renderPeople()")}
+    ${item('הגגות שלי', 'מסך הבית הקודם', "push('roofs');renderRoofs()")}
+    ${item('בקרה', 'הקוקפיט הישן', 'goDash(true)')}
+    ${item('יומן', 'לוח שנה של פרויקטים', "push('calendar');renderCalendar()")}
     ${/* v3.43.0 (שיקום שלב 1) — ירדו מהתפריט היומי ונשמרו כאן, כדי ששום יכולת לא תיעלם */''}
     ${item('אנליטיקה', 'המספרים והגרפים הישנים', 'openAnalyticsView()')}
     ${item('סיכום יום', 'המסך שקדם ל"היום"', 'openDailySummary()')}
@@ -20820,7 +20831,9 @@ function _peopleLeads(){ return (S.leads || []).filter(_personLeadIsOpen); }
 // v3.26.2 (C4) — a merged client must vanish from BOTH people-hub tabs, not just "active" (it
 // would otherwise resurface under "history" since a stripped-of-links merged record reads as
 // inactive).
-function _peopleActiveClients(){ return (S.clients || []).filter(c => !c.mergedIntoId && _clientIsActive(c)); }
+// v3.44.5 (ביקורת-קוהרנטיות) — לקוח שסומן "סיום טיפול" נעלם מלשונית-הלקוחות וממסך-היום
+// אך נשאר במסך-האנשים הישן. אותו סינון בדיוק, כדי ש"ארכיון" יהיה ארכיון בכל מקום.
+function _peopleActiveClients(){ return (S.clients || []).filter(c => !c.mergedIntoId && !_clientIsArchived(c) && _clientIsActive(c)); }
 function _peopleHistory(){
   const doneClients = (S.clients || []).filter(c => !c.mergedIntoId && !_clientIsActive(c));
   const shown = new Set(doneClients.map(c => c.id));
@@ -22034,8 +22047,13 @@ function renderClientDetail(){
     const thumbSrc = before[0]?.data || (function(){ for(const t of (p.tasks||[])){ if(t.photos && t.photos[0]) return t.photos[0].data || t.photos[0]; } return ''; })();
     const total = parseFloat(p.estimatedTotal) || 0;
     // v3.22.45 (T2) — כמו getClientTotalDue: total-paid שגוי כי estimatedTotal לפני-מע"מ; totalDue(p) הוא מקור-האמת.
-    const projDue = totalDue(p);
-    const status = p.status || 'active';
+    // v3.44.5 (ביקורת-קוהרנטיות) — ...ו"כמו getClientTotalDue" חייב לכלול גם את סינון-הסטטוס
+    // שיש שם: פרויקט מתוכנן/מושהה אינו חוב-לקוח. בלי זה הכרטיס הציג "לגבייה" על פרויקט
+    // שטרם התחיל, בעוד getClientTotalDue (וסיכום-הכרטיס למעלה) החזירו 0 — שני מספרים
+    // סותרים על אותו מסך.
+    const _pst = p.status || 'active';
+    const projDue = (_pst === 'active' || _pst === 'done') ? totalDue(p) : 0;
+    const status = _pst;
     const statusLabel = ({active:'פעיל', done:'הושלם', planned:'מתוכנן', paused:'מושהה'}[status]) || status;
     return `
       <div class="cs-row" onclick="openProjectDetail('${esc(p.id)}')">

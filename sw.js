@@ -1,5 +1,6 @@
 /**
  * Or BaGag — Service Worker
+ * v3.44.5 — cache bump (עקביות: כרטיס-לקוח, ארכיון במסך-האנשים, וחזרה מכל 'מסך ישן').
  * v3.44.4 — cache bump (גיבוי כולל waBlocklist+todayDone; ארכיון מסתיר גם ממסך-היום).
  * v3.44.3 — cache bump (תיקוני ביקורת-קוהרנטיות: הצעות סגורות, בחירת-הצעה, חוב שנבלע, ארכיון, והנחה שנעלמה).
  * v3.44.2 — cache bump (כסף של הצעה שהתקבלה לא נעלם עד תחילת-העבודה).
@@ -43,7 +44,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.44.4';
+const CACHE_NAME = 'or-bagag-cache-v3.44.5';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.
