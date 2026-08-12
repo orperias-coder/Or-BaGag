@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.56.0'; // משוב-השימוש של אור: מסך-היום נפתח ב"עבדת עליהם היום" (מגע-אור בלבד — פתיחת כרטיס, עריכת הצעה, תשלום; לא עדכוני-מערכת) עם צבע לכל מקטע; מסך-הלקוחות קיבל צ'יפי-תחנות מסננים מתחת לחיפוש, צבע קבוע לכל תחנה ופס-צבע על כל שורה.
+const APP_VERSION = '3.57.0'; // ספרינט-האמון 1/3 (ID-01): פתיחת כרטיס-ליד לא משנה יותר בשקט את הלקוח המקושר — התאמת-טלפון ממלאת רק קישור ריק, קישור קיים לא נדרס.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -25369,9 +25369,12 @@ function renderLeadDetail(isNew=false){
   // phone was edited afterwards, or picked up on a family member's number) — that turned legitimately
   // linked leads/jobs into orphans on a mere screen-open. Render stays read-only with respect to an
   // existing link; only ever upgrades it (below) to a better exact-phone match, never nulls it out.
+  /* v3.57.0 (ID-01 מדוח-הביקורת) — גם ה"שדרוג" הזה היה כתיבה בזמן צפייה: ליד שקושר
+     במפורש ללקוח א' הועבר בשקט ללקוח ב' רק כי הטלפון תואם (למשל מספר של בן-משפחה).
+     render קורא-בלבד. התאמת-טלפון ממלאת רק קישור **ריק**; קישור קיים לא נגעים בו. */
   if(typeof findClientByPhone === 'function' && l.phone && _normPhoneClient(l.phone).length >= 9){
     const match = findClientByPhone(l.phone);
-    if(match && l.linkedClientId !== match.id){
+    if(match && !l.linkedClientId){
       l.linkedClientId = match.id;
       saveAll(true);
     }
