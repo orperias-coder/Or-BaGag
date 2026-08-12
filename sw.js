@@ -49,7 +49,7 @@
  *   • Bump CACHE_NAME each deploy → old caches are purged on activate.
  */
 
-const CACHE_NAME = 'or-bagag-cache-v3.57.0';
+const CACHE_NAME = 'or-bagag-cache-v3.58.0';
 
 // Same-origin shell + immutable CDN deps. Failures tolerated (allSettled) so a flaky
 // CDN during install never blocks the SW from installing.

@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.57.0'; // ספרינט-האמון 1/3 (ID-01): פתיחת כרטיס-ליד לא משנה יותר בשקט את הלקוח המקושר — התאמת-טלפון ממלאת רק קישור ריק, קישור קיים לא נדרס.
+const APP_VERSION = '3.58.0'; // ספרינט-האמון 2/3 (REL-01): מחיקת פרויקט מנקה אחרי חלון-הביטול את הקישורים שהצביעו עליו (ביקורים והצעות) — בלי קישורים יתומים חדשים.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -38384,6 +38384,21 @@ function pdDeleteConfirm(){
         if(document.getElementById('view-dash')?.classList.contains('on') && typeof renderDash==='function') renderDash();
       }, () => {
         _gcOrphanBlobs(_delKeys);
+        /* v3.58.0 (REL-01 מדוח-הביקורת) — אחרי שחלון-הביטול נסגר סופית, מנקים את
+           הקישורים שהצביעו על הפרויקט שנמחק. עד היום הם נשארו יתומים: ביקור "עם
+           פרויקט" שהכפתור שלו מוסתר, והצעה שמצביעה לשומקום (4 כאלה נמצאו בנתוני-
+           אמת). בזמן חלון-הביטול הקישורים נשארים — כדי שהחזרה תהיה מלאה. */
+        (S.visits||[]).forEach(v => {
+          if(Array.isArray(v.linkedProjectIds) && v.linkedProjectIds.includes(_delP.id)){
+            v.linkedProjectIds = v.linkedProjectIds.filter(x => x !== _delP.id);
+            v.updatedAt = ts();
+          }
+        });
+        (S.quotes||[]).forEach(q => {
+          if(q.linkedProjectId === _delP.id){ q.linkedProjectId = null; q.updatedAt = ts(); }
+        });
+        saveAll(true);
+        if(typeof _invalidateWorks === 'function') _invalidateWorks();
       });
     }
   }});
