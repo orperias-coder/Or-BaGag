@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.61.0'; // הכרטיס-האחד שלב 2 — השער: כל לחיצה על ליד או לקוח נוחתת בכרטיס-האחד (ליד-עם-עבודה ← הכרטיס; לקוח עם עבודה אחת ← הכרטיס; עם כמה ← רשימת-העבודות שלו). המסכים המלאים נשארים נגישים מתפריט-⋯. ליד חדש עדיין נפתח לעריכה מלאה.
+const APP_VERSION = '3.62.0'; // תוכנית-הייצוב שלב 2: ניקוי-יתומים כללי עם journal (רץ בעלייה ובשחזור) · מיזוג-טלפון רציף ודטרמיניסטי עם suppression לביטולים · רשת-הביטחון של localStorage כוללת את כל שדות-ההכרעה · הפרויקט הקנוני קובע גם שלב/פעולות (לא רק כסף) · שורת-כספים בכרטיס-האחד.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -8712,6 +8712,10 @@ async function _saveAllInner(quiet){
         lastQuoteYear:S.lastQuoteYear,
         clients:S.clients, clientMigrationCompletedAt:S.clientMigrationCompletedAt,
         workTypeTemplates:S.workTypeTemplates,   // v3.22.15 — כלול גם ברשת-הביטחון של localStorage
+        // v3.62.0 (תוכנית-הייצוב 2.5, PERSIST-02 מהדוח) — רשת-הביטחון החסירה את
+        // שדות-ההכרעה: שחזור-חירום איבד "טופל", הכרעות-וואטסאפ, שיוכי-תמונות ומגעי-היום.
+        todayDone:S.todayDone, waDecided:S.waDecided, touchedToday:S.touchedToday,
+        photoDays:S.photoDays, waBlocklist:S.waBlocklist,
         reports:S.reports   // v3.39.0 — טקסט בלבד; ה-replacer מפשיט base64 וגם אם יגלוש מ-4.5MB הכתיבה מדולגת בבטחה
       };
       // v3.21.65 — keep the localStorage safety-net backup LIGHTWEIGHT. Before this, the
@@ -14260,6 +14264,7 @@ async function _applyImportedData(d, opts){
   if(typeof _migrateEstTotalsPreVat === 'function')      _migrateEstTotalsPreVat();
   if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
   if(typeof _migratePromotePerlstein === 'function')     _migratePromotePerlstein();   // v3.54.0
+  if(typeof _migrateCleanOrphanLinks === 'function')     _migrateCleanOrphanLinks();   // v3.62.0
   if(typeof _migrateQuoteClientIds === 'function')       _migrateQuoteClientIds();
 
   saveAll();
@@ -19017,6 +19022,64 @@ function _migratePromotePerlstein(){
   console.log('[v3.54.0] פרלשטיין קודם לפרויקט אמיתי — 74,871₪ נספרים עכשיו בהכנסות');
   return 1;
 }
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.62.0 (תוכנית-הייצוב 2.3) — ניקוי-יתומים כללי, לא נקודתי.
+   REL-01 מנע יתומים חדשים ממחיקת-פרויקט; כאן מנקים כל קישור שמצביע על רשומה
+   שלא קיימת — מכל סוג, בכל כיוון — עם journal לכל edge שהוסר, אידמפוטנטי.
+   רץ בעלייה ובשחזור. "הפיך" = דרך גיבוי; ה-journal מתעד מה הוסר ולמה.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _migrateCleanOrphanLinks(){
+  const ids = {
+    project: new Set((S.projects||[]).map(x=>x.id)),
+    visit:   new Set((S.visits||[]).map(x=>x.id)),
+    quote:   new Set((S.quotes||[]).map(x=>x.id)),
+    lead:    new Set((S.leads||[]).map(x=>x.id)),
+    client:  new Set((S.clients||[]).map(x=>x.id)),
+  };
+  const journal = [];
+  const drop = (rec, field, targetType, targetId, reason) => {
+    journal.push({ field, targetType, targetId, reason, at: Date.now(), migrationVersion: '3.62.0' });
+    rec.updatedAt = ts();
+  };
+  const scalar = (arr, field, targetType) => (arr||[]).forEach(r => {
+    if(r && r[field] && !ids[targetType].has(r[field])){
+      drop(r, field, targetType, r[field], 'missing-target');
+      r[field] = null;
+    }
+  });
+  const arrayF = (arr, field, targetType) => (arr||[]).forEach(r => {
+    if(r && Array.isArray(r[field])){
+      const before = r[field].length;
+      const seen = new Set();
+      r[field] = r[field].filter(id => { if(!ids[targetType].has(id) || seen.has(id)) return false; seen.add(id); return true; });
+      if(r[field].length !== before) drop(r, field, targetType, '(מרובים)', 'missing-or-dup');
+    }
+  });
+  scalar(S.quotes,   'linkedProjectId', 'project');
+  scalar(S.quotes,   'sourceVisitId',   'visit');
+  scalar(S.quotes,   'leadId',          'lead');
+  scalar(S.quotes,   'clientId',        'client');
+  scalar(S.projects, 'sourceQuoteId',   'quote');
+  scalar(S.projects, 'sourceVisitId',   'visit');
+  scalar(S.projects, 'clientId',        'client');
+  scalar(S.visits,   'leadId',          'lead');
+  scalar(S.visits,   'clientId',        'client');
+  scalar(S.leads,    'linkedVisitId',   'visit');
+  scalar(S.leads,    'linkedClientId',  'client');
+  scalar(S.clients,  'mergedIntoId',    'client');
+  arrayF(S.visits,   'linkedQuoteIds',  'quote');
+  arrayF(S.visits,   'linkedProjectIds','project');
+  arrayF(S.projects, 'linkedQuoteIds',  'quote');
+  if(journal.length){
+    if(!Array.isArray(S.settings._orphanJournal)) S.settings._orphanJournal = [];
+    S.settings._orphanJournal.push(...journal);
+    if(S.settings._orphanJournal.length > 200) S.settings._orphanJournal = S.settings._orphanJournal.slice(-200);
+    if(typeof _invalidateWorks === 'function') _invalidateWorks();
+    if(typeof saveAll === 'function') saveAll(true);
+    console.log('[v3.62.0] נוקו ' + journal.length + ' קישורים יתומים (journal ב-settings)');
+  }
+  return journal.length;
+}
 function _migrateEstTotalsPreVat(){
   let changed = 0;
   (S.projects||[]).forEach(p => {
@@ -19725,7 +19788,10 @@ function _workStage(w){
   const l = w.lead;
   // ג'וב שנסגר — עבודה שהסתיימה, גם בלי פרויקט
   if(l && l.status === 'job-done' && l.jobData) return 'done';
-  const proj = w.projects[0];
+  /* v3.62.0 (תוכנית-הייצוב 2.6, MONEY-01 מהדוח) — הכסף כבר נקבע לפי הפרויקט
+     הקנוני, אבל השלב נקבע לפי העדכני — ומסך יכול היה להגיד "נגמר ושולם" בזמן
+     שהחוב 800₪. מקור-אמת אחד: הקנוני קובע גם את השלב. */
+  const proj = (typeof _workCanonicalProject === 'function' ? _workCanonicalProject(w) : null) || w.projects[0];
   if(proj){
     const st = proj.status || 'active';
     if(st === 'done' || st === 'archived') return 'done';
@@ -21065,7 +21131,8 @@ function wkCardMenu(workId){
 }
 function _workNextStepHtml(w){
   const st = w.stage;
-  const v = w.visits[0], q = w.quotes[0], p = w.projects[0], l = w.lead;
+  const v = w.visits[0], q = w.quotes[0], l = w.lead;
+  const p = (typeof _workCanonicalProject === 'function' ? _workCanonicalProject(w) : null) || w.projects[0];   // v3.62.0 (2.6)
   if(st === 'lead')   return { msg:'פנייה חדשה — קבע ביקור אצל הלקוח',
     main: l ? `<button class="btn btn-gold" onclick="openLeadDetail('${_jsAttr(l.id)}')">פתח את הפנייה</button>` : '' };
   if(st === 'visit')  return { msg: q ? 'יש ביקור — אפשר לבנות הצעת מחיר' : 'הביקור נרשם — בנה הצעת מחיר מהממצאים',
@@ -21094,7 +21161,8 @@ function renderWork(){
   const cName = _workClientName(w);
 
   // כפתורי-הפעולה שאור אישר: "סיימתי היום", "התקבל תשלום", "העבר לארכיון עכשיו"
-  const p = w.projects[0];
+  // v3.62.0 (2.6) — הפעולות פועלות על הפרויקט הקנוני, לא על העדכני
+  const p = (typeof _workCanonicalProject === 'function' ? _workCanonicalProject(w) : null) || w.projects[0];
   const acts = [];
   if(p && (w.stage === 'active')){
     // v3.29.1 — "העבודה נגמרה" היה נגיש רק מתפריט במסך-הגג הישן, ולכן אור לא מצא איך לסגור
@@ -21126,10 +21194,22 @@ function renderWork(){
       ${end?`<div class="wk-row-end">${end}</div>`:''}
     </button>`;
 
+  /* v3.62.0 (שורש מ-test-link-integrity) — השער העביר את הנחיתה לכרטיס-האחד, אבל
+     הוצאות ותשלומים נראו רק בכרטיס-הלקוח המלא. מידע-כסף לא מתחבא הופ אחד פנימה. */
+  const _expenses = (S.expenses||[]).filter(e => w.projects.some(p2 => e.projectId === p2.id));
+  const _expTotal = Math.round(_expenses.reduce((t,e)=>t+(parseFloat(e.amount)||0),0));
+  const _payTotal = Math.round(w.projects.reduce((t,p2)=>t+(typeof totalReceived==='function'?totalReceived(p2):0),0));
   // v3.28.4 — עבודה ותיקה צוברת עשרות רשומות (נמדד אצל אור: 14 הצעות + 6 ביקורים = 21 שורות
   // זהות), והרשימה השטוחה הפכה לקיר שצריך לגלול. עכשיו כל סוג מקובץ ומקופל: שתי הרשומות
   // האחרונות גלויות, והשאר נפתחות בלחיצה. סדר-הקבוצות = סדר-השלבים של העבודה.
   const parts = [];
+  if(_expenses.length || _payTotal > 0){
+    parts.push(recRow('mdi:cash-multiple', 'כספים',
+      [ _payTotal>0 ? `התקבלו ${fmt(_payTotal)} ₪` : '',
+        _expenses.length ? `${_expenses.length} הוצאות · ${fmt(_expTotal)} ₪` : '',
+        _expenses[0] && (_expenses[0].desc||_expenses[0].description) ? esc(_expenses[0].desc||_expenses[0].description) : '' ].filter(Boolean).join(' · '),
+      '', w.clientId ? `openClientDetail('${_jsAttr(w.clientId)}', true)` : ''));
+  }
   if(w.lead) parts.push(recRow('mdi:account-plus-outline', 'הפנייה',
     esc((LEAD_STATUS && LEAD_STATUS[w.lead.status] || {}).label || ''), '',
     `openLeadDetail('${_jsAttr(w.lead.id)}')`));
@@ -22556,6 +22636,14 @@ function unmergeClient(secondaryId){
   if(!secondary || !secondary.mergedIntoId) return false;
   const primary = getClient(secondary.mergedIntoId);
   if(!primary || !Array.isArray(primary.mergedFrom)) return false;
+  /* v3.62.0 (תוכנית-הייצוב 2.4) — ביטול-מיזוג נרשם ב-suppression מסונכרן (בתוך
+     settings, שהוא singleton בענן): המיזוג-הרציף בעלייה הבאה לא ימזג שוב את מה
+     שאור פירק בכוונה — בשום מכשיר. */
+  const _supPhone = _normPhoneClient(secondary.phone) || _normPhoneClient(primary.phone);
+  if(_supPhone){
+    if(!Array.isArray(S.settings._mergeSuppress)) S.settings._mergeSuppress = [];
+    if(!S.settings._mergeSuppress.includes(_supPhone)) S.settings._mergeSuppress.push(_supPhone);
+  }
 
   let idx = -1;
   for(let i = primary.mergedFrom.length - 1; i >= 0; i--){
@@ -22651,15 +22739,12 @@ function _clientNonEmptyFieldCount(c){
   return n;
 }
 function _phoneMergePickPrimary(group){
-  return group.slice().sort((a, b) => {
-    const linkDiff = _clientLinkCount(b) - _clientLinkCount(a);
-    if(linkDiff) return linkDiff;
-    const fieldDiff = _clientNonEmptyFieldCount(b) - _clientNonEmptyFieldCount(a);
-    if(fieldDiff) return fieldDiff;
-    const createdDiff = (a.createdAt || 0) - (b.createdAt || 0);
-    if(createdDiff) return createdDiff;
-    return String(a.id).localeCompare(String(b.id));
-  })[0];
+  /* v3.62.0 (תוכנית-הייצוב 2.4) — הבחירה חייבת להיות דטרמיניסטית בין מכשירים:
+     ספירת-קישורים מקומית נותנת תוצאה שונה בכל מכשיר ומייצרת מיזוגים מנוגדים.
+     הוותיק (createdAt) הוא ה-primary; שובר-שוויון סופי: ID. */
+  return group.slice().sort((a, b) =>
+    ((a.createdAt || 0) - (b.createdAt || 0)) || String(a.id).localeCompare(String(b.id))
+  )[0];
 }
 
 // Runs the one-time merge. Idempotent by construction even without the flag: once a client is
@@ -22667,7 +22752,11 @@ function _phoneMergePickPrimary(group){
 // partial completion (or a stale flag) never re-merges or double-merges anything. The flag exists
 // purely so a clean install with zero duplicates doesn't re-scan every single boot.
 function _runPhoneMergeMigrationV1(){
-  if(S.settings._phoneMergeDoneV1) return { merged: 0 };
+  /* v3.62.0 — מחד-פעמי לרציף: הדגל הישן עצר לנצח, וייבוא/שחזור/סנכרון החזירו
+     כפילויות אחריו (5 זוגות נמצאו בנתוני-אמת). ההסמכה: הוראת-הקבע של אור —
+     "תמזג כל מקום שמכיל את אותו מספר טלפון — תעשה את זה עצמאית". רץ בכל עלייה;
+     זוג ש-unmerge פורק נרשם ב-suppression ולא ממוזג שוב. */
+  const _suppress = new Set((S.settings && S.settings._mergeSuppress) || []);
   let mergedCount = 0;
   const mergedPrimaries = new Set();
   try{
@@ -22682,6 +22771,9 @@ function _runPhoneMergeMigrationV1(){
     byPhone.forEach(group => {
       if(group.length < 2) return;
       const primary = _phoneMergePickPrimary(group);
+      const _phoneKey = _normPhoneClient(primary.phone);
+      if(_suppress.has(_phoneKey)) return;   // אור פירק את המיזוג הזה — לא חוזרים עליו
+      const _opId = 'pm-' + _phoneKey + '-' + Date.now().toString(36);
       group.forEach(c => {
         if(c.id === primary.id) return;
         // Re-fetch live refs — a prior merge earlier in this same pass may have changed things.
@@ -22690,6 +22782,8 @@ function _runPhoneMergeMigrationV1(){
         if(!livePrimary || !liveSecondary) return;
         if(livePrimary.mergedIntoId || liveSecondary.mergedIntoId) return; // never chain a merge into an already-merged record
         if(mergeClients(livePrimary.id, liveSecondary.id)){
+          const merged = getClient(liveSecondary.id);
+          if(merged) merged.mergeOperationId = _opId;   // v3.62.0 — עקיבות-מיזוג
           mergedCount++;
           mergedPrimaries.add(livePrimary.id);
         }
@@ -22699,8 +22793,9 @@ function _runPhoneMergeMigrationV1(){
     console.warn('[_runPhoneMergeMigrationV1] failed:', err);
     return { merged: mergedCount, primaryIds: [...mergedPrimaries], error: err }; // flag NOT set — retried next boot
   }
+  // v3.62.0 — הדגל נשאר לתאימות אך אינו שער; שמירה רק כשמשהו השתנה
   S.settings._phoneMergeDoneV1 = true;
-  saveAll(true);
+  if(mergedCount) saveAll(true);
   return { merged: mergedCount, primaryIds: [...mergedPrimaries] };
 }
 
@@ -43197,6 +43292,12 @@ async function init(){
           if(data.learnedTags) S.learnedTags = data.learnedTags;
           if(Array.isArray(data.learnedTasks)) S.learnedTasks = data.learnedTasks;
           if(Array.isArray(data.roofProfiles)) S.roofProfiles = data.roofProfiles;
+          // v3.62.0 (2.5) — צד-הקריאה של רשת-הביטחון מיושר לצד-הכתיבה
+          if(data.todayDone && typeof data.todayDone==='object' && !Array.isArray(data.todayDone)) S.todayDone = data.todayDone;
+          if(data.waDecided && typeof data.waDecided==='object' && !Array.isArray(data.waDecided)) S.waDecided = data.waDecided;
+          if(data.touchedToday && typeof data.touchedToday==='object' && !Array.isArray(data.touchedToday)) S.touchedToday = data.touchedToday;
+          if(data.photoDays && typeof data.photoDays==='object' && !Array.isArray(data.photoDays)) S.photoDays = data.photoDays;
+          if(Array.isArray(data.waBlocklist)) S.waBlocklist = data.waBlocklist;
           if(Array.isArray(data.reports)) S.reports = data.reports;   // v3.39.0 (0ב.5)
           if(Array.isArray(data.tasks)) S.tasks = data.tasks; // v3.9.21
           if(data.taskSettings) S.taskSettings = {...S.taskSettings, ...data.taskSettings}; // v3.9.21
@@ -43253,6 +43354,7 @@ async function init(){
   // v3.50.0 — אחרי נרמול estimatedTotal, כי ההשוואה כאן היא מול סעיפי-ההצעה עצמם
   if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
   if(typeof _migratePromotePerlstein === 'function') _migratePromotePerlstein();   // v3.54.0 — פרלשטיין אמיתי
+  if(typeof _migrateCleanOrphanLinks === 'function') _migrateCleanOrphanLinks();   // v3.62.0 — ניקוי-יתומים כללי
   if(typeof _migrateQuoteClientIds === 'function') _migrateQuoteClientIds();   // v3.26.0 (C1) — quote.clientId מ-sourceVisitId
   if(typeof _cleanGhostRecords === 'function') _cleanGhostRecords();   // v3.22.26 (3.15)
   // v3.22.33 (6.12) — נקה דגלי-שאיבה ישנים שנתקעו על פרויקטים מגרסאות קודמות
