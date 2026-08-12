@@ -7186,6 +7186,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
       <button class="btn btn-ghost btn-sm" onclick="qCopyToWhatsApp()"><iconify-icon icon="mdi:content-copy"></iconify-icon> העתק</button>
       <button class="btn btn-ghost btn-sm" onclick="qExportAsHTML()"><iconify-icon icon="mdi:file-code-outline"></iconify-icon> HTML</button>
       <button class="btn btn-gold btn-sm" style="grid-column:1/-1" onclick="qPdfExport()"><iconify-icon icon="mdi:file-pdf-box"></iconify-icon> PDF</button>
+        <button class="btn btn-ghost btn-sm" onclick="qFromVideo()" style="margin:0"><iconify-icon icon="mdi:video-outline" width="16"></iconify-icon> מהסרטון</button>
       <button class="btn btn-ghost btn-sm" style="grid-column:1/-1;border-color:var(--gold);color:var(--gold)" onclick="qPhotoExport()"><iconify-icon icon="mdi:image-multiple-outline"></iconify-icon> הצעה עם תמונות גדולות</button>
     </div>
   </div>
@@ -7796,7 +7797,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.65.0'; // תוכנית-הייצוב שלב 5.1 — זהות-מועמד יציבה בגשר-הוואטסאפ: הכלי מייצא jid, מפתח-ההכרעות מעדיף אותו, ומפתחות ישנים ב-waDecided מומרים אוטומטית.
+const APP_VERSION = '3.66.0'; // תוכנית-הייצוב 5.6 — "מהסרטון": הכלי במק מתמלל סרטוני-ביקור (ffmpeg+whisper) וכותב מועמדים לדרייב; בעורך-ההצעה תור-אישורים עם ראיה וזמן — כל סעיף נכנס רק בהקשה, הכרעות נשמרות (S.videoDecided) ולא חוזרות.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7876,6 +7877,7 @@ const S = {
   todayDone: {},        // v3.44.0 — סימוני "טופל" במסך-היום: workId → חותמת. נשמר ונטען (v3.44.1)
   waDecided: {},        // v3.51.0 — פריטי-וואטסאפ שאור כבר הכריע עליהם: key → {at, action}. לא חוזרים.
   touchedToday: {},     // v3.56.0 — עבודות שאור נגע בהן היום (מגע-אור בלבד, לא מערכת): workId → ts
+  videoDecided: {},     // v3.66.0 — מועמדי-וידאו שהוכרעו: candidateId → {at, action}
   waBlocklist: [],      // v3.10.0 — phones to always skip when importing from WhatsApp ({phone, name, addedAt}[])
   expenses: [],         // V2.5 — per-project expenses
   products: [],         // V2.8 — services catalog (work types with prices + descriptions)
@@ -8685,6 +8687,7 @@ async function _saveAllInner(quiet){
     // את מי שאור כבר טיפל בו — בדיוק מחלקת-הבאג של todayDone.
     if(typeof S.waDecided !== 'undefined') _pairs.push(['waDecided', S.waDecided]);
     if(typeof S.touchedToday !== 'undefined') _pairs.push(['touchedToday', S.touchedToday]);   // v3.56.0
+    if(typeof S.videoDecided !== 'undefined') _pairs.push(['videoDecided', S.videoDecided]);   // v3.66.0
     if(typeof S.photoDays !== 'undefined') _pairs.push(['photoDays', S.photoDays]);
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
@@ -8714,7 +8717,7 @@ async function _saveAllInner(quiet){
         workTypeTemplates:S.workTypeTemplates,   // v3.22.15 — כלול גם ברשת-הביטחון של localStorage
         // v3.62.0 (תוכנית-הייצוב 2.5, PERSIST-02 מהדוח) — רשת-הביטחון החסירה את
         // שדות-ההכרעה: שחזור-חירום איבד "טופל", הכרעות-וואטסאפ, שיוכי-תמונות ומגעי-היום.
-        todayDone:S.todayDone, waDecided:S.waDecided, touchedToday:S.touchedToday,
+        todayDone:S.todayDone, waDecided:S.waDecided, touchedToday:S.touchedToday, videoDecided:S.videoDecided,
         photoDays:S.photoDays, waBlocklist:S.waBlocklist,
         reports:S.reports   // v3.39.0 — טקסט בלבד; ה-replacer מפשיט base64 וגם אם יגלוש מ-4.5MB הכתיבה מדולגת בבטחה
       };
@@ -11276,7 +11279,7 @@ try{ _tabAnnounce(); }catch(e){}
 // לא קיים (אין רשומת DNS ל-azojpbraehirtgooxanp.supabase.co) — כלומר לא היה להם שום גיבוי.
 // הרישום כאן מכניס אותם לסנכרון-הענן, ו-_buildCompleteBackup מכניס אותם לגיבוי-הדרייב.
 const SYNC_ENTITIES = ['visits','projects','quotes','leads','clients','expenses','products','fixedExpenses','modifiers','learnedTasks','roofProfiles','tasks','waBlocklist','reports'];
-const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags','waDecided'];
+const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags','waDecided','videoDecided'];
 let _syncing = false, _syncAgain = false, _syncSig = {}, _lastSyncAt = 0, _syncPollTimer = null;
 function _loadSyncMeta(){
   try{ _syncSig = JSON.parse(localStorage.getItem('obv_sync_sig')||'{}'); }catch(e){ _syncSig={}; }
@@ -12615,6 +12618,7 @@ function _buildCompleteBackup(options){
     todayDone: S.todayDone || {},
     waDecided: S.waDecided || {},   // v3.51.0
     touchedToday: S.touchedToday || {},   // v3.56.0
+    videoDecided: S.videoDecided || {},   // v3.66.0
     photoDays: S.photoDays || { assigned:{}, dismissed:{} },
   };
 }
@@ -14208,6 +14212,7 @@ async function _applyImportedData(d, opts){
   if(d.todayDone && typeof d.todayDone === 'object' && !Array.isArray(d.todayDone)) S.todayDone = d.todayDone;
   if(d.waDecided && typeof d.waDecided === 'object' && !Array.isArray(d.waDecided)) S.waDecided = d.waDecided;   // v3.51.0
   if(d.touchedToday && typeof d.touchedToday === 'object' && !Array.isArray(d.touchedToday)) S.touchedToday = d.touchedToday;   // v3.56.0
+  if(d.videoDecided && typeof d.videoDecided === 'object' && !Array.isArray(d.videoDecided)) S.videoDecided = d.videoDecided;   // v3.66.0
   if(d.photoDays && typeof d.photoDays === 'object' && !Array.isArray(d.photoDays)) S.photoDays = d.photoDays;
 
   if(d.business){
@@ -26982,7 +26987,11 @@ function _waImportProcessJsonText(text, sourceLabel){
    המוקש שמתועד ב-gdriveBackupNow (GDRIVE-LOOP): בקשת-טוקן ברקע פותחת חלון-הרשאה של
    גוגל באמצע עבודה, והמסך "נעלם וחוזר". לכן ברקע משתמשים רק בטוקן שכבר בזיכרון,
    ואם אין — מדלגים בשקט עד שאור יבצע פעולה יזומה. */
-async function _waFetchLatestDriveText(silent){
+async function _waFetchLatestDriveText(silent, fileName){
+  /* v3.66.0 — הכללה: אותה משיכת-דרייב משרתת גם את חבילת-הוידאו. ברירת-המחדל
+     נשארת חבילת-הוואטסאפ — אפס שינוי לקוראים הקיימים. */
+  const _fname = fileName || 'whatsapp-leads-latest.json';
+  const _fprefix = _fname.replace(/-latest\.json$/, '-');
   const say = (m) => { if(!silent) toast(m); };
   if(typeof gapi === 'undefined' || !gapi.client?.drive){
     say('Google Drive עדיין נטען — נסה שוב בעוד 2 שניות');
@@ -27042,12 +27051,12 @@ async function _waFetchLatestDriveText(silent){
       return null;
     }
     const filesRes = await gapi.client.drive.files.list({
-      q: `'${folder.id}' in parents and (name='whatsapp-leads-latest.json' or name contains 'whatsapp-leads-') and trashed=false`,
+      q: `'${folder.id}' in parents and (name='${_fname}' or name contains '${_fprefix}') and trashed=false`,
       orderBy: 'modifiedTime desc', fields: 'files(id,name,modifiedTime,size)', pageSize: 10
     });
     const files = (filesRes.result?.files || []).filter(f => f.name.endsWith('.json'));
     if(!files.length){ toast("לא נמצאו קבצי לידים בתיקייה. הרץ את הסקריפט במק."); return null; }
-    const target = files.find(f => f.name === 'whatsapp-leads-latest.json') || files[0];
+    const target = files.find(f => f.name === _fname) || files[0];
     const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${target.id}?alt=media`, {
       headers: { 'Authorization': 'Bearer ' + _gdriveAccessToken }
     });
@@ -40005,6 +40014,75 @@ function _qLangPicker(onChoose){
     </div>`);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.66.0 (תוכנית-הייצוב 5.6) — "מהסרטון": תור-אישורי מועמדים מסרטון-הביקור.
+   הכלי במק (or-bagag-os/bin/video_bridge.py) מתמלל וכותב video-items-latest.json
+   לדרייב. כאן: תור עם ראיה+כמות+יחידה — כל סעיף נכנס להצעה רק בהקשה של אור,
+   הכרעה לא חוזרת (S.videoDecided), וחבילה עם schema לא-מוכר נדחית.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _videoDecidedMap(){
+  if(!S.videoDecided || typeof S.videoDecided !== 'object' || Array.isArray(S.videoDecided)) S.videoDecided = {};
+  return S.videoDecided;
+}
+async function qFromVideo(){
+  const q = getQuote();
+  if(!q){ toast('אין הצעה פתוחה'); return; }
+  if(q.status === 'accepted'){ toast('ההצעה כבר אושרה — סעיפים חדשים ייכנסו רק להצעה חדשה'); return; }
+  toast('טוען מועמדים מהסרטונים…');
+  const fetched = await _waFetchLatestDriveText(false, 'video-items-latest.json');
+  if(!fetched){ toast('אין חבילת-סרטונים בדרייב — הרץ את הכלי במק אחרי שצילמת'); return; }
+  let pkg = null;
+  try{ pkg = JSON.parse(fetched.text); }catch(e){ toast('חבילת-הסרטונים פגומה'); return; }
+  if(!pkg || pkg.schemaVersion !== 1 || !Array.isArray(pkg.candidates)){ toast('גרסת-חבילה לא מוכרת — עדכן את הכלי במק'); return; }
+  const decided = _videoDecidedMap();
+  const open = pkg.candidates.filter(c => c && c.id && !decided[c.id]);
+  if(!open.length){
+    openMo(`<div class="mo-title">הכל טופל</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:12px">כל ${pkg.candidates.length} המועמדים מהסרטונים כבר הוכרעו. סרטון חדש — הרץ את הכלי במק.</div>
+      <button class="btn" style="width:100%;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>`);
+    return;
+  }
+  window._vqQueue = open; window._vqQuoteId = q.id;
+  _vqRender();
+}
+function _vqRender(){
+  const open = (window._vqQueue || []).filter(c => !_videoDecidedMap()[c.id]);
+  if(!open.length){ closeMo(); toast('סיימת — כל המועמדים הוכרעו'); if(typeof renderQuoteEdit==='function') renderQuoteEdit(); return; }
+  openMo(`
+    <div class="mo-title">מהסרטון — ${open.length} מועמדים</div>
+    <div style="max-height:56vh;overflow:auto">
+    ${open.slice(0, 8).map(c => `
+      <div style="background:var(--ink2);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px">
+        <div style="font-weight:800">${esc(c.catalogMatchLabel || '')} · ${esc(String(c.quantity || ''))} ${esc(c.unit || '')}</div>
+        <div style="font-size:12px;color:var(--text2);margin:4px 0 8px">"${esc((c.rawEvidence || '').slice(0, 110))}"
+          <span style="color:var(--text3)">· ${Math.round((c.startMs || 0) / 1000)}ש׳ · ${esc(c.sourceFileName || '')}</span></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-gold btn-xs" style="margin:0;flex:1" onclick="vqApprove('${_jsAttr(c.id)}')">הוסף להצעה</button>
+          <button class="btn btn-ghost btn-xs" style="margin:0;flex:1" onclick="vqReject('${_jsAttr(c.id)}')">דלג</button>
+        </div>
+      </div>`).join('')}
+    </div>
+    <button class="btn" style="width:100%;margin-top:8px;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור (השאר יחכו)</button>
+  `);
+}
+function vqApprove(candId){
+  const c = (window._vqQueue || []).find(x => x.id === candId);
+  const q = (S.quotes || []).find(x => x.id === window._vqQuoteId);
+  if(!c || !q) return;
+  if(!Array.isArray(q.items)) q.items = [];
+  q.items.push({ id: uid(), title: c.catalogMatchLabel || 'סעיף מהסרטון',
+    quantity: c.quantity || 1, unit: c.unit || "יח'", pricePerUnit: 0, total: 0,
+    visible: true, description: '', notes: 'מהסרטון: "' + (c.rawEvidence || '').slice(0, 90) + '"' });
+  _videoDecidedMap()[c.id] = { at: ts(), action: 'approved' };
+  q.updatedAt = ts(); saveAll(true);
+  toast('נוסף — השלם מחיר בסעיף');
+  _vqRender();
+}
+function vqReject(candId){
+  _videoDecidedMap()[candId] = { at: ts(), action: 'skipped' };
+  saveAll(true);
+  _vqRender();
+}
 function qPdfExport(){
   _qLangPicker(lang => lang === 'en' ? qGeneratePDFEn() : qGeneratePDF());
 }
@@ -43480,6 +43558,7 @@ async function init(){
   const tdDone = await dbGet('todayDone');      if(tdDone && typeof tdDone === 'object' && !Array.isArray(tdDone)) S.todayDone = tdDone;
   const waDec = await dbGet('waDecided');       if(waDec && typeof waDec === 'object' && !Array.isArray(waDec)) S.waDecided = waDec;   // v3.51.0
   const tToday = await dbGet('touchedToday');   if(tToday && typeof tToday === 'object' && !Array.isArray(tToday)) S.touchedToday = tToday;   // v3.56.0
+  const vDec = await dbGet('videoDecided');     if(vDec && typeof vDec === 'object' && !Array.isArray(vDec)) S.videoDecided = vDec;   // v3.66.0
   const pDays  = await dbGet('photoDays');     if(pDays && typeof pDays === 'object' && !Array.isArray(pDays)) S.photoDays = pDays;
   // v3.23.4 (SEC-03) — this PAT can push straight to the production repo's main branch. It
   // never leaves IDB (excluded from every export/backup/sync — see _buildCompleteBackup,
@@ -43539,6 +43618,7 @@ async function init(){
           if(data.todayDone && typeof data.todayDone==='object' && !Array.isArray(data.todayDone)) S.todayDone = data.todayDone;
           if(data.waDecided && typeof data.waDecided==='object' && !Array.isArray(data.waDecided)) S.waDecided = data.waDecided;
           if(data.touchedToday && typeof data.touchedToday==='object' && !Array.isArray(data.touchedToday)) S.touchedToday = data.touchedToday;
+          if(data.videoDecided && typeof data.videoDecided==='object' && !Array.isArray(data.videoDecided)) S.videoDecided = data.videoDecided;
           if(data.photoDays && typeof data.photoDays==='object' && !Array.isArray(data.photoDays)) S.photoDays = data.photoDays;
           if(Array.isArray(data.waBlocklist)) S.waBlocklist = data.waBlocklist;
           if(Array.isArray(data.reports)) S.reports = data.reports;   // v3.39.0 (0ב.5)
