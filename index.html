@@ -7797,7 +7797,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.66.0'; // תוכנית-הייצוב 5.6 — "מהסרטון": הכלי במק מתמלל סרטוני-ביקור (ffmpeg+whisper) וכותב מועמדים לדרייב; בעורך-ההצעה תור-אישורים עם ראיה וזמן — כל סעיף נכנס רק בהקשה, הכרעות נשמרות (S.videoDecided) ולא חוזרות.
+const APP_VERSION = '3.67.0'; // תוכנית-הייצוב 5.2 — הקשחת שיוך-התמונות: יום עם ביקורים אצל כמה לקוחות לא מוצע בהקשה-אחת (אור בוחר במפורש); ביטול-שיוך מסיר רק את מה שהשיוך הוסיף (לפי SHA); חבילת-דרייב עם schema זר נדחית.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -20640,19 +20640,28 @@ function _photoDayStore(){
 }
 
 /* הלקוח המוצע ליום: מי שהיה אצלו ביקור באותו יום. אם אין — עבודה שנגעת בה באותו יום.
-   זו הצעה בלבד; אור מאשר או בוחר אחר, ואפשר תמיד לבטל. */
+   זו הצעה בלבד; אור מאשר או בוחר אחר, ואפשר תמיד לבטל.
+   v3.67.0 (שלב 5.2): יום שבו היו ביקורים אצל **כמה** לקוחות לא מציע אף אחד מהם
+   בהקשה-אחת — כל היום היה נצמד ללקוח הראשון ברשימה. במקום זה מוצגים כל השמות
+   ואור בוחר במפורש. */
 function _photoDaySuggest(day){
   const start = new Date(day + 'T00:00:00').getTime();
   const end   = start + 86400000;
   const inDay = (t) => t && t >= start && t < end;
 
+  const found = [];   // {clientId,name} ייחודיים מביקורי-היום
   for(const v of (S.visits || [])){
     if(inDay(v.finishedAt) || inDay(v.scheduledAt) || inDay(v.createdAt)){
       const c = v.clientId && typeof getClient === 'function' ? getClient(v.clientId) : null;
-      if(c) return { clientId: c.id, name: c.clientName, why: 'ביקור באותו יום' };
-      if(v.clientName) return { clientId: null, name: v.clientName, why: 'ביקור באותו יום' };
+      const cand = c ? { clientId: c.id, name: c.clientName }
+                 : (v.clientName ? { clientId: null, name: v.clientName } : null);
+      if(cand && !found.some(x => (x.clientId && x.clientId === cand.clientId) || x.name === cand.name))
+        found.push(cand);
     }
   }
+  if(found.length === 1) return { ...found[0], why: 'ביקור באותו יום' };
+  if(found.length > 1)
+    return { multiple: true, names: found.map(x => x.name), why: 'כמה ביקורים באותו יום' };
   for(const w of (typeof getWorks === 'function' ? getWorks() : [])){
     if(inDay(w.updatedAt) && w.clientId){
       const c = getClient(w.clientId);
@@ -20662,12 +20671,19 @@ function _photoDaySuggest(day){
   return null;
 }
 
+/* v3.67.0 — חבילה עם schema עתידי/זר נדחית במקום להתפרש חלקית. */
+function _photoDaysValid(data){
+  if(!data || !Array.isArray(data.days)) return false;
+  if(data.schemaVersion != null && data.schemaVersion > 1) return false;
+  return true;
+}
+
 async function _photoDaysFetch(silent){
   try {
     const txt = await _driveReadJsonByName(PHOTO_DAYS_FILE, silent);
     if(!txt) return null;
     const data = JSON.parse(txt);
-    if(!data || !Array.isArray(data.days)) return null;
+    if(!_photoDaysValid(data)){ console.warn('[photoDays] חבילה נדחתה — schema לא מוכר'); return null; }
     return data;
   } catch(e){ console.warn('[photoDays] fetch failed', e); return null; }
 }
@@ -20698,14 +20714,18 @@ function photoDayAssign(day, clientId){
   const usable = grp.photos.filter(ph => !store.hiddenPhotos[ph.sha]);
   if(!usable.length){ toast('כל התמונות של היום הוצאו'); return; }
   const prev = JSON.parse(JSON.stringify(store.assigned[day] || null));
-  store.assigned[day] = { clientId: c.id, at: ts(), count: usable.length };
 
-  // התמונות עצמן נצמדות ללקוח, כדי שיופיעו בכרטיס שלו
+  // התמונות עצמן נצמדות ללקוח, כדי שיופיעו בכרטיס שלו.
+  // v3.67.0 (שלב 5.2): נרשם בדיוק מה נוסף (shas) — כדי שהביטול יסיר רק את זה,
+  // ולא תמונה שכבר ישבה על הלקוח משיוך קודם.
   c.dayPhotos = Array.isArray(c.dayPhotos) ? c.dayPhotos : [];
+  const added = [];
   usable.forEach(ph => {
     if(c.dayPhotos.some(x => x.sha === ph.sha)) return;
     c.dayPhotos.push({ sha: ph.sha, day, at: ph.at, thumb: ph.thumb, source: 'day-bridge' });
+    added.push(ph.sha);
   });
+  store.assigned[day] = { clientId: c.id, at: ts(), count: usable.length, shas: added };
   c.updatedAt = ts();
   saveAll(true);
   renderPhotoDays();
@@ -20721,7 +20741,14 @@ function photoDayUndo(day, prev){
   if(cur){
     const c = getClient(cur.clientId);
     if(c && Array.isArray(c.dayPhotos)){
-      c.dayPhotos = c.dayPhotos.filter(x => x.day !== day);
+      if(Array.isArray(cur.shas)){
+        // v3.67.0 — ביטול-מדויק: יורד רק מה שהשיוך הזה הוסיף
+        const undoSet = new Set(cur.shas);
+        c.dayPhotos = c.dayPhotos.filter(x => !(x.day === day && undoSet.has(x.sha)));
+      } else {
+        // רשומות ישנות (לפני v3.67.0) — ההתנהגות הקודמת
+        c.dayPhotos = c.dayPhotos.filter(x => x.day !== day);
+      }
       c.updatedAt = ts();
     }
   }
@@ -20807,10 +20834,11 @@ function renderPhotoDays(){
           </div>`
         : `
           ${hiddenN ? `<div style="font-size:12.5px;color:var(--text3);margin:2px 0 6px">${hiddenN} הוצאו — הקש עליהן להחזרה</div>` : ''}
-          ${sug ? `<div style="font-size:13.5px;color:var(--text2);margin:2px 0 8px">כנראה <b style="color:var(--text)">${esc(sug.name)}</b> — ${esc(sug.why)}</div>`
+          ${sug && sug.multiple ? `<div style="font-size:13.5px;color:var(--text2);margin:2px 0 8px">היו כמה ביקורים באותו יום: <b style="color:var(--text)">${esc(sug.names.join(', '))}</b> — בחר למי לשייך</div>`
+            : sug ? `<div style="font-size:13.5px;color:var(--text2);margin:2px 0 8px">כנראה <b style="color:var(--text)">${esc(sug.name)}</b> — ${esc(sug.why)}</div>`
                 : `<div style="font-size:13.5px;color:var(--text2);margin:2px 0 8px">לא מצאתי ביקור באותו יום</div>`}
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            ${sug && sug.clientId ? `<button class="btn btn-gold btn-xs" style="margin:0" onclick="photoDayAssign('${_jsAttr(d.day)}','${_jsAttr(sug.clientId)}')">כן, ${esc(sug.name)}</button>` : ''}
+            ${sug && sug.clientId && !sug.multiple ? `<button class="btn btn-gold btn-xs" style="margin:0" onclick="photoDayAssign('${_jsAttr(d.day)}','${_jsAttr(sug.clientId)}')">כן, ${esc(sug.name)}</button>` : ''}
             <button class="btn btn-ghost btn-xs" style="margin:0" onclick="photoDayPickClient('${_jsAttr(d.day)}')">בחר לקוח</button>
             <button class="btn btn-ghost btn-xs" style="margin:0;opacity:.85" onclick="photoDayDismiss('${_jsAttr(d.day)}')">לא רלוונטי</button>
           </div>`}
