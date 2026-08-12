@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.59.0'; // ספרינט-האמון 3/3 (FLOW-01): הצעה שנוצרת מתוך ליד או גג נולדת עם הקשר (leadId/projectId) — נשארת באותה עבודה, בלי כרטיסים כפולים חדשים.
+const APP_VERSION = '3.60.0'; // הכרטיס-האחד שלב 1 (לפי המוקאפ המאושר): מסך-העבודה קיבל את מבנה-הכרטיס — שם + תחנה צבועה, וואטסאפ אחד גדול, שורת התקשר/ניווט/דיבור-חופשי, ותפריט-⋯ שמרכז עריכה/סגירה/ג'וב/כרטיסים מלאים. כפילויות-הקשר בצד הוסרו.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -21049,6 +21049,20 @@ function _wkToggleMore(id, btn){
   }
 }
 
+/* v3.60.0 — תפריט-⋯ אחד לכרטיס: כל מה שירד מהשטח (עריכה, סגירה, ג'וב, יומן) */
+function wkCardMenu(workId){
+  const w = getWork(workId); if(!w) return;
+  const l = w.lead, c = w.clientId ? getClient(w.clientId) : null;
+  openMo(`
+    <div class="mo-title">${esc(_workClientName(w))}</div>
+    ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openClientEdit('${_jsAttr(c.id)}')">ערוך פרטי לקוח</button>` : ''}
+    ${l ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openLeadDetail('${_jsAttr(l.id)}')">כרטיס-הפנייה המלא (עריכה והקלטה)</button>` : ''}
+    ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openClientDetail('${_jsAttr(c.id)}')">כרטיס-הלקוח המלא (תמונות וציר-זמן)</button>` : ''}
+    ${l && l.status !== 'job-done' ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();(typeof ldCloseAsJob==='function'?ldCloseAsJob('${_jsAttr(l.id)}'):openLeadDetail('${_jsAttr(l.id)}'))">סגור כג'וב שבוצע</button>` : ''}
+    ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();clientFinishWork('${_jsAttr(c.id)}')">סיום טיפול</button>` : ''}
+    <button class="btn" style="width:100%;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>
+  `);
+}
 function _workNextStepHtml(w){
   const st = w.stage;
   const v = w.visits[0], q = w.quotes[0], p = w.projects[0], l = w.lead;
@@ -21169,19 +21183,31 @@ function renderWork(){
     }
   });
 
+  /* v3.60.0 (הכרטיס-האחד, לפי המוקאפ שאור אישר) — שם + תחנה צבועה, וואטסאפ אחד
+     גדול, שורת התקשר/ניווט/דיבור-חופשי, ותפריט-⋯ לכל השאר. הכפילויות ירדו. */
+  const _st = (typeof _workStation === 'function') ? _workStation(w) : '';
+  const _stDef = (typeof WORK_STATIONS !== 'undefined') ? WORK_STATIONS.find(x => x.key === _st) : null;
+  const _stColor = (typeof STATION_COLORS !== 'undefined' && STATION_COLORS[_st]) || 'var(--gold)';
   body.innerHTML = `
     <div class="topbar">
       <button class="back" aria-label="חזרה" onclick="goBack()">→</button>
-      <h1 style="flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(w.title)}</h1>
+      <h1 style="flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(cName)}</h1>
+      <button class="ico" aria-label="עוד פעולות" onclick="wkCardMenu('${_jsAttr(w.id)}')">⋯</button>
     </div>
     <div class="wk-two">
       <div class="wk-col-main">
         <div class="wk-one-hero">
           <div class="wk-one-name">${esc(cName)}</div>
-          <div class="wk-one-what">${esc(w.title)}</div>
+          ${_stDef ? `<span style="display:inline-block;background:${_stColor};color:#fff;font-size:12.5px;font-weight:800;border-radius:999px;padding:3px 12px;margin:4px 0 2px">${esc(_stDef.label)}</span>` : ''}
           <div class="wk-one-meta">
             ${addr ? `<span>${esc(addr)}</span>` : ''}
-            ${w.updatedAt ? `<span>${esc(_humanTimeAgo(Date.now()-w.updatedAt))}</span>` : ''}
+            ${phone ? `<span dir="ltr">${esc(phone)}</span>` : ''}
+          </div>
+          ${phone ? `<button onclick="openWhatsApp('${_jsAttr(phone)}')" style="display:block;width:100%;background:#1c8a47;color:#fff;border:none;border-radius:13px;padding:14px;font-size:16.5px;font-weight:850;font-family:inherit;margin:10px 0 8px;cursor:pointer">פתח שיחה בוואטסאפ</button>` : ''}
+          <div style="display:flex;gap:8px">
+            ${phone ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="window.location.href='tel:${_jsAttr(phone)}'">התקשר</button>` : ''}
+            ${addr ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : ''}
+            ${w.lead ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="openLeadDetail('${_jsAttr(w.lead.id)}')">דיבור חופשי</button>` : ''}
           </div>
           ${_workStagesHtml(w)}
         </div>
@@ -21199,11 +21225,7 @@ function renderWork(){
         <div class="wk-wrap" style="padding-top:18px">
           ${/* v3.28.3 — כשאין טלפון נשאר כפתור "ניווט" בודד באמצע מסך ריק. עכשיו השורה
                מוצגת רק כשיש בה יותר מפעולה אחת, ואחרת הפעולה היחידה מוצגת ברוחב מלא. */''}
-          ${phone ? `<div class="wk-contact">
-            <button class="btn btn-ghost" onclick="window.location.href='tel:${_jsAttr(phone)}'">חיוג</button>
-            <button class="btn btn-ghost" onclick="openWhatsApp('${_jsAttr(phone)}')">וואטסאפ</button>
-            ${addr ? `<button class="btn btn-ghost" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : ''}
-          </div>` : (addr ? `<button class="btn btn-ghost" style="margin:0 2px 10px" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : '')}
+          ${/* v3.60.0 — הקשר עלה לראש-הכרטיס; כאן רק הקישור לעבודות הנוספות */''}
           ${w.clientId ? `<button class="btn btn-ghost" onclick="openFolkOne('${_jsAttr(w.clientId)}')" style="margin:0 2px">כל העבודות של הלקוח</button>` : ''}
         </div>
       </div>
