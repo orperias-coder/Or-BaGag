@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.58.0'; // ספרינט-האמון 2/3 (REL-01): מחיקת פרויקט מנקה אחרי חלון-הביטול את הקישורים שהצביעו עליו (ביקורים והצעות) — בלי קישורים יתומים חדשים.
+const APP_VERSION = '3.59.0'; // ספרינט-האמון 3/3 (FLOW-01): הצעה שנוצרת מתוך ליד או גג נולדת עם הקשר (leadId/projectId) — נשארת באותה עבודה, בלי כרטיסים כפולים חדשים.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -10376,14 +10376,14 @@ function _gnavClientPay(clientId){
 function _gnavQuoteForRoof(projectId){
   closeMo();
   const p = (S.projects||[]).find(x => x.id === projectId); if(!p) return;
-  if(p.clientId){ createQuoteForClient(p.clientId); return; }
+  if(p.clientId){ createQuoteForClient(p.clientId, {projectId: p.id}); return; }
   const tmp = { clientName: p.clientName||'', phone: p.clientPhone||'', address: p.clientAddress||'', createdAt: p.createdAt||ts() };
   if(typeof _autoLinkClient === 'function'){
     _autoLinkClient(tmp, 'project', { onLinked: (cid) => {
       if(!cid) return;
       p.clientId = cid;
       saveAll(true);
-      if(typeof createQuoteForClient === 'function') createQuoteForClient(cid);
+      if(typeof createQuoteForClient === 'function') createQuoteForClient(cid, {projectId: p.id});
     }});
   }
 }
@@ -10392,14 +10392,14 @@ function _gnavQuoteForRoof(projectId){
 function _gnavQuoteForLead(leadId){
   closeMo();
   const l = (S.leads||[]).find(x => x.id === leadId); if(!l) return;
-  if(l.linkedClientId){ createQuoteForClient(l.linkedClientId); return; }
+  if(l.linkedClientId){ createQuoteForClient(l.linkedClientId, {leadId: l.id}); return; }
   const tmp = { clientName: l.clientName||'', phone: l.phone||'', address: l.address||'', createdAt: l.createdAt||ts() };
   if(typeof _autoLinkClient === 'function'){
     _autoLinkClient(tmp, 'lead', { onLinked: (cid) => {
       if(!cid) return;
       l.linkedClientId = cid;
       saveAll();
-      if(typeof createQuoteForClient === 'function') createQuoteForClient(cid);
+      if(typeof createQuoteForClient === 'function') createQuoteForClient(cid, {leadId: l.id});
     }});
   }
 }
@@ -40983,9 +40983,12 @@ function createQuoteFromVisit(visitId){
 // supports adding lines with zero items, "+ הוסף שורה ידنית"/APP-20's "+ סעיף כאן") and minus
 // sourceVisitId/visitNumber (there's no source visit — every q.sourceVisitId reader in the app
 // already guards with `q.sourceVisitId ? ... : null`, verified by grep before writing this).
-function createQuoteForClient(clientId){
+function createQuoteForClient(clientId, opts){
   const c = getClient(clientId);
   if(!c){ toast('לקוח לא נמצא'); return null; }
+  /* v3.59.0 (FLOW-01 מדוח-הביקורת) — הצעה שנוצרה "מתוך" ליד/גג נולדה בלי הקשר,
+     ולכן מנוע-העבודות פיצל אותה לעבודה שנייה — מקור הכרטיסים הכפולים. */
+  const _anchor = opts || {};
   const currentYear = new Date().getFullYear();
   const num = _quoteNextNumber();
   const t = S.quoteTemplate;
@@ -40993,7 +40996,9 @@ function createQuoteForClient(clientId){
     id: uid(),
     quoteNumber: num,
     quoteCode: fmtQuoteCode(currentYear, num),
-    sourceVisitId: null,
+    sourceVisitId: _anchor.visitId || null,
+    leadId: _anchor.leadId || null,
+    linkedProjectId: _anchor.projectId || null,
     visitNumber: null,
     clientId: c.id,
     clientName: c.clientName,
