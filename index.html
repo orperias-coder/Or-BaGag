@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.60.0'; // הכרטיס-האחד שלב 1 (לפי המוקאפ המאושר): מסך-העבודה קיבל את מבנה-הכרטיס — שם + תחנה צבועה, וואטסאפ אחד גדול, שורת התקשר/ניווט/דיבור-חופשי, ותפריט-⋯ שמרכז עריכה/סגירה/ג'וב/כרטיסים מלאים. כפילויות-הקשר בצד הוסרו.
+const APP_VERSION = '3.61.0'; // הכרטיס-האחד שלב 2 — השער: כל לחיצה על ליד או לקוח נוחתת בכרטיס-האחד (ליד-עם-עבודה ← הכרטיס; לקוח עם עבודה אחת ← הכרטיס; עם כמה ← רשימת-העבודות שלו). המסכים המלאים נשארים נגישים מתפריט-⋯. ליד חדש עדיין נפתח לעריכה מלאה.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -21056,8 +21056,8 @@ function wkCardMenu(workId){
   openMo(`
     <div class="mo-title">${esc(_workClientName(w))}</div>
     ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openClientEdit('${_jsAttr(c.id)}')">ערוך פרטי לקוח</button>` : ''}
-    ${l ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openLeadDetail('${_jsAttr(l.id)}')">כרטיס-הפנייה המלא (עריכה והקלטה)</button>` : ''}
-    ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openClientDetail('${_jsAttr(c.id)}')">כרטיס-הלקוח המלא (תמונות וציר-זמן)</button>` : ''}
+    ${l ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openLeadDetail('${_jsAttr(l.id)}', false, true)">כרטיס-הפנייה המלא (עריכה והקלטה)</button>` : ''}
+    ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();openClientDetail('${_jsAttr(c.id)}', true)">כרטיס-הלקוח המלא (תמונות וציר-זמן)</button>` : ''}
     ${l && l.status !== 'job-done' ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();(typeof ldCloseAsJob==='function'?ldCloseAsJob('${_jsAttr(l.id)}'):openLeadDetail('${_jsAttr(l.id)}'))">סגור כג'וב שבוצע</button>` : ''}
     ${c ? `<button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px" onclick="closeMo();clientFinishWork('${_jsAttr(c.id)}')">סיום טיפול</button>` : ''}
     <button class="btn" style="width:100%;background:var(--ink3);color:var(--text);border:1px solid var(--line)" onclick="closeMo()">סגור</button>
@@ -21207,7 +21207,7 @@ function renderWork(){
           <div style="display:flex;gap:8px">
             ${phone ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="window.location.href='tel:${_jsAttr(phone)}'">התקשר</button>` : ''}
             ${addr ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="_openNavSheet('${_jsAttr(addr)}')">ניווט</button>` : ''}
-            ${w.lead ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="openLeadDetail('${_jsAttr(w.lead.id)}')">דיבור חופשי</button>` : ''}
+            ${w.lead ? `<button class="btn btn-ghost btn-sm" style="flex:1;margin:0" onclick="openLeadDetail('${_jsAttr(w.lead.id)}', false, true)">דיבור חופשי</button>` : ''}
           </div>
           ${_workStagesHtml(w)}
         </div>
@@ -21508,8 +21508,15 @@ function getClientTotalRevenue(clientId){
 }
 
 // Open client detail (Phase 2 will render full UI; Phase 1 just navigates).
-function openClientDetail(clientId){
+function openClientDetail(clientId, direct=false){
   try{ const _w=(typeof getClientWorks==='function')?getClientWorks(clientId)[0]:null; if(_w){ _touchedPurgeOld(); _touchedTodayMap()[_w.id]=Date.now(); } }catch(e){}   // v3.56.0
+  /* v3.61.0 (השער) — לקוח עם עבודה אחת נוחת בכרטיס-האחד; עם כמה עבודות — ברשימת
+     העבודות שלו; הכרטיס הישן נשאר נגיש מתפריט-⋯ (direct). */
+  if(!direct && typeof getClientWorks === 'function'){
+    const ws = getClientWorks(clientId);
+    if(ws.length === 1){ openWork(ws[0].id); return; }
+    if(ws.length > 1 && typeof openFolkOne === 'function'){ openFolkOne(clientId); return; }
+  }
   if(!clientId) return;
   S.activeClientId = clientId;
   push('client-detail');
@@ -25364,8 +25371,15 @@ function openNewLeadModal(){
   openLeadDetail(draft.id, true);
 }
 
-function openLeadDetail(id, isNew=false){
+function openLeadDetail(id, isNew=false, direct=false){
   touchWorkToday('lead', id);   // v3.56.0 — מגע-אור
+  /* v3.61.0 (השער — דרישת אור: "כל מקום שאלחץ על הלקוח יביא אותי לאותו מקום") —
+     לחיצה על ליד קיים נוחתת בכרטיס-האחד; העריכה וההקלטה נגישות משם בתפריט-⋯.
+     ליד חדש (isNew) או קריאה מפורשת (direct, מהתפריט) עדיין פותחים את המסך המלא. */
+  if(!isNew && !direct){
+    const w = (typeof _workOf === 'function') ? _workOf('lead', id) : null;
+    if(w){ openWork(w.id); return; }
+  }
   S.activeLeadId = id;
   const l = getLead(id);
   if(!l) return;
