@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.62.0'; // תוכנית-הייצוב שלב 2: ניקוי-יתומים כללי עם journal (רץ בעלייה ובשחזור) · מיזוג-טלפון רציף ודטרמיניסטי עם suppression לביטולים · רשת-הביטחון של localStorage כוללת את כל שדות-ההכרעה · הפרויקט הקנוני קובע גם שלב/פעולות (לא רק כסף) · שורת-כספים בכרטיס-האחד.
+const APP_VERSION = '3.63.0'; // תוכנית-הייצוב שלב 3 — ההצעה כעמוד-השדרה: acceptedSnapshot חוזי בלתי-משתנה בכל אישור, acceptQuote כמסלול-האישור היחיד (כל 5 הדרכים עוברות דרכו), פרויקט רגיל רק מהצעה מאושרת (createProjectFromAcceptedQuote), פרויקט-מביקור מנותב לבניית-הצעה, פרויקט-חירום עם סיבה בלבד, ו-project.origin על כל פרויקט.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -14265,6 +14265,7 @@ async function _applyImportedData(d, opts){
   if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
   if(typeof _migratePromotePerlstein === 'function')     _migratePromotePerlstein();   // v3.54.0
   if(typeof _migrateCleanOrphanLinks === 'function')     _migrateCleanOrphanLinks();   // v3.62.0
+  if(typeof _migrateProjectOrigins === 'function')       _migrateProjectOrigins();   // v3.63.0
   if(typeof _migrateQuoteClientIds === 'function')       _migrateQuoteClientIds();
 
   saveAll();
@@ -15344,9 +15345,12 @@ function qChangeStatus(){
 function qSetStatus(status){
   const q = getQuote();
   if(!q) return;
-  q.status = status;
-  q.updatedAt = ts();
-  if(status === 'sent' && !q.sentAt) q.sentAt = ts();
+  if(status === 'accepted'){ acceptQuote(q.id, { via: 'qSetStatus' }); }   // v3.63.0
+  else {
+    q.status = status;
+    q.updatedAt = ts();
+    if(status === 'sent' && !q.sentAt) q.sentAt = ts();
+  }
   saveAll();
   closeMo();
   toast(`סטטוס: ${status}`);
@@ -15408,16 +15412,120 @@ function qMarkSentNow(){
    החישוב הכספי כבר עבד: _incomeInPeriod סופר הצעה במצב accepted גם בלי פרויקט.
    התיקון הוא חשיפה, לא צנרת: כפתור ירוק בראש כרטיס-הסטטוס וגם בשורת מסך-היום.
    ═══════════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.63.0 (תוכנית-הייצוב שלב 3) — ההצעה כעמוד-השדרה.
+   הכרעת אור: "פרויקט נפתח רק מתוך הצעת מחיר מאושרת. הביקור הוא איסוף נתונים
+   להצעה." שלושה עוגנים: (1) acceptedSnapshot — צילום-חוזה בלתי-משתנה ברגע
+   האישור; (2) acceptQuote — פעולת-האישור היחידה שכל המסלולים עוברים דרכה;
+   (3) createProjectFromAcceptedQuote — הדרך היחידה לפתוח פרויקט רגיל.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _quoteContentHash(str){          // FNV-1a 32-bit — סמן-שלמות סינכרוני
+  let h = 0x811c9dc5;
+  for(let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+  return ('0000000' + h.toString(16)).slice(-8) + '-' + str.length;
+}
+function _buildAcceptedSnapshot(q, evidence){
+  const A = _quoteAmounts(q);
+  const items = (q.items || []).map(i => ({
+    id: i.id, title: i.title || '', visible: i.visible !== false,
+    pendingDelete: !!i.pendingDelete, isDiscountLine: !!i.isDiscountLine,
+    quantity: i.quantity, unit: i.unit || '', pricePerUnit: i.pricePerUnit, total: i.total,
+  }));
+  const body = {
+    schemaVersion: 1,
+    items,
+    subtotal: A.subtotal, discount: A.discount, net: A.net,
+    vatRate: A.vatRate, vatAmount: A.vatAmount, grandTotal: A.grandTotal,
+    paymentTerms: q.paymentTerms || '', validityDays: q.validityDays || 30,
+    unforeseenClause: (typeof quoteUnforeseenClause === 'function') ? quoteUnforeseenClause(q).text : '',
+    clientName: q.clientName || '', clientPhone: q.clientPhone || '', clientAddress: q.clientAddress || '',
+    sentAt: q.sentAt || null, acceptedAt: q.acceptedAt || null,
+    acceptedVia: (evidence && evidence.via) || 'manual',
+    signatureRef: (evidence && evidence.signatureRef) || null,
+  };
+  body.contentHash = _quoteContentHash(JSON.stringify(body.items) + '|' + body.grandTotal);
+  return body;
+}
+/* פעולת-האישור היחידה. אידמפוטנטית: אישור שני לא דורס snapshot קיים. */
+function acceptQuote(quoteId, evidence){
+  const q = (S.quotes || []).find(x => x.id === quoteId);
+  if(!q){ toast('ההצעה לא נמצאה'); return null; }
+  const now = ts();
+  if(q.status !== 'accepted'){
+    q.status = 'accepted';
+    q.acceptedAt = q.acceptedAt || now;
+    if(!q.sentAt || q.sentAt > q.acceptedAt) q.sentAt = q.acceptedAt;   // sentAt ≤ acceptedAt תמיד
+  }
+  if(!q.acceptedSnapshot){
+    q.acceptedSnapshot = _buildAcceptedSnapshot(q, evidence);
+  }
+  q.updatedAt = now;
+  saveAll(true);
+  if(typeof _invalidateWorks === 'function') _invalidateWorks();
+  return q.acceptedSnapshot;
+}
+/* הדרך היחידה לפרויקט רגיל: הצעה מאושרת עם snapshot. אם לעבודה כבר יש פרויקט —
+   מעדכנים אותו (לא משכפלים). */
+function createProjectFromAcceptedQuote(quoteId){
+  const q = (S.quotes || []).find(x => x.id === quoteId);
+  if(!q){ toast('ההצעה לא נמצאה'); return null; }
+  if(q.status !== 'accepted' || !q.acceptedSnapshot){
+    toast('פרויקט נפתח רק מהצעה מאושרת — סמן קודם שההצעה התקבלה');
+    return null;
+  }
+  const already = (S.projects || []).find(p => p.sourceQuoteId === q.id);
+  if(already) return already;                          // הקשה כפולה = אותו פרויקט
+  const existing = _quoteExistingWorkProject(q);
+  if(existing && !existing.separateWork){
+    quoteUpdateExistingProject(q.id, existing.id);
+    return existing;
+  }
+  return doConvertQuoteToProject(q.id, false, true);   // _spineOk — עבר את השער
+}
+/* פרויקט-חירום בלי הצעה: לא נתיב שקט — סיבה + אישור, ותיוג origin מפורש. */
+function openEmergencyProjectSheet(visitId){
+  openMo(`
+    <div class="mo-title">פרויקט בלי הצעת מחיר?</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px">
+      הדרך הרגילה: לבנות הצעה מהממצאים, לסמן שהתקבלה, ואז לפתוח פרויקט.
+      פתיחה בלי הצעה היא חריג — כתוב למה:</div>
+    <textarea id="emg-reason" style="width:100%;min-height:64px;background:var(--ink2);border:1.5px solid var(--line);border-radius:10px;padding:10px;color:var(--text);font-family:inherit;font-size:14px" placeholder="למשל: עבודה דחופה שסוכמה בטלפון"></textarea>
+    <button class="btn btn-gold btn-sm" style="width:100%;margin-top:10px" onclick="_emgCreate('${_jsAttr(visitId)}')">פתח פרויקט-חירום</button>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="closeMo()">בטל</button>
+  `);
+}
+function _emgCreate(visitId){
+  const reason = (document.getElementById('emg-reason') || {}).value || '';
+  if(!reason.trim()){ toast('חייבת סיבה לפרויקט בלי הצעה'); return; }
+  closeMo();
+  const p = doConvertToProject(visitId, false, true);   // _spineOk
+  const proj = (S.projects || [])[0];
+  if(proj && proj.sourceVisitId === visitId){
+    proj.origin = 'emergency-no-quote';
+    proj.originReason = reason.trim();
+    proj.updatedAt = ts();
+    saveAll(true);
+  }
+}
+/* origin לפרויקטים קיימים — חד-פעמי, לפי IDs מדויקים מגיבוי-האמת (לא לפי שם) */
+const _SPINE_LEGACY_IDS = ['proj-perlstein-real','mpzuqgivpjktdmzy0f','ms0k79v3qk3dug4dm5h'];
+function _migrateProjectOrigins(){
+  let n = 0;
+  (S.projects || []).forEach(p => {
+    if(!p || p.origin) return;
+    if(p.id === 'demo-perlstein' || p.source === 'demo') p.origin = 'demo-system';
+    else if(p.sourceQuoteId) p.origin = 'accepted-quote';
+    else if(_SPINE_LEGACY_IDS.some(id => p.id === id || p.id.startsWith(id.slice(0, 12)))) p.origin = 'legacy-pre-quote-spine';
+    else p.origin = 'historical-import';
+    n++;
+  });
+  if(n && typeof saveAll === 'function') saveAll(true);
+  return n;
+}
 function quoteAccepted(quoteId){
   const q = quoteId ? (S.quotes || []).find(x => x.id === quoteId) : getQuote();
   if(!q){ toast('ההצעה לא נמצאה'); return; }
-  if(q.status !== 'accepted'){
-    q.status = 'accepted';
-    q.acceptedAt = ts();
-    if(!q.sentAt) q.sentAt = ts();     // התקבלה ⇒ בהכרח נשלחה
-    q.updatedAt = ts();
-    saveAll(true);
-  }
+  acceptQuote(q.id, { via: 'quoteAccepted' });   // v3.63.0 — מסלול-האישור היחיד
   const total = _quoteGrandTotal(q);
   // אין יצירת פרויקט אוטומטית — זו החלטה נפרדת של אור; ההצעה כבר נספרת בכסף.
   toast(`✓ התקבלה · ${fmt(total)} ₪ נכנסו לכסף · הקש לפתיחת פרויקט`, {
@@ -18773,7 +18881,16 @@ function _buildQuoteItems(v, findings, template){
   });
 }
 
-function wz4DoCreateProject(){
+function wz4DoCreateProject(_spineOk=false){
+  /* v3.63.0 — השער גם על מסלול-האשף: בלי הצעה מאושרת, הכפתור בונה הצעה */
+  if(!_spineOk){
+    const _v = getVisit();
+    if(_v && typeof createQuoteFromVisit === 'function'){
+      toast('הדרך: הצעה קודם. בונה הצעת מחיר מהממצאים…');
+      createQuoteFromVisit(_v.id);
+      return;
+    }
+  }
   const v = getVisit(); if(!v) return;
 
   // בנה tasks מממצאים
@@ -21074,7 +21191,8 @@ function _wkSetWinningQuote(workId, quoteId){
          מההצעה שהלקוח אישר. אותה פריסה יחסית כמו בשני מסלולי-ההמרה האחרים. */
       if(typeof _projApplyQuotePricing === 'function') _projApplyQuotePricing(p2, q2);
       p2.updatedAt = ts();
-      q2.status = 'accepted'; q2.acceptedAt = ts(); q2.linkedProjectId = p2.id; q2.updatedAt = ts();
+      acceptQuote(q2.id, { via: 'wkPickWinningQuote' });   // v3.63.0
+      q2.linkedProjectId = p2.id; q2.updatedAt = ts();
       // שאר ההצעות של אותה עבודה — מסומנות, לא נמחקות
       w.quotes.forEach(other => {
         if(other.id === q2.id) return;
@@ -40444,7 +40562,7 @@ async function qSaveSignature(){
   }catch(e){ /* keep going */ }
   if(!sig.thumbDataUrl) sig.thumbDataUrl=dataUrl;
   q.signature=sig;
-  if(q.status!=='accepted'){ q.status='accepted'; q.acceptedAt=now; }
+  if(q.status!=='accepted'){ acceptQuote(q.id, { via:'signature', signatureRef: q.signatureRef || 'inline' }); }   // v3.63.0
   q.updatedAt=now; if(typeof saveAll==='function') saveAll(); closeMo();
   toast('✅ ההצעה נחתמה'); if(typeof vib==='function') vib(30);
   if(typeof renderQuoteEdit==='function') renderQuoteEdit();
@@ -41174,7 +41292,18 @@ function createQuoteForClient(clientId, opts){
 
 /* ── Open / exit quote ── */
 
-function doConvertToProject(visitId, isQuickJob=false){
+function doConvertToProject(visitId, isQuickJob=false, _spineOk=false){
+  /* v3.63.0 — עמוד-השדרה: "הביקור הוא איסוף נתונים להצעה". פרויקט-מביקור רגיל
+     נחסם — הדרך היא לבנות הצעה. ג'וב-מהיר נשאר (החריג המוצהר), ופרויקט-חירום
+     עובר דרך גיליון-הסיבה (openEmergencyProjectSheet). */
+  if(!isQuickJob && !_spineOk){
+    const v0 = (S.visits || []).find(x => x.id === visitId);
+    if(v0 && typeof createQuoteFromVisit === 'function'){
+      toast('הדרך: הצעה קודם. בונה הצעת מחיר מהממצאים…');
+      createQuoteFromVisit(visitId);
+      return;
+    }
+  }
   const v = S.visits.find(x => x.id === visitId);
   if(!v) return;
   closeMo();
@@ -41637,9 +41766,13 @@ function _quoteExistingWorkProject(q){
    ═══════════════════════════════════════════════════════════════════════════════ */
 function _projApplyQuotePricing(p, q){
   if(!p || !q) return;
-  const items = (q.items || []).filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine);
+  /* v3.63.0 — כשיש snapshot חוזי, המחיר מגיע ממנו ולא מהסעיפים החיים: מה שהלקוח
+     אישר הוא מה שמחויב, גם אם ההצעה נערכה אחר-כך. */
+  const snap = q.acceptedSnapshot || null;
+  const rawItems = snap ? snap.items : (q.items || []);
+  const items = rawItems.filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine);
   const gross = items.reduce((s, i) => s + (parseFloat(i.total) || 0), 0);
-  const net   = (typeof _quoteAmounts === 'function') ? _quoteAmounts(q).net : gross;
+  const net   = snap ? snap.net : ((typeof _quoteAmounts === 'function') ? _quoteAmounts(q).net : gross);
   p.tasks = items.map(i => _buildTask({ name:i.title, price:parseFloat(i.total)||0, quantity:i.quantity,
     unit:i.unit, pricePerUnit:i.pricePerUnit, sourceProductId:i.productId||null, sourceItemId:i.id,
     notes:i.description||'', photos:(i.attachedPhotos||[]).map(ph=>({...ph})) }));
@@ -41671,6 +41804,7 @@ function quoteUpdateExistingProject(quoteId, projectId){
   const q = (S.quotes || []).find(x => x.id === quoteId);
   const p = (S.projects || []).find(x => x.id === projectId);
   if(!q || !p) return;
+  acceptQuote(q.id, { via: 'updateExisting' });   // v3.63.0 — snapshot קודם
   if(!p._tasksBeforeQuote) p._tasksBeforeQuote = JSON.parse(JSON.stringify(p.tasks || []));
   _projApplyQuotePricing(p, q);
   p.updatedAt = ts();
@@ -41682,9 +41816,18 @@ function quoteUpdateExistingProject(quoteId, projectId){
   S.activeProjectId = p.id;
   if(typeof push === 'function'){ push('project-detail'); if(typeof renderProjectDetail === 'function') renderProjectDetail(); }
 }
-function doConvertQuoteToProject(quoteId, force){
+function doConvertQuoteToProject(quoteId, force, _spineOk){
   const q = S.quotes.find(x => x.id === quoteId);
   if(!q) return;
+  /* v3.63.0 — עמוד-השדרה: פרויקט מהצעה רק אחרי acceptQuote (יש snapshot).
+     קריאות ישנות שלא עברו בשער מנותבות אליו. force ("עבודה נפרדת") עובר גם הוא
+     דרך האישור — אבל לא דרך עדכון-הקיים. */
+  if(!_spineOk){
+    if(q.status !== 'accepted' || !q.acceptedSnapshot){
+      acceptQuote(q.id, { via: 'legacy-convert' });
+    }
+    if(!force){ createProjectFromAcceptedQuote(q.id); return; }
+  }
   // השער: לאותה עבודה כבר יש פרויקט? לא פותחים שני בשקט.
   if(!force){
     const existing = _quoteExistingWorkProject(q);
@@ -41768,6 +41911,10 @@ function doConvertQuoteToProject(quoteId, force){
   if(_quoteDiscount) project.quoteDiscount = _quoteDiscount;
   // v3.50.0 — אחוז-המע"מ מגיע מההצעה, לא מברירת-המחדל של היום (ר' _projApplyQuotePricing)
   { const _qv = parseFloat(q.vatRate); if(!isNaN(_qv)) project.vatRate = _qv; }
+  project.origin = 'accepted-quote';   // v3.63.0 — תיוג-מקור מפורש
+  // v3.63.0 — מקור-תמחור אחד: אם יש snapshot חוזי, הוא קובע את הסעיפים והמחיר
+  // (העריכות שנעשו אחרי האישור לא מחלחלות לפרויקט).
+  if(q.acceptedSnapshot && typeof _projApplyQuotePricing === 'function') _projApplyQuotePricing(project, q);
   // v3.50.0 — אור בחר במפורש "זו עבודה נפרדת", אז הפרויקט הזה נספר בכסף בנפרד
   // ולא נדחק על-ידי הפרויקט הקיים של אותה עבודה.
   if(force) project.separateWork = true;
@@ -43355,6 +43502,7 @@ async function init(){
   if(typeof _migrateQuoteDiscountToTasks === 'function') _migrateQuoteDiscountToTasks();
   if(typeof _migratePromotePerlstein === 'function') _migratePromotePerlstein();   // v3.54.0 — פרלשטיין אמיתי
   if(typeof _migrateCleanOrphanLinks === 'function') _migrateCleanOrphanLinks();   // v3.62.0 — ניקוי-יתומים כללי
+  if(typeof _migrateProjectOrigins === 'function') _migrateProjectOrigins();   // v3.63.0 — תיוג-מקור
   if(typeof _migrateQuoteClientIds === 'function') _migrateQuoteClientIds();   // v3.26.0 (C1) — quote.clientId מ-sourceVisitId
   if(typeof _cleanGhostRecords === 'function') _cleanGhostRecords();   // v3.22.26 (3.15)
   // v3.22.33 (6.12) — נקה דגלי-שאיבה ישנים שנתקעו על פרויקטים מגרסאות קודמות
