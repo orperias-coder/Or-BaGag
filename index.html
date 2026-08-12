@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.63.0'; // תוכנית-הייצוב שלב 3 — ההצעה כעמוד-השדרה: acceptedSnapshot חוזי בלתי-משתנה בכל אישור, acceptQuote כמסלול-האישור היחיד (כל 5 הדרכים עוברות דרכו), פרויקט רגיל רק מהצעה מאושרת (createProjectFromAcceptedQuote), פרויקט-מביקור מנותב לבניית-הצעה, פרויקט-חירום עם סיבה בלבד, ו-project.origin על כל פרויקט.
+const APP_VERSION = '3.64.0'; // תוכנית-הייצוב שלב 4 — תיאום והתארגנות: תאריך-התחלה אחוד (_projStartMs, ארבע שרשראות אוחדו) ורשימת-התארגנות אחת (p.prepList) שנגזרת מסעיפי-החוזה בלחיצה, עם יש-לי/נקנה ופריטים ידניים; shopping הישן מומר פעם אחת ולא נכתב יותר.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -11851,7 +11851,7 @@ function _calBuildActivityMap(year, month){
     const color = palette[idx % palette.length];
     const name = p.clientName || 'פרויקט';
     // start date
-    addEvent(p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt, p.id, name, color, 'התחלה');
+    addEvent(_projStartMs(p), p.id, name, color, 'התחלה');
     // steps done
     (p.tasks||[]).forEach(t => {
       (t.steps||[]).forEach(s => {
@@ -14266,6 +14266,7 @@ async function _applyImportedData(d, opts){
   if(typeof _migratePromotePerlstein === 'function')     _migratePromotePerlstein();   // v3.54.0
   if(typeof _migrateCleanOrphanLinks === 'function')     _migrateCleanOrphanLinks();   // v3.62.0
   if(typeof _migrateProjectOrigins === 'function')       _migrateProjectOrigins();   // v3.63.0
+  if(typeof _migrateStage4 === 'function')               _migrateStage4();   // v3.64.0
   if(typeof _migrateQuoteClientIds === 'function')       _migrateQuoteClientIds();
 
   saveAll();
@@ -32251,7 +32252,7 @@ function pdv2CountPhotos(p){
 }
 
 function pdv2WeekNumber(p){
-  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  const start = _projStartMs(p);
   if(!start) return 0;
   const days = Math.max(0, Math.floor((Date.now() - start) / 86400000));
   return Math.floor(days / 7) + 1;
@@ -32311,7 +32312,7 @@ function pdv2RenderSheetData(p){
   const revenue = projRevenue(p);
   const received = totalReceived(p);
   const due = totalDue(p);
-  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  const start = _projStartMs(p);
   const days = start ? Math.max(1, Math.floor((Date.now() - start) / 86400000) + 1) : 0;
   const workersCount = (p.workers || []).length;
   const roofType = p.roof?.type || p.roofType || '—';
@@ -33779,7 +33780,7 @@ function pdv2CalcManagerStats(p){
   const received = totalReceived(p);
   const due = totalDue(p);
 
-  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt;
+  const start = _projStartMs(p);
   let workdays = 0;
   // v3.9.80 — prefer summed worker daysWorked over calendar days
   const workerDaysSum = (p.workers||[]).reduce((s,w)=>s+(parseFloat(w.daysWorked)||0), 0);
@@ -36038,8 +36039,96 @@ function _pfsTeamHtml(p){
   `;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.64.0 (תוכנית-הייצוב שלב 4) — תיאום והתארגנות.
+   (א) תאריך-התחלה אחד: targetStartDate (ISO, מתוכנן) / actualStartDate (בפועל).
+       _projStartMs הוא הקורא היחיד — ארבע שרשראות-fallback שונות אוחדו.
+   (ב) רשימת-התארגנות אחת: p.prepList — "הרשימה על דף" של אור, נגזרת מסעיפי
+       החוזה (acceptedSnapshot) בלחיצה, עם יש-לי/לרכוש/נקנה, ופריטים ידניים.
+       shopping/shoppingItems הישנים מומרים פעם אחת ולא נכתבים יותר.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _projStartMs(p){
+  if(!p) return 0;
+  if(p.actualStartDate) return p.actualStartDate;
+  if(p.targetStartDate){ const t = new Date(p.targetStartDate + 'T08:00:00').getTime(); if(!isNaN(t)) return t; }
+  return p.plannedStartDate || p.visitDate || p.createdAt || 0;
+}
+function _migrateStage4(){
+  let n = 0;
+  (S.projects || []).forEach(p => {
+    if(!p) return;
+    // תאריכים: plannedStartDate (ms ישן) ממולא ל-targetStartDate (ISO) אם ריק
+    if(p.plannedStartDate && !p.targetStartDate){
+      const d = new Date(p.plannedStartDate);
+      if(!isNaN(d.getTime())){ p.targetStartDate = d.toISOString().slice(0, 10); n++; }
+    }
+    // רשימה: shopping/shoppingItems → prepList, שימור החלטות (bought/done/have)
+    if(!Array.isArray(p.prepList) && (Array.isArray(p.shopping) || Array.isArray(p.shoppingItems))){
+      const src = (p.shopping || []).concat(p.shoppingItems || []);
+      p.prepList = src.map((it, i) => ({
+        id: 'prep-m-' + i + '-' + (it.addedAt || 0),
+        kind: 'manual',
+        titleSnapshot: it.name || it.title || '(ללא שם)',
+        quantity: it.quantity || '', unit: it.unit || '',
+        state: (it.bought === true || it.done === true) ? 'purchased'
+             : (it.have === true) ? 'available' : 'needed',
+        notes: it.notes || '',
+        createdAt: it.addedAt || Date.now(), updatedAt: Date.now(),
+      }));
+      n++;
+      // הישנים נשארים לקריאה-בלבד (round-trip) — אבל אף כותב לא נוגע בהם יותר
+    }
+  });
+  if(n && typeof saveAll === 'function') saveAll(true);
+  return n;
+}
+function _prepListOf(p){
+  if(!Array.isArray(p.prepList)) p.prepList = [];
+  return p.prepList;
+}
+/* גזירה מהחוזה: כל סעיף-הצעה הופך לפריט-התארגנות, פעם אחת (idempotent) */
+function pdPrepDeriveFromQuote(projectId){
+  const p = (S.projects || []).find(x => x.id === (projectId || S.activeProjectId));
+  if(!p) return;
+  const q = p.sourceQuoteId ? (S.quotes || []).find(x => x.id === p.sourceQuoteId) : null;
+  const snap = q && q.acceptedSnapshot;
+  const items = snap ? snap.items : (q ? (q.items || []) : []);
+  const usable = items.filter(i => i.visible !== false && !i.pendingDelete && !i.isDiscountLine && (i.title || '').trim());
+  if(!usable.length){ toast(q ? 'אין סעיפים להפיק מהם רשימה' : 'לפרויקט אין הצעה מקושרת'); return; }
+  const list = _prepListOf(p);
+  const seen = new Set(list.map(x => x.sourceQuoteItemId).filter(Boolean));
+  let added = 0;
+  usable.forEach(i => {
+    if(seen.has(i.id)) return;
+    list.push({ id: 'prep-q-' + i.id, kind: 'quote-item',
+      sourceQuoteId: q.id, sourceQuoteItemId: i.id,
+      titleSnapshot: i.title, quantity: i.quantity || '', unit: i.unit || '',
+      state: 'needed', notes: '', createdAt: Date.now(), updatedAt: Date.now() });
+    added++;
+  });
+  p.updatedAt = ts(); saveAll(true);
+  toast(added ? `נוספו ${added} פריטים מסעיפי-ההצעה` : 'הרשימה כבר מעודכנת מההצעה');
+  if(typeof renderPdTab === 'function') renderPdTab();
+}
+function pdPrepSetState(projectId, itemId, state){
+  const p = (S.projects || []).find(x => x.id === projectId); if(!p) return;
+  const it = _prepListOf(p).find(x => x.id === itemId); if(!it) return;
+  it.state = (it.state === state) ? 'needed' : state;   // הקשה חוזרת מנקה
+  it.updatedAt = Date.now(); p.updatedAt = ts(); saveAll(true);
+  if(typeof renderPdTab === 'function') renderPdTab();
+}
+function pdPrepAdd(projectId, name){
+  const p = (S.projects || []).find(x => x.id === projectId); if(!p || !name || !name.trim()) return;
+  _prepListOf(p).push({ id: 'prep-m-' + Date.now().toString(36), kind: 'manual',
+    titleSnapshot: name.trim(), quantity: '', unit: '', state: 'needed', notes: '',
+    createdAt: Date.now(), updatedAt: Date.now() });
+  p.updatedAt = ts(); saveAll(true);
+  if(typeof renderPdTab === 'function') renderPdTab();
+}
 function _pfsShoppingHtml(p){
-  const items = p.shopping || p.shoppingItems || [];   // v3.22.33 (4.7) — הרשימה נכתבת ל-p.shopping; הקורא הצביע על מפתח ריק
+  const items = (Array.isArray(p.prepList) && p.prepList.length)
+    ? p.prepList.map(x => ({ name: x.titleSnapshot, done: x.state === 'purchased' }))
+    : (p.shopping || p.shoppingItems || []);   // v3.64.0 — prepList הוא מקור-האמת; הישן לקריאה בלבד
   // v3.25.1 (R2/NOISE-07) — כרטיס ריק לא מרונדר כלל. "הוסף פריט" נשאר נגיש דרך תפריט הפרויקט
   // (⋯ → "סיכומים ונתונים" → קניות, שורה ~26041 → pdv2GoLegacy('shopping')) — אותה פעולה,
   // בלי כרטיס-ריק תמידי בגלילה הראשית.
@@ -36181,7 +36270,7 @@ function _rhBannerHtml(p){
   const info = _rhStageInfo(p);
   const pct = (typeof projProgress === 'function') ? projProgress(p) : 0;
   const rem = (typeof projRemainingSteps === 'function') ? projRemainingSteps(p) : 0;
-  const start = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt || Date.now();
+  const start = _projStartMs(p) || Date.now();
   // v3.25.3 (R3/FLOW-09) — "day N of N" always showed N/N (day counted against itself when no
   // real estimatedDays exists — the fallback was `day` itself, not an estimate), so it always
   // read as "today is the last day", and kept counting up on delivered projects because it
@@ -37534,8 +37623,12 @@ function pdRoofToggleStep(ti, si){
 // ─── SHOPPING TAB ───
 // v3.9.40+ — טאב קניות לפרויקט
 function renderPdShopping(p){
-  if(!p.shopping) p.shopping = [];
-  const items = p.shopping || [];
+  /* v3.64.0 — קריאה מ-prepList (מקור-האמת), בפורמט שהמסך הישן מכיר */
+  const items = (Array.isArray(p.prepList) ? p.prepList : []).map(x => ({
+    name: x.titleSnapshot + (x.quantity ? ` · ${x.quantity} ${x.unit||''}` : ''),
+    notes: (x.state==='available' ? 'יש לי · ' : '') + (x.notes||''),
+    bought: x.state === 'purchased',
+  }));
   
   let html = '<div style="padding:16px">';
   
@@ -37568,33 +37661,23 @@ function renderPdShopping(p){
 }
 
 function pdAddShoppingItem(){
+  /* v3.64.0 — הכותב מנותב ל-prepList (מקור-האמת היחיד); shopping הישן לא נכתב יותר */
   const p = getProject();
   if(!p) return;
-  if(!p.shopping) p.shopping = [];
-
-  promptAction({title:'פריט חדש', label:'שם הפריט:', ok:'המשך', cb:function(name){
+  promptAction({title:'פריט חדש', label:'שם הפריט:', ok:'הוסף', cb:function(name){
     if(!name) return;
-
-    promptAction({title:'פריט חדש', label:'הערות (אופציונלי):', ok:'הוסף', cb:function(notes){
-      p.shopping.push({
-        name,
-        notes: notes || '',
-        bought: false,
-        addedAt: Date.now()
-      });
-
-      p.updatedAt = Date.now();
-      saveAll();
-      renderPdTab();
-      toast('✅ פריט נוסף');
-    }});
+    pdPrepAdd(p.id, name);
+    toast('✅ פריט נוסף');
   }});
 }
 
 function pdToggleShoppingItem(idx){
   const p = getProject();
-  if(!p || !p.shopping || !p.shopping[idx]) return;
-  
+  if(!p) return;
+  /* v3.64.0 — מנותב ל-prepList */
+  const list = _prepListOf(p);
+  if(list[idx]){ pdPrepSetState(p.id, list[idx].id, 'purchased'); return; }
+  if(!p.shopping || !p.shopping[idx]) return;
   p.shopping[idx].bought = !p.shopping[idx].bought;
   p.updatedAt = Date.now();
   saveAll();
@@ -43503,6 +43586,7 @@ async function init(){
   if(typeof _migratePromotePerlstein === 'function') _migratePromotePerlstein();   // v3.54.0 — פרלשטיין אמיתי
   if(typeof _migrateCleanOrphanLinks === 'function') _migrateCleanOrphanLinks();   // v3.62.0 — ניקוי-יתומים כללי
   if(typeof _migrateProjectOrigins === 'function') _migrateProjectOrigins();   // v3.63.0 — תיוג-מקור
+  if(typeof _migrateStage4 === 'function') _migrateStage4();   // v3.64.0 — תאריכים+prepList
   if(typeof _migrateQuoteClientIds === 'function') _migrateQuoteClientIds();   // v3.26.0 (C1) — quote.clientId מ-sourceVisitId
   if(typeof _cleanGhostRecords === 'function') _cleanGhostRecords();   // v3.22.26 (3.15)
   // v3.22.33 (6.12) — נקה דגלי-שאיבה ישנים שנתקעו על פרויקטים מגרסאות קודמות
@@ -44664,7 +44748,7 @@ function _migrateWorkLog(p){
   if(!p) return 0;
   if((p._workLogV || 0) >= WORKLOG_STORAGE_VERSION) return 0;
   const log = _projWorkLog(p);
-  const projStart = p.actualStartDate || p.plannedStartDate || p.visitDate || p.createdAt || Date.now();
+  const projStart = _projStartMs(p) || Date.now();
   let n = 0;
   (p.workers || []).forEach(w => {
     const d = parseFloat(w.daysWorked) || 0;
