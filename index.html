@@ -7796,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.64.0'; // תוכנית-הייצוב שלב 4 — תיאום והתארגנות: תאריך-התחלה אחוד (_projStartMs, ארבע שרשראות אוחדו) ורשימת-התארגנות אחת (p.prepList) שנגזרת מסעיפי-החוזה בלחיצה, עם יש-לי/נקנה ופריטים ידניים; shopping הישן מומר פעם אחת ולא נכתב יותר.
+const APP_VERSION = '3.65.0'; // תוכנית-הייצוב שלב 5.1 — זהות-מועמד יציבה בגשר-הוואטסאפ: הכלי מייצא jid, מפתח-ההכרעות מעדיף אותו, ומפתחות ישנים ב-waDecided מומרים אוטומטית.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -26905,6 +26905,7 @@ function _waImportProcessJsonText(text, sourceLabel){
       return !n || !blocked.has(n);
     });
     // v3.51.0 — התור מתרוקן: מה שאור כבר הכריע עליו לא חוזר, לא בפתיחה ידנית ולא בסריקה הבאה
+    notBlocked.forEach(L => _waMigrateDecidedKey(L));   // v3.65.0 — מפתחות ישנים ← jid
     const rawLeads = notBlocked.filter(L => !_waIsDecided(L));
     const alreadyDecided = notBlocked.length - rawLeads.length;
     // v3.22.33 (C4#23) — dedup גם בתוך הקובץ עצמו: אותו טלפון פעמיים בקובץ-ייבוא אחד
@@ -27317,10 +27318,22 @@ function _waDecidedMap(){
 }
 function _waItemKey(L){
   if(!L) return '';
+  /* v3.65.0 (תוכנית-הייצוב 5.1) — הכלי מייצא עכשיו jid: מזהה-השיחה האמיתי, שלא
+     משתנה כשהטלפון/הכותרת משתנים. מפתחות ישנים מומרים ב-_waMigrateDecidedKey. */
+  if(L.jid) return 'j:' + L.jid;
   const ph = _waNormPhone(L.phone);
   if(ph) return 'p:' + ph;
   const t = String(L.title || L.displayName || '').replace(/[‎‏‪-‮]/g, '').trim();
   return t ? 't:' + t : '';
+}
+function _waMigrateDecidedKey(L){
+  if(!L || !L.jid) return;
+  const map = _waDecidedMap();
+  const newKey = 'j:' + L.jid;
+  if(map[newKey]) return;
+  const ph = _waNormPhone(L.phone);
+  const oldKey = ph ? 'p:' + ph : ('t:' + String(L.title || L.displayName || '').replace(/[‎‏‪-‮]/g, '').trim());
+  if(oldKey.length > 2 && map[oldKey]){ map[newKey] = map[oldKey]; delete map[oldKey]; }
 }
 function _waIsDecided(L){
   const k = _waItemKey(L);
