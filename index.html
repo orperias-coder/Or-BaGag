@@ -725,6 +725,13 @@ input.err{border-color:var(--red)}
    את אותו שם מאז v3.27.0, וה-display:flex כאן גרם ל"כל מה שיש בעבודה הזאת" לשבת
    בשורה אחת עם התוכן במקום מעליו. */
 .wk-grp{display:flex;align-items:baseline;justify-content:space-between;padding:22px 16px 8px}
+/* v3.56.0 — צבעי-מקטעים במסך-היום (בקשת אור: "שיהיה ברור שזה דברים שונים") */
+.wk-grp.g-touched .wk-grp-t{color:var(--gold2)} .wk-grp.g-touched{border-inline-start:4px solid var(--gold);padding-inline-start:8px;background:var(--gold-l);border-radius:8px}
+.wk-grp.g-wait{border-inline-start:4px solid #a8442a;padding-inline-start:8px} .wk-grp.g-wait .wk-grp-t{color:#a8442a}
+.wk-grp.g-lead{border-inline-start:4px solid #b98514;padding-inline-start:8px} .wk-grp.g-lead .wk-grp-t{color:#b98514}
+.wk-grp.g-visit{border-inline-start:4px solid #406047;padding-inline-start:8px} .wk-grp.g-visit .wk-grp-t{color:#406047}
+.wk-grp.g-follow{border-inline-start:4px solid #9a6b12;padding-inline-start:8px} .wk-grp.g-follow .wk-grp-t{color:#9a6b12}
+.wk-grp.g-collect{border-inline-start:4px solid #9c2b2b;padding-inline-start:8px} .wk-grp.g-collect .wk-grp-t{color:#9c2b2b}
 .wk-grp-t{font-size:13px;font-weight:600;color:var(--text2)}
 .wk-grp-n{font-size:13px;font-weight:300;color:var(--text3);font-variant-numeric:tabular-nums}
 @media (min-width:1024px){
@@ -7789,7 +7796,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.55.0'; // תיקון הבאג שאור מצא: כותרת חופשית של סעיף (שלא מהקטלוג) לא נשמרה — רכיב-הבורר רק סינן את הקטלוג ולא כתב את ההקלדה לסעיף. עכשיו כל הקשה נשמרת מיד, גם בעורך-ההצעות וגם בסעיפי-הפרויקט (אותו באג בשניהם).
+const APP_VERSION = '3.56.0'; // משוב-השימוש של אור: מסך-היום נפתח ב"עבדת עליהם היום" (מגע-אור בלבד — פתיחת כרטיס, עריכת הצעה, תשלום; לא עדכוני-מערכת) עם צבע לכל מקטע; מסך-הלקוחות קיבל צ'יפי-תחנות מסננים מתחת לחיפוש, צבע קבוע לכל תחנה ופס-צבע על כל שורה.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7868,6 +7875,7 @@ const S = {
   photoDays: { assigned:{}, dismissed:{} },  // v3.47.0 — שיוך קבוצות-יום; ארבע נגיעות: כאן, _saveAllInner, טעינה, גיבוי
   todayDone: {},        // v3.44.0 — סימוני "טופל" במסך-היום: workId → חותמת. נשמר ונטען (v3.44.1)
   waDecided: {},        // v3.51.0 — פריטי-וואטסאפ שאור כבר הכריע עליהם: key → {at, action}. לא חוזרים.
+  touchedToday: {},     // v3.56.0 — עבודות שאור נגע בהן היום (מגע-אור בלבד, לא מערכת): workId → ts
   waBlocklist: [],      // v3.10.0 — phones to always skip when importing from WhatsApp ({phone, name, addedAt}[])
   expenses: [],         // V2.5 — per-project expenses
   products: [],         // V2.8 — services catalog (work types with prices + descriptions)
@@ -8676,6 +8684,7 @@ async function _saveAllInner(quiet){
     // v3.51.0 — תור-ההכרעות של ייבוא-הוואטסאפ. בלי זה כל רענון היה מציע מחדש
     // את מי שאור כבר טיפל בו — בדיוק מחלקת-הבאג של todayDone.
     if(typeof S.waDecided !== 'undefined') _pairs.push(['waDecided', S.waDecided]);
+    if(typeof S.touchedToday !== 'undefined') _pairs.push(['touchedToday', S.touchedToday]);   // v3.56.0
     if(typeof S.photoDays !== 'undefined') _pairs.push(['photoDays', S.photoDays]);
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
@@ -12601,6 +12610,7 @@ function _buildCompleteBackup(options){
     waBlocklist: S.waBlocklist || [],
     todayDone: S.todayDone || {},
     waDecided: S.waDecided || {},   // v3.51.0
+    touchedToday: S.touchedToday || {},   // v3.56.0
     photoDays: S.photoDays || { assigned:{}, dismissed:{} },
   };
 }
@@ -14193,6 +14203,7 @@ async function _applyImportedData(d, opts){
   if(Array.isArray(d.waBlocklist))      S.waBlocklist = d.waBlocklist;
   if(d.todayDone && typeof d.todayDone === 'object' && !Array.isArray(d.todayDone)) S.todayDone = d.todayDone;
   if(d.waDecided && typeof d.waDecided === 'object' && !Array.isArray(d.waDecided)) S.waDecided = d.waDecided;   // v3.51.0
+  if(d.touchedToday && typeof d.touchedToday === 'object' && !Array.isArray(d.touchedToday)) S.touchedToday = d.touchedToday;   // v3.56.0
   if(d.photoDays && typeof d.photoDays === 'object' && !Array.isArray(d.photoDays)) S.photoDays = d.photoDays;
 
   if(d.business){
@@ -19942,6 +19953,11 @@ function _workPhotoCount(w){
    שאומרת מה הפעולה הבאה איתו. l.fitDecision הוא שלב-הבירור שביקש:
    "לחקור את הבעיה, להחליט אם העבודה מתאימה לי — ורק אז תיאום".
    ═══════════════════════════════════════════════════════════════════════════════ */
+/* v3.56.0 — צבע קבוע לכל תחנה (בקשת אור: "יותר צבעים שמעידים על השלבים") */
+const STATION_COLORS = {
+  screen:'#5c6b7a', contact:'#b98514', visit:'#406047', quote:'#a8810f',
+  follow:'#9a6b12', coord:'#3d7076', exec:'#a8442a', collect:'#9c2b2b', done:'#8a8073',
+};
 const WORK_STATIONS = [
   { key:'screen',  label:'לבירור — מתאים לי?' },
   { key:'contact', label:'ליצירת קשר' },
@@ -20081,7 +20097,7 @@ function _workRowHtml(w){
             : (when ? `<span class="wr-cur">${esc(when)}</span>` : '');
 
   return `
-    <button class="wk-row-item${done ? ' is-done' : ''}" onclick="openWork('${_jsAttr(w.id)}')">
+    <button class="wk-row-item${done ? ' is-done' : ''}" style="border-inline-start:4px solid ${(typeof STATION_COLORS!=='undefined'&&STATION_COLORS[_workStation(w)])||'transparent'}" onclick="openWork('${_jsAttr(w.id)}')">
       <span class="wr-av">${esc(_initialsOf(name))}</span>
       <span class="wr-bd">
         <span class="wr-l1">${esc(line1)}</span>
@@ -20134,6 +20150,8 @@ function _worksMatching(){
   });
 }
 function setWorksScope(s){ _worksScope = s; renderWorks(); }
+let _worksStationFilter = '';   // v3.56.0 — סינון-בלחיצה לפי תחנה (סשן בלבד)
+function setWorksStation(k){ _worksStationFilter = (_worksStationFilter === k) ? '' : k; renderWorks(); }
 
 /* ─── מסך 1: עבודות (הבית) ─────────────────────────────────────────────────
    ממוין לפי מתי-נגעת-אחרון. לכן "על מה עבדתי עכשיו" הוא תמיד הכרטיס הראשון —
@@ -20141,7 +20159,9 @@ function setWorksScope(s){ _worksScope = s; renderWorks(); }
 function renderWorks(){
   const body = document.getElementById('works-body');
   if(!body) return;
-  const list = _worksMatching();
+  let list = _worksMatching();
+  // v3.56.0 — צ'יפ-תחנה פעיל מסנן את הרשימה
+  if(_worksStationFilter && !(_worksQuery||'').trim()) list = list.filter(w => _workStation(w) === _worksStationFilter);
   const all = getWorks();
   const total = all.length;
   const liveCount = all.filter(_workIsLive).length;
@@ -20218,6 +20238,14 @@ function renderWorks(){
         <input type="search" id="wk-search-input" enterkeyhint="search" placeholder="שם, טלפון, כתובת או סעיף"
                value="${esc(_worksQuery)}" oninput="setWorksQuery(this.value)" autocomplete="off">
       </div>
+      ${/* v3.56.0 — אור: "מתחת לתיבת החיפוש אפשרות ללחוץ על כל אחד מהשלבים" */''}
+      ${(!q) ? `<div style="display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 6px;margin-bottom:6px">
+        ${(()=>{ const counts={}; _worksMatching().forEach(w=>{const st=_workStation(w);counts[st]=(counts[st]||0)+1;});
+          return WORK_STATIONS.filter(st=>counts[st.key]).map(st=>{
+            const on=_worksStationFilter===st.key, c=STATION_COLORS[st.key]||'#888';
+            return `<button class="wk-tab${on?' on':''}" style="flex:0 0 auto;border-inline-start:4px solid ${c};${on?`background:${c};color:#fff;border-color:${c};`:''}white-space:nowrap" onclick="setWorksStation('${st.key}')">${esc(st.label.split(' — ')[0])} (${counts[st.key]})</button>`;
+          }).join(''); })()}
+      </div>` : ''}
       ${tabsHtml}
       ${q ? `<div class="wk-count">${list.length} מתוך ${total} — החיפוש כולל גם עבודות שהסתיימו</div>` : ''}
       ${listHtml}
@@ -20620,6 +20648,33 @@ function renderPhotoDays(){
    תשלום). ככה "טופל" לא הופך ל"נשכח", וזה בדיוק מה שאור ביקש שלא יקרה.
    לכל סימון יש ביטול מיידי, כמו בכל הסרה אחרת באפליקציה.
    ═══════════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.56.0 — "עבדת עליהם היום". אור: "אם התעסקתי היום עם לקוח — אני רוצה שהוא
+   יהיה הראשון שיופיע" (ענת ויואב בראש אחרי שעבד על ההצעה שלהם).
+   נרשם **רק ממגע-אור מפורש** — פתיחת כרטיס, עריכת הצעה, רישום תשלום. לעולם לא
+   מ-updatedAt, שנכתב גם בסנכרון/ייבוא/הגירות. מפתחות מאתמול נמחקים בכניסה ליום חדש.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+function _touchedTodayMap(){
+  if(!S.touchedToday || typeof S.touchedToday !== 'object' || Array.isArray(S.touchedToday)) S.touchedToday = {};
+  return S.touchedToday;
+}
+function _todayStartMs(){ const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function _touchedPurgeOld(){
+  const map = _touchedTodayMap(), cut = _todayStartMs();
+  let changed = false;
+  Object.keys(map).forEach(k => { if((map[k] || 0) < cut){ delete map[k]; changed = true; } });
+  return changed;
+}
+/* נקרא מכל פעולת-אור על עבודה. workRef: work-id, או רשומה שממנה מגיעים לעבודה. */
+function touchWorkToday(kind, id){
+  try{
+    const w = (typeof _workOf === 'function') ? _workOf(kind, id) : null;
+    if(!w) return;
+    _touchedPurgeOld();
+    _touchedTodayMap()[w.id] = Date.now();
+    saveAll(true);
+  }catch(e){}
+}
 function _todayDoneMap(){
   if(!S.todayDone || typeof S.todayDone !== 'object') S.todayDone = {};
   return S.todayDone;
@@ -20651,7 +20706,8 @@ function todayUndoDone(workId){
    לפי סדר-העדיפות של אור — כדי שהרשימה תהיה רשימת-פעולות ולא תמונת-מצב כפולה. */
 function _todayBuckets(){
   const DAY = 86400000, now = Date.now();
-  const b = { backFromWait:[], visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[], doneToday:[] };
+  const b = { touchedToday:[], backFromWait:[], visitNoQuote:[], newLead:[], quoteWaiting:[], toCollect:[], doneToday:[] };
+  const _touched = (typeof _touchedTodayMap === 'function') ? (_touchedPurgeOld(), _touchedTodayMap()) : {};
   getWorks().forEach(w => {
     if(w.stage === 'done' && !(w.due > 0)) return;
     // v3.44.4 (ביקורת-קוהרנטיות) — לקוח שאור סימן עליו "סיום טיפול" המשיך לדרוש פעולה
@@ -20663,6 +20719,10 @@ function _todayBuckets(){
     // ולכן עבודה עם חוב שהיה בה גם ביקור טרי בלי הצעה נבלעה בדלי-הביקורים והחוב לא הופיע
     // כלל במסך-היום. סדר-התצוגה על המסך לא השתנה — הוא עדיין סבב-הערב של אור.
     if(w.due > 0){ b.toCollect.push({ w, at: w.updatedAt || 0 }); return; }
+
+    // v3.56.0 — אור: "אם התעסקתי היום עם לקוח, אני רוצה שהוא יהיה הראשון". מגע-אור
+    // מהיום מקדים כל דלי-פעולה אחר (חוץ מחוב — כסף תמיד ראשון בשיוך).
+    if(_touched[w.id]){ b.touchedToday.push({ w, at: _touched[w.id] }); return; }
 
     // v3.49.0 — לקוח שאור סימן "מחכה ללקוח" חוזר מעצמו כשעובר הזמן, לדלי משלו,
     // כדי שיהיה ברור שהוא חזר ולא נפל לתוך הרשימה בשקט. אחרי בדיקת-החוב, כי כסף
@@ -20715,7 +20775,7 @@ function _todayBuckets(){
 
 function todayCount(){
   const b = _todayBuckets();
-  return b.backFromWait.length + b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
+  return b.touchedToday.length + b.backFromWait.length + b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
 }
 
 /* שורה במסך-היום: אותה אנטומיה של _workRowHtml, עם שורת-סיבה ופעולה ראשית אחת.
@@ -20748,31 +20808,39 @@ function renderToday(){
   const body = document.getElementById('today-body');
   if(!body) return;
   const b = _todayBuckets();
-  const total = b.backFromWait.length + b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
+  const total = b.touchedToday.length + b.backFromWait.length + b.visitNoQuote.length + b.newLead.length + b.quoteWaiting.length + b.toCollect.length;
   const hour = new Date().getHours();
   const hello = hour < 12 ? 'בוקר טוב' : (hour < 18 ? 'צהריים טובים' : 'ערב טוב');
 
-  const section = (label, rows) => rows.length
-    ? `<div class="wk-grp"><span class="wk-grp-t">${esc(label)}</span><span class="wk-grp-n">${rows.length}</span></div>
-       <div class="wk-list">${rows.join('')}</div>`
+  /* v3.56.0 — אור: "שיהיה בצבעים שונים... שיהיה ברור שזה שני דברים שונים".
+     כל מקטע מקבל פס-צבע וכותרת צבועה — פלטת הקאנון, בלי אימוג'י. */
+  const section = (label, rows, cls) => rows.length
+    ? `<div class="wk-grp ${cls||''}"><span class="wk-grp-t">${esc(label)}</span><span class="wk-grp-n">${rows.length}</span></div>
+       <div class="wk-list ${cls?cls+'-list':''}">${rows.join('')}</div>`
     : '';
+
+  // v3.56.0 — מה שעבדת עליו היום, ראשון — הכי-אחרון למעלה
+  b.touchedToday.sort((x,y)=>(y.at||0)-(x.at||0));
+  const sT = section('עבדת עליהם היום', b.touchedToday.map(e =>
+    _todayRowHtml(e, `נגעת בזה ${_humanTimeAgo(Date.now() - e.at)}`,
+      'המשך', `openWork('${_jsAttr(e.w.id)}')`)), 'g-touched');
 
   // v3.49.0 — מי שהיה "מחכה ללקוח" והזמן שלו עבר, חוזר ראשון ומסומן ככזה
   const s0 = section('חזרו לטיפול', b.backFromWait.map(e =>
     _todayRowHtml(e, `ההמתנה הסתיימה ${_humanTimeAgo(Date.now() - e.at)} — הגיע הזמן לחזור אליו`,
       'פתח שיחה', `_todayOpenChat('${_jsAttr(e.w.id)}')`,
-      `<button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();clientWaitFor('${_jsAttr(e.w.clientId || '')}',7)">עוד שבוע</button>`)));
+      `<button class="btn btn-ghost btn-xs" style="margin:0" onclick="event.stopPropagation();clientWaitFor('${_jsAttr(e.w.clientId || '')}',7)">עוד שבוע</button>`)), 'g-wait');
 
   const s1 = section('ביקורים שמחכים להצעה', b.visitNoQuote.map(e =>
     _todayRowHtml(e,
       e.finished
         ? `הביקור הסתיים ${_humanTimeAgo(Date.now() - e.at)} — עוד אין הצעה`
         : `הביקור היה אמור להתקיים ${_humanTimeAgo(Date.now() - e.at)} — לא נסגר ואין הצעה`,
-      'הכן הצעה', `_todayStartQuote('${_jsAttr(e.w.id)}')`)));
+      'הכן הצעה', `_todayStartQuote('${_jsAttr(e.w.id)}')`)), 'g-visit');
 
   const s2 = section('פניות חדשות', b.newLead.map(e =>
     _todayRowHtml(e, `נכנסה ${_humanTimeAgo(Date.now() - e.at)} — עוד לא נקבע ביקור`,
-      'פתח שיחה', `_todayOpenChat('${_jsAttr(e.w.id)}')`)));
+      'פתח שיחה', `_todayOpenChat('${_jsAttr(e.w.id)}')`)), 'g-lead');
 
   // v3.44.0 — "ההצעה התקבלה" ישירות מהשורה: זה הרגע שבו אור באמת יודע שהיא התקבלה
   const s3 = section('הצעות שממתינות לתשובה', b.quoteWaiting.map(e =>
@@ -20780,11 +20848,11 @@ function renderToday(){
       e.days >= QUOTE_LAST_CALL_DAYS ? `נשלחה לפני ${e.days} ימים — הזמן לתזכורת אחרונה`
                                      : `נשלחה לפני ${e.days} ימים — בלי מענה`,
       'הכן תזכורת', `_todayNudge('${_jsAttr(e.w.id)}')`,
-      `<button class="btn btn-xs" style="margin:0;background:var(--green-l);border:1px solid var(--green);color:var(--green);font-weight:800" onclick="event.stopPropagation();quoteAccepted('${_jsAttr(e.quote.id)}')">✓ התקבלה!</button>`)));
+      `<button class="btn btn-xs" style="margin:0;background:var(--green-l);border:1px solid var(--green);color:var(--green);font-weight:800" onclick="event.stopPropagation();quoteAccepted('${_jsAttr(e.quote.id)}')">✓ התקבלה!</button>`)), 'g-follow');
 
   const s4 = section('כסף לגבייה', b.toCollect.map(e =>
     _todayRowHtml(e, `${fmt(Math.round(e.w.due))} ₪ פתוחים`,
-      'פתח עבודה', `openWork('${_jsAttr(e.w.id)}')`)));
+      'פתח עבודה', `openWork('${_jsAttr(e.w.id)}')`)), 'g-collect');
 
   // v3.44.0 — מה שסומן "טופל" לא נעלם: שורה מקופלת בתחתית עם החזרה בהקשה
   const doneStrip = b.doneToday.length ? `
@@ -20820,7 +20888,7 @@ function renderToday(){
           <button class="ico" onclick="openGlobalDrawer()" title="תפריט" aria-label="תפריט" style="flex-shrink:0;margin-top:4px"><iconify-icon icon="mdi:menu"></iconify-icon></button>
         </div>
       </div>
-      ${total ? (s0 + s1 + s2 + s3 + s4) : empty}
+      ${total ? (sT + s0 + s1 + s2 + s3 + s4) : empty}
       ${doneStrip}
     </div>`;
 }
@@ -20959,6 +21027,7 @@ function _wkSetWinningQuote(workId, quoteId){
 function openWork(workId){
   const w = getWork(workId);
   if(!w){ toast('העבודה לא נמצאה'); return; }
+  _touchedPurgeOld(); _touchedTodayMap()[w.id] = Date.now();   // v3.56.0 — מגע-אור
   _activeWorkId = workId;
   push('work');
   renderWork();
@@ -21418,6 +21487,7 @@ function getClientTotalRevenue(clientId){
 
 // Open client detail (Phase 2 will render full UI; Phase 1 just navigates).
 function openClientDetail(clientId){
+  try{ const _w=(typeof getClientWorks==='function')?getClientWorks(clientId)[0]:null; if(_w){ _touchedPurgeOld(); _touchedTodayMap()[_w.id]=Date.now(); } }catch(e){}   // v3.56.0
   if(!clientId) return;
   S.activeClientId = clientId;
   push('client-detail');
@@ -25273,6 +25343,7 @@ function openNewLeadModal(){
 }
 
 function openLeadDetail(id, isNew=false){
+  touchWorkToday('lead', id);   // v3.56.0 — מגע-אור
   S.activeLeadId = id;
   const l = getLead(id);
   if(!l) return;
@@ -38177,6 +38248,7 @@ function pdSavePay(){
     updatedAt: now,
   };
   p.payments.push(newPay);
+  touchWorkToday('project', p.id);   // v3.56.0
   _pdPayRefFileData = null; // reset for next time
   p.updatedAt=ts(); saveAll(); closeMo(); pdCloseModal();
   if(_pdTab==='money') renderPdTab(); renderPdHero(p);
@@ -42103,6 +42175,7 @@ function openFindingModal(findingId=null){
 function qUpdateItem(idx, field, value){
   const q = getQuote();
   if(!q || !q.items[idx]) return;
+  touchWorkToday('quote', q.id);   // v3.56.0 — עבודה על ההצעה = מגע-אור
   q.items[idx][field] = value;
   // Auto-populate workSummary when title changes
   if(field === 'title' && !q.items[idx].workSummary){
@@ -43009,6 +43082,7 @@ async function init(){
   // v3.44.1 (תיקון-רגרסיה) — בלי הטעינה הזאת כל "טופל" חזר אחרי רענון (ראה ההערה ב-_saveAllInner)
   const tdDone = await dbGet('todayDone');      if(tdDone && typeof tdDone === 'object' && !Array.isArray(tdDone)) S.todayDone = tdDone;
   const waDec = await dbGet('waDecided');       if(waDec && typeof waDec === 'object' && !Array.isArray(waDec)) S.waDecided = waDec;   // v3.51.0
+  const tToday = await dbGet('touchedToday');   if(tToday && typeof tToday === 'object' && !Array.isArray(tToday)) S.touchedToday = tToday;   // v3.56.0
   const pDays  = await dbGet('photoDays');     if(pDays && typeof pDays === 'object' && !Array.isArray(pDays)) S.photoDays = pDays;
   // v3.23.4 (SEC-03) — this PAT can push straight to the production repo's main branch. It
   // never leaves IDB (excluded from every export/backup/sync — see _buildCompleteBackup,
