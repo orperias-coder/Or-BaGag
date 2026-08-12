@@ -7797,7 +7797,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.67.0'; // תוכנית-הייצוב 5.2 — הקשחת שיוך-התמונות: יום עם ביקורים אצל כמה לקוחות לא מוצע בהקשה-אחת (אור בוחר במפורש); ביטול-שיוך מסיר רק את מה שהשיוך הוסיף (לפי SHA); חבילת-דרייב עם schema זר נדחית.
+const APP_VERSION = '3.68.0'; // workRef יציב — מזהה-עבודה נגזר מחברי-הקבוצה ולא משורש-union-find שהתהפך בכל הצעה/קישור חדשים ומחק בשקט סימוני "טופל" ו"עבדת עליהם היום"; הגירה-עצלה מהמזהים הישנים.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -19776,7 +19776,8 @@ function _buildWorks(){
   const groups = {};
   const push = (kind, rec) => {
     const root = _wufFind(parent, _workKey(kind, rec.id));
-    (groups[root] || (groups[root] = { lead:null, visits:[], quotes:[], projects:[] }));
+    (groups[root] || (groups[root] = { lead:null, visits:[], quotes:[], projects:[], keys:[] }));
+    groups[root].keys.push(_workKey(kind, rec.id));   // v3.68.0 — כל חבר, גם ליד-שני שנבלע
     if(kind === 'lead')    groups[root].lead = groups[root].lead || rec;
     if(kind === 'visit')   groups[root].visits.push(rec);
     if(kind === 'quote')   groups[root].quotes.push(rec);
@@ -19791,8 +19792,13 @@ function _buildWorks(){
   const byRecord = {};
   Object.keys(groups).forEach(root => {
     const g = groups[root];
+    // v3.68.0 (שלב 2 שנדחה — workRef יציב): המזהה נגזר מהחבר הקטן-לקסיקוגרפית בקבוצה,
+    // לא משורש-ה-union-find. השורש התהפך בכל פעם שנוספה הצעה או נכתב קישור-הפוך
+    // (parent[rb]=ra — הרשומה החדשה נהיית שורש), וסימוני "טופל"/"עבדת עליהם היום"
+    // שנשמרים לפי w.id התאיידו בשקט. המפתח המינימלי תלוי רק בחברי-הקבוצה.
+    const stableKey = g.keys.slice().sort()[0] || root;
     const w = {
-      id: 'w_' + root,                                  // נגזר מהשורש — יציב כל עוד הקישורים יציבים
+      id: 'w_' + stableKey,
       root,
       lead: g.lead,
       visits:   g.visits.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0)),
@@ -19804,6 +19810,16 @@ function _buildWorks(){
     w.updatedAt = _workUpdatedAt(w);
     w.stage     = _workStage(w);
     w.due       = _workDue(w);
+    // v3.68.0 — הגירה-עצלה: סימונים שנשמרו תחת המזהה הישן (נגזר-שורש) עוברים לחדש.
+    // best-effort: מציל את מה שהשורש הנוכחי עוד מזהה; ההתמדה — בשמירה הבאה.
+    const legacyId = 'w_' + root;
+    if(legacyId !== w.id){
+      [S.todayDone, S.touchedToday].forEach(map => {
+        if(map && typeof map === 'object' && map[legacyId] != null && map[w.id] == null){
+          map[w.id] = map[legacyId]; delete map[legacyId];
+        }
+      });
+    }
     works.push(w);
     // מיפוי-הפוך: כל מזהה-רשומה → העבודה שלו. כך ניווט נשאר יציב גם כשהעבודה מתקדמת שלב.
     if(w.lead) byRecord[_workKey('lead', w.lead.id)] = w;
