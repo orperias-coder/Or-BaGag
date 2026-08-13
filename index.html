@@ -7797,7 +7797,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.68.0'; // workRef יציב — מזהה-עבודה נגזר מחברי-הקבוצה ולא משורש-union-find שהתהפך בכל הצעה/קישור חדשים ומחק בשקט סימוני "טופל" ו"עבדת עליהם היום"; הגירה-עצלה מהמזהים הישנים.
+const APP_VERSION = '3.69.0'; // "הצעה מסרטון רגיל": אור פותח סרטון במילים 'הצעת מחיר ל<שם>' בגיבוי-הטלפון הרגיל; הכלי במק מתמלל וכותב חבילה; האפליקציה יוצרת טיוטת-הצעה עם סעיפים, מחירים ותמונות מהסרטון. טיוטה בלבד — שליחה רק בידי אור.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -7878,6 +7878,7 @@ const S = {
   waDecided: {},        // v3.51.0 — פריטי-וואטסאפ שאור כבר הכריע עליהם: key → {at, action}. לא חוזרים.
   touchedToday: {},     // v3.56.0 — עבודות שאור נגע בהן היום (מגע-אור בלבד, לא מערכת): workId → ts
   videoDecided: {},     // v3.66.0 — מועמדי-וידאו שהוכרעו: candidateId → {at, action}
+  videoQuoteDecided: {},// v3.69.0 — סרטוני-הצעה שכבר נוצרה מהם טיוטה: entryId → {at, quoteId}
   waBlocklist: [],      // v3.10.0 — phones to always skip when importing from WhatsApp ({phone, name, addedAt}[])
   expenses: [],         // V2.5 — per-project expenses
   products: [],         // V2.8 — services catalog (work types with prices + descriptions)
@@ -8688,6 +8689,7 @@ async function _saveAllInner(quiet){
     if(typeof S.waDecided !== 'undefined') _pairs.push(['waDecided', S.waDecided]);
     if(typeof S.touchedToday !== 'undefined') _pairs.push(['touchedToday', S.touchedToday]);   // v3.56.0
     if(typeof S.videoDecided !== 'undefined') _pairs.push(['videoDecided', S.videoDecided]);   // v3.66.0
+    if(typeof S.videoQuoteDecided !== 'undefined') _pairs.push(['videoQuoteDecided', S.videoQuoteDecided]);   // v3.69.0
     if(typeof S.photoDays !== 'undefined') _pairs.push(['photoDays', S.photoDays]);
     if(typeof S.clientMigrationCompletedAt !== 'undefined') _pairs.push(['clientMigrationCompletedAt', S.clientMigrationCompletedAt]);
     // v3.22.15 — workTypeTemplates (התאמות-קטלוג + תמונות-נעוצות) נכתב בזיכרון אך מעולם לא נשמר ל-IDB ולא נטען → אבד בכל רענון (אותה מחלקת-באג שתוקנה ל-clients ב-v3.21.95)
@@ -8718,6 +8720,7 @@ async function _saveAllInner(quiet){
         // v3.62.0 (תוכנית-הייצוב 2.5, PERSIST-02 מהדוח) — רשת-הביטחון החסירה את
         // שדות-ההכרעה: שחזור-חירום איבד "טופל", הכרעות-וואטסאפ, שיוכי-תמונות ומגעי-היום.
         todayDone:S.todayDone, waDecided:S.waDecided, touchedToday:S.touchedToday, videoDecided:S.videoDecided,
+        videoQuoteDecided:S.videoQuoteDecided,
         photoDays:S.photoDays, waBlocklist:S.waBlocklist,
         reports:S.reports   // v3.39.0 — טקסט בלבד; ה-replacer מפשיט base64 וגם אם יגלוש מ-4.5MB הכתיבה מדולגת בבטחה
       };
@@ -11279,13 +11282,32 @@ try{ _tabAnnounce(); }catch(e){}
 // לא קיים (אין רשומת DNS ל-azojpbraehirtgooxanp.supabase.co) — כלומר לא היה להם שום גיבוי.
 // הרישום כאן מכניס אותם לסנכרון-הענן, ו-_buildCompleteBackup מכניס אותם לגיבוי-הדרייב.
 const SYNC_ENTITIES = ['visits','projects','quotes','leads','clients','expenses','products','fixedExpenses','modifiers','learnedTasks','roofProfiles','tasks','waBlocklist','reports'];
-const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags','waDecided','videoDecided'];
+const SYNC_SINGLETONS = ['business','quoteTemplate','settings','taskSettings','nextVisitNumber','nextQuoteNumber','lastQuoteYear','clientMigrationCompletedAt','learnedTags','waDecided','videoDecided','videoQuoteDecided'];
 let _syncing = false, _syncAgain = false, _syncSig = {}, _lastSyncAt = 0, _syncPollTimer = null;
 function _loadSyncMeta(){
   try{ _syncSig = JSON.parse(localStorage.getItem('obv_sync_sig')||'{}'); }catch(e){ _syncSig={}; }
   try{ _lastSyncAt = parseInt(localStorage.getItem('obv_sync_at')||'0',10)||0; }catch(e){ _lastSyncAt=0; }
 }
 function _saveSyncSig(){ try{ localStorage.setItem('obv_sync_sig', JSON.stringify(_syncSig)); }catch(e){} }
+/* v3.70.0 (CAS, תוכנית-הייצוב 2.1) — מפת-הגרסאות השרתיות שהמכשיר הזה ראה: לכל שורה
+   בענן יש מונה-revision, וההעלאה מתקבלת רק אם המונה שבידינו תואם את השרת. מכשיר עם
+   מידע ישן מקבל conflict במקום לדרוס — מושך, ממזג לפי LWW, ומנסה שוב. */
+function _casRevMap(){ const m=_syncSig.__rev||(_syncSig.__rev={}); return m; }
+function _casRevOf(ent,id){ const m=_casRevMap(); return (m[ent]&&m[ent][String(id)])||0; }
+function _casRevSet(ent,id,rev){ const m=_casRevMap(); (m[ent]||(m[ent]={}))[String(id)]=rev||0; }
+function _casRevSingleOf(ent){ const m=_casRevMap(); return (m.__single&&m.__single[ent])||0; }
+function _casRevSingleSet(ent,rev){ const m=_casRevMap(); (m.__single||(m.__single={}))[ent]=rev||0; }
+function _casRpcMissing(err){
+  if(!err) return false;
+  const code=String(err.code||''), msg=String(err.message||'');
+  return code==='PGRST202' || (msg.includes('upsert_sync_records_if_revision') && /not.*find|404|does not exist/i.test(msg));
+}
+let _casMissingWarned=false;
+function _casWarnMissing(){
+  console.warn('[sync] שרת-הסנכרון חסר את פונקציית-ההגנה (SQL של 13.08) — ההעלאה מושהית, הנתונים שמורים במכשיר');
+  try{ const st=document.getElementById('cs-sync-status'); if(st) st.textContent='הסנכרון מושהה — צריך להחיל את עדכון-ההגנה בשרת'; }catch(e){}
+  if(!_casMissingWarned){ _casMissingWarned=true; try{ toast('הסנכרון לענן מושהה — שרת לא מעודכן. הנתונים שמורים במכשיר.'); }catch(e){} }
+}
 // v3.22.39 (ביקורת 3.7) — חתימת-singleton לפי תוכן (FNV-1a) במקום אורך-JSON: שינוי
 // ששומר על אותו אורך (מונה 100→200, החלפת-תו) לא זוהה ולא עלה לענן.
 function _fnv1a32(str){
@@ -11304,6 +11326,12 @@ function _applyPulledSingleton(ent, nv){
   if(_MONOTONIC_SINGLETONS.includes(ent)){
     const cur = Number(S[ent]) || 0, inc = Number(nv) || 0;
     S[ent] = Math.max(cur, inc);
+    return;
+  }
+  // v3.69.0 (ממצא-ביקורת) — מפת-הכרעות הסרטונים רק צוברת: דריסה-מלאה (LWW) ממכשיר
+  // אחר הייתה מוחקת הכרעות שנרשמו רק כאן, והטיוטות היו נוצרות מחדש. איחוד — מקומי גובר.
+  if(ent === 'videoQuoteDecided' && nv && typeof nv === 'object' && !Array.isArray(nv)){
+    S[ent] = Object.assign({}, nv, (S[ent] && typeof S[ent] === 'object' && !Array.isArray(S[ent])) ? S[ent] : {});
     return;
   }
   S[ent] = nv;
@@ -11414,7 +11442,8 @@ async function _cloudPush(sb, uid2){
       const sig=_itemSig(it);
       if(sigMap[id]!==sig){
         rows.push({ user_id:uid2, entity:ent, item_id:id, payload:_syncStrip(it), deleted:false,
-                    updated_at:new Date(_itemEditTs(it)||Date.now()).toISOString(), client_id:_tabId });
+                    updated_at:new Date(_itemEditTs(it)||Date.now()).toISOString(), client_id:_tabId,
+                    expected_revision:_casRevOf(ent,id) });
         ps[id]=sig;
       }
     }
@@ -11434,7 +11463,7 @@ async function _cloudPush(sb, uid2){
     for(const id of Object.keys(sigMap)){
       if(seen.has(id)) continue;
       if(!(id in delTsEnt)) delTsEnt[id] = Date.now();
-      rows.push({ user_id:uid2, entity:ent, item_id:id, payload:{}, deleted:true, updated_at:new Date(delTsEnt[id]).toISOString(), client_id:_tabId });
+      rows.push({ user_id:uid2, entity:ent, item_id:id, payload:{}, deleted:true, updated_at:new Date(delTsEnt[id]).toISOString(), client_id:_tabId, expected_revision:_casRevOf(ent,id) });
       dels.push(id);
     }
   }
@@ -11442,18 +11471,45 @@ async function _cloudPush(sb, uid2){
     if(typeof S[ent]==='undefined') continue;
     const val=S[ent]; const sm=_syncSig.__single||(_syncSig.__single={});
     const sig=_singletonSig(val);   // v3.22.39 (3.7) — חתימת-תוכן, לא אורך
-    if(sm[ent]!==sig){ rows.push({ user_id:uid2, entity:ent, item_id:'_singleton', payload:{v:_syncStrip(val)}, deleted:false, updated_at:nowIso, client_id:_tabId }); pendingSingle[ent]=sig; }
+    if(sm[ent]!==sig){ rows.push({ user_id:uid2, entity:ent, item_id:'_singleton', payload:{v:_syncStrip(val)}, deleted:false, updated_at:nowIso, client_id:_tabId, expected_revision:_casRevSingleOf(ent) }); pendingSingle[ent]=sig; }
   }
   if(!rows.length) return 0;
-  // size-aware batching (rows are small after stripping, but stay safe)
+  // v3.70.0 (CAS) — ההעלאה עוברת דרך ה-RPC המותנה-גרסה. אין נפילה ל-upsert עיוור:
+  // אם הפונקציה חסרה בשרת — ההעלאה מושהית והפריטים נשארים "מלוכלכים" עד שתוחל.
   let batch=[], bytes=0;
-  const flush=async()=>{ if(!batch.length)return; const {error}=await sb.from('sync_records').upsert(batch,{onConflict:'user_id,entity,item_id'}); if(error)throw error; batch=[]; bytes=0; };
+  const okRev={};                       // 'ent|id' -> revision חדש מהשרת
+  const conflicts=[];
+  const flush=async()=>{
+    if(!batch.length) return;
+    const {data:res, error}=await sb.rpc('upsert_sync_records_if_revision', { _rows: batch });
+    if(error){
+      if(_casRpcMissing(error)){ _casWarnMissing(); const e2=new Error('sync-rpc-missing'); e2.rpcMissing=true; throw e2; }
+      throw error;
+    }
+    for(const x of (Array.isArray(res)?res:[])){
+      if(!x) continue;
+      if(x.status==='ok') okRev[x.entity+'|'+x.item_id]=x.revision||0;
+      else conflicts.push(x);
+    }
+    batch=[]; bytes=0;
+  };
   for(const row of rows){ let sz=0; try{ sz=JSON.stringify(row.payload).length; }catch(e){} if(batch.length && bytes+sz>2000000) await flush(); batch.push(row); bytes+=sz; if(sz>2000000) await flush(); }
   await flush();
-  // commit — רק החתימות שנבנו לשורות שהועלו בפועל; פריט שהשתנה/נוסף בזמן-הטיסה נשאר "מלוכלך" ויעלה בסנכרון הבא
-  for(const ent in pendingSig){ const sm=_syncSig[ent]||(_syncSig[ent]={}); const ps=pendingSig[ent]; for(const id in ps) sm[id]=ps[id]; }
-  for(const ent in pendingDel){ const sm=_syncSig[ent]; const dtEnt=_syncSig.__delTs && _syncSig.__delTs[ent]; for(const id of pendingDel[ent]){ if(sm) delete sm[id]; if(dtEnt) delete dtEnt[id]; } }
-  { const sm=_syncSig.__single||(_syncSig.__single={}); for(const ent in pendingSingle) sm[ent]=pendingSingle[ent]; }
+  // commit — רק שורות שהשרת אישר (ok). conflict = מישהו אחר עדכן קודם: הפריט נשאר
+  // "מלוכלך", מושכים את גרסת-השרת (החזרת-הסמן מטה) וממזגים לפי LWW בסבב המיידי הבא.
+  for(const ent in pendingSig){ const sm=_syncSig[ent]||(_syncSig[ent]={}); const ps=pendingSig[ent];
+    for(const id in ps){ const k=ent+'|'+id; if(k in okRev){ sm[id]=ps[id]; _casRevSet(ent,id,okRev[k]); } } }
+  for(const ent in pendingDel){ const sm=_syncSig[ent]; const dtEnt=_syncSig.__delTs && _syncSig.__delTs[ent];
+    for(const id of pendingDel[ent]){ const k=ent+'|'+id; if(k in okRev){ if(sm) delete sm[id]; if(dtEnt) delete dtEnt[id]; const m=_casRevMap(); if(m[ent]) delete m[ent][id]; } } }
+  { const sm=_syncSig.__single||(_syncSig.__single={});
+    for(const ent in pendingSingle){ const k=ent+'|_singleton'; if(k in okRev){ sm[ent]=pendingSingle[ent]; _casRevSingleSet(ent,okRev[k]); } } }
+  if(conflicts.length){
+    // מוודאים שה-pull הבא באמת יביא את שורות-השרת המנצחות גם אם חותמתן מאחורי הסמן
+    let minTs=Infinity;
+    for(const c of conflicts){ const t=Date.parse(c.server_updated_at)||0; if(t && t<minTs) minTs=t; }
+    if(minTs<Infinity && _syncSig.__pullCursor && minTs<=_syncSig.__pullCursor) _syncSig.__pullCursor=Math.max(0,minTs-1);
+    setTimeout(()=>{ try{ cloudSyncNow(); }catch(e){} }, 800);
+  }
   _saveSyncSig();
   return rows.length;
 }
@@ -11529,6 +11585,12 @@ async function _cloudPull(sb, uid2){
   const _markPulled=(ent,id)=>{ (_pulled[ent]||(_pulled[ent]=new Set())).add(String(id)); };
   const _markRemoved=(ent,id)=>{ (_removed[ent]||(_removed[ent]=new Set())).add(String(id)); };
   for(const row of data){
+    // v3.70.0 (CAS) — רושמים את גרסת-השרת של כל שורה שראינו, לפני כל הכרעת-LWW:
+    // גם כשהתוכן המקומי חדש יותר, ההעלאה הבאה חייבת לשאת את המונה הנוכחי של השרת.
+    if(typeof row.revision !== 'undefined'){
+      if(SYNC_SINGLETONS.includes(row.entity)) _casRevSingleSet(row.entity, row.revision);
+      else if(SYNC_ENTITIES.includes(row.entity)) _casRevSet(row.entity, row.item_id, row.revision);
+    }
     if(row.client_id===_tabId) continue;            // skip our own echo
     if(SYNC_SINGLETONS.includes(row.entity)){
       if(!row.deleted && row.payload && typeof row.payload==='object' && 'v' in row.payload){
@@ -12619,6 +12681,7 @@ function _buildCompleteBackup(options){
     waDecided: S.waDecided || {},   // v3.51.0
     touchedToday: S.touchedToday || {},   // v3.56.0
     videoDecided: S.videoDecided || {},   // v3.66.0
+    videoQuoteDecided: S.videoQuoteDecided || {},   // v3.69.0
     photoDays: S.photoDays || { assigned:{}, dismissed:{} },
   };
 }
@@ -14213,6 +14276,7 @@ async function _applyImportedData(d, opts){
   if(d.waDecided && typeof d.waDecided === 'object' && !Array.isArray(d.waDecided)) S.waDecided = d.waDecided;   // v3.51.0
   if(d.touchedToday && typeof d.touchedToday === 'object' && !Array.isArray(d.touchedToday)) S.touchedToday = d.touchedToday;   // v3.56.0
   if(d.videoDecided && typeof d.videoDecided === 'object' && !Array.isArray(d.videoDecided)) S.videoDecided = d.videoDecided;   // v3.66.0
+  if(d.videoQuoteDecided && typeof d.videoQuoteDecided === 'object' && !Array.isArray(d.videoQuoteDecided)) S.videoQuoteDecided = d.videoQuoteDecided;   // v3.69.0
   if(d.photoDays && typeof d.photoDays === 'object' && !Array.isArray(d.photoDays)) S.photoDays = d.photoDays;
 
   if(d.business){
@@ -27070,6 +27134,7 @@ async function _waFetchLatestDriveText(silent, fileName){
     try { folderRes = await _searchOrBaGagFolder(); }
     catch(apiErr){
       if(/403|insufficient|scope/i.test(String(apiErr?.message || apiErr?.result?.error?.message || ''))){
+        if(silent) return null;                       // v3.69.0 — משיכת-רקע לא פותחת חלון-הרשאה
         toast('🔐 דרושה הרשאה נוספת לקרוא קבצים מ-Drive...');
         try { await _gdriveRequestToken(false); _scopeRetryDone = true; folderRes = await _searchOrBaGagFolder(); }
         catch(_){ toast('בקשת ההרשאה נדחתה'); return null; }
@@ -27077,11 +27142,13 @@ async function _waFetchLatestDriveText(silent, fileName){
     }
     let folder = folderRes.result?.files?.[0];
     if(!folder && !_scopeRetryDone){
+      if(silent) return null;                         // v3.69.0 — כנ"ל
       toast('🔐 דרושה הרשאה לקרוא קבצים נוספים מ-Drive...');
       try { await _gdriveRequestToken(false); _scopeRetryDone = true; folderRes = await _searchOrBaGagFolder(); folder = folderRes.result?.files?.[0]; }
       catch(_){ toast('בקשת ההרשאה נדחתה. נסה שוב או השתמש בייבוא ידני.'); return null; }
     }
     if(!folder){
+      if(silent){ console.warn('[drive-fetch] אין תיקיית OrBaGag (משיכת-רקע)'); return null; }
       let info = { email: null, topFolders: [] };
       try { const about = await gapi.client.drive.about.get({ fields: 'user(emailAddress)' }); info.email = about.result?.user?.emailAddress || null; } catch(_){}
       try { const top = await gapi.client.drive.files.list({ q: `mimeType='application/vnd.google-apps.folder' and trashed=false and 'root' in parents`, fields: 'files(name)', pageSize: 30 }); info.topFolders = (top.result?.files || []).map(f => f.name).sort(); } catch(_){}
@@ -27099,17 +27166,17 @@ async function _waFetchLatestDriveText(silent, fileName){
       orderBy: 'modifiedTime desc', fields: 'files(id,name,modifiedTime,size)', pageSize: 10
     });
     const files = (filesRes.result?.files || []).filter(f => f.name.endsWith('.json'));
-    if(!files.length){ toast("לא נמצאו קבצי לידים בתיקייה. הרץ את הסקריפט במק."); return null; }
+    if(!files.length){ say(`לא נמצא הקובץ ${_fname} בדרייב. הרץ את הכלי במק.`); return null; }
     const target = files.find(f => f.name === _fname) || files[0];
     const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${target.id}?alt=media`, {
       headers: { 'Authorization': 'Bearer ' + _gdriveAccessToken }
     });
-    if(!dlRes.ok){ toast(`הורדה נכשלה: ${dlRes.status}`); return null; }
+    if(!dlRes.ok){ say(`הורדה נכשלה: ${dlRes.status}`); return null; }
     const text = await dlRes.text();
     return { text, fileName: target.name, modifiedTime: target.modifiedTime };
   } catch(e){
     console.error('[wa-fetch] error', e);
-    toast(`שגיאה: ${e.message || 'לא ידוע'}`);
+    if(!silent) toast(`שגיאה: ${e.message || 'לא ידוע'}`);
     return null;
   }
 }
@@ -40127,6 +40194,137 @@ function vqReject(candId){
   saveAll(true);
   _vqRender();
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   v3.69.0 — "הצעה מסרטון רגיל" (בקשת אור 13.08.2026): אור מצלם סרטון רגיל בטלפון,
+   פותח במילים "הצעת מחיר ל<שם הלקוח>", והטלפון מגבה אותו לבד לדרייב. הכלי במק
+   (or-bagag-os/bin/video_quote.py) מתמלל, מחלץ סעיפים+מחירים+פריימים וכותב את
+   video-quote-latest.json. כאן נוצרת **טיוטה** — כאילו אור פתח אותה בעצמו, עם
+   התמונות מהסרטון על הסעיפים. שום דבר לא נשלח ללקוח; ההכרעות ב-S.videoQuoteDecided
+   כך שמחיקת-טיוטה לא מייצרת אותה מחדש בסריקה הבאה. ═══ */
+function _videoQuoteDecidedMap(){
+  if(!S.videoQuoteDecided || typeof S.videoQuoteDecided !== 'object' || Array.isArray(S.videoQuoteDecided)) S.videoQuoteDecided = {};
+  return S.videoQuoteDecided;
+}
+/* קישור-לקוח רק בהתאמה חד-משמעית של השם שנאמר; אחרת הטיוטה נשארת לא-מקושרת. */
+function _vqMatchClient(nameSpoken){
+  const norm = (x)=> (x||'').replace(/\s+/g,' ').trim();
+  const n = norm(nameSpoken);
+  if(n.length < 2) return null;
+  const hits = (S.clients||[]).filter(c => !c.mergedIntoId && (()=>{
+    const cn = norm(c.clientName);
+    return cn && (cn === n || cn.includes(n) || n.includes(cn));
+  })());
+  return hits.length === 1 ? hits[0] : null;
+}
+function _vqmmss(ms){ const t=Math.round((ms||0)/1000); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+async function videoQuoteApplyPackage(pkg){
+  if(!pkg || pkg.schemaVersion !== 1 || !Array.isArray(pkg.quotes)) return 0;
+  let made = 0;
+  for(const e of pkg.quotes.slice(0, 12)){   // חבילת-ענק זדונית/פגומה לא מציפה את המסד
+    try{
+    // קוראים את המפה החיה בכל גישה — סנכרון-ענן יכול להחליף את S.videoQuoteDecided
+    // באמצע ה-await-ים (ממצא-ביקורת: רפרנס שנשמר פעם אחת התייתם והכרעות אבדו).
+    if(!e || !e.id || typeof e.id !== 'string' || _videoQuoteDecidedMap()[e.id]) continue;
+    const dupe = (S.quotes||[]).find(x => x && x.sourceVideoId === e.id);
+    if(dupe){ _videoQuoteDecidedMap()[e.id] = { at: ts(), quoteId: dupe.id }; continue; }
+    const c = _vqMatchClient(e.clientNameSpoken);
+    // שלד-ההצעה — העתק נאמן של createQuoteForClient (שם הלקוח חובה שם; כאן מותר בלי)
+    const t = S.quoteTemplate || {};
+    const currentYear = new Date().getFullYear();
+    const num = _quoteNextNumber();
+    const q = {
+      id: uid(), quoteNumber: num, quoteCode: fmtQuoteCode(currentYear, num),
+      sourceVisitId: null, leadId: null, linkedProjectId: null, visitNumber: null,
+      clientId: c ? c.id : null,
+      clientName: c ? c.clientName : (((e.clientNameSpoken||'').trim()) || 'לקוח מסרטון'),
+      clientPhone: c ? (c.phone || '') : '',
+      clientAddress: c ? (c.address || '') : '',
+      estimatedStartDate: '', estimatedStartCustom: '',
+      items: [],
+      vatRate: (S.business?.businessType === 'patur') ? 0 : t.vatRate,
+      discountType: 'percent', discountValue: 0,
+      validityDays: t.validityDays, paymentTerms: t.paymentTerms, notes: t.standardNotes,
+      showUrgency: t.showUrgency !== false,
+      hidePricePerUnitInPDF: t.hidePricePerUnitInPDF === true,
+      extendedPDF: t.extendedPDF === true,
+      showWorkSummary: t.showWorkSummary !== false,
+      showItemDescription:    t.showItemDescription    !== false,
+      showProductDescription: t.showProductDescription !== false,
+      showPaymentTerms:       t.showPaymentTerms       !== false,
+      showNotes:              t.showNotes              !== false,
+      showSignatures:         t.showSignatures         !== false,
+      showEstimatedStart:     t.showEstimatedStart     !== false,
+      unforeseenClause:       t.unforeseenClause || DEFAULT_UNFORESEEN_CLAUSE,
+      showUnforeseenClause:   t.showUnforeseenClause !== false,
+      appliedModifiers: [], estimatedDays: 1,
+      status: 'draft', snapshot: null, sentAt: null, remindersSent: [],
+      origin: 'video', sourceVideoId: e.id, sourceVideoFile: e.sourceFileName || '',
+      createdAt: ts(), occurredAt: ts(), updatedAt: ts(),
+    };
+    // עוגן-עבודה (ממצא-ביקורת, בדיוק FLOW-01 מ-v3.59): טיוטה בלי עוגן נהיית "עבודה"
+    // מקבילה — כרטיס כפול ללקוח. עוגנים לעבודה הקיימת של הלקוח המזוהה.
+    if(c && typeof getWorks === 'function'){
+      try{
+        const w = getWorks().find(x => x.clientId === c.id);
+        if(w){
+          if(w.lead) q.leadId = w.lead.id;
+          else if(w.visits && w.visits[0]) q.sourceVisitId = w.visits[0].id;
+          else if(w.projects && w.projects[0]) q.linkedProjectId = w.projects[0].id;
+        }
+      }catch(err){}
+    }
+    const ranges = [];
+    (Array.isArray(e.items) ? e.items : []).slice(0, 40).forEach(it => {
+      if(!it || !it.title) return;
+      const qty = parseFloat(it.quantity) || 0;
+      const ppu = (it.pricePerUnit != null) ? it.pricePerUnit
+                : ((it.priceTotal && qty) ? Math.round((it.priceTotal / qty) * 100) / 100 : '');
+      const total = ppu ? Math.round(ppu * qty * 100) / 100 : (it.priceTotal || 0);
+      q.items.push({
+        id: uid(), sourceFindingId: null, title: it.title, description: '',
+        quantity: qty || '', unit: it.unit || '', pricePerUnit: ppu, total,
+        urgency: '', visible: true, hidePPU: false, manual: false,
+        pendingDelete: false, workSummary: '',
+        notes: 'מהסרטון: "' + (it.rawEvidence || '') + '" · ' + _vqmmss(it.startMs),
+        attachedPhotos: [],
+      });
+      ranges.push({ startMs: it.startMs || 0, endMs: it.endMs || 0 });
+    });
+    // ולידציית-פריימים (ממצא-ביקורת): רק data:image אמיתי ובגודל שפוי — חבילה זדונית
+    // לא תפוצץ את האחסון; וסרטון-הצעה בלי סעיפים מקבל סעיף-להשלמה שיחזיק את התמונות.
+    const frames = (Array.isArray(e.frames) ? e.frames : [])
+      .filter(fr => fr && typeof fr.thumb === 'string' && fr.thumb.startsWith('data:image/') && fr.thumb.length < 400000)
+      .slice(0, 8);
+    if(!q.items.length && frames.length){
+      q.items.push({ id: uid(), sourceFindingId: null, title: 'מהסרטון — להשלמה', description: '',
+        quantity: '', unit: '', pricePerUnit: '', total: 0, urgency: '', visible: true,
+        hidePPU: false, manual: true, pendingDelete: false, workSummary: '',
+        notes: 'לא זוהו כמויות בדיבור — צפה בסרטון והשלם', attachedPhotos: [] });
+      ranges.push({ startMs: 0, endMs: 0 });
+    }
+    // הפריימים נצמדים לסעיף של הרגע שבו צולמו; פריים-פתיחה — לסעיף הראשון.
+    for(const fr of frames){
+      if(!fr || !q.items.length) continue;
+      let idx = ranges.findIndex(r => fr.atMs >= r.startMs && fr.atMs <= r.endMs);
+      if(idx < 0) idx = 0;
+      const target = q.items[idx];
+      try{
+        const ph = await _makeVisitPhoto(fr.thumbSmall || fr.thumb, fr.thumb,
+          'quote-' + q.id + '-item-' + target.id, { source: 'video', atMs: fr.atMs || 0 });
+        target.attachedPhotos.push(ph);
+      }catch(err){ console.warn('[vq-draft] frame attach failed', err); }
+    }
+    if(q.items.some(x => (x.attachedPhotos||[]).length)) q.extendedPDF = true;
+    S.quotes.unshift(q);
+    _videoQuoteDecidedMap()[e.id] = { at: ts(), quoteId: q.id };
+    saveAll(true);      // התחייבות פר-רשומה: קריסה באמצע חבילה לא מאבדת את מה שכבר נוצר
+    made++;
+    }catch(err){ console.warn('[vq-draft] רשומת-חבילה נכשלה — ממשיכים לבאה', err); }
+  }
+  if(made) saveAll();
+  return made;
+}
 function qPdfExport(){
   _qLangPicker(lang => lang === 'en' ? qGeneratePDFEn() : qGeneratePDF());
 }
@@ -42383,6 +42581,9 @@ function qItemHtml(it, idx){
           style="width:100%;font-size:12px;padding:7px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--ink);color:var(--text);font-family:'Heebo',sans-serif;resize:none;direction:rtl;line-height:1.5"
         >${esc(it.description||'')}</textarea>
       </div>
+      ${/* v3.69.0 (ממצא-ביקורת) — הראיה מהסרטון/מהתמלול: מה נאמר ובאיזו שנייה. הערת-מערכת
+           לעורך בלבד — לא נכנסת ל-PDF וללקוח. בלעדיה אור לא יכול לבקר את החילוץ האוטומטי. */''}
+      ${it.notes ? `<div style="font-size:11.5px;color:var(--text3);line-height:1.5;padding:4px 2px 0;border-top:1px dashed var(--line);margin-top:4px"><iconify-icon icon="mdi:video-outline" style="vertical-align:-2px"></iconify-icon> ${esc(it.notes)}</div>` : ''}
       ${/* v3.30.0 (QPHOTO-04) — אור: "אני רוצה שיהיה לי אפשרות להוסיף בכל סעיף בהצעת המחיר
            לצרף תמונה". אותה שורת-תמונות בדיוק כמו במודל-הממצא (39329-39336) — .thumbs-row /
            .thumb / .photo-tile קיימים, אפס CSS חדש. השדה הוא `attachedPhotos` ולא `photos`:
@@ -43603,6 +43804,7 @@ async function init(){
   const waDec = await dbGet('waDecided');       if(waDec && typeof waDec === 'object' && !Array.isArray(waDec)) S.waDecided = waDec;   // v3.51.0
   const tToday = await dbGet('touchedToday');   if(tToday && typeof tToday === 'object' && !Array.isArray(tToday)) S.touchedToday = tToday;   // v3.56.0
   const vDec = await dbGet('videoDecided');     if(vDec && typeof vDec === 'object' && !Array.isArray(vDec)) S.videoDecided = vDec;   // v3.66.0
+  const vqDec = await dbGet('videoQuoteDecided'); if(vqDec && typeof vqDec === 'object' && !Array.isArray(vqDec)) S.videoQuoteDecided = vqDec;   // v3.69.0
   const pDays  = await dbGet('photoDays');     if(pDays && typeof pDays === 'object' && !Array.isArray(pDays)) S.photoDays = pDays;
   // v3.23.4 (SEC-03) — this PAT can push straight to the production repo's main branch. It
   // never leaves IDB (excluded from every export/backup/sync — see _buildCompleteBackup,
@@ -43663,6 +43865,7 @@ async function init(){
           if(data.waDecided && typeof data.waDecided==='object' && !Array.isArray(data.waDecided)) S.waDecided = data.waDecided;
           if(data.touchedToday && typeof data.touchedToday==='object' && !Array.isArray(data.touchedToday)) S.touchedToday = data.touchedToday;
           if(data.videoDecided && typeof data.videoDecided==='object' && !Array.isArray(data.videoDecided)) S.videoDecided = data.videoDecided;
+          if(data.videoQuoteDecided && typeof data.videoQuoteDecided==='object' && !Array.isArray(data.videoQuoteDecided)) S.videoQuoteDecided = data.videoQuoteDecided;
           if(data.photoDays && typeof data.photoDays==='object' && !Array.isArray(data.photoDays)) S.photoDays = data.photoDays;
           if(Array.isArray(data.waBlocklist)) S.waBlocklist = data.waBlocklist;
           if(Array.isArray(data.reports)) S.reports = data.reports;   // v3.39.0 (0ב.5)
@@ -44148,6 +44351,40 @@ async function init(){
       if(typeof waUpdateLeadsFromDrive === 'function') waUpdateLeadsFromDrive(true);
     } catch(e){ console.warn('[wa] silent drive pull failed', e); }
   }, 6000);
+
+  /* v3.69.0 — משיכה שקטה של "הצעה מסרטון" (video-quote-latest.json), באותם שלושה
+     סייגים כמו הוואטסאפ: טוקן חי בלבד · צינון (30 דק', נחתם לפני הניסיון) · השהיה. */
+  setTimeout(() => {
+    try {
+      if(!S.gdrive || !S.gdrive.enabled) return;
+      const VQ_PULL_COOLDOWN_MS = 30 * 60 * 1000;
+      const lastVq = Date.parse(S.gdrive.lastVideoQuotePullAt || 0) || 0;
+      if(Date.now() - lastVq < VQ_PULL_COOLDOWN_MS) return;
+      S.gdrive.lastVideoQuotePullAt = new Date().toISOString();
+      saveAll(true);
+      (async () => {
+        // מחכים (עד 20 שנ') שסנכרון-הענן הראשון יביא את מפת-ההכרעות ממכשירים אחרים —
+        // אחרת טיוטה שאור מחק שם הייתה נוצרת כאן מחדש (ממצא-ביקורת).
+        if(typeof _sbClient === 'function' && _sbClient()){
+          const bootT = Date.now();
+          for(let i = 0; i < 20 && !(_lastSyncAt && _lastSyncAt > bootT - 120000); i++)
+            await new Promise(r => setTimeout(r, 1000));
+        }
+        const fetched = await _waFetchLatestDriveText(true, 'video-quote-latest.json');
+        if(!fetched || !fetched.text || fetched.text.length > 30000000) return;
+        let pkg = null;
+        try{ pkg = JSON.parse(fetched.text); }catch(e){ return; }
+        const n = await videoQuoteApplyPackage(pkg);
+        if(n > 0){
+          const q = (S.quotes||[]).find(x => x.origin === 'video');
+          toast(`נוצרה טיוטת-הצעה מסרטון${q ? ': ' + q.clientName : ''} · הקש לפתיחה`, {
+            duration: 8000,
+            onAction: () => { if(q && typeof openQuote === 'function') openQuote(q.id); },
+          });
+        }
+      })().catch(e => console.warn('[vq] silent pull inner failed', e));
+    } catch(e){ console.warn('[vq] silent video-quote pull failed', e); }
+  }, 8000);
 
   // v3.9.2 — הצג את כפתור ההקלטה הצף כבר בטעינה הראשונית (לפני שהמשתמש מנווט)
   if(typeof _toggleMicButtonVisibility==='function') _toggleMicButtonVisibility();
