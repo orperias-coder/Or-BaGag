@@ -7799,7 +7799,7 @@ svg.obi{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1
 // ─── EMBEDDED WORK TYPE TEMPLATES v2.2.1 ───
 // V221_WORK_TEMPLATES removed — unified data used instead
 
-const APP_VERSION = '3.71.0'; // תמונות-פרופיל מוואטסאפ: הכלי במק שולח contactPhoto (52/65 לידים), הרשימה הראשית, מסך-היום, רשימת-הלקוחות והכרטיס מציגים אותה במקום ראשי-תיבות; ההפצה ללקוח מקושר במיזוג. // הצעה-מסרטון-רגיל + הגנת-סנכרון (CAS): טיוטה אוטומטית מסרטון שנפתח ב'הצעת מחיר ל<שם>', 16 תיקוני-ביקורת, וההעלאה לענן מותנית-גרסה — מכשיר ישן לא דורס מידע חדש. // "הצעה מסרטון רגיל": אור פותח סרטון במילים 'הצעת מחיר ל<שם>' בגיבוי-הטלפון הרגיל; הכלי במק מתמלל וכותב חבילה; האפליקציה יוצרת טיוטת-הצעה עם סעיפים, מחירים ותמונות מהסרטון. טיוטה בלבד — שליחה רק בידי אור.
+const APP_VERSION = '3.72.0'; // ערוץ-תמונות לכל הלקוחות: המק כותב client-avatars-latest.json מתוך טלפוני-הגיבוי, והאפליקציה מחילה על לקוחות ולידים בכל פתיחה (צינון 6ש'). מכסה גם לקוחות ותיקים שאינם בחבילת-הלידים. // תמונות-פרופיל מוואטסאפ: הכלי במק שולח contactPhoto (52/65 לידים), הרשימה הראשית, מסך-היום, רשימת-הלקוחות והכרטיס מציגים אותה במקום ראשי-תיבות; ההפצה ללקוח מקושר במיזוג. // הצעה-מסרטון-רגיל + הגנת-סנכרון (CAS): טיוטה אוטומטית מסרטון שנפתח ב'הצעת מחיר ל<שם>', 16 תיקוני-ביקורת, וההעלאה לענן מותנית-גרסה — מכשיר ישן לא דורס מידע חדש. // "הצעה מסרטון רגיל": אור פותח סרטון במילים 'הצעת מחיר ל<שם>' בגיבוי-הטלפון הרגיל; הכלי במק מתמלל וכותב חבילה; האפליקציה יוצרת טיוטת-הצעה עם סעיפים, מחירים ותמונות מהסרטון. טיוטה בלבד — שליחה רק בידי אור.
 // v3.38.0 — בקשה מפורשת ואוטונומית של אור (מילולית): "תמזג כל מקום שמכיל את אותו מספר טלפון
 // לרשומה אחת, שמכילה את כל הנתונים מכל הרשומות האחרות, ללא כפילויות" — בלי לבחור זוגות, בלי מסך
 // חדש. מיגרציה חד-פעמית שרצה בעליה (init, אחרי שS.clients מובטח מאוכלס ולפני הרינדור הראשון):
@@ -22041,6 +22041,28 @@ function _workAvatarSrc(w){
 }
 function _avatarHtml(src, fallbackText){
   return src ? `<img src="${src}" alt="" loading="lazy">` : esc(fallbackText);
+}
+/* v3.72.0 — ערוץ-תמונות ישיר לכל הלקוחות: client-avatars-latest.json (phone→תמונה),
+   נכתב במק מתוך הטלפונים שבגיבוי-האפליקציה עצמו. חבילת-הלידים מכסה רק שיחות פתוחות —
+   רוב הלקוחות הוותיקים לא שם, וזו הסיבה שאור ראה "ממש מעט תמונות". */
+function clientAvatarsApply(pkg){
+  if(!pkg || pkg.schemaVersion !== 1 || !pkg.avatars || typeof pkg.avatars !== 'object' || Array.isArray(pkg.avatars)) return 0;
+  const norm = p => String(p||'').replace(/\D/g,'').replace(/^972/,'0');
+  const map = {};
+  for(const k in pkg.avatars){ const a = pkg.avatars[k]; if(_avatarSrcOk(a)) map[norm(k)] = a; }
+  let changed = 0;
+  (S.clients||[]).forEach(c => {
+    if(!c || c.mergedIntoId) return;
+    const a = map[norm(c.phone)];
+    if(a && c.avatar !== a){ c.avatar = a; c.updatedAt = ts(); changed++; }
+  });
+  (S.leads||[]).forEach(l => {
+    if(!l) return;
+    const a = map[norm(l.phone)];
+    if(a && l.contactPhoto !== a){ l.contactPhoto = a; changed++; }
+  });
+  if(changed) saveAll(true);
+  return changed;
 }
 function _clientInitial(client){
   const name = (client.clientName || '').trim();
@@ -44403,6 +44425,26 @@ async function init(){
       })().catch(e => console.warn('[vq] silent pull inner failed', e));
     } catch(e){ console.warn('[vq] silent video-quote pull failed', e); }
   }, 8000);
+
+  /* v3.72.0 — משיכת מפת-התמונות (אותם סייגים: טוקן-חי, צינון, השהיה). */
+  setTimeout(() => {
+    try {
+      if(!S.gdrive || !S.gdrive.enabled) return;
+      const AV_PULL_COOLDOWN_MS = 6 * 3600 * 1000;
+      const lastAv = Date.parse(S.gdrive.lastAvatarPullAt || 0) || 0;
+      if(Date.now() - lastAv < AV_PULL_COOLDOWN_MS) return;
+      S.gdrive.lastAvatarPullAt = new Date().toISOString();
+      saveAll(true);
+      (async () => {
+        const fetched = await _waFetchLatestDriveText(true, 'client-avatars-latest.json');
+        if(!fetched || !fetched.text || fetched.text.length > 10000000) return;
+        let pkg = null;
+        try{ pkg = JSON.parse(fetched.text); }catch(e){ return; }
+        const n = clientAvatarsApply(pkg);
+        if(n) console.log('[avatars]', n, 'תמונות-לקוח עודכנו');
+      })().catch(e => console.warn('[avatars] silent pull inner failed', e));
+    } catch(e){ console.warn('[avatars] silent pull failed', e); }
+  }, 12000);
 
   // v3.9.2 — הצג את כפתור ההקלטה הצף כבר בטעינה הראשונית (לפני שהמשתמש מנווט)
   if(typeof _toggleMicButtonVisibility==='function') _toggleMicButtonVisibility();
